@@ -86,10 +86,10 @@ font-weight:bold;
 <p>Enter Instagram name</p>
 
 <input type="text" id="instaName" placeholder="Enter Instagram Name">
-
-<br>
-
-<button onclick="createLogo()">Create Logo</button>
+<input type="text" id="logoText" placeholder="Enter Logo Name">
+<br><br>
+<canvas id="logoCanvas" style="display:none;"></canvas>
+<button onclick="generateLogo()">Generate Logo</button>
 
 <p id="success-msg"></p>
 
@@ -100,47 +100,43 @@ font-weight:bold;
 </div>
 
 <script>
-
 function generateLogo(){
 
-const input=document.querySelector('input');
+const text=document.getElementById("logoText").value;
 
-if(input.files.length===0){
-
-document.getElementById("success-msg").innerHTML =
-"❌ Please select image";
-
+if(text===""){
+document.getElementById("success-msg").innerHTML="❌ Enter logo text";
 return;
-
 }
 
-const file=input.files[0];
+const canvas=document.getElementById("logoCanvas");
+const ctx=canvas.getContext("2d");
 
-const reader=new FileReader();
+canvas.width=500;
+canvas.height=500;
 
-reader.onload=function(e){
+const gradient=ctx.createLinearGradient(0,0,500,500);
+gradient.addColorStop(0,"#ff0080");
+gradient.addColorStop(1,"#7928ca");
+
+ctx.fillStyle=gradient;
+ctx.fillRect(0,0,500,500);
+
+ctx.fillStyle="white";
+ctx.font="bold 60px Arial";
+ctx.textAlign="center";
+ctx.fillText(text,250,260);
 
 const link=document.createElement("a");
-
-link.href=e.target.result;
-
-link.download="KJSynthora-Instagram-Logo.png";
+link.download="KJSynthora-Logo.png";
+link.href=canvas.toDataURL();
 
 document.body.appendChild(link);
-
 link.click();
-
 document.body.removeChild(link);
 
-document.getElementById("success-msg").innerHTML =
-"✅ Logo Downloaded Successfully!";
-
+document.getElementById("success-msg").innerHTML="✅ Logo Downloaded Successfully!";
 }
-
-reader.readAsDataURL(file);
-
-}
-
 </script>
 
 
