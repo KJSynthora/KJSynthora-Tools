@@ -113,29 +113,21 @@ font-weight:bold;
 
 <select id="language">
 
-<option value="telugu">Telugu</option>
-
-<option value="hindi">Hindi</option>
-
-<option value="tamil">Tamil</option>
-
-<option value="kannada">Kannada</option>
-
-<option value="malayalam">Malayalam</option>
-
-<option value="french">French</option>
-
-<option value="spanish">Spanish</option>
-
-<option value="chinese">Chinese</option>
-
-<option value="english">English</option>
+<option value="te">Telugu</option>
+<option value="hi">Hindi</option>
+<option value="ta">Tamil</option>
+<option value="kn">Kannada</option>
+<option value="ml">Malayalam</option>
+<option value="fr">French</option>
+<option value="es">Spanish</option>
+<option value="zh-CN">Chinese</option>
+<option value="en">English</option>
 
 </select>
 
 <button onclick="translateText()">Translate</button>
 
-<button onclick="speakText()">🔊 Listen</button>
+<button onclick="speakTranslation()">🔊 Listen</button>
 
 <div class="result">
 
@@ -155,113 +147,51 @@ font-weight:bold;
 
 <script>
 
-function translateText(){
+async function translateText() {
 
-let text=document.getElementById("inputText").value.toLowerCase().trim();
+const text = document.getElementById("inputText").value;
+const language = document.getElementById("language").value;
 
-let lang=document.getElementById("language").value;
+if(text.trim()===""){
+document.getElementById("result").innerHTML="Please enter text";
+return;
+}
 
-let output="Translation not found";
+const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${language}&dt=t&q=${encodeURIComponent(text)}`;
 
-if(text==="hello"){
+try{
 
-if(lang==="telugu") output="హలో";
+const response = await fetch(url);
+const data = await response.json();
 
-else if(lang==="hindi") output="नमस्ते";
+const translated = data[0][0][0];
 
-else if(lang==="tamil") output="வணக்கம்";
+document.getElementById("result").innerHTML = translated;
 
-else if(lang==="kannada") output="ನಮಸ್ಕಾರ";
+window.translatedVoice = translated;
+window.selectedLanguage = language;
 
-else if(lang==="malayalam") output="ഹലോ";
+}
+catch(error){
 
-else if(lang==="french") output="Bonjour";
-
-else if(lang==="spanish") output="Hola";
-
-else if(lang==="chinese") output="你好";
-
-else output="Hello";
+document.getElementById("result").innerHTML="Translation failed";
 
 }
 
-else if(text==="how are you"){
-
-if(lang==="telugu") output="నువ్వు ఎలా ఉన్నావు";
-
-else if(lang==="hindi") output="आप कैसे हैं";
-
-else if(lang==="tamil") output="நீங்கள் எப்படி இருக்கிறீர்கள்";
-
-else if(lang==="kannada") output="ನೀವು ಹೇಗಿದ್ದೀರಿ";
-
-else if(lang==="malayalam") output="സുഖമാണോ";
-
-else if(lang==="french") output="Comment ça va";
-
-else if(lang==="spanish") output="Cómo estás";
-
-else if(lang==="chinese") output="你好吗";
-
-else output="How are you";
-
 }
 
-else if(text==="thank you"){
+function speakTranslation(){
 
-if(lang==="telugu") output="ధన్యవాదాలు";
-
-else if(lang==="hindi") output="धन्यवाद";
-
-else if(lang==="tamil") output="நன்றி";
-
-else if(lang==="kannada") output="ಧನ್ಯವಾದಗಳು";
-
-else if(lang==="malayalam") output="നന്ദി";
-
-else if(lang==="french") output="Merci";
-
-else if(lang==="spanish") output="Gracias";
-
-else if(lang==="chinese") output="谢谢";
-
-else output="Thank You";
-
+if(!window.translatedVoice){
+alert("Translate text first");
+return;
 }
 
-else if(text==="welcome"){
+const speech = new SpeechSynthesisUtterance(window.translatedVoice);
 
-if(lang==="telugu") output="స్వాగతం";
+speech.lang = window.selectedLanguage;
 
-else if(lang==="hindi") output="स्वागत है";
-
-else if(lang==="tamil") output="வரவேற்கிறேன்";
-
-else if(lang==="kannada") output="ಸ್ವಾಗತ";
-
-else if(lang==="malayalam") output="സ്വാഗതം";
-
-else if(lang==="french") output="Bienvenue";
-
-else if(lang==="spanish") output="Bienvenido";
-
-else if(lang==="chinese") output="欢迎";
-
-else output="Welcome";
-
-}
-
-document.getElementById("outputText").innerHTML=output;
-
-}
-
-function speakText(){
-
-let text=document.getElementById("outputText").innerText;
-
-let speech=new SpeechSynthesisUtterance();
-
-speech.text=text;
+speech.rate = 1;
 
 window.speechSynthesis.speak(speech);
 
