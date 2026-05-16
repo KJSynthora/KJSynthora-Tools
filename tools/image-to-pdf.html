@@ -124,8 +124,6 @@ p{
 
 async function showMessage(){
 
-const { jsPDF } = window.jspdf;
-
 const input = document.querySelector('input[type="file"]');
 
 if(input.files.length === 0){
@@ -137,45 +135,43 @@ return;
 
 }
 
+const { jsPDF } = window.jspdf;
+
 const pdf = new jsPDF();
 
-for(let i = 0; i < input.files.length; i++){
+for(let i=0; i<input.files.length; i++){
 
 const file = input.files[i];
 
 const reader = new FileReader();
 
-reader.readAsDataURL(file);
-
-await new Promise(resolve => {
+await new Promise((resolve)=>{
 
 reader.onload = function(e){
 
 const img = new Image();
 
-img.src = e.target.result;
-
 img.onload = function(){
 
-const width = pdf.internal.pageSize.getWidth();
+if(i>0) pdf.addPage();
 
-const height = (img.height * width) / img.width;
-
-if(i > 0) pdf.addPage();
-
-pdf.addImage(img, 'JPEG', 0, 0, width, height);
+pdf.addImage(img,'JPEG',10,10,180,160);
 
 resolve();
 
 }
 
+img.src = e.target.result;
+
 }
+
+reader.readAsDataURL(file);
 
 });
 
 }
 
-pdf.save("KJSynthora.pdf");
+pdf.save("KJSynthora-Images.pdf");
 
 document.getElementById("success-msg").innerHTML =
 "✅ PDF Downloaded Successfully!";
