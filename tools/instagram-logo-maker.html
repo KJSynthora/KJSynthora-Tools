@@ -101,59 +101,48 @@ font-weight:bold;
 
 <script>
 
-function createLogo(){
+function generateLogo(){
 
-const name=document.getElementById("instaName").value;
+const input=document.querySelector('input');
 
-if(name===""){
+if(input.files.length===0){
 
-document.getElementById("success-msg").innerHTML=
-"❌ Please enter Instagram name";
+document.getElementById("success-msg").innerHTML =
+"❌ Please select image";
 
 return;
 
 }
 
-const canvas=document.createElement("canvas");
+const file=input.files[0];
 
-canvas.width=500;
-canvas.height=500;
+const reader=new FileReader();
 
-const ctx=canvas.getContext("2d");
-
-const gradient=ctx.createLinearGradient(0,0,500,500);
-
-gradient.addColorStop(0,"#feda75");
-gradient.addColorStop(0.5,"#d62976");
-gradient.addColorStop(1,"#4f5bd5");
-
-ctx.fillStyle=gradient;
-ctx.fillRect(0,0,500,500);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 45px Arial";
-
-ctx.textAlign="center";
-
-ctx.fillText(name,250,260);
+reader.onload=function(e){
 
 const link=document.createElement("a");
 
+link.href=e.target.result;
+
 link.download="KJSynthora-Instagram-Logo.png";
 
-link.href=canvas.toDataURL();
+document.body.appendChild(link);
 
 link.click();
 
-document.getElementById("success-msg").innerHTML=
+document.body.removeChild(link);
+
+document.getElementById("success-msg").innerHTML =
 "✅ Logo Downloaded Successfully!";
+
+}
+
+reader.readAsDataURL(file);
 
 }
 
 </script>
 
-</script>
 
 </body>
 </html>
