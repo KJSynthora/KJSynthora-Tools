@@ -11,7 +11,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial, sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
@@ -21,23 +21,22 @@ justify-content:center;
 align-items:center;
 min-height:100vh;
 padding:20px;
-overflow:auto;
 color:white;
+overflow:auto;
 }
 
 .container{
-width:450px;
-background:rgba(15,23,42,0.95);
+width:500px;
+background:#0f172a;
 padding:25px;
 border-radius:20px;
-box-shadow:0 0 25px rgba(37,99,235,0.4);
-border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 0 25px rgba(59,130,246,0.4);
 }
 
 h1{
 text-align:center;
 margin-bottom:20px;
-font-size:32px;
+font-size:34px;
 background:linear-gradient(to right,#38bdf8,#9333ea);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -45,26 +44,25 @@ background:linear-gradient(to right,#38bdf8,#9333ea);
 
 label{
 display:block;
-margin-top:12px;
-margin-bottom:5px;
-font-size:14px;
+margin-top:14px;
+margin-bottom:6px;
 color:#cbd5e1;
+font-size:14px;
 }
 
 input, textarea, select{
 width:100%;
 padding:12px;
+border-radius:10px;
 border:none;
 outline:none;
-border-radius:10px;
-background:#0f172a;
+background:#1e293b;
 color:white;
 margin-bottom:10px;
-border:1px solid rgba(255,255,255,0.08);
 }
 
 textarea{
-height:90px;
+height:100px;
 resize:none;
 }
 
@@ -76,9 +74,9 @@ border-radius:12px;
 background:linear-gradient(to right,#0ea5e9,#9333ea);
 color:white;
 font-size:16px;
+font-weight:bold;
 cursor:pointer;
 margin-top:15px;
-font-weight:bold;
 }
 
 button:hover{
@@ -88,41 +86,22 @@ opacity:0.9;
 #resumeOutput{
 margin-top:25px;
 background:white;
-padding:35px;
-border-radius:14px;
 color:black;
-}
-
-.resume-name{
-font-size:34px;
-font-weight:bold;
-color:#2563eb;
-}
-
-.section-title{
-margin-top:25px;
-margin-bottom:10px;
-font-size:20px;
-color:#2563eb;
-border-bottom:2px solid #e5e7eb;
-padding-bottom:5px;
-}
-
-ul{
-padding-left:20px;
-line-height:1.8;
-}
-
-p{
+padding:35px;
+border-radius:15px;
 line-height:1.7;
+white-space:pre-wrap;
 }
 
-.small{
-font-size:14px;
-color:#475569;
+.loading{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+color:#38bdf8;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -140,30 +119,26 @@ color:#475569;
 <label>Mobile Number</label>
 <input type="text" id="phone" placeholder="Enter mobile number">
 
-<label>Experience (Years)</label>
-<input type="text" id="years" placeholder="Example: 6">
+<label>Experience</label>
+<input type="text" id="experience" placeholder="Example: 6 Years">
 
 <label>Skills</label>
-<textarea id="skills" placeholder="SQL, Power BI, Azure, ADF"></textarea>
+<textarea id="skills" placeholder="SQL, Power BI, Python, ADF"></textarea>
 
-<label>Role Type</label>
-<select id="role">
-<option>Support</option>
-<option>Developer</option>
-<option>Migration</option>
-<option>Data Engineer</option>
-<option>Power BI Developer</option>
-<option>SQL Developer</option>
-</select>
+<label>Current Role</label>
+<input type="text" id="role" placeholder="Example: Data Engineer">
 
 <label>Education</label>
 <input type="text" id="education" placeholder="Bachelor Degree">
 
 <label>Certifications</label>
-<input type="text" id="certifications" placeholder="Azure, SQL, Power BI">
+<input type="text" id="certifications" placeholder="Azure, Power BI">
+
+<label>Domain</label>
+<input type="text" id="domain" placeholder="Banking, Healthcare, Finance">
 
 <button onclick="generateResume()">
-Generate Professional Resume
+Generate AI Resume
 </button>
 
 <div id="resumeOutput"></div>
@@ -172,271 +147,157 @@ Generate Professional Resume
 
 <script>
 
-function generateResume(){
+async function generateResume(){
 
-const name = document.getElementById("name").value;
-const email = document.getElementById("email").value;
-const phone = document.getElementById("phone").value;
-const years = document.getElementById("years").value;
-const skills = document.getElementById("skills").value;
-const role = document.getElementById("role").value;
-const education = document.getElementById("education").value;
-const certifications = document.getElementById("certifications").value;
+const name =
+document.getElementById("name").value;
 
-const output = document.getElementById("resumeOutput");
+const email =
+document.getElementById("email").value;
 
-let summary = "";
-let responsibilities = "";
-let projects = "";
-let environment = "";
+const phone =
+document.getElementById("phone").value;
 
-if(role === "Support"){
+const experience =
+document.getElementById("experience").value;
 
-summary =
-`${years}+ years experienced Application Support Engineer with expertise in SQL, troubleshooting, incident management, production support, and enterprise application maintenance.`;
+const skills =
+document.getElementById("skills").value;
 
-responsibilities = `
-<ul>
-<li>Handled production support tickets and incidents</li>
-<li>Worked on SQL query troubleshooting</li>
-<li>Resolved incidents within SLA timelines</li>
-<li>Performed root cause analysis</li>
-<li>Supported enterprise applications</li>
-<li>Worked with business users for issue resolution</li>
-</ul>
-`;
+const role =
+document.getElementById("role").value;
 
-projects = `
-<ul>
-<li>Enterprise Production Support System</li>
-<li>SQL Monitoring Dashboard</li>
-<li>Incident Management Reporting Tool</li>
-</ul>
-`;
+const education =
+document.getElementById("education").value;
 
-environment =
-"SQL Server, Power BI, ServiceNow, Excel, Windows Server";
+const certifications =
+document.getElementById("certifications").value;
 
+const domain =
+document.getElementById("domain").value;
+
+const output =
+document.getElementById("resumeOutput");
+
+if(
+name === "" ||
+skills === "" ||
+role === ""
+){
+alert("Please fill required fields");
+return;
 }
 
-else if(role === "Developer"){
+output.innerHTML =
+"<div class='loading'>Generating Professional AI Resume...</div>";
 
-summary =
-`${years}+ years experienced Software Developer skilled in enterprise application development, backend SQL programming, debugging, testing, and deployment activities.`;
+const prompt = `
 
-responsibilities = `
-<ul>
-<li>Developed enterprise applications</li>
-<li>Worked on backend SQL development</li>
-<li>Optimized application performance</li>
-<li>Created reusable code modules</li>
-<li>Performed debugging and testing</li>
-</ul>
+Create a modern ATS friendly professional resume.
+
+Candidate Details:
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Experience: ${experience}
+Skills: ${skills}
+Current Role: ${role}
+Education: ${education}
+Certifications: ${certifications}
+Domain: ${domain}
+
+Generate:
+
+1. Professional Summary
+2. Technical Skills
+3. Roles and Responsibilities
+4. Projects
+5. Environment
+6. Achievements
+7. Certifications
+8. Education
+9. ATS Keywords
+10. Professional Resume Format
+
+Create very professional corporate style content.
+
 `;
 
-projects = `
-<ul>
-<li>Enterprise Web Application</li>
-<li>Automation Reporting Tool</li>
-<li>Database Optimization Project</li>
-</ul>
-`;
+try{
 
-environment =
-"JavaScript, SQL, HTML, CSS, APIs, GitHub";
+const response = await fetch(
+"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyBCUz0ByQaR2ZYFCAq7neyXyttKs4haSNc",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+contents:[
+{
+parts:[
+{
+text:prompt
+}
+]
+}
+]
+
+})
 
 }
+);
 
-else if(role === "Migration"){
+const data = await response.json();
 
-summary =
-`${years}+ years experienced Data Migration Specialist with expertise in SQL migration, ETL processes, data validation, system upgrades, and cloud migration activities.`;
-
-responsibilities = `
-<ul>
-<li>Performed large scale data migration activities</li>
-<li>Validated migrated datasets</li>
-<li>Worked on ETL transformations</li>
-<li>Resolved migration related issues</li>
-<li>Prepared migration reports</li>
-</ul>
-`;
-
-projects = `
-<ul>
-<li>Legacy Data Migration</li>
-<li>Cloud Migration Project</li>
-<li>Database Upgrade Program</li>
-</ul>
-`;
-
-environment =
-"SQL Server, ETL, Azure, Data Validation Tools";
-
-}
-
-else if(role === "Data Engineer"){
-
-summary =
-`${years}+ years experienced Azure Data Engineer skilled in ADF, Databricks, PySpark, SQL, data pipelines, ETL workflows, and cloud data engineering solutions.`;
-
-responsibilities = `
-<ul>
-<li>Developed Azure Data Factory pipelines</li>
-<li>Worked on Databricks notebooks</li>
-<li>Handled ETL and data transformation</li>
-<li>Optimized PySpark jobs</li>
-<li>Worked with cloud storage solutions</li>
-</ul>
-`;
-
-projects = `
-<ul>
-<li>Azure Data Lake Project</li>
-<li>Enterprise ETL Framework</li>
-<li>Cloud Data Warehouse Migration</li>
-</ul>
-`;
-
-environment =
-"ADF, Databricks, PySpark, Azure SQL, Power BI";
-
-}
-
-else if(role === "Power BI Developer"){
-
-summary =
-`${years}+ years experienced Power BI Developer skilled in dashboards, DAX, data modeling, SQL reporting, and business intelligence solutions.`;
-
-responsibilities = `
-<ul>
-<li>Created Power BI dashboards</li>
-<li>Worked on DAX calculations</li>
-<li>Prepared business reports</li>
-<li>Optimized report performance</li>
-<li>Worked with stakeholders for reporting needs</li>
-</ul>
-`;
-
-projects = `
-<ul>
-<li>Sales Dashboard</li>
-<li>Executive KPI Reporting</li>
-<li>Business Analytics Platform</li>
-</ul>
-`;
-
-environment =
-"Power BI, SQL Server, Excel, DAX";
-
-}
-
-else if(role === "SQL Developer"){
-
-summary =
-`${years}+ years experienced SQL Developer skilled in stored procedures, query optimization, database performance tuning, and reporting solutions.`;
-
-responsibilities = `
-<ul>
-<li>Developed complex SQL queries</li>
-<li>Created stored procedures and functions</li>
-<li>Optimized database performance</li>
-<li>Worked on indexing and tuning</li>
-<li>Generated reports and analytics</li>
-</ul>
-`;
-
-projects = `
-<ul>
-<li>SQL Reporting Platform</li>
-<li>Database Performance Optimization</li>
-<li>Enterprise Data Solutions</li>
-</ul>
-`;
-
-environment =
-"SQL Server, SSMS, Power BI, ETL";
-
-}
+const result =
+data.candidates[0].content.parts[0].text;
 
 output.innerHTML = `
 
-<div>
+<div style="font-family:Arial;">
 
-<div class="resume-name">
+<h1 style="
+color:#2563eb;
+font-size:36px;
+margin-bottom:10px;
+">
 ${name}
-</div>
+</h1>
 
-<p class="small">
+<p>
 ${email} | ${phone}
 </p>
 
-<div class="section-title">
-Professional Summary
+<hr style="margin:20px 0;">
+
+<div style="
+line-height:1.9;
+font-size:15px;
+">
+
+${result.replace(/\n/g,"<br>")}
+
 </div>
-
-<p>
-${summary}
-</p>
-
-<div class="section-title">
-Technical Skills
-</div>
-
-<ul>
-${skills.split(",").map(skill => `<li>${skill}</li>`).join("")}
-</ul>
-
-<div class="section-title">
-Roles & Responsibilities
-</div>
-
-${responsibilities}
-
-<div class="section-title">
-Projects
-</div>
-
-${projects}
-
-<div class="section-title">
-Environment
-</div>
-
-<p>
-${environment}
-</p>
-
-<div class="section-title">
-Education
-</div>
-
-<p>
-${education}
-</p>
-
-<div class="section-title">
-Certifications
-</div>
-
-<p>
-${certifications}
-</p>
-
-<div class="section-title">
-Achievements
-</div>
-
-<ul>
-<li>Successfully delivered enterprise level solutions</li>
-<li>Worked in Agile and production environments</li>
-<li>Handled business critical applications</li>
-<li>Improved operational efficiency</li>
-</ul>
 
 </div>
 
 `;
+
+}
+
+catch(error){
+
+output.innerHTML =
+"Resume generation failed. Check API key.";
+
+console.log(error);
+
+}
 
 }
 
