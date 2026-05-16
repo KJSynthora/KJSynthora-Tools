@@ -45,3 +45,26 @@ async function convertToPDF() {
 
   pdf.save("KJSynthora.pdf");
 }
+function searchTools(){
+
+let input=document.getElementById("toolSearch").value.toLowerCase();
+
+let cards=document.querySelectorAll(".tool-card");
+
+cards.forEach(card=>{
+
+let text=card.innerText.toLowerCase();
+
+if(text.includes(input)){
+
+card.style.display="block";
+
+}else{
+
+card.style.display="none";
+
+}
+
+});
+
+}
