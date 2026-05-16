@@ -1,76 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Translator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Translator Tool</title>
+
 <style>
+
 body{
+margin:0;
+padding:0;
 background:#020617;
-font-family:Arial;
+font-family:Arial,sans-serif;
+color:white;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
-margin:0;
-color:white;
+min-height:100vh;
 }
+
 .container{
-background:#111827;
+background:#0f172a;
 padding:40px;
 border-radius:20px;
-width:400px;
-text-align:center;
+width:420px;
+box-shadow:0 0 30px rgba(59,130,246,0.3);
 }
+
+h1{
+text-align:center;
+margin-bottom:25px;
+color:#38bdf8;
+}
+
 textarea{
-width:90%;
-height:100px;
+width:100%;
+height:120px;
+padding:15px;
+border:none;
+border-radius:12px;
+background:#111827;
+color:white;
+font-size:16px;
+resize:none;
+margin-bottom:20px;
+}
+
+select{
+width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
-}
-select{
-margin-top:20px;
-padding:10px;
-border-radius:10px;
-}
-button{
-margin-top:20px;
-padding:12px 25px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
+background:#111827;
 color:white;
-cursor:pointer;
+margin-bottom:20px;
 }
-#output{
-margin-top:20px;
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
+font-size:16px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.result{
+margin-top:25px;
+background:#111827;
+padding:20px;
+border-radius:12px;
+}
+
+.result h3{
+margin-top:0;
 color:#38bdf8;
 }
+
+.back-home{
+text-align:center;
+margin-top:20px;
+}
+
+.back-home a{
+color:#38bdf8;
+text-decoration:none;
+font-weight:bold;
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>Translator</h1>
+<h1>🌍 Translator Tool</h1>
 
-<textarea id="inputText"></textarea>
-
-<br>
+<textarea id="inputText" placeholder="Enter text..."></textarea>
 
 <select id="language">
-<option>Hindi</option>
-<option>Telugu</option>
-<option>Tamil</option>
-<option>Kannada</option>
+
+<option value="telugu">Telugu</option>
+
+<option value="hindi">Hindi</option>
+
+<option value="tamil">Tamil</option>
+
+<option value="kannada">Kannada</option>
+
+<option value="english">English</option>
+
 </select>
 
-<br>
+<button onclick="translateText()">Translate</button>
 
-<button onclick="translateText()">
-Translate
-</button>
+<div class="result">
 
-<p id="output"></p>
+<h3>Translated Text</h3>
+
+<p id="outputText">Your translation will appear here...</p>
+
+</div>
+
+<div class="back-home">
+
+<a href="../index.html">⬅ Back to Home</a>
+
+</div>
 
 </div>
 
@@ -78,18 +144,55 @@ Translate
 
 function translateText(){
 
-const text=document.getElementById("inputText").value;
+let text=document.getElementById("inputText").value.toLowerCase();
 
-const lang=document.getElementById("language").value;
+let lang=document.getElementById("language").value;
 
-if(text===""){
-document.getElementById("output").innerHTML=
-"❌ Enter text";
-return;
+let output="Translation not found";
+
+if(text==="hello"){
+
+if(lang==="telugu") output="హలో";
+
+if(lang==="hindi") output="नमस्ते";
+
+if(lang==="tamil") output="வணக்கம்";
+
+if(lang==="kannada") output="ನಮಸ್ಕಾರ";
+
+if(lang==="english") output="Hello";
+
 }
 
-document.getElementById("output").innerHTML=
-"🌍 Translated to "+lang+": "+text;
+else if(text==="thank you"){
+
+if(lang==="telugu") output="ధన్యవాదాలు";
+
+if(lang==="hindi") output="धन्यवाद";
+
+if(lang==="tamil") output="நன்றி";
+
+if(lang==="kannada") output="ಧನ್ಯವಾದಗಳು";
+
+if(lang==="english") output="Thank You";
+
+}
+
+else if(text==="good morning"){
+
+if(lang==="telugu") output="శుభోదయం";
+
+if(lang==="hindi") output="सुप्रभात";
+
+if(lang==="tamil") output="காலை வணக்கம்";
+
+if(lang==="kannada") output="ಶುಭೋದಯ";
+
+if(lang==="english") output="Good Morning";
+
+}
+
+document.getElementById("outputText").innerHTML=output;
 
 }
 
