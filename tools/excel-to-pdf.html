@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Excel to PDF</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+body{
+background:#020617;
+color:white;
+font-family:Poppins,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:#0f172a;
+padding:50px;
+border-radius:24px;
+text-align:center;
+width:700px;
+max-width:95%;
+}
+
+h1{
+font-size:42px;
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+margin-bottom:20px;
+}
+
+button{
+padding:14px 24px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#0ea5e9,#7c3aed);
+color:white;
+cursor:pointer;
+margin-top:20px;
+}
+
+a{
+display:inline-block;
+margin-top:30px;
+color:#38bdf8;
+text-decoration:none;
+}
+
+#status{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Excel to PDF 📈</h1>
+
+<input type="file" id="excelFile" accept=".xlsx,.xls">
+
+<br>
+
+<button onclick="convertExcelToPDF()">
+Convert Excel to PDF
+</button>
+
+<div id="status"></div>
+
+<a href="../index.html">Return Home</a>
+
+</div>
+
+<script>
+
+async function convertExcelToPDF(){
+
+const fileInput = document.getElementById('excelFile');
+const status = document.getElementById('status');
+
+if(fileInput.files.length===0){
+status.innerHTML="Please select Excel file.";
+return;
+}
+
+const file = fileInput.files[0];
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+const data = new Uint8Array(e.target.result);
+
+const workbook = XLSX.read(data,{type:'array'});
+
+const sheetName = workbook.SheetNames[0];
+
+const worksheet = workbook.Sheets[sheetName];
+
+const json = XLSX.utils.sheet_to_json(worksheet,{header:1});
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+let y = 10;
+
+json.forEach(row=>{
+
+doc.text(row.join(" | "),10,y);
+
+y += 10;
+
+});
+
+doc.save("converted.pdf");
+
+status.innerHTML="PDF downloaded successfully ✅";
+
+};
+
+reader.readAsArrayBuffer(file);
+
+}
+
+</script>
+
+</body>
+</html>
