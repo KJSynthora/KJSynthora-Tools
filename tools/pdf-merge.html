@@ -119,9 +119,15 @@ async function showMessage(){
 const input = document.querySelector('input[type="file"]');
 
 if(input.files.length < 2){
-alert("Please select at least 2 PDF files");
+
+document.getElementById("success-msg").innerHTML =
+"❌ Select at least 2 PDF files";
+
 return;
+
 }
+
+try{
 
 const mergedPdf = await PDFLib.PDFDocument.create();
 
@@ -153,6 +159,13 @@ link.click();
 
 document.getElementById("success-msg").innerHTML =
 "✅ PDF Downloaded Successfully!";
+
+}catch(error){
+
+document.getElementById("success-msg").innerHTML =
+"❌ Merge Failed";
+
+}
 
 }
 
