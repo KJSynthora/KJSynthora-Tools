@@ -101,40 +101,43 @@ font-weight:bold;
 
 <script>
 
-function generateThumb(){
+function generateThumbnail(){
 
-const link=document.getElementById("ytlink").value;
+const input=document.querySelector('input');
 
-if(link===""){
+if(input.files.length===0){
 
-document.getElementById("success-msg").innerHTML=
-"❌ Please enter YouTube link";
-
-return;
-
-}
-
-let videoId="";
-
-if(link.includes("v=")){
-
-videoId=link.split("v=")[1].substring(0,11);
-
-}else{
-
-document.getElementById("success-msg").innerHTML=
-"❌ Invalid YouTube link";
+document.getElementById("success-msg").innerHTML =
+"❌ Please select image";
 
 return;
 
 }
 
-const thumb=`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+const file=input.files[0];
 
-window.open(thumb,"_blank");
+const reader=new FileReader();
 
-document.getElementById("success-msg").innerHTML=
-"✅ Thumbnail Opened Successfully!";
+reader.onload=function(e){
+
+const link=document.createElement("a");
+
+link.href=e.target.result;
+
+link.download="KJSynthora-Thumbnail.png";
+
+document.body.appendChild(link);
+
+link.click();
+
+document.body.removeChild(link);
+
+document.getElementById("success-msg").innerHTML =
+"✅ Thumbnail Downloaded Successfully!";
+
+}
+
+reader.readAsDataURL(file);
 
 }
 
