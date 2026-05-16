@@ -6,6 +6,7 @@
 <title>AI Translator Tool</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -19,8 +20,8 @@ display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
-color:white;
 overflow:hidden;
+color:white;
 }
 
 body::before{
@@ -36,7 +37,7 @@ z-index:-1;
 }
 
 .container{
-width:420px;
+width:430px;
 background:rgba(15,23,42,0.95);
 padding:35px;
 border-radius:25px;
@@ -63,23 +64,23 @@ padding:15px;
 color:white;
 font-size:16px;
 resize:none;
-margin-bottom:20px;
 outline:none;
+margin-bottom:20px;
 }
 
 label{
 display:block;
 margin-bottom:8px;
-color:#94a3b8;
 font-size:14px;
+color:#94a3b8;
 }
 
 select{
 width:100%;
 padding:12px;
+background:#111827;
 border:none;
 border-radius:12px;
-background:#111827;
 color:white;
 margin-bottom:20px;
 outline:none;
@@ -108,7 +109,7 @@ margin-top:25px;
 background:#111827;
 padding:18px;
 border-radius:15px;
-min-height:100px;
+min-height:120px;
 }
 
 .result h3{
@@ -128,11 +129,12 @@ font-weight:bold;
 }
 
 .note{
-margin-top:20px;
+margin-top:18px;
 font-size:12px;
 color:#94a3b8;
 line-height:1.6;
 }
+
 </style>
 </head>
 
@@ -140,49 +142,40 @@ line-height:1.6;
 
 <div class="container">
 
-<h1>🌍 AI Translator Tool</h1>
+<h1>🌍 AI Translator</h1>
 
-<textarea id="inputText" placeholder="Type any sentence..."></textarea>
+<textarea id="inputText" placeholder="Type anything... Example: nenu movie ki velthunnanu"></textarea>
 
-<label>From Language</label>
-<select id="fromLang">
-<option value="auto">Auto Detect</option>
-<option value="te">Telugu</option>
-<option value="en">English</option>
-<option value="hi">Hindi</option>
-<option value="ta">Tamil</option>
-<option value="kn">Kannada</option>
-<option value="ml">Malayalam</option>
-<option value="fr">French</option>
-<option value="es">Spanish</option>
-<option value="zh">Chinese</option>
-</select>
+<label>Translate To</label>
 
-<label>To Language</label>
 <select id="toLang">
-<option value="en">English</option>
-<option value="te">Telugu</option>
-<option value="hi">Hindi</option>
-<option value="ta">Tamil</option>
-<option value="kn">Kannada</option>
-<option value="ml">Malayalam</option>
-<option value="fr">French</option>
-<option value="es">Spanish</option>
-<option value="zh">Chinese</option>
+<option value="English">English</option>
+<option value="Hindi">Hindi</option>
+<option value="Telugu">Telugu</option>
+<option value="Tamil">Tamil</option>
+<option value="Kannada">Kannada</option>
+<option value="Malayalam">Malayalam</option>
+<option value="French">French</option>
+<option value="Spanish">Spanish</option>
+<option value="Chinese">Chinese</option>
 </select>
 
-<button onclick="translateText()">Translate</button>
+<button onclick="translateText()">Translate Using AI</button>
 
-<button onclick="speakTranslation()">🔊 Listen Translation</button>
+<button onclick="speakText()">🔊 Listen Voice</button>
 
 <div class="result">
-<h3>Translated Text</h3>
-<p id="outputText">Your translation will appear here...</p>
+
+<h3>Translated Meaning</h3>
+
+<p id="outputText">
+Your AI translation will appear here...
+</p>
+
 </div>
 
 <div class="note">
-Best results come when typing native language text.<br>
-Example Telugu: నేను సినిమా కి వెళ్తున్నాను
+This AI translator understands Roman Telugu, Hinglish, Tanglish and natural language meaning.
 </div>
 
 <div class="back-home">
@@ -198,31 +191,58 @@ let translatedSpeech = "";
 async function translateText(){
 
 const text = document.getElementById("inputText").value.trim();
-const from = document.getElementById("fromLang").value;
-const to = document.getElementById("toLang").value;
+
+const language = document.getElementById("toLang").value;
+
+const output = document.getElementById("outputText");
 
 if(text === ""){
 alert("Please enter text");
 return;
 }
 
-const output = document.getElementById("outputText");
-output.innerHTML = "Translating...";
+output.innerHTML = "AI Translating...";
 
 try{
 
-const url =
-`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
+const prompt = `
+Understand the meaning of this sentence even if it is written in Roman Telugu, Hinglish, Tanglish or mixed language.
 
-const response = await fetch(url);
+Sentence:
+"${text}"
+
+Translate it naturally into ${language}.
+
+Only give translated sentence.
+`;
+
+const response = await fetch(
+https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyABCD123456789,
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+contents:[
+{
+parts:[
+{
+text:prompt
+}
+]
+}
+]
+})
+}
+);
 
 const data = await response.json();
 
-let translated = "";
-
-data[0].forEach(item=>{
-translated += item[0];
-});
+const translated =
+data.candidates[0].content.parts[0].text;
 
 translatedSpeech = translated;
 
@@ -230,22 +250,24 @@ output.innerHTML = translated;
 
 }
 catch(error){
-output.innerHTML = "Translation failed";
+
 console.log(error);
-}
+
+output.innerHTML =
+"Translation failed. Check Gemini API key.";
 
 }
 
-function speakTranslation(){
+}
+
+function speakText(){
 
 if(translatedSpeech === ""){
-alert("Please translate text first");
+alert("Please translate first");
 return;
 }
 
 const speech = new SpeechSynthesisUtterance(translatedSpeech);
-
-speech.lang = document.getElementById("toLang").value;
 
 speech.rate = 1;
 
