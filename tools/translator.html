@@ -20,7 +20,7 @@ color:white;
 }
 
 .container{
-width:400px;
+width:420px;
 background:#0f172a;
 padding:30px;
 border-radius:20px;
@@ -56,7 +56,7 @@ border-radius:12px;
 background:#111827;
 color:white;
 font-size:16px;
-margin-bottom:20px;
+margin-bottom:15px;
 }
 
 button{
@@ -69,11 +69,6 @@ color:white;
 font-size:16px;
 cursor:pointer;
 margin-bottom:15px;
-transition:0.3s;
-}
-
-button:hover{
-transform:scale(1.03);
 }
 
 .result-box{
@@ -100,6 +95,13 @@ text-decoration:none;
 font-weight:bold;
 }
 
+label{
+font-size:14px;
+color:#94a3b8;
+display:block;
+margin-bottom:5px;
+}
+
 </style>
 </head>
 
@@ -109,10 +111,14 @@ font-weight:bold;
 
 <h1>🌍 Translator Tool</h1>
 
-<textarea id="inputText" placeholder="Enter any text or sentence..."></textarea>
+<textarea id="inputText"
+placeholder="Enter any sentence..."></textarea>
 
-<select id="language">
+<label>From Language</label>
 
+<select id="fromLanguage">
+
+<option value="en">English</option>
 <option value="te">Telugu</option>
 <option value="hi">Hindi</option>
 <option value="ta">Tamil</option>
@@ -121,7 +127,22 @@ font-weight:bold;
 <option value="fr">French</option>
 <option value="es">Spanish</option>
 <option value="zh">Chinese</option>
+
+</select>
+
+<label>To Language</label>
+
+<select id="toLanguage">
+
+<option value="te">Telugu</option>
 <option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="ta">Tamil</option>
+<option value="kn">Kannada</option>
+<option value="ml">Malayalam</option>
+<option value="fr">French</option>
+<option value="es">Spanish</option>
+<option value="zh">Chinese</option>
 
 </select>
 
@@ -158,12 +179,18 @@ Your translation will appear here...
 let translatedText = "";
 let selectedLang = "te";
 
-async function translateText() {
+async function translateText(){
 
-const input = document.getElementById("inputText").value;
+const input =
+document.getElementById("inputText").value;
 
-selectedLang =
-document.getElementById("language").value;
+const fromLang =
+document.getElementById("fromLanguage").value;
+
+const toLang =
+document.getElementById("toLanguage").value;
+
+selectedLang = toLang;
 
 if(input.trim()===""){
 
@@ -173,8 +200,17 @@ return;
 
 }
 
+if(fromLang===toLang){
+
+document.getElementById("result").innerHTML =
+"Please select different languages";
+
+return;
+
+}
+
 const url =
-`https://api.mymemory.translated.net/get?q=${encodeURIComponent(input)}&langpair=en|${selectedLang}`;
+`https://api.mymemory.translated.net/get?q=${encodeURIComponent(input)}&langpair=${fromLang}|${toLang}`;
 
 try{
 
@@ -202,7 +238,7 @@ function speakTranslation(){
 
 if(translatedText===""){
 
-alert("Please translate text first");
+alert("Translate text first");
 
 return;
 
