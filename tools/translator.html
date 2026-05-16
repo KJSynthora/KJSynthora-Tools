@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Translator Tool</title>
 
 <style>
@@ -14,36 +10,37 @@
 body{
 margin:0;
 padding:0;
+font-family:Poppins,sans-serif;
 background:#020617;
-font-family:Arial,sans-serif;
-color:white;
 display:flex;
 justify-content:center;
 align-items:center;
-min-height:100vh;
+height:100vh;
+color:white;
 }
 
 .container{
+width:380px;
 background:#0f172a;
-padding:40px;
-border-radius:20px;
-width:420px;
+padding:35px;
+border-radius:25px;
 box-shadow:0 0 30px rgba(59,130,246,0.3);
 }
 
 h1{
 text-align:center;
-margin-bottom:25px;
 color:#38bdf8;
+margin-bottom:25px;
 }
 
 textarea{
 width:100%;
 height:120px;
-padding:15px;
-border:none;
-border-radius:12px;
 background:#111827;
+border:none;
+outline:none;
+border-radius:12px;
+padding:15px;
 color:white;
 font-size:16px;
 resize:none;
@@ -52,11 +49,12 @@ margin-bottom:20px;
 
 select{
 width:100%;
-padding:12px;
+padding:14px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:#111827;
 color:white;
+font-size:15px;
 margin-bottom:20px;
 }
 
@@ -69,21 +67,23 @@ background:linear-gradient(90deg,#0ea5e9,#9333ea);
 color:white;
 font-size:16px;
 cursor:pointer;
-margin-top:10px;
+margin-bottom:15px;
+transition:0.3s;
 }
 
 button:hover{
-opacity:0.9;
+transform:scale(1.03);
 }
 
-.result{
-margin-top:25px;
+.result-box{
 background:#111827;
-padding:20px;
+padding:15px;
 border-radius:12px;
+margin-top:15px;
+min-height:80px;
 }
 
-.result h3{
+.result-box h3{
 margin-top:0;
 color:#38bdf8;
 }
@@ -109,19 +109,19 @@ font-weight:bold;
 
 <h1>🌍 Translator Tool</h1>
 
-<textarea id="inputText" placeholder="Enter text..."></textarea>
+<textarea id="inputText" placeholder="Enter text here..."></textarea>
 
 <select id="language">
 
-<option value="te">Telugu</option>
-<option value="hi">Hindi</option>
-<option value="ta">Tamil</option>
-<option value="kn">Kannada</option>
-<option value="ml">Malayalam</option>
-<option value="fr">French</option>
-<option value="es">Spanish</option>
+<option value="te-IN">Telugu</option>
+<option value="hi-IN">Hindi</option>
+<option value="ta-IN">Tamil</option>
+<option value="kn-IN">Kannada</option>
+<option value="ml-IN">Malayalam</option>
+<option value="fr-FR">French</option>
+<option value="es-ES">Spanish</option>
 <option value="zh-CN">Chinese</option>
-<option value="en">English</option>
+<option value="en-US">English</option>
 
 </select>
 
@@ -129,11 +129,11 @@ font-weight:bold;
 
 <button onclick="speakTranslation()">🔊 Listen</button>
 
-<div class="result">
+<div class="result-box">
 
 <h3>Translated Text</h3>
 
-<p id="outputText">Your translation will appear here...</p>
+<p id="result">Your translation will appear here...</p>
 
 </div>
 
@@ -147,34 +147,100 @@ font-weight:bold;
 
 <script>
 
-async function translateText() {
+let translatedVoice = "";
+let selectedLanguage = "en-US";
 
-const text = document.getElementById("inputText").value;
+const translations = {
+
+"hello": {
+"te-IN":"హలో",
+"hi-IN":"नमस्ते",
+"ta-IN":"வணக்கம்",
+"kn-IN":"ಹಲೋ",
+"ml-IN":"ഹലോ",
+"fr-FR":"Bonjour",
+"es-ES":"Hola",
+"zh-CN":"你好",
+"en-US":"Hello"
+},
+
+"thank you": {
+"te-IN":"ధన్యవాదాలు",
+"hi-IN":"धन्यवाद",
+"ta-IN":"நன்றி",
+"kn-IN":"ಧನ್ಯವಾದಗಳು",
+"ml-IN":"നന്ദി",
+"fr-FR":"Merci",
+"es-ES":"Gracias",
+"zh-CN":"谢谢",
+"en-US":"Thank You"
+},
+
+"how are you": {
+"te-IN":"మీరు ఎలా ఉన్నారు",
+"hi-IN":"आप कैसे हैं",
+"ta-IN":"நீங்கள் எப்படி இருக்கிறீர்கள்",
+"kn-IN":"ನೀವು ಹೇಗಿದ್ದೀರಾ",
+"ml-IN":"സുഖമാണോ",
+"fr-FR":"Comment ça va",
+"es-ES":"Cómo estás",
+"zh-CN":"你好吗",
+"en-US":"How are you"
+},
+
+"good morning": {
+"te-IN":"శుభోదయం",
+"hi-IN":"सुप्रभात",
+"ta-IN":"காலை வணக்கம்",
+"kn-IN":"ಶುಭೋದಯ",
+"ml-IN":"സുപ്രഭാതം",
+"fr-FR":"Bonjour",
+"es-ES":"Buenos días",
+"zh-CN":"早上好",
+"en-US":"Good Morning"
+},
+
+"good night": {
+"te-IN":"శుభరాత్రి",
+"hi-IN":"शुभ रात्रि",
+"ta-IN":"இனிய இரவு",
+"kn-IN":"ಶುಭ ರಾತ್ರಿ",
+"ml-IN":"ശുഭ രാത്രി",
+"fr-FR":"Bonne nuit",
+"es-ES":"Buenas noches",
+"zh-CN":"晚安",
+"en-US":"Good Night"
+}
+
+};
+
+function translateText(){
+
+const input = document.getElementById("inputText").value.toLowerCase().trim();
+
 const language = document.getElementById("language").value;
 
-if(text.trim()===""){
+selectedLanguage = language;
+
+if(input===""){
 document.getElementById("result").innerHTML="Please enter text";
 return;
 }
 
-const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${language}&dt=t&q=${encodeURIComponent(text)}`;
+if(translations[input]){
 
-try{
-
-const response = await fetch(url);
-const data = await response.json();
-
-const translated = data[0][0][0];
+const translated = translations[input][language];
 
 document.getElementById("result").innerHTML = translated;
 
-window.translatedVoice = translated;
-window.selectedLanguage = language;
+translatedVoice = translated;
 
 }
-catch(error){
+else{
 
-document.getElementById("result").innerHTML="Translation failed";
+document.getElementById("result").innerHTML = "Translation not found";
+
+translatedVoice = "";
 
 }
 
@@ -182,14 +248,14 @@ document.getElementById("result").innerHTML="Translation failed";
 
 function speakTranslation(){
 
-if(!window.translatedVoice){
-alert("Translate text first");
+if(translatedVoice===""){
+alert("Please translate text first");
 return;
 }
 
-const speech = new SpeechSynthesisUtterance(window.translatedVoice);
+const speech = new SpeechSynthesisUtterance(translatedVoice);
 
-speech.lang = window.selectedLanguage;
+speech.lang = selectedLanguage;
 
 speech.rate = 1;
 
@@ -200,5 +266,4 @@ window.speechSynthesis.speak(speech);
 </script>
 
 </body>
-
 </html>
