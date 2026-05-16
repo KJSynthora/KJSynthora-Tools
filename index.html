@@ -1,236 +1,373 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KJSynthora Tools</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KJSynthora Tools</title>
 
-  <style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial, sans-serif;
-    }
+<style>
 
-    body{
-      background:#020617;
-      color:white;
-    }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
 
-    header{
-      padding:20px 50px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid rgba(255,255,255,0.1);
-    }
+body{
+background:#020617;
+color:white;
+overflow-x:hidden;
+}
 
-    .logo{
-      font-size:32px;
-      font-weight:bold;
-      color:#38bdf8;
-    }
+/* Animated Background */
 
-    nav a{
-      color:white;
-      text-decoration:none;
-      margin-left:25px;
-      transition:0.3s;
-    }
+body::before{
+content:"";
+position:fixed;
+width:700px;
+height:700px;
+background:radial-gradient(circle,#2563eb55,#7c3aed22,transparent);
+top:-200px;
+left:-150px;
+z-index:-1;
+filter:blur(80px);
+animation:move 10s infinite alternate;
+}
 
-    nav a:hover{
-      color:#38bdf8;
-    }
+@keyframes move{
+0%{
+transform:translateY(0px);
+}
+100%{
+transform:translateY(80px);
+}
+}
 
-    .hero{
-      text-align:center;
-      padding:100px 20px;
-    }
+/* Navbar */
 
-    .hero h1{
-      font-size:60px;
-      margin-bottom:20px;
-      background:linear-gradient(to right,#38bdf8,#a855f7);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-    }
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 60px;
+position:sticky;
+top:0;
+backdrop-filter:blur(12px);
+background:rgba(15,23,42,0.5);
+border-bottom:1px solid rgba(255,255,255,0.08);
+z-index:1000;
+}
 
-    .hero p{
-      font-size:20px;
-      color:#cbd5e1;
-      max-width:700px;
-      margin:auto;
-      line-height:1.6;
-    }
+.logo{
+font-size:32px;
+font-weight:700;
+background:linear-gradient(to right,#38bdf8,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
 
-    .tools-section{
-      padding:60px 40px;
-    }
+nav a{
+text-decoration:none;
+color:#cbd5e1;
+margin-left:30px;
+transition:0.3s;
+font-size:15px;
+}
 
-    .section-title{
-      text-align:center;
-      font-size:40px;
-      margin-bottom:50px;
-      color:#38bdf8;
-    }
+nav a:hover{
+color:#38bdf8;
+}
 
-    .tools-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:30px;
-    }
+/* Hero */
 
-    .tool-card{
-      background:#0f172a;
-      border-radius:20px;
-      padding:30px;
-      transition:0.3s;
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:0 0 20px rgba(0,0,0,0.3);
-    }
+.hero{
+text-align:center;
+padding:120px 20px 80px;
+}
 
-    .tool-card:hover{
-      transform:translateY(-10px);
-      border-color:#38bdf8;
-    }
+.hero h1{
+font-size:72px;
+line-height:1.1;
+margin-bottom:20px;
+background:linear-gradient(to right,#38bdf8,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
 
-    .tool-card h3{
-      margin-bottom:15px;
-      font-size:24px;
-      color:#38bdf8;
-    }
+.hero p{
+max-width:850px;
+margin:auto;
+font-size:20px;
+line-height:1.8;
+color:#cbd5e1;
+}
 
-    .tool-card p{
-      color:#cbd5e1;
-      line-height:1.5;
-      margin-bottom:20px;
-    }
+.hero-buttons{
+margin-top:40px;
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+}
 
-    .tool-card button{
-      background:#38bdf8;
-      border:none;
-      padding:12px 20px;
-      border-radius:10px;
-      color:white;
-      cursor:pointer;
-      transition:0.3s;
-    }
+.hero-buttons button{
+padding:15px 30px;
+border:none;
+border-radius:14px;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+font-weight:600;
+}
 
-    .tool-card button:hover{
-      background:#0ea5e9;
-    }
+.btn-primary{
+background:linear-gradient(to right,#0ea5e9,#7c3aed);
+color:white;
+box-shadow:0 0 20px rgba(14,165,233,0.4);
+}
 
-    footer{
-      text-align:center;
-      padding:30px;
-      margin-top:50px;
-      border-top:1px solid rgba(255,255,255,0.1);
-      color:#94a3b8;
-    }
+.btn-primary:hover{
+transform:translateY(-4px);
+}
 
-    @media(max-width:768px){
+.btn-secondary{
+background:#111827;
+color:white;
+border:1px solid rgba(255,255,255,0.08);
+}
 
-      .hero h1{
-        font-size:42px;
-      }
+.btn-secondary:hover{
+background:#1e293b;
+}
 
-      nav{
-        display:none;
-      }
+/* Section */
 
-    }
+.tools-section{
+padding:80px 50px;
+}
 
-  </style>
+.section-title{
+text-align:center;
+font-size:48px;
+margin-bottom:60px;
+background:linear-gradient(to right,#38bdf8,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+/* Cards */
+
+.tools-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:35px;
+}
+
+.tool-card{
+background:rgba(15,23,42,0.8);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:24px;
+padding:35px;
+transition:0.4s;
+position:relative;
+overflow:hidden;
+backdrop-filter:blur(10px);
+}
+
+.tool-card::before{
+content:"";
+position:absolute;
+width:120px;
+height:120px;
+background:#38bdf822;
+border-radius:50%;
+top:-40px;
+right:-40px;
+filter:blur(20px);
+}
+
+.tool-card:hover{
+transform:translateY(-10px);
+border-color:#38bdf8;
+box-shadow:0 0 30px rgba(56,189,248,0.25);
+}
+
+.icon{
+font-size:45px;
+margin-bottom:20px;
+}
+
+.tool-card h3{
+font-size:28px;
+margin-bottom:15px;
+color:#38bdf8;
+}
+
+.tool-card p{
+color:#cbd5e1;
+line-height:1.7;
+margin-bottom:25px;
+}
+
+.tool-card button{
+padding:12px 24px;
+border:none;
+border-radius:12px;
+background:linear-gradient(to right,#0ea5e9,#7c3aed);
+color:white;
+font-size:15px;
+cursor:pointer;
+transition:0.3s;
+font-weight:600;
+}
+
+.tool-card button:hover{
+transform:scale(1.05);
+}
+
+/* Footer */
+
+footer{
+margin-top:80px;
+padding:40px;
+text-align:center;
+border-top:1px solid rgba(255,255,255,0.08);
+color:#94a3b8;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+header{
+padding:20px;
+}
+
+nav{
+display:none;
+}
+
+.hero h1{
+font-size:46px;
+}
+
+.hero p{
+font-size:17px;
+}
+
+.section-title{
+font-size:38px;
+}
+
+}
+
+</style>
 </head>
+
 <body>
 
-  <header>
+<header>
 
-    <div class="logo">KJSynthora</div>
+<div class="logo">KJSynthora</div>
 
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">Tools</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </nav>
+<nav>
+<a href="#">Home</a>
+<a href="#">PDF Tools</a>
+<a href="#">AI Tools</a>
+<a href="#">Contact</a>
+</nav>
 
-  </header>
+</header>
 
-  <section class="hero">
+<section class="hero">
 
-    <h1>KJSynthora Tools</h1>
+<h1>Create. Automate. Elevate.</h1>
 
-    <p>
-      AI Tools, PDF Tools, Image Utilities, Social Media Creation Tools 
-      and Smart Productivity Solutions — all in one futuristic platform.
-    </p>
+<p>
+KJSynthora Tools is your futuristic platform for PDF tools, AI utilities,
+thumbnail creators, image tools, productivity solutions and smart online automation.
+</p>
 
-  </section>
+<div class="hero-buttons">
+<button class="btn-primary">Explore Tools</button>
+<button class="btn-secondary">Learn More</button>
+</div>
 
-  <section class="tools-section">
+</section>
 
-    <h2 class="section-title">Popular Tools</h2>
+<section class="tools-section">
 
-    <div class="tools-grid">
+<h2 class="section-title">Popular Tools</h2>
 
-      <div class="tool-card">
-        <h3>Image to PDF</h3>
-        <p>Convert images into professional PDF documents instantly.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tools-grid">
 
-      <div class="tool-card">
-        <h3>PDF Merge</h3>
-        <p>Merge multiple PDF files into one document easily.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">🖼️</div>
+<h3>Image to PDF</h3>
+<p>Convert images into professional PDF documents instantly.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>PDF Compress</h3>
-        <p>Reduce PDF size without losing quality.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">📄</div>
+<h3>PDF Merge</h3>
+<p>Merge multiple PDF files into one document easily.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>PDF to Word</h3>
-        <p>Convert PDF files into editable Word documents.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">⚡</div>
+<h3>PDF Compress</h3>
+<p>Reduce PDF size without losing quality.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>Word to PDF</h3>
-        <p>Convert Word files into secure PDF documents.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">📝</div>
+<h3>PDF to Word</h3>
+<p>Convert PDF files into editable Word documents.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>Background Remover</h3>
-        <p>Remove image backgrounds instantly using AI.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">📘</div>
+<h3>Word to PDF</h3>
+<p>Convert Word files into secure PDF documents.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>YouTube Thumbnail</h3>
-        <p>Create stunning thumbnails for your videos.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">🎨</div>
+<h3>Background Remover</h3>
+<p>Remove image backgrounds instantly using AI.</p>
+<button>Open Tool</button>
+</div>
 
-      <div class="tool-card">
-        <h3>Instagram Logo Maker</h3>
-        <p>Create stylish Instagram logos and branding assets.</p>
-        <button>Open Tool</button>
-      </div>
+<div class="tool-card">
+<div class="icon">🎬</div>
+<h3>YouTube Thumbnail</h3>
+<p>Create stunning thumbnails for your YouTube videos.</p>
+<button>Open Tool</button>
+</div>
 
-    </div>
+<div class="tool-card">
+<div class="icon">📸</div>
+<h3>Instagram Logo Maker</h3>
+<p>Create stylish Instagram logos and branding assets.</p>
+<button>Open Tool</button>
+</div>
 
-  </section>
+</div>
 
-  <footer>
-    © 2026 KJSynthora — Create. Automate. Elevate.
-  </footer>
+</section>
+
+<footer>
+© 2026 KJSynthora — AI • Tech • Tools • Creation
+</footer>
 
 </body>
 </html>
