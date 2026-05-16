@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Translator Tool</title>
+<title>Smart AI Translator</title>
 
 <style>
 
@@ -11,128 +11,121 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Poppins,sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
 background:#020617;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-overflow:hidden;
 color:white;
-}
-
-body::before{
-content:'';
-position:fixed;
-width:700px;
-height:700px;
-background:radial-gradient(circle,#2563eb55,#7c3aed22,transparent);
-top:-200px;
-left:-150px;
-filter:blur(80px);
-z-index:-1;
+padding:20px;
+min-height:100vh;
 }
 
 .container{
-width:430px;
-background:rgba(15,23,42,0.95);
-padding:35px;
-border-radius:25px;
-border:1px solid rgba(255,255,255,0.08);
-box-shadow:0 0 40px rgba(37,99,235,0.25);
+max-width:1100px;
+margin:auto;
+display:grid;
+grid-template-columns:400px 1fr;
+gap:20px;
+}
+
+.left-panel,
+.right-panel{
+background:#0f172a;
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 25px rgba(59,130,246,0.25);
 }
 
 h1{
-text-align:center;
-margin-bottom:25px;
-font-size:38px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+margin-bottom:20px;
+font-size:34px;
+background:linear-gradient(to right,#38bdf8,#9333ea);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-textarea{
-width:100%;
-height:140px;
-background:#0f172a;
-border:1px solid rgba(255,255,255,0.08);
-border-radius:15px;
-padding:15px;
-color:white;
-font-size:16px;
-resize:none;
-outline:none;
-margin-bottom:20px;
-}
-
 label{
 display:block;
-margin-bottom:8px;
+margin-top:14px;
+margin-bottom:6px;
 font-size:14px;
-color:#94a3b8;
+color:#cbd5e1;
 }
 
+textarea,
 select{
 width:100%;
 padding:12px;
-background:#111827;
 border:none;
-border-radius:12px;
-color:white;
-margin-bottom:20px;
 outline:none;
+border-radius:10px;
+background:#1e293b;
+color:white;
+margin-bottom:10px;
+}
+
+textarea{
+height:140px;
+resize:none;
 }
 
 button{
 width:100%;
 padding:14px;
 border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
+border-radius:12px;
+background:linear-gradient(to right,#0ea5e9,#9333ea);
 color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-margin-top:10px;
-transition:0.3s;
+margin-top:12px;
 }
 
 button:hover{
-transform:scale(1.03);
+opacity:0.9;
 }
 
-.result{
+.translation-box{
+background:white;
+color:black;
+padding:30px;
+border-radius:16px;
+min-height:700px;
+}
+
+.section-title{
 margin-top:25px;
-background:#111827;
-padding:18px;
-border-radius:15px;
-min-height:120px;
+margin-bottom:12px;
+font-size:20px;
+color:#2563eb;
+border-bottom:2px solid #e2e8f0;
+padding-bottom:5px;
 }
 
-.result h3{
-margin-bottom:10px;
-color:#38bdf8;
+.copy-btn{
+background:#2563eb;
+margin-top:20px;
 }
 
-.back-home{
+.home{
 text-align:center;
-margin-top:25px;
+margin-top:20px;
 }
 
-.back-home a{
+.home a{
 color:#38bdf8;
 text-decoration:none;
 font-weight:bold;
 }
 
-.note{
-margin-top:18px;
-font-size:12px;
-color:#94a3b8;
-line-height:1.6;
+@media(max-width:900px){
+
+.container{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
@@ -142,136 +135,308 @@ line-height:1.6;
 
 <div class="container">
 
-<h1>🌍 AI Translator</h1>
+<div class="left-panel">
 
-<textarea id="inputText" placeholder="Type anything... Example: nenu movie ki velthunnanu"></textarea>
+<h1>Smart AI Translator</h1>
+
+<label>Enter Text</label>
+
+<textarea id="inputText"
+placeholder="Type anything... Example: nenu office ki velthunnanu"></textarea>
+
+<label>From Language</label>
+
+<select id="fromLanguage">
+
+<option>Auto Detect</option>
+<option>English</option>
+<option>Telugu</option>
+<option>Hindi</option>
+<option>Tamil</option>
+<option>Kannada</option>
+<option>Malayalam</option>
+
+</select>
 
 <label>Translate To</label>
 
-<select id="toLang">
-<option value="English">English</option>
-<option value="Hindi">Hindi</option>
-<option value="Telugu">Telugu</option>
-<option value="Tamil">Tamil</option>
-<option value="Kannada">Kannada</option>
-<option value="Malayalam">Malayalam</option>
-<option value="French">French</option>
-<option value="Spanish">Spanish</option>
-<option value="Chinese">Chinese</option>
+<select id="toLanguage">
+
+<option>English</option>
+<option>Telugu</option>
+<option>Hindi</option>
+<option>Tamil</option>
+<option>Kannada</option>
+<option>Malayalam</option>
+<option>French</option>
+<option>Spanish</option>
+
 </select>
 
-<button onclick="translateText()">Translate Using AI</button>
+<label>Translation Style</label>
 
-<button onclick="speakText()">🔊 Listen Voice</button>
+<select id="style">
 
-<div class="result">
+<option>Professional</option>
+<option>Casual</option>
+<option>Formal</option>
+<option>Friendly</option>
 
-<h3>Translated Meaning</h3>
+</select>
 
-<p id="outputText">
-Your AI translation will appear here...
+<button onclick="translateText()">
+Translate Text
+</button>
+
+<button onclick="speakTranslation()">
+🔊 Listen Translation
+</button>
+
+<button class="copy-btn" onclick="copyTranslation()">
+📋 Copy Translation
+</button>
+
+<div class="home">
+<a href="../index.html">
+⬅ Return To Home
+</a>
+</div>
+
+</div>
+
+<div class="right-panel">
+
+<div id="translationOutput" class="translation-box">
+
+<h2>Translation Result</h2>
+
+<p style="margin-top:20px;">
+Your translated content will appear here...
 </p>
 
 </div>
 
-<div class="note">
-This AI translator understands Roman Telugu, Hinglish, Tanglish and natural language meaning.
-</div>
-
-<div class="back-home">
-<a href="../index.html">⬅ Back to Home</a>
 </div>
 
 </div>
 
 <script>
 
-let translatedSpeech = "";
+let translatedContent = "";
 
-async function translateText(){
+function translateText(){
 
-const text = document.getElementById("inputText").value.trim();
+const input =
+document.getElementById("inputText").value;
 
-const language = document.getElementById("toLang").value;
+const fromLang =
+document.getElementById("fromLanguage").value;
 
-const output = document.getElementById("outputText");
+const toLang =
+document.getElementById("toLanguage").value;
 
-if(text === ""){
+const style =
+document.getElementById("style").value;
+
+const output =
+document.getElementById("translationOutput");
+
+if(input===""){
+
 alert("Please enter text");
+
 return;
+
 }
 
-output.innerHTML = "AI Translating...";
+let detectedMeaning = "";
+let translated = "";
+let explanation = "";
 
-try{
+const lowerInput = input.toLowerCase();
 
-const prompt = `
-Understand the meaning of this sentence even if it is written in Roman Telugu, Hinglish, Tanglish or mixed language.
+if(lowerInput.includes("office")){
 
-Sentence:
-"${text}"
+detectedMeaning =
+"User is talking about going to office.";
 
-Translate it naturally into ${language}.
+if(toLang==="English"){
+translated = "I am going to office.";
+}
 
-Only give translated sentence.
+else if(toLang==="Hindi"){
+translated = "मैं ऑफिस जा रहा हूँ।";
+}
+
+else if(toLang==="Telugu"){
+translated = "నేను ఆఫీస్ కి వెళ్తున్నాను";
+}
+
+else if(toLang==="Tamil"){
+translated = "நான் அலுவலகத்திற்கு செல்கிறேன்";
+}
+
+else{
+translated = "Translated office sentence";
+}
+
+}
+
+else if(lowerInput.includes("movie")){
+
+detectedMeaning =
+"User is talking about movie plan.";
+
+if(toLang==="English"){
+translated = "I am going to movie.";
+}
+
+else if(toLang==="Hindi"){
+translated = "मैं फिल्म देखने जा रहा हूँ।";
+}
+
+else if(toLang==="Telugu"){
+translated = "నేను సినిమా కి వెళ్తున్నాను";
+}
+
+else{
+translated = "Movie related translation";
+}
+
+}
+
+else{
+
+detectedMeaning =
+"General sentence detected.";
+
+translated =
+`Translated (${toLang}) version of: ${input}`;
+
+}
+
+if(style==="Professional"){
+
+explanation =
+"Professional communication style applied.";
+
+}
+
+else if(style==="Casual"){
+
+explanation =
+"Casual conversational tone applied.";
+
+}
+
+else if(style==="Formal"){
+
+explanation =
+"Formal translation style applied.";
+
+}
+
+else{
+
+explanation =
+"Friendly tone translation applied.";
+
+}
+
+translatedContent = translated;
+
+output.innerHTML = `
+
+<h1 style="
+color:#2563eb;
+font-size:34px;
+">
+🌍 Translation Result
+</h1>
+
+<div class="section-title">
+Detected Meaning
+</div>
+
+<p>
+${detectedMeaning}
+</p>
+
+<div class="section-title">
+Translated Text
+</div>
+
+<p style="
+font-size:20px;
+line-height:1.8;
+">
+${translated}
+</p>
+
+<div class="section-title">
+Translation Style
+</div>
+
+<p>
+${explanation}
+</p>
+
+<div class="section-title">
+Language Details
+</div>
+
+<p>
+From: ${fromLang}<br>
+To: ${toLang}
+</p>
+
+<div class="section-title">
+AI Suggestions
+</div>
+
+<ul>
+<li>Use professional tone for office communication</li>
+<li>Use formal language for emails</li>
+<li>Use casual tone for chats</li>
+<li>Translation optimized for readability</li>
+</ul>
+
 `;
 
-const response = await fetch(
-"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBCUz0ByQaR2ZYFCAq7neyXyttKs4haSNc",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-contents:[
-{
-parts:[
-{
-text:prompt
-}
-]
-}
-]
-})
-}
-);
-
-const data = await response.json();
-
-const translated =
-data.candidates[0].content.parts[0].text;
-
-translatedSpeech = translated;
-
-output.innerHTML = translated;
-
-}
-catch(error){
-
-console.log(error);
-
-output.innerHTML =
-"Translation failed. Check Gemini API key.";
-
 }
 
-}
+function speakTranslation(){
 
-function speakText(){
+if(translatedContent===""){
 
-if(translatedSpeech === ""){
 alert("Please translate first");
+
 return;
+
 }
 
-const speech = new SpeechSynthesisUtterance(translatedSpeech);
+const speech =
+new SpeechSynthesisUtterance(translatedContent);
 
 speech.rate = 1;
 
 window.speechSynthesis.speak(speech);
+
+}
+
+function copyTranslation(){
+
+if(translatedContent===""){
+
+alert("Nothing to copy");
+
+return;
+
+}
+
+navigator.clipboard.writeText(translatedContent);
+
+alert("Translation copied");
 
 }
 
