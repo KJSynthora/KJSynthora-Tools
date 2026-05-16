@@ -79,69 +79,149 @@ font-weight:bold;
 
 <body>
 
+<style>
+
+body{
+background:#020617;
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+color:white;
+}
+
+.container{
+background:#111827;
+padding:40px;
+border-radius:20px;
+text-align:center;
+width:400px;
+box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:10px;
+font-size:16px;
+}
+
+button{
+background:linear-gradient(90deg,#06b6d4,#7c3aed);
+color:white;
+border:none;
+padding:12px 25px;
+border-radius:10px;
+cursor:pointer;
+margin-top:10px;
+font-size:16px;
+}
+
+canvas{
+margin-top:20px;
+width:100%;
+border-radius:15px;
+}
+
+a{
+display:block;
+margin-top:20px;
+color:#38bdf8;
+text-decoration:none;
+}
+
+</style>
+
 <div class="container">
 
-<h1>YouTube Thumbnail</h1>
+<h1>YouTube Thumbnail Maker</h1>
 
-<p>Enter YouTube video link</p>
+<input type="file" id="imageInput">
 
-<input type="text" id="ytlink" placeholder="Paste YouTube URL">
+<input type="text" id="titleInput" placeholder="Enter Thumbnail Title">
 
-<br>
+<button onclick="generateThumbnail()">
+Generate Thumbnail
+</button>
 
-<button onclick="generateThumb()">Generate Thumbnail</button>
+<button onclick="downloadThumbnail()">
+Download Thumbnail
+</button>
 
-<p id="success-msg"></p>
+<canvas id="canvas" width="1280" height="720"></canvas>
 
-<div class="back-home">
-<a href="../index.html">← Back to Home</a>
-</div>
+<a href="../index.html">⬅ Back to Home</a>
 
 </div>
 
 <script>
 
+const canvas=document.getElementById("canvas");
+
+const ctx=canvas.getContext("2d");
+
 function generateThumbnail(){
 
-const input=document.querySelector('input');
+const file=document.getElementById("imageInput").files[0];
 
-if(input.files.length===0){
+const title=document.getElementById("titleInput").value;
 
-document.getElementById("success-msg").innerHTML =
-"❌ Please select image";
+if(!file){
+
+alert("Please upload image");
 
 return;
 
 }
 
-const file=input.files[0];
-
 const reader=new FileReader();
 
 reader.onload=function(e){
 
-const link=document.createElement("a");
+const img=new Image();
 
-link.href=e.target.result;
+img.onload=function(){
 
-link.download="KJSynthora-Thumbnail.png";
+ctx.drawImage(img,0,0,1280,720);
 
-document.body.appendChild(link);
+ctx.fillStyle="rgba(0,0,0,0.5)";
 
-link.click();
+ctx.fillRect(0,520,1280,200);
 
-document.body.removeChild(link);
+ctx.fillStyle="white";
 
-document.getElementById("success-msg").innerHTML =
-"✅ Thumbnail Downloaded Successfully!";
+ctx.font="bold 60px Arial";
+
+ctx.fillText(title,50,640);
+
+};
+
+img.src=e.target.result;
+
+};
+
+reader.readAsDataURL(file);
 
 }
 
-reader.readAsDataURL(file);
+function downloadThumbnail(){
+
+const link=document.createElement("a");
+
+link.download="youtube-thumbnail.png";
+
+link.href=canvas.toDataURL();
+
+link.click();
 
 }
 
 </script>
 
 </body>
+
 </html>
