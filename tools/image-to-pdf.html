@@ -117,12 +117,68 @@ p{
 <a href="../index.html">⬅ Back to Home</a>
 </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 
-function showMessage(){
+async function showMessage(){
+
+const { jsPDF } = window.jspdf;
+
+const input = document.querySelector('input[type="file"]');
+
+if(input.files.length === 0){
 
 document.getElementById("success-msg").innerHTML =
-"✅ Converted Successfully!";
+"❌ Please select images";
+
+return;
+
+}
+
+const pdf = new jsPDF();
+
+for(let i = 0; i < input.files.length; i++){
+
+const file = input.files[i];
+
+const reader = new FileReader();
+
+reader.readAsDataURL(file);
+
+await new Promise(resolve => {
+
+reader.onload = function(e){
+
+const img = new Image();
+
+img.src = e.target.result;
+
+img.onload = function(){
+
+const width = pdf.internal.pageSize.getWidth();
+
+const height = (img.height * width) / img.width;
+
+if(i > 0) pdf.addPage();
+
+pdf.addImage(img, 'JPEG', 0, 0, width, height);
+
+resolve();
+
+}
+
+}
+
+});
+
+}
+
+pdf.save("KJSynthora.pdf");
+
+document.getElementById("success-msg").innerHTML =
+"✅ PDF Downloaded Successfully!";
 
 }
 
