@@ -11,7 +11,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Poppins,sans-serif;
+font-family:Arial, sans-serif;
 }
 
 body{
@@ -20,66 +20,64 @@ display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
-color:white;
 padding:20px;
+overflow:auto;
+color:white;
 }
 
 .container{
-width:100%;
-max-width:700px;
+width:450px;
 background:rgba(15,23,42,0.95);
-padding:30px;
-border-radius:24px;
-border:1px solid rgba(255,255,255,0.1);
-box-shadow:0 0 40px rgba(59,130,246,0.3);
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 25px rgba(37,99,235,0.4);
+border:1px solid rgba(255,255,255,0.08);
 }
 
 h1{
 text-align:center;
-margin-bottom:25px;
-font-size:38px;
+margin-bottom:20px;
+font-size:32px;
 background:linear-gradient(to right,#38bdf8,#9333ea);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.input-group{
-margin-bottom:18px;
-}
-
 label{
 display:block;
-margin-bottom:8px;
+margin-top:12px;
+margin-bottom:5px;
 font-size:14px;
 color:#cbd5e1;
 }
 
-input,textarea,select{
+input, textarea, select{
 width:100%;
-padding:14px;
+padding:12px;
 border:none;
-border-radius:14px;
+outline:none;
+border-radius:10px;
 background:#0f172a;
 color:white;
-outline:none;
+margin-bottom:10px;
 border:1px solid rgba(255,255,255,0.08);
 }
 
 textarea{
-min-height:120px;
+height:90px;
 resize:none;
 }
 
 button{
 width:100%;
-padding:15px;
+padding:14px;
 border:none;
-border-radius:14px;
-margin-top:15px;
+border-radius:12px;
 background:linear-gradient(to right,#0ea5e9,#9333ea);
 color:white;
 font-size:16px;
 cursor:pointer;
+margin-top:15px;
 font-weight:bold;
 }
 
@@ -88,24 +86,40 @@ opacity:0.9;
 }
 
 #resumeOutput{
-margin-top:30px;
-background:#0f172a;
-padding:25px;
-border-radius:20px;
-line-height:1.8;
-white-space:pre-wrap;
-border:1px solid rgba(255,255,255,0.08);
-}
-
-.back-home{
-text-align:center;
 margin-top:25px;
+background:white;
+padding:35px;
+border-radius:14px;
+color:black;
 }
 
-.back-home a{
-color:#38bdf8;
-text-decoration:none;
+.resume-name{
+font-size:34px;
 font-weight:bold;
+color:#2563eb;
+}
+
+.section-title{
+margin-top:25px;
+margin-bottom:10px;
+font-size:20px;
+color:#2563eb;
+border-bottom:2px solid #e5e7eb;
+padding-bottom:5px;
+}
+
+ul{
+padding-left:20px;
+line-height:1.8;
+}
+
+p{
+line-height:1.7;
+}
+
+.small{
+font-size:14px;
+color:#475569;
 }
 
 </style>
@@ -117,52 +131,42 @@ font-weight:bold;
 
 <h1>AI Resume Builder</h1>
 
-<div class="input-group">
 <label>Full Name</label>
-<input type="text" id="name" placeholder="Enter Full Name">
-</div>
+<input type="text" id="name" placeholder="Enter full name">
 
-<div class="input-group">
 <label>Email</label>
-<input type="email" id="email" placeholder="Enter Email">
-</div>
+<input type="email" id="email" placeholder="Enter email">
 
-<div class="input-group">
 <label>Mobile Number</label>
-<input type="text" id="phone" placeholder="Enter Mobile Number">
-</div>
+<input type="text" id="phone" placeholder="Enter mobile number">
 
-<div class="input-group">
+<label>Experience (Years)</label>
+<input type="text" id="years" placeholder="Example: 6">
+
 <label>Skills</label>
-<textarea id="skills" placeholder="SQL, ADF, Databricks, Python"></textarea>
-</div>
+<textarea id="skills" placeholder="SQL, Power BI, Azure, ADF"></textarea>
 
-<div class="input-group">
-<label>Experience Summary</label>
-<textarea id="experience" placeholder="Worked on ADF pipelines and Databricks projects"></textarea>
-</div>
-
-<div class="input-group">
-<label>Resume Type</label>
-<select id="resumeType">
-<option>ATS Friendly</option>
-<option>Modern</option>
-<option>Corporate</option>
-<option>Technical</option>
+<label>Role Type</label>
+<select id="role">
+<option>Support</option>
+<option>Developer</option>
+<option>Migration</option>
+<option>Data Engineer</option>
+<option>Power BI Developer</option>
+<option>SQL Developer</option>
 </select>
-</div>
+
+<label>Education</label>
+<input type="text" id="education" placeholder="Bachelor Degree">
+
+<label>Certifications</label>
+<input type="text" id="certifications" placeholder="Azure, SQL, Power BI">
 
 <button onclick="generateResume()">
-Generate Resume
+Generate Professional Resume
 </button>
 
-<div id="resumeOutput">
-Your AI resume will appear here...
-</div>
-
-<div class="back-home">
-<a href="../index.html">⬅ Back to Home</a>
-</div>
+<div id="resumeOutput"></div>
 
 </div>
 
@@ -170,111 +174,265 @@ Your AI resume will appear here...
 
 function generateResume(){
 
-const name=document.getElementById("name").value;
-const email=document.getElementById("email").value;
-const phone=document.getElementById("phone").value;
-const skills=document.getElementById("skills").value;
-const experience=document.getElementById("experience").value;
-const type=document.getElementById("resumeType").value;
+const name = document.getElementById("name").value;
+const email = document.getElementById("email").value;
+const phone = document.getElementById("phone").value;
+const years = document.getElementById("years").value;
+const skills = document.getElementById("skills").value;
+const role = document.getElementById("role").value;
+const education = document.getElementById("education").value;
+const certifications = document.getElementById("certifications").value;
 
-const output=document.getElementById("resumeOutput");
+const output = document.getElementById("resumeOutput");
 
-if(name==="" || skills==="" || experience===""){
-alert("Please fill required fields");
-return;
+let summary = "";
+let responsibilities = "";
+let projects = "";
+let environment = "";
+
+if(role === "Support"){
+
+summary =
+`${years}+ years experienced Application Support Engineer with expertise in SQL, troubleshooting, incident management, production support, and enterprise application maintenance.`;
+
+responsibilities = `
+<ul>
+<li>Handled production support tickets and incidents</li>
+<li>Worked on SQL query troubleshooting</li>
+<li>Resolved incidents within SLA timelines</li>
+<li>Performed root cause analysis</li>
+<li>Supported enterprise applications</li>
+<li>Worked with business users for issue resolution</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>Enterprise Production Support System</li>
+<li>SQL Monitoring Dashboard</li>
+<li>Incident Management Reporting Tool</li>
+</ul>
+`;
+
+environment =
+"SQL Server, Power BI, ServiceNow, Excel, Windows Server";
+
+}
+
+else if(role === "Developer"){
+
+summary =
+`${years}+ years experienced Software Developer skilled in enterprise application development, backend SQL programming, debugging, testing, and deployment activities.`;
+
+responsibilities = `
+<ul>
+<li>Developed enterprise applications</li>
+<li>Worked on backend SQL development</li>
+<li>Optimized application performance</li>
+<li>Created reusable code modules</li>
+<li>Performed debugging and testing</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>Enterprise Web Application</li>
+<li>Automation Reporting Tool</li>
+<li>Database Optimization Project</li>
+</ul>
+`;
+
+environment =
+"JavaScript, SQL, HTML, CSS, APIs, GitHub";
+
+}
+
+else if(role === "Migration"){
+
+summary =
+`${years}+ years experienced Data Migration Specialist with expertise in SQL migration, ETL processes, data validation, system upgrades, and cloud migration activities.`;
+
+responsibilities = `
+<ul>
+<li>Performed large scale data migration activities</li>
+<li>Validated migrated datasets</li>
+<li>Worked on ETL transformations</li>
+<li>Resolved migration related issues</li>
+<li>Prepared migration reports</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>Legacy Data Migration</li>
+<li>Cloud Migration Project</li>
+<li>Database Upgrade Program</li>
+</ul>
+`;
+
+environment =
+"SQL Server, ETL, Azure, Data Validation Tools";
+
+}
+
+else if(role === "Data Engineer"){
+
+summary =
+`${years}+ years experienced Azure Data Engineer skilled in ADF, Databricks, PySpark, SQL, data pipelines, ETL workflows, and cloud data engineering solutions.`;
+
+responsibilities = `
+<ul>
+<li>Developed Azure Data Factory pipelines</li>
+<li>Worked on Databricks notebooks</li>
+<li>Handled ETL and data transformation</li>
+<li>Optimized PySpark jobs</li>
+<li>Worked with cloud storage solutions</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>Azure Data Lake Project</li>
+<li>Enterprise ETL Framework</li>
+<li>Cloud Data Warehouse Migration</li>
+</ul>
+`;
+
+environment =
+"ADF, Databricks, PySpark, Azure SQL, Power BI";
+
+}
+
+else if(role === "Power BI Developer"){
+
+summary =
+`${years}+ years experienced Power BI Developer skilled in dashboards, DAX, data modeling, SQL reporting, and business intelligence solutions.`;
+
+responsibilities = `
+<ul>
+<li>Created Power BI dashboards</li>
+<li>Worked on DAX calculations</li>
+<li>Prepared business reports</li>
+<li>Optimized report performance</li>
+<li>Worked with stakeholders for reporting needs</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>Sales Dashboard</li>
+<li>Executive KPI Reporting</li>
+<li>Business Analytics Platform</li>
+</ul>
+`;
+
+environment =
+"Power BI, SQL Server, Excel, DAX";
+
+}
+
+else if(role === "SQL Developer"){
+
+summary =
+`${years}+ years experienced SQL Developer skilled in stored procedures, query optimization, database performance tuning, and reporting solutions.`;
+
+responsibilities = `
+<ul>
+<li>Developed complex SQL queries</li>
+<li>Created stored procedures and functions</li>
+<li>Optimized database performance</li>
+<li>Worked on indexing and tuning</li>
+<li>Generated reports and analytics</li>
+</ul>
+`;
+
+projects = `
+<ul>
+<li>SQL Reporting Platform</li>
+<li>Database Performance Optimization</li>
+<li>Enterprise Data Solutions</li>
+</ul>
+`;
+
+environment =
+"SQL Server, SSMS, Power BI, ETL";
+
 }
 
 output.innerHTML = `
 
-<div style="
-background:white;
-color:black;
-padding:40px;
-border-radius:12px;
-font-family:Arial;
-line-height:1.7;
-">
+<div>
 
-<h1 style="
-font-size:34px;
-color:#2563eb;
-margin-bottom:5px;
-">
+<div class="resume-name">
 ${name}
-</h1>
+</div>
 
-<p>
+<p class="small">
 ${email} | ${phone}
 </p>
 
-<hr style="margin:20px 0;">
-
-<h2 style="color:#2563eb;">
+<div class="section-title">
 Professional Summary
-</h2>
+</div>
 
 <p>
-Experienced IT professional with strong knowledge in ${skills}. 
-Skilled in handling enterprise applications, troubleshooting, support operations, and delivering high quality technical solutions.
+${summary}
 </p>
 
-<h2 style="
-color:#2563eb;
-margin-top:25px;
-">
+<div class="section-title">
 Technical Skills
-</h2>
+</div>
 
 <ul>
 ${skills.split(",").map(skill => `<li>${skill}</li>`).join("")}
 </ul>
 
-<h2 style="
-color:#2563eb;
-margin-top:25px;
-">
-Professional Experience
-</h2>
+<div class="section-title">
+Roles & Responsibilities
+</div>
+
+${responsibilities}
+
+<div class="section-title">
+Projects
+</div>
+
+${projects}
+
+<div class="section-title">
+Environment
+</div>
 
 <p>
-${experience}
+${environment}
 </p>
 
-<h2 style="
-color:#2563eb;
-margin-top:25px;
-">
-Projects
-</h2>
+<div class="section-title">
+Education
+</div>
+
+<p>
+${education}
+</p>
+
+<div class="section-title">
+Certifications
+</div>
+
+<p>
+${certifications}
+</p>
+
+<div class="section-title">
+Achievements
+</div>
 
 <ul>
-<li>Worked on enterprise level application support</li>
-<li>Handled incidents and troubleshooting</li>
-<li>Worked with SQL queries and reporting</li>
-<li>Supported business critical systems</li>
+<li>Successfully delivered enterprise level solutions</li>
+<li>Worked in Agile and production environments</li>
+<li>Handled business critical applications</li>
+<li>Improved operational efficiency</li>
 </ul>
-
-<h2 style="
-color:#2563eb;
-margin-top:25px;
-">
-Education
-</h2>
-
-<p>
-Bachelor Degree / Relevant Qualification
-</p>
-
-<h2 style="
-color:#2563eb;
-margin-top:25px;
-">
-Resume Style
-</h2>
-
-<p>
-${type}
-</p>
 
 </div>
 
