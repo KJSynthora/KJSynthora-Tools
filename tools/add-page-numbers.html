@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Add Page Numbers</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+<style>
+
+body{
+background:#020617;
+color:white;
+font-family:Poppins,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:#0f172a;
+padding:50px;
+border-radius:24px;
+text-align:center;
+width:700px;
+max-width:95%;
+}
+
+h1{
+font-size:42px;
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+margin-bottom:20px;
+}
+
+button{
+padding:14px 24px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#0ea5e9,#7c3aed);
+color:white;
+cursor:pointer;
+margin-top:20px;
+}
+
+a{
+display:inline-block;
+margin-top:30px;
+color:#38bdf8;
+text-decoration:none;
+}
+
+#status{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Add Page Numbers 🔢</h1>
+
+<input type="file" id="pdfFile" accept=".pdf">
+
+<br>
+
+<button onclick="addPageNumbers()">
+Add Page Numbers
+</button>
+
+<div id="status"></div>
+
+<a href="../index.html">Return Home</a>
+
+</div>
+
+<script>
+
+async function addPageNumbers(){
+
+const fileInput=document.getElementById('pdfFile');
+const status=document.getElementById('status');
+
+if(fileInput.files.length===0){
+status.innerHTML="Please upload PDF.";
+return;
+}
+
+const file=fileInput.files[0];
+const arrayBuffer=await file.arrayBuffer();
+
+const pdfDoc=await PDFLib.PDFDocument.load(arrayBuffer);
+
+const pages=pdfDoc.getPages();
+
+pages.forEach((page,index)=>{
+
+page.drawText(`${index+1}`,{
+x:300,
+y:20,
+size:12
+});
+
+});
+
+const pdfBytes=await pdfDoc.save();
+
+const blob=new Blob([pdfBytes],{type:'application/pdf'});
+
+const link=document.createElement('a');
+
+link.href=URL.createObjectURL(blob);
+
+link.download='page-numbered.pdf';
+
+link.click();
+
+status.innerHTML="Page numbers added successfully ✅";
+
+}
+
+</script>
+
+</body>
+</html>
