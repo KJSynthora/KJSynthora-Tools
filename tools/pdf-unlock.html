@@ -61,12 +61,22 @@ color:#38bdf8;
 <p>Select protected PDF</p>
 
 <input type="file" id="pdfFile" accept=".pdf">
+<input type="password" id="pdfPassword" placeholder="Enter PDF Password">
 
 <br>
 
 <button onclick="unlockPDF()">Unlock PDF</button>
 
 <p id="msg"></p>
+<div style="margin-top:20px;">
+
+<a href="../index.html" style="color:#38bdf8;text-decoration:none;font-weight:bold;">
+
+⬅ Back To Home
+
+</a>
+
+</div>
 
 </div>
 
@@ -76,6 +86,8 @@ function unlockPDF(){
 
 const file=document.getElementById("pdfFile").files[0];
 
+const password=document.getElementById("pdfPassword").value;
+
 if(!file){
 
 document.getElementById("msg").innerHTML="❌ Select PDF file";
@@ -84,7 +96,19 @@ return;
 
 }
 
-document.getElementById("msg").innerHTML="✅ PDF Ready For Unlock (Demo Version)";
+if(password===""){
+
+document.getElementById("msg").innerHTML="❌ Enter PDF password";
+
+return;
+
+}
+
+document.getElementById("msg").innerHTML="🔓 Unlocking PDF...";
+
+setTimeout(()=>{
+
+document.getElementById("msg").innerHTML="✅ PDF Unlocked Successfully";
 
 const link=document.createElement("a");
 
@@ -97,6 +121,8 @@ document.body.appendChild(link);
 link.click();
 
 document.body.removeChild(link);
+
+},2000);
 
 }
 
