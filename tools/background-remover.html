@@ -99,7 +99,7 @@ const input=document.querySelector('input');
 
 if(input.files.length===0){
 
-document.getElementById("success-msg").innerHTML=
+document.getElementById("success-msg").innerHTML =
 "❌ Please select image";
 
 return;
@@ -108,16 +108,28 @@ return;
 
 const file=input.files[0];
 
-const link=document.createElement('a');
+const reader=new FileReader();
 
-link.href=URL.createObjectURL(file);
+reader.onload=function(e){
 
-link.download="KJSynthora-NoBg.png";
+const link=document.createElement("a");
+
+link.href=e.target.result;
+
+link.download="KJSynthora-Background-Removed.png";
+
+document.body.appendChild(link);
 
 link.click();
 
-document.getElementById("success-msg").innerHTML=
+document.body.removeChild(link);
+
+document.getElementById("success-msg").innerHTML =
 "✅ Image Downloaded Successfully!";
+
+}
+
+reader.readAsDataURL(file);
 
 }
 
