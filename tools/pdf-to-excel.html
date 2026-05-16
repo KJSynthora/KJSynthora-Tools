@@ -1,36 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDF to Excel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
 body{
-background:#020617;
-color:white;
-font-family:Poppins,sans-serif;
+background:
+radial-gradient(circle at top left,#1e3a8a 0%,#020617 45%),
+linear-gradient(to bottom,#020617,#000814);
+min-height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
-margin:0;
+padding:30px;
+color:white;
 }
 
-.box{
+.container{
+width:100%;
+max-width:700px;
+background:rgba(7,15,43,0.95);
+border:1px solid rgba(56,189,248,0.12);
+border-radius:28px;
+padding:50px;
+box-shadow:0 0 40px rgba(0,0,0,0.4);
 text-align:center;
-background:#0f172a;
-padding:40px;
-border-radius:20px;
 }
 
-a{
-display:inline-block;
+h1{
+font-size:42px;
+margin-bottom:15px;
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+p{
+color:#cbd5e1;
+margin-bottom:35px;
+line-height:1.7;
+}
+
+.upload-box{
+border:2px dashed #38bdf8;
+padding:50px 20px;
+border-radius:22px;
+margin-bottom:30px;
+background:rgba(15,23,42,0.8);
+}
+
+input[type=file]{
 margin-top:20px;
-padding:12px 20px;
+color:white;
+}
+
+button{
+padding:16px 34px;
+border:none;
+border-radius:14px;
 background:linear-gradient(90deg,#0ea5e9,#7c3aed);
 color:white;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+margin-top:20px;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px rgba(56,189,248,0.5);
+}
+
+#status{
+margin-top:25px;
+font-size:15px;
+color:#93c5fd;
+}
+
+.home-btn{
+display:inline-block;
+margin-top:35px;
+padding:14px 28px;
+border-radius:14px;
 text-decoration:none;
-border-radius:10px;
+background:#111827;
+color:white;
 }
 
 </style>
@@ -38,15 +108,92 @@ border-radius:10px;
 
 <body>
 
-<div class="box">
+<div class="container">
 
 <h1>PDF to Excel 🚀</h1>
 
-<p>Tool Coming Soon</p>
+<p>
+Upload a PDF file and convert extracted text into Excel format instantly.
+</p>
 
-<a href="../index.html">Return Home</a>
+<div class="upload-box">
+
+<h3>Select PDF File</h3>
+
+<input type="file" id="pdfFile" accept=".pdf">
 
 </div>
+
+<button onclick="convertPDFtoExcel()">
+Convert to Excel
+</button>
+
+<div id="status"></div>
+
+<a href="../index.html" class="home-btn">
+Return Home
+</a>
+
+</div>
+
+<script>
+
+async function convertPDFtoExcel(){
+
+const fileInput = document.getElementById('pdfFile');
+const status = document.getElementById('status');
+
+if(fileInput.files.length === 0){
+status.innerHTML = "Please select a PDF file.";
+return;
+}
+
+status.innerHTML = "Reading PDF...";
+
+const file = fileInput.files[0];
+const fileReader = new FileReader();
+
+fileReader.onload = async function(){
+
+const typedArray = new Uint8Array(this.result);
+
+const pdf = await pdfjsLib.getDocument(typedArray).promise;
+
+let extractedText = [];
+
+for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+
+const page = await pdf.getPage(pageNum);
+
+const textContent = await page.getTextContent();
+
+const pageText = textContent.items.map(item => item.str);
+
+pageText.forEach(line=>{
+extractedText.push([line]);
+});
+
+}
+
+status.innerHTML = "Generating Excel file...";
+
+const worksheet = XLSX.utils.aoa_to_sheet(extractedText);
+
+const workbook = XLSX.utils.book_new();
+
+XLSX.utils.book_append_sheet(workbook, worksheet, "PDF Data");
+
+XLSX.writeFile(workbook, "converted.xlsx");
+
+status.innerHTML = "Excel file downloaded successfully ✅";
+
+};
+
+fileReader.readAsArrayBuffer(file);
+
+}
+
+</script>
 
 </body>
 </html>
