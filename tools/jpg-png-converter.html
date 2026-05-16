@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPG PNG Converter</title>
+
+<style>
+
+body{
+background:#020617;
+font-family:Arial;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+color:white;
+}
+
+.container{
+background:#111827;
+padding:40px;
+border-radius:20px;
+text-align:center;
+width:400px;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+input,select{
+margin-top:20px;
+padding:12px;
+width:90%;
+border:none;
+border-radius:10px;
+}
+
+button{
+margin-top:20px;
+padding:12px 25px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#06b6d4,#7c3aed);
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+#msg{
+margin-top:20px;
+color:#38bdf8;
+}
+
+a{
+display:block;
+margin-top:20px;
+color:#38bdf8;
+text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>JPG ⇄ PNG Converter</h1>
+
+<p>Select image and choose format</p>
+
+<input type="file" id="imageInput" accept="image/*">
+
+<select id="format">
+<option value="png">Convert to PNG</option>
+<option value="jpeg">Convert to JPG</option>
+</select>
+
+<br>
+
+<button onclick="convertImage()">Convert Image</button>
+
+<p id="msg"></p>
+
+<a href="../index.html">⬅ Back To Home</a>
+
+</div>
+
+<script>
+
+function convertImage(){
+
+const file=document.getElementById("imageInput").files[0];
+
+const format=document.getElementById("format").value;
+
+if(!file){
+
+document.getElementById("msg").innerHTML=
+"❌ Select image";
+
+return;
+
+}
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+
+const img=new Image();
+
+img.onload=function(){
+
+const canvas=document.createElement("canvas");
+
+canvas.width=img.width;
+
+canvas.height=img.height;
+
+const ctx=canvas.getContext("2d");
+
+ctx.drawImage(img,0,0);
+
+const link=document.createElement("a");
+
+link.href=canvas.toDataURL("image/"+format);
+
+link.download="converted-image."+format;
+
+document.body.appendChild(link);
+
+link.click();
+
+document.body.removeChild(link);
+
+document.getElementById("msg").innerHTML=
+"✅ Image Converted Successfully";
+
+}
+
+img.src=e.target.result;
+
+}
+
+reader.readAsDataURL(file);
+
+}
+
+</script>
+
+</body>
+</html>
