@@ -1,84 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Resume Builder</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Resume Builder</title>
+
 <style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
 body{
 background:#020617;
-font-family:Arial;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
-margin:0;
+min-height:100vh;
 color:white;
+padding:20px;
 }
+
 .container{
-background:#111827;
-padding:40px;
-border-radius:20px;
-width:400px;
+width:100%;
+max-width:700px;
+background:rgba(15,23,42,0.95);
+padding:30px;
+border-radius:24px;
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 0 40px rgba(59,130,246,0.3);
+}
+
+h1{
 text-align:center;
+margin-bottom:25px;
+font-size:38px;
+background:linear-gradient(to right,#38bdf8,#9333ea);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
-input{
-width:90%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:10px;
+
+.input-group{
+margin-bottom:18px;
 }
-button{
-margin-top:20px;
-padding:12px 25px;
+
+label{
+display:block;
+margin-bottom:8px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+input,textarea,select{
+width:100%;
+padding:14px;
 border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
+border-radius:14px;
+background:#0f172a;
 color:white;
-cursor:pointer;
+outline:none;
+border:1px solid rgba(255,255,255,0.08);
 }
+
+textarea{
+min-height:120px;
+resize:none;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:14px;
+margin-top:15px;
+background:linear-gradient(to right,#0ea5e9,#9333ea);
+color:white;
+font-size:16px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+#resumeOutput{
+margin-top:30px;
+background:#0f172a;
+padding:25px;
+border-radius:20px;
+line-height:1.8;
+white-space:pre-wrap;
+border:1px solid rgba(255,255,255,0.08);
+}
+
+.back-home{
+text-align:center;
+margin-top:25px;
+}
+
+.back-home a{
+color:#38bdf8;
+text-decoration:none;
+font-weight:bold;
+}
+
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>Resume Builder</h1>
+<h1>AI Resume Builder</h1>
 
-<input type="text" id="name" placeholder="Enter Name">
+<div class="input-group">
+<label>Full Name</label>
+<input type="text" id="name" placeholder="Enter Full Name">
+</div>
 
-<input type="text" id="role" placeholder="Enter Role">
+<div class="input-group">
+<label>Email</label>
+<input type="email" id="email" placeholder="Enter Email">
+</div>
 
-<button onclick="downloadResume()">
-Download Resume
+<div class="input-group">
+<label>Mobile Number</label>
+<input type="text" id="phone" placeholder="Enter Mobile Number">
+</div>
+
+<div class="input-group">
+<label>Skills</label>
+<textarea id="skills" placeholder="SQL, ADF, Databricks, Python"></textarea>
+</div>
+
+<div class="input-group">
+<label>Experience Summary</label>
+<textarea id="experience" placeholder="Worked on ADF pipelines and Databricks projects"></textarea>
+</div>
+
+<div class="input-group">
+<label>Resume Type</label>
+<select id="resumeType">
+<option>ATS Friendly</option>
+<option>Modern</option>
+<option>Corporate</option>
+<option>Technical</option>
+</select>
+</div>
+
+<button onclick="generateResume()">
+Generate Resume
 </button>
+
+<div id="resumeOutput">
+Your AI resume will appear here...
+</div>
+
+<div class="back-home">
+<a href="../index.html">⬅ Back to Home</a>
+</div>
 
 </div>
 
 <script>
 
-function downloadResume(){
+function generateResume(){
 
 const name=document.getElementById("name").value;
+const email=document.getElementById("email").value;
+const phone=document.getElementById("phone").value;
+const skills=document.getElementById("skills").value;
+const experience=document.getElementById("experience").value;
+const type=document.getElementById("resumeType").value;
 
-const role=document.getElementById("role").value;
+const output=document.getElementById("resumeOutput");
 
-if(name==="" || role===""){
-alert("Fill all fields");
+if(name==="" || skills==="" || experience===""){
+alert("Please fill required fields");
 return;
 }
 
-const content=
-"Name: "+name+"\nRole: "+role;
+output.innerHTML=`
 
-const blob=new Blob([content],{type:"text/plain"});
+==============================
 
-const link=document.createElement("a");
+${name}
 
-link.href=URL.createObjectURL(blob);
+${email}
 
-link.download="resume.txt";
+${phone}
 
-link.click();
+==============================
+
+PROFESSIONAL SUMMARY
+
+Experienced professional with expertise in ${skills}. Skilled in delivering high quality solutions and handling enterprise level projects efficiently.
+
+==============================
+
+SKILLS
+
+${skills}
+
+==============================
+
+EXPERIENCE
+
+${experience}
+
+==============================
+
+RESUME TYPE
+
+${type}
+
+`;
 
 }
 
