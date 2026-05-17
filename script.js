@@ -235,9 +235,10 @@ document.getElementById("toolCount");
 
 if(toolCount){
 
-toolCount.innerText = totalTools + "+";
+toolCount.innerText =
+totalTools + "+";
 
 }
 
-},500);
+},1000);
 
