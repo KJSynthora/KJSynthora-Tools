@@ -222,3 +222,10 @@ async function updateClock() {
 setInterval(updateClock, 1000);
 
 updateClock();
+
+const totalTools =
+document.querySelectorAll(".tool-card").length;
+
+document.getElementById("toolCount")
+.innerText = totalTools;
+
