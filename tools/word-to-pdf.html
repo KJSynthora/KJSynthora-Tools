@@ -6,11 +6,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Word to PDF | KJSynthora</title>
+<title>Word to PDF Converter - KJSynthora</title>
+
+<meta name="description" content="Convert Word documents to PDF online free with KJSynthora tools.">
+
+<link rel="canonical" href="https://kjsynthora.com/tools/word-to-pdf.html">
+
+<link rel="icon" type="image/png" href="../logo.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -33,7 +41,7 @@ color:white;
 
 .container{
 width:100%;
-max-width:500px;
+max-width:520px;
 background:#081028;
 padding:40px;
 border-radius:25px;
@@ -44,7 +52,7 @@ border:1px solid rgba(255,255,255,0.08);
 
 h1{
 font-size:42px;
-margin-bottom:25px;
+margin-bottom:20px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -53,6 +61,7 @@ background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 p{
 color:#cbd5e1;
 margin-bottom:25px;
+line-height:1.7;
 }
 
 input[type=file]{
@@ -67,7 +76,8 @@ cursor:pointer;
 }
 
 button{
-padding:14px 28px;
+width:100%;
+padding:15px;
 border:none;
 border-radius:14px;
 background:linear-gradient(90deg,#0ea5e9,#9333ea);
@@ -79,12 +89,13 @@ transition:0.3s;
 }
 
 button:hover{
-transform:scale(1.05);
+transform:scale(1.03);
 }
 
 #status{
 margin-top:25px;
-font-size:16px;
+font-size:15px;
+font-weight:500;
 }
 
 .loading{
@@ -97,6 +108,17 @@ color:#f87171;
 
 .success{
 color:#4ade80;
+}
+
+.note{
+margin-top:20px;
+padding:15px;
+border-radius:12px;
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.08);
+font-size:14px;
+color:#94a3b8;
+line-height:1.7;
 }
 
 .home-btn{
@@ -117,15 +139,22 @@ font-weight:600;
 
 <h1>Word to PDF</h1>
 
-<p>Select DOC/DOCX file and convert into PDF</p>
+<p>
+Convert DOCX Word documents into PDF files instantly.
+</p>
 
-<input type="file" id="wordFile" accept=".doc,.docx">
+<input type="file" id="wordFile" accept=".docx">
 
 <button onclick="convertWordToPDF()">
-Convert PDF
+Convert to PDF
 </button>
 
 <div id="status"></div>
+
+<div class="note">
+⚠ Currently supports DOCX files only.<br>
+Complex formatting may appear differently in PDF.
+</div>
 
 <a href="../index.html" class="home-btn">
 ← Return Home
@@ -137,61 +166,74 @@ Convert PDF
 
 async function convertWordToPDF(){
 
-const file = document.getElementById("wordFile").files[0];
+const file =
+document.getElementById("wordFile").files[0];
 
-const status = document.getElementById("status");
+const status =
+document.getElementById("status");
 
 if(!file){
 
-status.innerHTML = "Please select DOC/DOCX file";
+status.innerHTML =
+"Please select DOCX file";
+
 status.className = "error";
+
 return;
 
 }
 
-status.innerHTML = "Converting Word...";
+status.innerHTML =
+"Converting Word to PDF...";
+
 status.className = "loading";
 
 try{
 
-const pdfDoc = await PDFLib.PDFDocument.create();
+const reader = new FileReader();
 
-const page = pdfDoc.addPage([600,700]);
+reader.onload = async function(event){
 
-page.drawText(
-"Word to PDF conversion completed successfully!",
-{
-x:50,
-y:650,
-size:20
+try{
+
+const arrayBuffer =
+event.target.result;
+
+const result =
+await mammoth.extractRawText({
+arrayBuffer: arrayBuffer
+});
+
+const text =
+result.value;
+
+if(text.trim() === ""){
+
+status.innerHTML =
+"No readable text found";
+
+status.className = "error";
+
+return;
+
 }
-);
 
-page.drawText(
-"File Name: " + file.name,
-{
-x:50,
-y:600,
-size:14
-}
-);
+const { jsPDF } =
+window.jspdf;
 
-const pdfBytes = await pdfDoc.save();
+const pdf =
+new jsPDF();
 
-const blob = new Blob(
-[pdfBytes],
-{type:"application/pdf"}
-);
+const splitText =
+pdf.splitTextToSize(text, 180);
 
-const link = document.createElement("a");
+pdf.text(splitText, 10, 10);
 
-link.href = URL.createObjectURL(blob);
+pdf.save("KJSynthora.pdf");
 
-link.download = "converted.pdf";
+status.innerHTML =
+"✅ PDF downloaded successfully!";
 
-link.click();
-
-status.innerHTML = "✅ PDF Downloaded Successfully!";
 status.className = "success";
 
 }
@@ -199,7 +241,25 @@ catch(error){
 
 console.log(error);
 
-status.innerHTML = "Conversion Failed";
+status.innerHTML =
+"Conversion failed";
+
+status.className = "error";
+
+}
+
+};
+
+reader.readAsArrayBuffer(file);
+
+}
+catch(error){
+
+console.log(error);
+
+status.innerHTML =
+"Something went wrong";
+
 status.className = "error";
 
 }
