@@ -1,71 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Code Generator</title>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<title>QR Generator | KJSynthora</title>
+
+<link rel="icon" type="image/png" href="../logo.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
+
 body{
 background:#020617;
-font-family:Arial,sans-serif;
+font-family:Poppins,sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
-margin:0;
 color:white;
 }
 
 .container{
-background:#111827;
+background:#081028;
 padding:40px;
 border-radius:20px;
+width:400px;
 text-align:center;
-width:350px;
-box-shadow:0 0 25px rgba(0,0,0,0.5);
 }
 
-h1{
-margin-bottom:20px;
-}
-
-input{
+input,button{
 width:100%;
 padding:14px;
+margin-top:15px;
 border:none;
 border-radius:10px;
-margin-bottom:20px;
-font-size:16px;
-outline:none;
+background:#0f172a;
+color:white;
 }
 
 button{
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
-color:white;
-border:none;
-padding:12px 25px;
-border-radius:10px;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
 cursor:pointer;
-font-size:16px;
-}
-
-button:hover{
-opacity:0.9;
 }
 
 #qrcode{
 margin-top:20px;
+display:flex;
+justify-content:center;
 }
 
 a{
 display:block;
 margin-top:20px;
 color:#38bdf8;
-text-decoration:none;
 }
+
 </style>
 </head>
 
@@ -73,43 +65,35 @@ text-decoration:none;
 
 <div class="container">
 
-<h1>QR Code Generator</h1>
+<h1>QR Generator</h1>
 
 <input type="text" id="qrText" placeholder="Enter text or URL">
 
-<button onclick="generateQR()">Generate QR</button>
+<button onclick="generateQR()">
+Generate QR
+</button>
 
 <div id="qrcode"></div>
 
-<a href="../index.html">⬅ Back to Home</a>
+<a href="../index.html">
+← Return Home
+</a>
 
 </div>
 
 <script>
+
 function generateQR(){
 
-let qrDiv=document.getElementById("qrcode");
+document.getElementById("qrcode").innerHTML="";
 
-qrDiv.innerHTML="";
+new QRCode(
+document.getElementById("qrcode"),
+document.getElementById("qrText").value
+);
 
-let text=document.getElementById("qrText").value;
-
-if(text===""){
-alert("Enter text or URL");
-return;
 }
 
-QRCode.toCanvas(text,{width:220},function(error,canvas){
-
-if(error){
-console.error(error);
-return;
-}
-
-qrDiv.appendChild(canvas);
-
-});
-}
 </script>
 
 </body>
