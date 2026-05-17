@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KJSynthora Tools</title>
-
+<title>KJSynthora | AI & PDF Tools Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -12,14 +11,12 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Poppins',sans-serif;
 scroll-behavior:smooth;
+font-family:'Poppins',sans-serif;
 }
 
 body{
-background:
-radial-gradient(circle at top left,#1e3a8a 0%,#020617 45%),
-linear-gradient(to bottom,#020617,#000814);
+background:linear-gradient(135deg,#0b1026,#020617,#0f172a);
 color:white;
 overflow-x:hidden;
 }
@@ -31,28 +28,31 @@ width:700px;
 height:700px;
 background:radial-gradient(circle,#2563eb55,#7c3aed22,transparent);
 top:-250px;
-left:-200px;
+left:-250px;
 filter:blur(80px);
 z-index:-1;
-animation:moveGlow 8s infinite alternate;
+animation:floatGlow 8s infinite alternate;
 }
 
-@keyframes moveGlow{
-0%{transform:translateY(0px)}
-100%{transform:translateY(50px)}
+@keyframes floatGlow{
+from{transform:translateY(0px);}
+to{transform:translateY(60px);}
+}
+
+header{
+position:sticky;
+top:0;
+z-index:999;
+background:rgba(2,6,23,0.95);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
 .navbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:18px 6%;
-background:rgba(2,6,23,0.88);
-backdrop-filter:blur(10px);
-position:sticky;
-top:0;
-z-index:999;
-border-bottom:1px solid rgba(255,255,255,0.08);
+padding:18px 7%;
 }
 
 .logo-section{
@@ -62,39 +62,40 @@ gap:14px;
 }
 
 .logo{
-width:72px;
-height:72px;
+width:70px;
+height:70px;
 object-fit:contain;
-filter:
-drop-shadow(0 0 20px #38bdf8)
-drop-shadow(0 0 40px #7c3aed);
+filter:drop-shadow(0 0 18px #38bdf8);
 }
 
-.logo-section h1{
-font-size:38px;
+.logo-text h1{
+font-size:2rem;
 font-weight:800;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.logo-section p{
-font-size:13px;
+.logo-text p{
+font-size:0.9rem;
 color:#cbd5e1;
-margin-top:4px;
 }
 
 .nav-links{
 display:flex;
-gap:30px;
-list-style:none;
 align-items:center;
+gap:28px;
+list-style:none;
+}
+
+.nav-links li{
+position:relative;
 }
 
 .nav-links a{
 text-decoration:none;
 color:white;
-font-weight:600;
+font-weight:500;
 transition:0.3s;
 }
 
@@ -102,98 +103,136 @@ transition:0.3s;
 color:#38bdf8;
 }
 
+.dropdown{
+display:none;
+position:absolute;
+top:35px;
+left:0;
+background:#0f172a;
+padding:15px;
+border-radius:16px;
+min-width:220px;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+
+.dropdown a{
+display:block;
+padding:10px;
+font-size:0.95rem;
+color:#e2e8f0;
+}
+
+.dropdown a:hover{
+background:#1e293b;
+border-radius:10px;
+}
+
+.nav-links li:hover .dropdown{
+display:block;
+}
+
+.time-box{
+font-size:0.85rem;
+text-align:right;
+color:#cbd5e1;
+line-height:1.5;
+}
+
 .hero{
-min-height:85vh;
+min-height:100vh;
 display:flex;
+flex-direction:column;
 justify-content:center;
 align-items:center;
 text-align:center;
-padding:80px 8%;
+padding:100px 7%;
 }
 
-.hero-content h1{
-font-size:78px;
+.hero h1{
+font-size:5rem;
+max-width:1100px;
 line-height:1.1;
-margin-bottom:25px;
 font-weight:800;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+margin-bottom:25px;
 }
 
-.hero-content p{
-font-size:20px;
-color:#d1d5db;
+.hero p{
 max-width:900px;
-margin:auto;
+font-size:1.25rem;
+color:#cbd5e1;
 line-height:1.8;
+margin-bottom:40px;
 }
 
 .hero-buttons{
-margin-top:40px;
 display:flex;
 gap:20px;
-justify-content:center;
+margin-bottom:50px;
 flex-wrap:wrap;
+justify-content:center;
 }
 
-.primary-btn,
-.secondary-btn,
-.open-btn{
-text-decoration:none;
-color:white;
-padding:14px 28px;
+.btn{
+padding:16px 36px;
 border-radius:14px;
+text-decoration:none;
 font-weight:600;
-transition:0.3s;
-display:inline-block;
+transition:0.4s;
 }
 
-.primary-btn,
-.open-btn{
+.primary-btn{
 background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
+}
+
+.primary-btn:hover{
+transform:translateY(-4px) scale(1.03);
+box-shadow:0 10px 35px rgba(14,165,233,0.4);
 }
 
 .secondary-btn{
 background:#111827;
-}
-
-.primary-btn:hover,
-.open-btn:hover{
-transform:translateY(-3px) scale(1.03);
-box-shadow:0 0 25px #2563eb;
-}
-
-.search-section{
-text-align:center;
-padding:20px 8% 60px;
-}
-
-.search-box input{
-width:420px;
-max-width:90%;
-padding:16px 20px;
-background:#0f172a;
-border:1px solid rgba(255,255,255,0.08);
-border-radius:16px;
-outline:none;
 color:white;
-font-size:16px;
-box-shadow:0 0 20px rgba(59,130,246,0.18);
 }
 
-.filters{
-margin-top:25px;
+.secondary-btn:hover{
+background:#1e293b;
+}
+
+.search-container{
+width:100%;
+max-width:650px;
+margin-bottom:25px;
+}
+
+.search-box{
+width:100%;
+padding:18px 22px;
+border:none;
+border-radius:18px;
+background:#111827;
+color:white;
+font-size:1rem;
+outline:none;
+box-shadow:0 0 30px rgba(37,99,235,0.15);
+}
+
+.filter-buttons{
 display:flex;
-gap:14px;
-justify-content:center;
+gap:12px;
 flex-wrap:wrap;
+justify-content:center;
+margin-top:25px;
 }
 
 .filter-btn{
 padding:10px 18px;
-border:none;
 border-radius:999px;
+border:none;
 background:#111827;
 color:white;
 cursor:pointer;
@@ -201,112 +240,149 @@ transition:0.3s;
 }
 
 .filter-btn:hover{
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
+background:#2563eb;
 }
 
-.tools-section{
-padding:20px 8% 100px;
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:25px;
+padding:0 7% 80px;
+}
+
+.stat-card{
+background:rgba(15,23,42,0.8);
+padding:35px;
+border-radius:24px;
+text-align:center;
+border:1px solid rgba(255,255,255,0.05);
+}
+
+.stat-card h2{
+font-size:2.5rem;
+color:#38bdf8;
+margin-bottom:10px;
+}
+
+.stat-card p{
+color:#cbd5e1;
 }
 
 .section-title{
 text-align:center;
-font-size:56px;
-margin-bottom:60px;
+font-size:3rem;
+margin-bottom:50px;
 font-weight:800;
-background:linear-gradient(90deg,#60a5fa,#a78bfa);
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
+.tools-section{
+padding:100px 7%;
+}
+
 .tools-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:32px;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:30px;
 }
 
 .tool-card{
 background:linear-gradient(145deg,#020617,#0f172a);
-border:1px solid rgba(255,255,255,0.08);
-border-radius:24px;
-padding:35px 28px;
+border-radius:26px;
+padding:35px;
+min-height:280px;
 display:flex;
 flex-direction:column;
 justify-content:space-between;
-transition:0.35s;
-min-height:320px;
-box-shadow:0 0 20px rgba(59,130,246,0.08);
+border:1px solid rgba(255,255,255,0.06);
+transition:0.4s;
 }
 
 .tool-card:hover{
-transform:translateY(-8px) scale(1.02);
-box-shadow:0 0 35px rgba(59,130,246,0.25);
-border-color:#3b82f6;
+transform:translateY(-10px);
+box-shadow:0 15px 50px rgba(37,99,235,0.25);
 }
 
 .tool-icon{
-font-size:42px;
-margin-bottom:20px;
+font-size:2.8rem;
+margin-bottom:18px;
 }
 
 .tool-card h3{
-font-size:34px;
-line-height:1.2;
-margin-bottom:18px;
+font-size:1.6rem;
+margin-bottom:12px;
 color:#38bdf8;
 }
 
 .tool-card p{
 color:#cbd5e1;
 line-height:1.7;
-margin-bottom:28px;
-font-size:15px;
+margin-bottom:20px;
 }
 
-.contact-section{
-padding:100px 8%;
+.open-btn{
+text-decoration:none;
+padding:12px 18px;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
+border-radius:12px;
+font-weight:600;
+display:inline-block;
 text-align:center;
-background:#020617;
-border-top:1px solid rgba(255,255,255,0.08);
 }
 
-.contact-section h2{
-font-size:52px;
-margin-bottom:25px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+.about-section{
+padding:100px 7%;
+text-align:center;
 }
 
-.contact-section p{
-margin:14px 0;
-font-size:18px;
+.about-section p{
+max-width:1000px;
+margin:auto;
+line-height:2;
+font-size:1.1rem;
 color:#cbd5e1;
 }
 
 footer{
-padding:30px;
+padding:60px 7%;
 text-align:center;
-background:#000814;
-color:#94a3b8;
-font-size:14px;
+border-top:1px solid rgba(255,255,255,0.08);
+margin-top:60px;
 }
 
-@media(max-width:768px){
+.footer-links{
+display:flex;
+justify-content:center;
+gap:25px;
+flex-wrap:wrap;
+margin:20px 0;
+}
+
+.footer-links a{
+text-decoration:none;
+color:#cbd5e1;
+}
+
+.footer-links a:hover{
+color:#38bdf8;
+}
+
+@media(max-width:900px){
+.hero h1{
+font-size:3rem;
+}
+
 .navbar{
 flex-direction:column;
 gap:20px;
 }
 
-.hero-content h1{
-font-size:46px;
-}
-
-.section-title{
-font-size:40px;
-}
-
-.tool-card h3{
-font-size:28px;
+.nav-links{
+flex-wrap:wrap;
+justify-content:center;
 }
 }
 </style>
@@ -320,7 +396,7 @@ font-size:28px;
 <div class="logo-section">
 <img src="logo.png" class="logo">
 
-<div>
+<div class="logo-text">
 <h1>KJSynthora</h1>
 <p>AI Tools Platform</p>
 </div>
@@ -328,52 +404,100 @@ font-size:28px;
 
 <ul class="nav-links">
 <li><a href="#home">Home</a></li>
-<li><a href="#tools">Tools</a></li>
-<li><a href="#aitools">AI Tools</a></li>
-<li><a href="#contact">Contact</a></li>
+
+<li>
+<a href="#tools">PDF Tools ▼</a>
+<div class="dropdown">
+<a href="tools/pdf-merge.html">PDF Merge</a>
+<a href="tools/pdf-compress.html">PDF Compress</a>
+<a href="tools/pdf-to-word.html">PDF to Word</a>
+<a href="tools/word-to-pdf.html">Word to PDF</a>
+<a href="tools/pdf-to-excel.html">PDF to Excel</a>
+<a href="tools/excel-to-pdf.html">Excel to PDF</a>
+<a href="tools/powerpoint-to-pdf.html">PowerPoint to PDF</a>
+</div>
+</li>
+
+<li>
+<a href="#tools">AI Tools ▼</a>
+<div class="dropdown">
+<a href="tools/ai-caption-generator.html">AI Caption Generator</a>
+<a href="tools/hashtag-generator.html">AI Hashtag Generator</a>
+<a href="tools/ai-bio-generator.html">AI Bio Generator</a>
+<a href="tools/resume-builder.html">Resume Builder</a>
+</div>
+</li>
+
+<li>
+<a href="#tools">Image Tools ▼</a>
+<div class="dropdown">
+<a href="tools/background-remover.html">Background Remover</a>
+<a href="tools/image-compressor.html">Image Compressor</a>
+<a href="tools/youtube-thumbnail.html">YouTube Thumbnail</a>
+<a href="tools/jpg-to-png.html">JPG to PNG</a>
+</div>
+</li>
+
+<li><a href="contact.html">Contact</a></li>
 </ul>
+
+<div class="time-box">
+<div id="currentDate"></div>
+<div id="currentTime"></div>
+</div>
 
 </nav>
 </header>
 
 <section class="hero" id="home">
-<div class="hero-content">
-
 <h1>All-in-One AI & Productivity Platform</h1>
 
 <p>
-KJSynthora Tools is your futuristic platform for AI tools,
-PDF utilities, image editing, automation, productivity and content creation.
+KJSynthora Tools is your futuristic platform for AI tools, PDF utilities,
+image editing, automation, productivity and content creation.
 </p>
 
 <div class="hero-buttons">
-<a href="#tools" class="primary-btn">Explore Tools</a>
-<a href="#contact" class="secondary-btn">Contact</a>
+<a href="#tools" class="btn primary-btn">Explore Tools</a>
+<a href="contact.html" class="btn secondary-btn">Contact</a>
 </div>
 
+<div class="search-container">
+<input type="text" class="search-box" id="searchInput" placeholder="Search tools...">
+
+<div class="filter-buttons">
+<button class="filter-btn" onclick="filterTools('all')">All</button>
+<button class="filter-btn" onclick="filterTools('pdf')">PDF</button>
+<button class="filter-btn" onclick="filterTools('ai')">AI</button>
+<button class="filter-btn" onclick="filterTools('image')">Image</button>
+<button class="filter-btn" onclick="filterTools('utility')">Utility</button>
+</div>
 </div>
 </section>
 
-<section class="search-section">
-
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Search tools...">
+<section class="stats">
+<div class="stat-card">
+<h2>29+</h2>
+<p>Professional Tools</p>
 </div>
 
-<div class="filters">
-<button class="filter-btn" data-filter="all">All</button>
-<button class="filter-btn" data-filter="pdf">PDF</button>
-<button class="filter-btn" data-filter="ai">AI</button>
-<button class="filter-btn" data-filter="image">Image</button>
-<button class="filter-btn" data-filter="utility">Utility</button>
+<div class="stat-card">
+<h2>24/7</h2>
+<p>Always Available</p>
 </div>
 
+<div class="stat-card">
+<h2>100%</h2>
+<p>Free Access</p>
+</div>
+
+<div class="stat-card">
+<h2>AI</h2>
+<p>Powered Utilities</p>
+</div>
 </section>
-
-<div id="aitools"></div>
 
 <section class="tools-section" id="tools">
-
 <h2 class="section-title">Popular Tools</h2>
 
 <div class="tools-grid" id="toolsGrid">
@@ -445,54 +569,9 @@ PDF utilities, image editing, automation, productivity and content creation.
 <div>
 <div class="tool-icon">🧠</div>
 <h3>Resume Builder</h3>
-<p>Create professional resumes using AI.</p>
+<p>Create professional resumes instantly.</p>
 </div>
 <a class="open-btn" href="tools/resume-builder.html">Open Tool</a>
-</div>
-
-<div class="tool-card ai">
-<div>
-<div class="tool-icon">🌍</div>
-<h3>Translator</h3>
-<p>Translate text into multiple languages.</p>
-</div>
-<a class="open-btn" href="tools/translator.html">Open Tool</a>
-</div>
-
-<div class="tool-card ai">
-<div>
-<div class="tool-icon">🏷️</div>
-<h3>AI Hashtag Generator</h3>
-<p>Generate trending hashtags instantly.</p>
-</div>
-<a class="open-btn" href="tools/hashtag-generator.html">Open Tool</a>
-</div>
-
-<div class="tool-card ai">
-<div>
-<div class="tool-icon">📄</div>
-<h3>AI Bio Generator</h3>
-<p>Create social media bios instantly.</p>
-</div>
-<a class="open-btn" href="tools/ai-bio-generator.html">Open Tool</a>
-</div>
-
-<div class="tool-card ai">
-<div>
-<div class="tool-icon">✍️</div>
-<h3>Sentence Corrector</h3>
-<p>Correct grammar and improve writing.</p>
-</div>
-<a class="open-btn" href="tools/sentence-corrector.html">Open Tool</a>
-</div>
-
-<div class="tool-card image">
-<div>
-<div class="tool-icon">🖼️</div>
-<h3>Image to PDF</h3>
-<p>Convert images into PDF files.</p>
-</div>
-<a class="open-btn" href="tools/image-to-pdf.html">Open Tool</a>
 </div>
 
 <div class="tool-card image">
@@ -506,202 +585,112 @@ PDF utilities, image editing, automation, productivity and content creation.
 
 <div class="tool-card image">
 <div>
-<div class="tool-icon">📸</div>
-<h3>YouTube Thumbnail</h3>
-<p>Create attractive thumbnails quickly.</p>
-</div>
-<a class="open-btn" href="tools/youtube-thumbnail.html">Open Tool</a>
-</div>
-
-<div class="tool-card image">
-<div>
-<div class="tool-icon">📷</div>
-<h3>Instagram Logo Maker</h3>
-<p>Create stylish logo designs instantly.</p>
-</div>
-<a class="open-btn" href="tools/instagram-logo-maker.html">Open Tool</a>
-</div>
-
-<div class="tool-card utility">
-<div>
-<div class="tool-icon">🔐</div>
-<h3>Password Generator</h3>
-<p>Create strong passwords securely.</p>
-</div>
-<a class="open-btn" href="tools/password-generator.html">Open Tool</a>
-</div>
-
-<div class="tool-card utility">
-<div>
-<div class="tool-icon">🔳</div>
-<h3>QR Generator</h3>
-<p>Create QR codes instantly online.</p>
-</div>
-<a class="open-btn" href="tools/qr-generator.html">Open Tool</a>
-</div>
-
-<div class="tool-card utility">
-<div>
-<div class="tool-icon">🔊</div>
-<h3>Text to Speech</h3>
-<p>Convert text into voice instantly.</p>
-</div>
-<a class="open-btn" href="tools/text-to-speech.html">Open Tool</a>
-</div>
-
-<div class="tool-card utility">
-<div>
-<div class="tool-icon">🔢</div>
-<h3>Word Counter</h3>
-<p>Count words and characters instantly.</p>
-</div>
-<a class="open-btn" href="tools/word-counter.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">📊</div>
-<h3>PDF to Excel</h3>
-<p>Convert PDF tables into editable Excel sheets.</p>
-</div>
-<a class="open-btn" href="tools/pdf-to-excel.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">📈</div>
-<h3>Excel to PDF</h3>
-<p>Convert Excel files into PDF instantly.</p>
-</div>
-<a class="open-btn" href="tools/excel-to-pdf.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">🎞️</div>
-<h3>PowerPoint to PDF</h3>
-<p>Convert PowerPoint presentations into PDF.</p>
-</div>
-<a class="open-btn" href="tools/ppt-to-pdf.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">🖥️</div>
-<h3>PDF to PowerPoint</h3>
-<p>Convert PDFs into editable PPT slides.</p>
-</div>
-<a class="open-btn" href="tools/pdf-to-ppt.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">💧</div>
-<h3>PDF Watermark</h3>
-<p>Add custom watermarks to PDFs.</p>
-</div>
-<a class="open-btn" href="tools/pdf-watermark.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">🔢</div>
-<h3>Add Page Numbers</h3>
-<p>Add page numbers to PDF documents.</p>
-</div>
-<a class="open-btn" href="tools/add-page-numbers.html">Open Tool</a>
-</div>
-
-<div class="tool-card image">
-<div>
 <div class="tool-icon">🗜️</div>
 <h3>Image Compressor</h3>
-<p>Compress image sizes instantly without losing quality.</p>
+<p>Compress image sizes instantly.</p>
 </div>
 <a class="open-btn" href="tools/image-compressor.html">Open Tool</a>
-</div>
-
-<div class="tool-card pdf">
-<div>
-<div class="tool-icon">❌</div>
-<h3>Remove Page Numbers</h3>
-<p>Remove existing page numbers from PDF documents.</p>
-</div>
-<a class="open-btn" href="tools/remove-page-numbers.html">Open Tool</a>
 </div>
 
 <div class="tool-card image">
 <div>
 <div class="tool-icon">🖼️</div>
 <h3>JPG to PNG</h3>
-<p>Convert JPG images into PNG format instantly.</p>
+<p>Convert JPG images into PNG instantly.</p>
 </div>
-<a class="open-btn" href="tools/jpg-png-converter.html">Open Tool</a>
+<a class="open-btn" href="tools/jpg-to-png.html">Open Tool</a>
 </div>
-  
+
+<div class="tool-card utility">
+<div>
+<div class="tool-icon">🔐</div>
+<h3>Password Generator</h3>
+<p>Create strong secure passwords instantly.</p>
+</div>
+<a class="open-btn" href="tools/password-generator.html">Open Tool</a>
+</div>
+
 </div>
 </section>
 
-<section id="contact" class="contact-section">
-<h2>Contact Us</h2>
-<p>Email: kjsynthora@gmail.com</p>
-<p>Instagram: @kjsynthora</p>
-<p>YouTube: KJSynthora</p>
-<p>GitHub: github.com/KJSynthora</p>
+<section class="about-section">
+<h2 class="section-title">About KJSynthora</h2>
+<p>
+KJSynthora is a modern AI and productivity platform designed to simplify your digital workflow.
+From PDF management and image editing to AI-powered utilities and productivity tools,
+our goal is to provide fast, reliable and futuristic online solutions for everyone.
+</p>
 </section>
 
 <footer>
-© 2026 KJSynthora — AI • Tech • Tools • Creation
+<h2>KJSynthora</h2>
+<p>AI • PDF • Productivity • Creation</p>
+
+<div class="footer-links">
+<a href="about.html">About</a>
+<a href="privacy-policy.html">Privacy Policy</a>
+<a href="terms.html">Terms</a>
+<a href="contact.html">Contact</a>
+</div>
+
+<p>© 2026 KJSynthora. All rights reserved.</p>
 </footer>
 
 <script>
+const tools=document.querySelectorAll('.tool-card');
+const searchInput=document.getElementById('searchInput');
 
-const searchInput = document.getElementById("searchInput");
-const toolCards = document.querySelectorAll(".tool-card");
-const filterButtons = document.querySelectorAll(".filter-btn");
+searchInput.addEventListener('keyup',()=>{
+const value=searchInput.value.toLowerCase();
 
-searchInput.addEventListener("keyup", () => {
-
-const value = searchInput.value.toLowerCase();
-
-toolCards.forEach(card => {
-
-const text = card.innerText.toLowerCase();
+tools.forEach(tool=>{
+const text=tool.innerText.toLowerCase();
 
 if(text.includes(value)){
-card.style.display = "flex";
+tool.style.display='flex';
 }else{
-card.style.display = "none";
+tool.style.display='none';
+}
+});
+});
+
+function filterTools(category){
+tools.forEach(tool=>{
+if(category==='all'){
+tool.style.display='flex';
+}else if(tool.classList.contains(category)){
+tool.style.display='flex';
+}else{
+tool.style.display='none';
+}
+});
 }
 
-});
+function updateClock(){
+const now=new Date();
 
-});
+const dateOptions={
+weekday:'long',
+year:'numeric',
+month:'long',
+day:'numeric'
+};
 
-filterButtons.forEach(button => {
+const timeOptions={
+hour:'2-digit',
+minute:'2-digit',
+second:'2-digit'
+};
 
-button.addEventListener("click", () => {
+const date=now.toLocaleDateString('en-US',dateOptions);
+const time=now.toLocaleTimeString('en-US',timeOptions);
 
-const filter = button.getAttribute("data-filter");
-
-toolCards.forEach(card => {
-
-if(filter === "all"){
-card.style.display = "flex";
+ document.getElementById('currentDate').innerText=date;
+ document.getElementById('currentTime').innerText=time;
 }
-else if(card.classList.contains(filter)){
-card.style.display = "flex";
-}
-else{
-card.style.display = "none";
-}
 
-});
-
-});
-
-});
-
+setInterval(updateClock,1000);
+updateClock();
 </script>
 
 </body>
