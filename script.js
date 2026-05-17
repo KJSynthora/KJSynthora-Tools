@@ -228,7 +228,7 @@ updateClock();
 setTimeout(()=>{
 
 const totalTools =
-document.querySelectorAll(".tool-card").length;
+document.querySelectorAll('[class*="tool-card"]').length;
 
 const toolCount =
 document.getElementById("toolCount");
