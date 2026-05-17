@@ -551,11 +551,8 @@ justify-content:center;
 <li><a href="#contact">Contact</a></li>
 </ul>
 
-<div class="time-box">
-<div id="currentDate"></div>
-<div id="currentTime"></div>
-</div>
 
+<div id="clock"></div>
 </nav>
 </header>
 
@@ -783,29 +780,40 @@ tool.style.display='none';
 }
 
 function updateClock(){
-const now=new Date();
 
-const dateOptions={
+const now = new Date();
+
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const country = userTimeZone.split("/")[0];
+
+const formatter = new Intl.DateTimeFormat([],{
 weekday:'long',
 year:'numeric',
 month:'long',
-day:'numeric'
-};
-
-const timeOptions={
+day:'numeric',
 hour:'2-digit',
 minute:'2-digit',
 second:'2-digit'
-};
+});
 
-const date=now.toLocaleDateString('en-US',dateOptions);
-const time=now.toLocaleTimeString('en-US',timeOptions);
+const formatted = formatter.format(now);
 
- document.getElementById('currentDate').innerText=date;
- document.getElementById('currentTime').innerText=time;
+let flag="🌍";
+
+if(userTimeZone.includes("India")) flag="🇮🇳";
+else if(userTimeZone.includes("New_York")) flag="🇺🇸";
+else if(userTimeZone.includes("London")) flag="🇬🇧";
+else if(userTimeZone.includes("Tokyo")) flag="🇯🇵";
+else if(userTimeZone.includes("Dubai")) flag="🇦🇪";
+
+document.getElementById("clock").innerHTML =
+`${flag} ${userTimeZone}<br>${formatted}`;
+
 }
 
 setInterval(updateClock,1000);
+
 updateClock();
 </script>
 
