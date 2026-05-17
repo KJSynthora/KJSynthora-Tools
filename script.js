@@ -223,9 +223,13 @@ setInterval(updateClock, 1000);
 
 updateClock();
 
+window.onload = function(){
+
 const totalTools =
 document.querySelectorAll(".tool-card").length;
 
 document.getElementById("toolCount")
 .innerText = totalTools;
+
+};
 
