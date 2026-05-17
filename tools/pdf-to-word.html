@@ -6,11 +6,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PDF to Word | KJSynthora</title>
+<title>PDF to Word Converter - KJSynthora</title>
+
+<meta name="description" content="Convert PDF to Word document online free with KJSynthora PDF tools.">
+
+<link rel="canonical" href="https://kjsynthora.com/tools/pdf-to-word.html">
+
+<link rel="icon" type="image/png" href="../logo.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.3/docx.min.js"></script>
 
 <style>
@@ -34,7 +41,7 @@ color:white;
 
 .container{
 width:100%;
-max-width:500px;
+max-width:520px;
 background:#081028;
 padding:40px;
 border-radius:25px;
@@ -45,7 +52,7 @@ border:1px solid rgba(255,255,255,0.08);
 
 h1{
 font-size:42px;
-margin-bottom:25px;
+margin-bottom:20px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -54,6 +61,7 @@ background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 p{
 color:#cbd5e1;
 margin-bottom:25px;
+line-height:1.7;
 }
 
 input[type=file]{
@@ -68,7 +76,8 @@ cursor:pointer;
 }
 
 button{
-padding:14px 28px;
+width:100%;
+padding:15px;
 border:none;
 border-radius:14px;
 background:linear-gradient(90deg,#0ea5e9,#9333ea);
@@ -80,12 +89,13 @@ transition:0.3s;
 }
 
 button:hover{
-transform:scale(1.05);
+transform:scale(1.03);
 }
 
 #status{
 margin-top:25px;
-font-size:16px;
+font-size:15px;
+font-weight:500;
 }
 
 .loading{
@@ -98,6 +108,17 @@ color:#f87171;
 
 .success{
 color:#4ade80;
+}
+
+.note{
+margin-top:20px;
+padding:15px;
+border-radius:12px;
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.08);
+font-size:14px;
+color:#94a3b8;
+line-height:1.7;
 }
 
 .home-btn{
@@ -118,15 +139,22 @@ font-weight:600;
 
 <h1>PDF to Word</h1>
 
-<p>Select PDF file and convert into Word document</p>
+<p>
+Convert text-based PDF files into editable Word documents instantly.
+</p>
 
 <input type="file" id="pdfFile" accept=".pdf">
 
 <button onclick="convertPDFtoWord()">
-Convert Word
+Convert to Word
 </button>
 
 <div id="status"></div>
+
+<div class="note">
+⚠ Best results work with text-based PDFs.<br>
+Scanned/image PDFs may not convert perfectly.
+</div>
 
 <a href="../index.html" class="home-btn">
 ← Return Home
@@ -138,19 +166,26 @@ Convert Word
 
 async function convertPDFtoWord(){
 
-const file = document.getElementById("pdfFile").files[0];
+const file =
+document.getElementById("pdfFile").files[0];
 
-const status = document.getElementById("status");
+const status =
+document.getElementById("status");
 
 if(!file){
 
-status.innerHTML = "Please select PDF file";
+status.innerHTML =
+"Please select a PDF file";
+
 status.className = "error";
+
 return;
 
 }
 
-status.innerHTML = "Converting PDF...";
+status.innerHTML =
+"Converting PDF to Word...";
+
 status.className = "loading";
 
 try{
@@ -159,55 +194,101 @@ const reader = new FileReader();
 
 reader.onload = async function(){
 
-const typedarray = new Uint8Array(this.result);
+try{
 
-const pdf = await pdfjsLib.getDocument(typedarray).promise;
+const typedarray =
+new Uint8Array(this.result);
+
+const pdf =
+await pdfjsLib
+.getDocument(typedarray)
+.promise;
 
 let fullText = "";
 
-for(let i=1;i<=pdf.numPages;i++){
+for(let i = 1; i <= pdf.numPages; i++){
 
-const page = await pdf.getPage(i);
+const page =
+await pdf.getPage(i);
 
-const content = await page.getTextContent();
+const content =
+await page.getTextContent();
 
-const strings = content.items.map(item => item.str);
+const strings =
+content.items.map(
+item => item.str
+);
 
-fullText += strings.join(" ");
+fullText +=
+strings.join(" ");
 
 fullText += "\n\n";
 
 }
 
-const doc = new docx.Document({
+if(fullText.trim() === ""){
+
+status.innerHTML =
+"No readable text found in PDF";
+
+status.className = "error";
+
+return;
+
+}
+
+const doc =
+new docx.Document({
 
 sections:[
 {
 properties:{},
+
 children:[
+
 new docx.Paragraph({
 text:fullText
 })
+
 ]
 }
 ]
 
 });
 
-docx.Packer.toBlob(doc).then(blob=>{
+docx.Packer
+.toBlob(doc)
+.then(blob => {
 
-const link = document.createElement("a");
+const link =
+document.createElement("a");
 
-link.href = URL.createObjectURL(blob);
+link.href =
+URL.createObjectURL(blob);
 
-link.download = "converted.docx";
+link.download =
+"KJSynthora-Converted.docx";
 
 link.click();
 
-status.innerHTML = "✅ Word File Downloaded Successfully!";
+status.innerHTML =
+"✅ Word file downloaded successfully!";
+
 status.className = "success";
 
 });
+
+}
+catch(error){
+
+console.log(error);
+
+status.innerHTML =
+"Conversion failed. Try another PDF.";
+
+status.className = "error";
+
+}
 
 };
 
@@ -218,7 +299,9 @@ catch(error){
 
 console.log(error);
 
-status.innerHTML = "Conversion Failed";
+status.innerHTML =
+"Something went wrong";
+
 status.className = "error";
 
 }
