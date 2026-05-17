@@ -223,13 +223,21 @@ setInterval(updateClock, 1000);
 
 updateClock();
 
-window.onload = function(){
+// ========================= TOOL COUNT =========================
+
+setTimeout(()=>{
 
 const totalTools =
 document.querySelectorAll(".tool-card").length;
 
-document.getElementById("toolCount")
-.innerText = totalTools;
+const toolCount =
+document.getElementById("toolCount");
 
-};
+if(toolCount){
+
+toolCount.innerText = totalTools;
+
+}
+
+},500);
 
