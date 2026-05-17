@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Timezone Converter | KJSynthora</title>
+
+<style>
+
+body{
+background:#020617;
+font-family:Poppins,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:white;
+}
+
+.container{
+background:#081028;
+padding:40px;
+border-radius:20px;
+width:400px;
+text-align:center;
+}
+
+select,input,button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:10px;
+background:#0f172a;
+color:white;
+}
+
+button{
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+cursor:pointer;
+}
+
+.result{
+margin-top:20px;
+font-size:20px;
+color:#38bdf8;
+}
+
+.home-btn{
+display:block;
+margin-top:20px;
+color:#38bdf8;
+text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Timezone Converter</h1>
+
+<input type="time" id="time">
+
+<select id="from">
+<option value="5.5">IST</option>
+<option value="-5">EST</option>
+<option value="-8">PST</option>
+<option value="0">UTC</option>
+<option value="1">CET</option>
+</select>
+
+<select id="to">
+<option value="-5">EST</option>
+<option value="5.5">IST</option>
+<option value="-8">PST</option>
+<option value="0">UTC</option>
+<option value="1">CET</option>
+</select>
+
+<button onclick="convertTime()">
+Convert Time
+</button>
+
+<div class="result" id="result"></div>
+
+<a href="../index.html" class="home-btn">
+← Return Home
+</a>
+
+</div>
+
+<script>
+
+function convertTime(){
+
+const time = document.getElementById("time").value;
+
+if(!time){
+alert("Select Time");
+return;
+}
+
+const from = parseFloat(document.getElementById("from").value);
+const to = parseFloat(document.getElementById("to").value);
+
+let [hours,minutes] = time.split(":").map(Number);
+
+let utc = hours - from;
+
+let converted = utc + to;
+
+if(converted < 0) converted += 24;
+if(converted >= 24) converted -= 24;
+
+let finalHour = Math.floor(converted);
+
+let finalMin = minutes;
+
+document.getElementById("result").innerHTML =
+`${String(finalHour).padStart(2,'0')}:${String(finalMin).padStart(2,'0')}`;
+
+}
+
+</script>
+
+</body>
+</html>
