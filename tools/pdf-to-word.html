@@ -1,87 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PDF to Word - KJSynthora</title>
+<title>PDF to Word | KJSynthora</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.3/docx.min.js"></script>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
 body{
-    margin:0;
-    padding:0;
-    font-family:Arial,sans-serif;
-    background:#020617;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+background:#020617;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+color:white;
 }
 
 .container{
-    width:420px;
-    background:rgba(15,23,42,0.9);
-    padding:50px;
-    border-radius:24px;
-    text-align:center;
-    box-shadow:
-    0 0 25px rgba(6,182,212,0.15),
-    0 0 50px rgba(124,58,237,0.12);
-    border:1px solid rgba(255,255,255,0.08);
+width:100%;
+max-width:500px;
+background:#081028;
+padding:40px;
+border-radius:25px;
+text-align:center;
+box-shadow:0 0 30px rgba(0,0,0,0.5);
+border:1px solid rgba(255,255,255,0.08);
 }
 
 h1{
-    font-size:32px;
-    margin-bottom:25px;
-    background:linear-gradient(90deg,#06b6d4,#7c3aed);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+font-size:42px;
+margin-bottom:25px;
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 p{
-    color:#cbd5e1;
-    margin-bottom:25px;
+color:#cbd5e1;
+margin-bottom:25px;
 }
 
-input{
-    margin:20px 0;
+input[type=file]{
+width:100%;
+padding:14px;
+background:#0f172a;
+border:1px solid #334155;
+border-radius:12px;
+color:white;
+margin-bottom:25px;
+cursor:pointer;
 }
 
 button{
-    background:linear-gradient(90deg,#06b6d4,#7c3aed);
-    color:white;
-    border:none;
-    padding:14px 30px;
-    border-radius:12px;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
+padding:14px 28px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
 }
 
 button:hover{
-    transform:scale(1.05);
+transform:scale(1.05);
 }
 
-#success-msg{
-    margin-top:20px;
-    color:#4ade80;
-    font-weight:bold;
+#status{
+margin-top:25px;
+font-size:16px;
 }
 
-.back-home{
-    margin-top:20px;
+.loading{
+color:#facc15;
 }
 
-.back-home a{
-    color:#38bdf8;
-    text-decoration:none;
-    font-weight:bold;
+.error{
+color:#f87171;
 }
 
-.back-home a:hover{
-    color:#7dd3fc;
+.success{
+color:#4ade80;
+}
+
+.home-btn{
+display:inline-block;
+margin-top:30px;
+text-decoration:none;
+color:#38bdf8;
+font-weight:600;
 }
 
 </style>
@@ -94,53 +118,110 @@ button:hover{
 
 <h1>PDF to Word</h1>
 
-<p>Select PDF file and convert into Word</p>
+<p>Select PDF file and convert into Word document</p>
 
-<input type="file" accept=".pdf">
+<input type="file" id="pdfFile" accept=".pdf">
 
-<br>
+<button onclick="convertPDFtoWord()">
+Convert Word
+</button>
 
-<button onclick="convertPDF()">Convert Word</button>
+<div id="status"></div>
 
-<p id="success-msg"></p>
-
-<div class="back-home">
-<a href="../index.html">← Back to Home</a>
-</div>
+<a href="../index.html" class="home-btn">
+← Return Home
+</a>
 
 </div>
 
 <script>
 
-async function convertPDF(){
+async function convertPDFtoWord(){
 
-const input = document.querySelector('input[type="file"]');
+const file = document.getElementById("pdfFile").files[0];
 
-if(input.files.length === 0){
+const status = document.getElementById("status");
 
-document.getElementById("success-msg").innerHTML =
-"❌ Please select PDF file";
+if(!file){
 
+status.innerHTML = "Please select PDF file";
+status.className = "error";
 return;
 
 }
 
-const file = input.files[0];
+status.innerHTML = "Converting PDF...";
+status.className = "loading";
 
-const blob = new Blob([await file.arrayBuffer()], {
-type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+try{
+
+const reader = new FileReader();
+
+reader.onload = async function(){
+
+const typedarray = new Uint8Array(this.result);
+
+const pdf = await pdfjsLib.getDocument(typedarray).promise;
+
+let fullText = "";
+
+for(let i=1;i<=pdf.numPages;i++){
+
+const page = await pdf.getPage(i);
+
+const content = await page.getTextContent();
+
+const strings = content.items.map(item => item.str);
+
+fullText += strings.join(" ");
+
+fullText += "\n\n";
+
+}
+
+const doc = new docx.Document({
+
+sections:[
+{
+properties:{},
+children:[
+new docx.Paragraph({
+text:fullText
+})
+]
+}
+]
+
 });
 
-const link = document.createElement('a');
+docx.Packer.toBlob(doc).then(blob=>{
+
+const link = document.createElement("a");
 
 link.href = URL.createObjectURL(blob);
 
-link.download = "KJSynthora-Document.docx";
+link.download = "converted.docx";
 
 link.click();
 
-document.getElementById("success-msg").innerHTML =
-"✅ Word File Downloaded Successfully!";
+status.innerHTML = "✅ Word File Downloaded Successfully!";
+status.className = "success";
+
+});
+
+};
+
+reader.readAsArrayBuffer(file);
+
+}
+catch(error){
+
+console.log(error);
+
+status.innerHTML = "Conversion Failed";
+status.className = "error";
+
+}
 
 }
 
