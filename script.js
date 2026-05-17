@@ -87,30 +87,49 @@ async function convertToPDF() {
 
 function searchTools(){
 
-  let input =
-  document.getElementById("toolSearch")
-  .value
-  .toLowerCase();
+let input =
+document.getElementById("toolSearch")
+.value
+.toLowerCase();
 
-  let cards =
-  document.querySelectorAll(".tool-card");
+let cards =
+document.querySelectorAll(".tool-card");
 
-  cards.forEach(card => {
+let visibleCount = 0;
 
-    let text =
-    card.innerText.toLowerCase();
+cards.forEach(card=>{
 
-    if(text.includes(input)){
+let text =
+card.innerText.toLowerCase();
 
-      card.style.display = "";
+if(text.includes(input)){
 
-    }else{
+card.style.display = "";
 
-      card.style.display = "none";
+visibleCount++;
 
-    }
+}
+else{
 
-  });
+card.style.display = "none";
+
+}
+
+});
+
+const noResults =
+document.getElementById("noResults");
+
+if(visibleCount === 0){
+
+noResults.style.display = "block";
+
+}
+else{
+
+noResults.style.display = "none";
+
+}
 
 }
 
