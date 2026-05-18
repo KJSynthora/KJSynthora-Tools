@@ -16,8 +16,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <style>
 
 *{
@@ -29,8 +27,8 @@ font-family:'Poppins',sans-serif;
 
 body{
 background:#020617;
-overflow:hidden;
 color:white;
+overflow:hidden;
 }
 
 .main{
@@ -39,28 +37,23 @@ height:100vh;
 }
 
 .sidebar{
-width:270px;
+width:260px;
 background:#081028;
 padding:20px;
 overflow-y:auto;
-border-right:1px solid rgba(255,255,255,0.08);
 }
 
 .sidebar h2{
-font-size:32px;
+font-size:34px;
 margin-bottom:25px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.tool-group{
-margin-bottom:25px;
-}
-
-.tool-group h3{
-margin-bottom:10px;
-font-size:15px;
+.sidebar h3{
+margin:20px 0 10px;
+font-size:14px;
 color:#94a3b8;
 }
 
@@ -71,37 +64,34 @@ padding:14px;
 border:none;
 outline:none;
 border-radius:12px;
+margin-bottom:10px;
+}
+
+input{
 background:#0f172a;
 color:white;
-margin-bottom:10px;
 }
 
 button{
 background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
 font-weight:600;
 cursor:pointer;
-transition:0.3s;
-}
-
-button:hover{
-transform:scale(1.03);
 }
 
 .workspace{
 flex:1;
 display:flex;
 flex-direction:column;
-overflow:hidden;
 }
 
 .topbar{
 height:80px;
 background:#081028;
 display:flex;
-align-items:center;
 justify-content:space-between;
-padding:0 25px;
-border-bottom:1px solid rgba(255,255,255,0.08);
+align-items:center;
+padding:0 20px;
 }
 
 .topbar h1{
@@ -116,37 +106,21 @@ display:flex;
 gap:10px;
 }
 
-.canvas-wrapper{
+.canvas-area{
 flex:1;
 overflow:auto;
 padding:30px;
+background:#000814;
 }
 
-.canvas-box{
-background:#000814;
-padding:25px;
-border-radius:20px;
-display:flex;
-justify-content:center;
-align-items:flex-start;
-min-height:100%;
+.canvas-wrapper{
+width:max-content;
+margin:auto;
 }
 
 canvas{
 background:white;
 border-radius:10px;
-box-shadow:0 0 30px rgba(0,0,0,0.5);
-}
-
-#loading{
-position:fixed;
-top:20px;
-right:20px;
-background:#0f172a;
-padding:14px 20px;
-border-radius:12px;
-display:none;
-z-index:9999;
 }
 
 </style>
@@ -155,45 +129,25 @@ z-index:9999;
 
 <body>
 
-<div id="loading">
-Processing PDF...
-</div>
-
 <div class="main">
 
 <div class="sidebar">
 
 <h2>PDF Tools</h2>
 
-<div class="tool-group">
-
-<h3>Navigation</h3>
-
 <a href="../index.html">
-
-<button>
-← Return Home
-</button>
-
+<button>← Return Home</button>
 </a>
-
-</div>
-
-<div class="tool-group">
 
 <h3>Upload PDF</h3>
 
 <input type="file" id="pdfUpload" accept=".pdf">
 
-</div>
-
-<div class="tool-group">
-
 <h3>Add Text</h3>
 
 <input type="text" id="textInput" placeholder="Enter text">
 
-<input type="number" id="fontSize" value="20" min="8" max="120">
+<input type="number" id="fontSize" value="20">
 
 <input type="color" id="textColor" value="#ff0000">
 
@@ -201,19 +155,11 @@ Processing PDF...
 Add Text
 </button>
 
-</div>
-
-<div class="tool-group">
-
 <h3>Hide Existing Text</h3>
 
 <button onclick="addWhiteBox()">
 White Cover
 </button>
-
-</div>
-
-<div class="tool-group">
 
 <h3>Shapes</h3>
 
@@ -225,13 +171,7 @@ Rectangle
 Circle
 </button>
 
-</div>
-
-<div class="tool-group">
-
 <h3>Drawing</h3>
-
-<input type="range" id="brushSize" min="1" max="30" value="3">
 
 <button onclick="enableDraw()">
 Enable Draw
@@ -241,10 +181,6 @@ Enable Draw
 Disable Draw
 </button>
 
-</div>
-
-<div class="tool-group">
-
 <h3>Add Image</h3>
 
 <input type="file" id="imageUpload">
@@ -252,10 +188,6 @@ Disable Draw
 <button onclick="addImage()">
 Add Image
 </button>
-
-</div>
-
-<div class="tool-group">
 
 <h3>Actions</h3>
 
@@ -269,8 +201,6 @@ Clear Canvas
 
 </div>
 
-</div>
-
 <div class="workspace">
 
 <div class="topbar">
@@ -279,21 +209,9 @@ Clear Canvas
 
 <div class="actions">
 
-<button onclick="undo()">
-Undo
-</button>
+<button onclick="zoomIn()">Zoom +</button>
 
-<button onclick="redo()">
-Redo
-</button>
-
-<button onclick="zoomIn()">
-Zoom +
-</button>
-
-<button onclick="zoomOut()">
-Zoom -
-</button>
+<button onclick="zoomOut()">Zoom -</button>
 
 <button onclick="downloadPDF()">
 Download PDF
@@ -303,9 +221,9 @@ Download PDF
 
 </div>
 
-<div class="canvas-wrapper">
+<div class="canvas-area">
 
-<div class="canvas-box">
+<div class="canvas-wrapper">
 
 <canvas id="pdfCanvas"></canvas>
 
@@ -325,32 +243,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 const canvas =
 new fabric.Canvas('pdfCanvas');
 
-canvas.setWidth(900);
-canvas.setHeight(1200);
-
-let history = [];
-let redoHistory = [];
-
-function saveHistory(){
-
-redoHistory = [];
-
-history.push(
-JSON.stringify(canvas)
-);
-
-}
-
-canvas.on('object:added',saveHistory);
-
-canvas.on('object:modified',saveHistory);
-
-canvas.on('object:removed',saveHistory);
+let currentZoom = 1;
 
 document.getElementById('pdfUpload')
-.addEventListener(
-'change',
-async function(e){
+.addEventListener('change',loadPDF);
+
+async function loadPDF(e){
 
 const file = e.target.files[0];
 
@@ -358,13 +256,10 @@ if(!file){
 return;
 }
 
-document.getElementById("loading")
-.style.display = "block";
-
-const reader =
+const fileReader =
 new FileReader();
 
-reader.onload =
+fileReader.onload =
 async function(){
 
 const typedarray =
@@ -380,7 +275,7 @@ await pdf.getPage(1);
 
 const viewport =
 page.getViewport({
-scale:1.2
+scale:1.5
 });
 
 const tempCanvas =
@@ -403,118 +298,56 @@ viewport:viewport
 
 }).promise;
 
-const imageData =
+const imageURL =
 tempCanvas.toDataURL("image/png");
-
-fabric.Image.fromURL(
-imageData,
-async function(img){
 
 canvas.setWidth(viewport.width);
 
 canvas.setHeight(viewport.height);
 
-img.scaleToWidth(viewport.width);
-
-img.scaleToHeight(viewport.height);
+fabric.Image.fromURL(
+imageURL,
+function(img){
 
 img.selectable = false;
 
 img.evented = false;
 
-img.excludeFromExport = false;
+canvas.setBackgroundImage(
 
-canvas.backgroundImage = img;
+img,
 
-canvas.requestRenderAll();
+canvas.renderAll.bind(canvas),
 
-await detectText(imageData);
+{
 
-document.getElementById("loading")
-.style.display = "none";
+scaleX:
+canvas.width / img.width,
+
+scaleY:
+canvas.height / img.height
 
 }
+
+);
+
+}
+
 );
 
 };
 
-reader.readAsArrayBuffer(file);
-
-}
-);
-
-async function detectText(imageData){
-
-const result =
-await Tesseract.recognize(
-imageData,
-'eng'
-);
-
-result.data.words.forEach(word=>{
-
-if(word.text.trim() !== ""){
-
-const textbox =
-new fabric.IText(
-word.text,
-{
-
-left:word.bbox.x0,
-
-top:word.bbox.y0,
-
-fontSize:
-Math.max(
-12,
-word.bbox.y1 - word.bbox.y0
-),
-
-fill:'black',
-
-editable:true,
-
-backgroundColor:'rgba(255,255,255,0.5)',
-
-borderColor:'#38bdf8',
-
-cornerColor:'#38bdf8',
-
-transparentCorners:false
-
-}
-);
-
-textbox.on(
-'mousedblclick',
-function(){
-
-textbox.enterEditing();
-
-textbox.selectAll();
-
-textbox.hiddenTextarea.focus();
-
-}
-);
-
-canvas.add(textbox);
-
-}
-
-});
-
-canvas.renderAll();
+fileReader.readAsArrayBuffer(file);
 
 }
 
 function addText(){
 
-const textValue =
+const text =
 document.getElementById("textInput")
 .value;
 
-if(textValue.trim() === ""){
+if(text.trim()===""){
 return;
 }
 
@@ -528,9 +361,9 @@ const color =
 document.getElementById("textColor")
 .value;
 
-const text =
+const textbox =
 new fabric.IText(
-textValue,
+text,
 {
 
 left:200,
@@ -544,9 +377,9 @@ fill:color
 }
 );
 
-canvas.add(text);
+canvas.add(textbox);
 
-canvas.setActiveObject(text);
+canvas.setActiveObject(textbox);
 
 }
 
@@ -559,7 +392,7 @@ left:200,
 
 top:200,
 
-width:180,
+width:200,
 
 height:60,
 
@@ -580,7 +413,7 @@ left:200,
 
 top:200,
 
-width:180,
+width:150,
 
 height:100,
 
@@ -623,14 +456,9 @@ function enableDraw(){
 
 canvas.isDrawingMode = true;
 
-canvas.freeDrawingBrush.width =
-parseInt(
-document.getElementById("brushSize")
-.value
-);
+canvas.freeDrawingBrush.width = 3;
 
-canvas.freeDrawingBrush.color =
-"red";
+canvas.freeDrawingBrush.color = "red";
 
 }
 
@@ -660,15 +488,13 @@ fabric.Image.fromURL(
 f.target.result,
 function(img){
 
+img.scaleToWidth(200);
+
 img.set({
 
 left:200,
 
-top:200,
-
-scaleX:0.5,
-
-scaleY:0.5
+top:200
 
 });
 
@@ -698,65 +524,31 @@ canvas.remove(active);
 
 function clearCanvas(){
 
-canvas.clear();
+canvas.getObjects().forEach(obj=>{
 
-canvas.backgroundImage = null;
+if(obj !== canvas.backgroundImage){
 
-canvas.renderAll();
-
-}
-
-function undo(){
-
-if(history.length > 1){
-
-redoHistory.push(
-history.pop()
-);
-
-const previous =
-history[history.length - 1];
-
-canvas.loadFromJSON(
-previous,
-canvas.renderAll.bind(canvas)
-);
+canvas.remove(obj);
 
 }
 
-}
-
-function redo(){
-
-if(redoHistory.length > 0){
-
-const state =
-redoHistory.pop();
-
-history.push(state);
-
-canvas.loadFromJSON(
-state,
-canvas.renderAll.bind(canvas)
-);
-
-}
+});
 
 }
 
 function zoomIn(){
 
-canvas.setZoom(
-canvas.getZoom() + 0.1
-);
+currentZoom += 0.1;
+
+canvas.setZoom(currentZoom);
 
 }
 
 function zoomOut(){
 
-canvas.setZoom(
-canvas.getZoom() - 0.1
-);
+currentZoom -= 0.1;
+
+canvas.setZoom(currentZoom);
 
 }
 
@@ -779,7 +571,7 @@ canvas.height
 
 });
 
-const image =
+const imgData =
 canvas.toDataURL({
 
 format:'png',
@@ -788,7 +580,7 @@ quality:1
 });
 
 pdf.addImage(
-image,
+imgData,
 'PNG',
 0,
 0,
