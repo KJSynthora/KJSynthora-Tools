@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KJSynthora PDF Editor</title>
+<title>KJSynthora Pro PDF Editor</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -37,23 +37,28 @@ height:100vh;
 }
 
 .sidebar{
-width:260px;
+width:270px;
 background:#081028;
 padding:20px;
 overflow-y:auto;
+border-right:1px solid rgba(255,255,255,0.08);
 }
 
 .sidebar h2{
-font-size:34px;
+font-size:32px;
 margin-bottom:25px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.sidebar h3{
-margin:20px 0 10px;
+.group{
+margin-bottom:22px;
+}
+
+.group h3{
 font-size:14px;
+margin-bottom:10px;
 color:#94a3b8;
 }
 
@@ -77,12 +82,18 @@ background:linear-gradient(90deg,#0ea5e9,#9333ea);
 color:white;
 font-weight:600;
 cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.03);
 }
 
 .workspace{
 flex:1;
 display:flex;
 flex-direction:column;
+overflow:hidden;
 }
 
 .topbar{
@@ -91,7 +102,8 @@ background:#081028;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:0 20px;
+padding:0 25px;
+border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
 .topbar h1{
@@ -116,6 +128,9 @@ background:#000814;
 .canvas-wrapper{
 width:max-content;
 margin:auto;
+background:#111827;
+padding:20px;
+border-radius:20px;
 }
 
 canvas{
@@ -135,19 +150,33 @@ border-radius:10px;
 
 <h2>PDF Tools</h2>
 
+<div class="group">
+
 <a href="../index.html">
-<button>← Return Home</button>
+
+<button>
+← Return Home
+</button>
+
 </a>
+
+</div>
+
+<div class="group">
 
 <h3>Upload PDF</h3>
 
 <input type="file" id="pdfUpload" accept=".pdf">
 
+</div>
+
+<div class="group">
+
 <h3>Add Text</h3>
 
 <input type="text" id="textInput" placeholder="Enter text">
 
-<input type="number" id="fontSize" value="20">
+<input type="number" id="fontSize" value="24" min="8" max="150">
 
 <input type="color" id="textColor" value="#ff0000">
 
@@ -155,11 +184,19 @@ border-radius:10px;
 Add Text
 </button>
 
-<h3>Hide Existing Text</h3>
+</div>
+
+<div class="group">
+
+<h3>Hide Existing Data</h3>
 
 <button onclick="addWhiteBox()">
 White Cover
 </button>
+
+</div>
+
+<div class="group">
 
 <h3>Shapes</h3>
 
@@ -171,7 +208,11 @@ Rectangle
 Circle
 </button>
 
-<h3>Drawing</h3>
+</div>
+
+<div class="group">
+
+<h3>Draw</h3>
 
 <button onclick="enableDraw()">
 Enable Draw
@@ -181,6 +222,10 @@ Enable Draw
 Disable Draw
 </button>
 
+</div>
+
+<div class="group">
+
 <h3>Add Image</h3>
 
 <input type="file" id="imageUpload">
@@ -189,15 +234,17 @@ Disable Draw
 Add Image
 </button>
 
-<h3>Actions</h3>
+</div>
+
+<div class="group">
+
+<h3>Delete</h3>
 
 <button onclick="deleteSelected()">
 Delete Selected
 </button>
 
-<button onclick="clearCanvas()">
-Clear Canvas
-</button>
+</div>
 
 </div>
 
@@ -209,9 +256,13 @@ Clear Canvas
 
 <div class="actions">
 
-<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomIn()">
+Zoom +
+</button>
 
-<button onclick="zoomOut()">Zoom -</button>
+<button onclick="zoomOut()">
+Zoom -
+</button>
 
 <button onclick="downloadPDF()">
 Download PDF
@@ -225,7 +276,7 @@ Download PDF
 
 <div class="canvas-wrapper">
 
-<canvas id="pdfCanvas"></canvas>
+<canvas id="canvas"></canvas>
 
 </div>
 
@@ -240,15 +291,18 @@ Download PDF
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-const canvas =
-new fabric.Canvas('pdfCanvas');
+const fabricCanvas =
+new fabric.Canvas('canvas');
 
 let currentZoom = 1;
 
-document.getElementById('pdfUpload')
-.addEventListener('change',loadPDF);
+fabricCanvas.setWidth(900);
+fabricCanvas.setHeight(1200);
 
-async function loadPDF(e){
+document.getElementById('pdfUpload')
+.addEventListener(
+'change',
+async function(e){
 
 const file = e.target.files[0];
 
@@ -275,7 +329,7 @@ await pdf.getPage(1);
 
 const viewport =
 page.getViewport({
-scale:1.5
+scale:2
 });
 
 const tempCanvas =
@@ -299,21 +353,21 @@ viewport:viewport
 }).promise;
 
 const imageURL =
-tempCanvas.toDataURL("image/png");
-
-canvas.setWidth(viewport.width);
-
-canvas.setHeight(viewport.height);
+tempCanvas.toDataURL('image/png');
 
 fabric.Image.fromURL(
 imageURL,
 function(img){
 
-canvas.clear();
+fabricCanvas.clear();
 
-canvas.setWidth(viewport.width);
+fabricCanvas.setWidth(
+viewport.width
+);
 
-canvas.setHeight(viewport.height);
+fabricCanvas.setHeight(
+viewport.height
+);
 
 img.set({
 
@@ -323,21 +377,23 @@ top:0,
 
 selectable:false,
 
-evented:false,
-
-scaleX:
-viewport.width / img.width,
-
-scaleY:
-viewport.height / img.height
+evented:false
 
 });
 
-canvas.add(img);
+img.scaleToWidth(
+viewport.width
+);
+
+img.scaleToHeight(
+viewport.height
+);
+
+fabricCanvas.add(img);
 
 img.sendToBack();
 
-canvas.renderAll();
+fabricCanvas.renderAll();
 
 }
 );
@@ -347,30 +403,31 @@ canvas.renderAll();
 fileReader.readAsArrayBuffer(file);
 
 }
+);
 
 function addText(){
 
-const text =
-document.getElementById("textInput")
+const value =
+document.getElementById('textInput')
 .value;
 
-if(text.trim()===""){
+if(value.trim()===""){
 return;
 }
 
 const size =
 parseInt(
-document.getElementById("fontSize")
+document.getElementById('fontSize')
 .value
 );
 
 const color =
-document.getElementById("textColor")
+document.getElementById('textColor')
 .value;
 
-const textbox =
+const text =
 new fabric.IText(
-text,
+value,
 {
 
 left:200,
@@ -384,9 +441,9 @@ fill:color
 }
 );
 
-canvas.add(textbox);
+fabricCanvas.add(text);
 
-canvas.setActiveObject(textbox);
+fabricCanvas.setActiveObject(text);
 
 }
 
@@ -399,15 +456,15 @@ left:200,
 
 top:200,
 
-width:200,
+width:220,
 
-height:60,
+height:70,
 
 fill:'white'
 
 });
 
-canvas.add(rect);
+fabricCanvas.add(rect);
 
 }
 
@@ -420,19 +477,19 @@ left:200,
 
 top:200,
 
-width:150,
+width:200,
 
-height:100,
+height:120,
 
 fill:'transparent',
 
 stroke:'red',
 
-strokeWidth:2
+strokeWidth:3
 
 });
 
-canvas.add(rect);
+fabricCanvas.add(rect);
 
 }
 
@@ -445,40 +502,40 @@ left:250,
 
 top:250,
 
-radius:50,
+radius:60,
 
 fill:'transparent',
 
 stroke:'blue',
 
-strokeWidth:2
+strokeWidth:3
 
 });
 
-canvas.add(circle);
+fabricCanvas.add(circle);
 
 }
 
 function enableDraw(){
 
-canvas.isDrawingMode = true;
+fabricCanvas.isDrawingMode = true;
 
-canvas.freeDrawingBrush.width = 3;
+fabricCanvas.freeDrawingBrush.width = 3;
 
-canvas.freeDrawingBrush.color = "red";
+fabricCanvas.freeDrawingBrush.color = "red";
 
 }
 
 function disableDraw(){
 
-canvas.isDrawingMode = false;
+fabricCanvas.isDrawingMode = false;
 
 }
 
 function addImage(){
 
 const file =
-document.getElementById("imageUpload")
+document.getElementById('imageUpload')
 .files[0];
 
 if(!file){
@@ -495,17 +552,19 @@ fabric.Image.fromURL(
 f.target.result,
 function(img){
 
-img.scaleToWidth(200);
-
 img.set({
 
 left:200,
 
-top:200
+top:200,
+
+scaleX:0.5,
+
+scaleY:0.5
 
 });
 
-canvas.add(img);
+fabricCanvas.add(img);
 
 }
 );
@@ -519,27 +578,13 @@ reader.readAsDataURL(file);
 function deleteSelected(){
 
 const active =
-canvas.getActiveObject();
+fabricCanvas.getActiveObject();
 
 if(active){
 
-canvas.remove(active);
+fabricCanvas.remove(active);
 
 }
-
-}
-
-function clearCanvas(){
-
-canvas.getObjects().forEach(obj=>{
-
-if(obj !== canvas.backgroundImage){
-
-canvas.remove(obj);
-
-}
-
-});
 
 }
 
@@ -547,7 +592,7 @@ function zoomIn(){
 
 currentZoom += 0.1;
 
-canvas.setZoom(currentZoom);
+fabricCanvas.setZoom(currentZoom);
 
 }
 
@@ -555,7 +600,7 @@ function zoomOut(){
 
 currentZoom -= 0.1;
 
-canvas.setZoom(currentZoom);
+fabricCanvas.setZoom(currentZoom);
 
 }
 
@@ -572,14 +617,14 @@ orientation:'portrait',
 unit:'px',
 
 format:[
-canvas.width,
-canvas.height
+fabricCanvas.width,
+fabricCanvas.height
 ]
 
 });
 
-const imgData =
-canvas.toDataURL({
+const img =
+fabricCanvas.toDataURL({
 
 format:'png',
 
@@ -587,12 +632,12 @@ quality:1
 });
 
 pdf.addImage(
-imgData,
+img,
 'PNG',
 0,
 0,
-canvas.width,
-canvas.height
+fabricCanvas.width,
+fabricCanvas.height
 );
 
 pdf.save(
