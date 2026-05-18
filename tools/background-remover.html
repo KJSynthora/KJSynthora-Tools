@@ -1,139 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Background Remover - KJSynthora</title>
+
+<title>Advanced Background Remover | KJSynthora</title>
+
+<link rel="icon" type="image/png" href="../logo.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+*{
 margin:0;
 padding:0;
-font-family:Arial,sans-serif;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
 background:#020617;
 color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+min-height:100vh;
+padding:30px;
 }
 
 .container{
-width:420px;
-background:rgba(15,23,42,0.9);
-padding:50px;
-border-radius:24px;
-text-align:center;
-box-shadow:
-0 0 25px rgba(6,182,212,0.15),
-0 0 50px rgba(124,58,237,0.12);
-border:1px solid rgba(255,255,255,0.08);
+max-width:1000px;
+margin:auto;
+background:#081028;
+padding:40px;
+border-radius:25px;
 }
 
 h1{
-font-size:32px;
-margin-bottom:25px;
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
+text-align:center;
+font-size:42px;
+margin-bottom:30px;
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-button{
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
-color:white;
-border:none;
-padding:14px 30px;
-border-radius:12px;
-font-size:16px;
+.upload-box{
+border:2px dashed #38bdf8;
+padding:40px;
+border-radius:20px;
+text-align:center;
 cursor:pointer;
-margin-top:20px;
+background:#0f172a;
+transition:0.3s;
 }
 
-#success-msg{
-margin-top:20px;
-color:#4ade80;
-font-weight:bold;
+.upload-box:hover{
+background:#111827;
 }
 
-.back-home{
-margin-top:20px;
+input{
+display:none;
 }
 
-.back-home a{
+.preview-section{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-top:30px;
+}
+
+.image-box{
+background:#0f172a;
+padding:20px;
+border-radius:20px;
+text-align:center;
+}
+
+.image-box h2{
+margin-bottom:15px;
+font-size:20px;
+}
+
+.image-box img{
+max-width:100%;
+border-radius:14px;
+}
+
+button{
+margin-top:30px;
+padding:15px;
+width:100%;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+color:white;
+font-size:18px;
+font-weight:600;
+cursor:pointer;
+}
+
+.home-btn{
+display:block;
+margin-top:40px;
+text-align:center;
 color:#38bdf8;
 text-decoration:none;
-font-weight:bold;
+font-weight:600;
+}
+
+canvas{
+display:none;
+}
+
+@media(max-width:768px){
+
+.preview-section{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h1>Background Remover</h1>
+<h1>AI Background Remover</h1>
 
-<p>Select image and remove background</p>
+<label class="upload-box">
 
-<input type="file" accept="image/*">
+<input type="file"
+id="imageInput"
+accept="image/*">
 
-<br>
+<h2>Upload Image</h2>
 
-<button onclick="removeBg()">Remove Background</button>
+<p>
+Drag & Drop or Click to Upload
+</p>
 
-<p id="success-msg"></p>
+</label>
 
-<div class="back-home">
-<a href="../index.html">← Back to Home</a>
+<div class="preview-section">
+
+<div class="image-box">
+
+<h2>Original</h2>
+
+<img id="originalImage">
+
 </div>
+
+<div class="image-box">
+
+<h2>Background Removed</h2>
+
+<img id="outputImage">
+
+</div>
+
+</div>
+
+<button onclick="removeBackground()">
+Remove Background
+</button>
+
+<button onclick="downloadImage()">
+Download PNG
+</button>
+
+<canvas id="canvas"></canvas>
+
+<a href="../index.html"
+class="home-btn">
+
+← Return Home
+
+</a>
 
 </div>
 
 <script>
 
-function removeBg(){
+const imageInput =
+document.getElementById("imageInput");
 
-const input=document.querySelector('input');
+const originalImage =
+document.getElementById("originalImage");
 
-if(input.files.length===0){
+const outputImage =
+document.getElementById("outputImage");
 
-document.getElementById("success-msg").innerHTML =
-"❌ Please select image";
+const canvas =
+document.getElementById("canvas");
 
-return;
+const ctx =
+canvas.getContext("2d");
 
-}
+imageInput.addEventListener("change",function(){
 
-const file=input.files[0];
+const file = this.files[0];
 
-const reader=new FileReader();
+if(file){
 
-reader.onload=function(e){
+const reader = new FileReader();
 
-const link=document.createElement("a");
+reader.onload = function(e){
 
-link.href=e.target.result;
+originalImage.src =
+e.target.result;
 
-link.download="KJSynthora-Background-Removed.png";
-
-document.body.appendChild(link);
-
-link.click();
-
-document.body.removeChild(link);
-
-document.getElementById("success-msg").innerHTML =
-"✅ Image Downloaded Successfully!";
-
-}
+};
 
 reader.readAsDataURL(file);
+
+}
+
+});
+
+function removeBackground(){
+
+const img = new Image();
+
+img.src = originalImage.src;
+
+img.onload = function(){
+
+canvas.width = img.width;
+
+canvas.height = img.height;
+
+ctx.drawImage(img,0,0);
+
+const imageData =
+ctx.getImageData(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+const pixels =
+imageData.data;
+
+for(let i=0;i<pixels.length;i+=4){
+
+const red = pixels[i];
+
+const green = pixels[i+1];
+
+const blue = pixels[i+2];
+
+if(
+red > 200 &&
+green > 200 &&
+blue > 200
+){
+
+pixels[i+3] = 0;
+
+}
+
+}
+
+ctx.putImageData(
+imageData,
+0,
+0
+);
+
+outputImage.src =
+canvas.toDataURL("image/png");
+
+};
+
+}
+
+function downloadImage(){
+
+const link =
+document.createElement("a");
+
+link.download =
+"KJSynthora-Background-Removed.png";
+
+link.href =
+canvas.toDataURL();
+
+link.click();
 
 }
 
 </script>
 
 </body>
+
 </html>
