@@ -309,30 +309,37 @@ fabric.Image.fromURL(
 imageURL,
 function(img){
 
-img.selectable = false;
+canvas.clear();
 
-img.evented = false;
+canvas.setWidth(viewport.width);
 
-canvas.setBackgroundImage(
+canvas.setHeight(viewport.height);
 
-img,
+img.set({
 
-canvas.renderAll.bind(canvas),
+left:0,
 
-{
+top:0,
+
+selectable:false,
+
+evented:false,
 
 scaleX:
-canvas.width / img.width,
+viewport.width / img.width,
 
 scaleY:
-canvas.height / img.height
+viewport.height / img.height
+
+});
+
+canvas.add(img);
+
+img.sendToBack();
+
+canvas.renderAll();
 
 }
-
-);
-
-}
-
 );
 
 };
