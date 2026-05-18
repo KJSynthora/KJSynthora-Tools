@@ -4,27 +4,19 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<title>KJSynthora PDF Editor</title>
 
-<title>Pro PDF Editor V2 | KJSynthora</title>
-
-<link rel="icon"
-type="image/png"
-href="../logo.png">
-
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 
@@ -41,232 +33,134 @@ color:white;
 overflow:hidden;
 }
 
-.main-layout{
+.main{
 display:flex;
 height:100vh;
 }
 
 .sidebar{
-
 width:260px;
-
 background:#081028;
-
 padding:20px;
-
 overflow-y:auto;
-
 border-right:1px solid rgba(255,255,255,0.08);
-
 }
 
 .sidebar h2{
-
-font-size:22px;
-
-margin-bottom:20px;
-
+margin-bottom:25px;
+font-size:28px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
-
 -webkit-background-clip:text;
-
 -webkit-text-fill-color:transparent;
-
 }
 
 .tool-group{
-
 margin-bottom:25px;
-
 }
 
 .tool-group h3{
-
-font-size:15px;
-
-margin-bottom:12px;
-
-color:#94a3b8;
-
-}
-
-.tool-group button,
-.tool-group input,
-.tool-group select{
-
-width:100%;
-
 margin-bottom:10px;
+font-size:16px;
+color:#94a3b8;
+}
 
-padding:13px;
-
+input,
+select,
+button{
+width:100%;
+padding:14px;
+margin-bottom:10px;
 border:none;
-
+outline:none;
 border-radius:12px;
-
-background:#111827;
-
+background:#0f172a;
 color:white;
-
 }
 
-.tool-group button{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
+button{
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
 font-weight:600;
-
 cursor:pointer;
-
+transition:0.3s;
 }
 
-.editor-area{
+button:hover{
+transform:scale(1.03);
+}
 
+.workspace{
 flex:1;
-
 display:flex;
-
 flex-direction:column;
-
+overflow:hidden;
 }
 
 .topbar{
-
 height:80px;
-
 background:#081028;
-
 display:flex;
-
 align-items:center;
-
 justify-content:space-between;
-
-padding:0 20px;
-
+padding:0 25px;
 border-bottom:1px solid rgba(255,255,255,0.08);
-
 }
 
-.logo{
-
-font-size:28px;
-
-font-weight:700;
-
+.topbar h1{
+font-size:40px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
-
 -webkit-background-clip:text;
-
 -webkit-text-fill-color:transparent;
-
 }
 
-.top-controls{
-
+.actions{
 display:flex;
-
 gap:10px;
-
-align-items:center;
-
 }
 
-.top-controls button{
-
-padding:12px 18px;
-
-border:none;
-
-border-radius:12px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-font-weight:600;
-
-cursor:pointer;
-
-}
-
-.editor-wrapper{
-
+.canvas-wrapper{
 flex:1;
-
 overflow:auto;
-
-padding:25px;
-
-background:#020617;
-
-position:relative;
-
+padding:30px;
 }
 
-.canvas-container{
-
-margin:auto;
-
-margin-bottom:30px;
-
-box-shadow:0 0 20px rgba(0,0,0,0.4);
-
+.canvas-box{
+background:#000814;
+padding:20px;
+border-radius:20px;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+min-height:100%;
 }
 
-.page-box{
-
-margin-bottom:40px;
-
-position:relative;
-
+canvas{
+background:white;
+border-radius:10px;
+box-shadow:0 0 25px rgba(0,0,0,0.5);
 }
 
-.page-label{
-
-margin-bottom:10px;
-
-color:#94a3b8;
-
-font-size:14px;
-
-}
-
-.loading{
-
-position:absolute;
-
-top:50%;
-
-left:50%;
-
-transform:translate(-50%,-50%);
-
-font-size:26px;
-
-color:#64748b;
-
+#loading{
+position:fixed;
+top:20px;
+right:20px;
+background:#0f172a;
+padding:14px 20px;
+border-radius:12px;
+display:none;
+z-index:9999;
 }
 
 </style>
-<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+
 </head>
 
 <body>
 
-<div class="main-layout">
+<div id="loading">
+Loading...
+</div>
 
-<!-- SIDEBAR -->
+<div class="main">
 
 <div class="sidebar">
 
@@ -274,31 +168,35 @@ color:#64748b;
 
 <div class="tool-group">
 
-<h3>Upload</h3>
+<h3>Navigation</h3>
 
-<input type="file"
-id="pdfUpload"
-accept=".pdf">
+<a href="../index.html" style="text-decoration:none;">
+
+<button>
+← Return Home
+</button>
+
+</a>
 
 </div>
 
 <div class="tool-group">
 
-<h3>Text</h3>
+<h3>Upload PDF</h3>
 
-<input type="text"
-id="textInput"
-placeholder="Enter text">
+<input type="file" id="pdfUpload" accept=".pdf">
 
-<input type="number"
-id="fontSize"
-value="20"
-min="1"
-max="500">
+</div>
 
-<input type="color"
-id="textColor"
-value="#ff0000">
+<div class="tool-group">
+
+<h3>Add Text</h3>
+
+<input type="text" id="textInput" placeholder="Enter text">
+
+<input type="number" id="fontSize" value="20" min="8" max="120">
+
+<input type="color" id="textColor" value="#ff0000">
 
 <button onclick="addText()">
 Add Text
@@ -308,11 +206,17 @@ Add Text
 
 <div class="tool-group">
 
-<h3>Shapes</h3>
+<h3>White Cover</h3>
 
-<button onclick="addWhiteCover()">
-White Cover
+<button onclick="addWhiteBox()">
+Add White Box
 </button>
+
+</div>
+
+<div class="tool-group">
+
+<h3>Shapes</h3>
 
 <button onclick="addRectangle()">
 Rectangle
@@ -328,11 +232,7 @@ Circle
 
 <h3>Drawing</h3>
 
-<input type="range"
-id="brushSize"
-min="1"
-max="50"
-value="5">
+<input type="range" id="brushSize" min="1" max="30" value="3">
 
 <button onclick="enableDraw()">
 Enable Draw
@@ -346,13 +246,11 @@ Disable Draw
 
 <div class="tool-group">
 
-<h3>Image</h3>
+<h3>Add Image</h3>
 
-<input type="file"
-id="imageUpload"
-accept="image/*">
+<input type="file" id="imageUpload">
 
-<button onclick="uploadImage()">
+<button onclick="addImage()">
 Add Image
 </button>
 
@@ -366,39 +264,27 @@ Add Image
 Delete Selected
 </button>
 
-<button onclick="duplicateSelected()">
-Duplicate
-</button>
-
-<button onclick="bringFront()">
-Bring Front
-</button>
-
-<button onclick="sendBack()">
-Send Back
+<button onclick="clearCanvas()">
+Clear All
 </button>
 
 </div>
 
 </div>
 
-<!-- EDITOR -->
-
-<div class="editor-area">
+<div class="workspace">
 
 <div class="topbar">
 
-<div class="logo">
-KJSynthora PDF Editor
-</div>
+<h1>KJSynthora PDF Editor</h1>
 
-<div class="top-controls">
+<div class="actions">
 
-<button onclick="undoAction()">
+<button onclick="undo()">
 Undo
 </button>
 
-<button onclick="redoAction()">
+<button onclick="redo()">
 Redo
 </button>
 
@@ -418,13 +304,11 @@ Download PDF
 
 </div>
 
-<div class="editor-wrapper"
-id="editorWrapper">
+<div class="canvas-wrapper">
 
-<div class="loading"
-id="loading">
+<div class="canvas-box">
 
-📄 Upload PDF to Start Editing
+<canvas id="pdfCanvas"></canvas>
 
 </div>
 
@@ -439,42 +323,49 @@ id="loading">
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-const pdfUpload =
-document.getElementById("pdfUpload");
+const canvas =
+new fabric.Canvas('pdfCanvas');
 
-const editorWrapper =
-document.getElementById("editorWrapper");
+canvas.setWidth(900);
 
-const loading =
-document.getElementById("loading");
-
-let canvases = [];
-
-let detectedTexts = [];  
+canvas.setHeight(1200);
 
 let history = [];
+let redoHistory = [];
 
-let redoStack = [];
+function saveHistory(){
 
-let zoomLevel = 1;
+redoHistory = [];
 
-pdfUpload.addEventListener(
-"change",
-async function(e){
+history.push(
+JSON.stringify(canvas)
+);
+
+}
+
+canvas.on('object:added', saveHistory);
+
+canvas.on('object:modified', saveHistory);
+
+canvas.on('object:removed', saveHistory);
+
+document.getElementById('pdfUpload')
+.addEventListener('change', async function(e){
 
 const file = e.target.files[0];
 
-if(!file) return;
+if(!file){
+return;
+}
 
-loading.innerHTML = "Loading PDF...";
+document.getElementById("loading")
+.style.display = "block";
 
-const reader = new FileReader();
+const fileReader =
+new FileReader();
 
-reader.onload = async function(){
-
-editorWrapper.innerHTML = "";
-
-canvases = [];
+fileReader.onload =
+async function(){
 
 const typedarray =
 new Uint8Array(this.result);
@@ -484,501 +375,74 @@ await pdfjsLib
 .getDocument(typedarray)
 .promise;
 
-for(let pageNum=1;
-pageNum<=pdf.numPages;
-pageNum++){
-
 const page =
-await pdf.getPage(pageNum);
+await pdf.getPage(1);
 
 const viewport =
-page.getViewport({
-scale:1.5
-});
-
-const pageBox =
-document.createElement("div");
-
-pageBox.className = "page-box";
-
-const label =
-document.createElement("div");
-
-label.className = "page-label";
-
-label.innerHTML =
-"Page " + pageNum;
-
-const canvasEl =
-document.createElement("canvas");
-
-pageBox.appendChild(label);
-
-pageBox.appendChild(canvasEl);
-
-editorWrapper.appendChild(pageBox);
-
-const fabricCanvas =
-new fabric.Canvas(canvasEl,{
-
-selection:true
-
-});
-
-fabricCanvas.setWidth(viewport.width);
-
-fabricCanvas.setHeight(viewport.height);
+page.getViewport({scale:1.5});
 
 const tempCanvas =
-document.createElement("canvas");
+document.createElement('canvas');
 
-const ctx =
-tempCanvas.getContext("2d");
-
-tempCanvas.width =
-viewport.width;
+const tempContext =
+tempCanvas.getContext('2d');
 
 tempCanvas.height =
 viewport.height;
 
+tempCanvas.width =
+viewport.width;
+
 await page.render({
 
-canvasContext:ctx,
+canvasContext:tempContext,
 
 viewport:viewport
 
 }).promise;
 
-const imgData =
+const imageData =
 tempCanvas.toDataURL("image/png");
 
 fabric.Image.fromURL(
-imgData,
+imageData,
 async function(img){
 
-fabricCanvas.setBackgroundImage(
+canvas.setWidth(viewport.width);
+
+canvas.setHeight(viewport.height);
+
+canvas.setBackgroundImage(
 img,
-fabricCanvas.renderAll.bind(fabricCanvas),
+canvas.renderAll.bind(canvas),
 {
 scaleX:
-fabricCanvas.width / img.width,
+canvas.width / img.width,
 
 scaleY:
-fabricCanvas.height / img.height
+canvas.height / img.height
 }
 );
-
-fabricCanvas.renderAll();
-
-await detectPDFText(
-imgData,
-fabricCanvas
-);
-
-}
-);
-
-canvases.push(fabricCanvas);
-
-attachCanvasEvents(fabricCanvas);
-
-}
-
-};
-
-reader.readAsArrayBuffer(file);
-
-});
-
-function activeCanvas(){
-
-return canvases[0];
-
-}
-
-function addText(){
-
-const canvas = activeCanvas();
-
-if(!canvas) return;
-
-const text =
-document.getElementById("textInput").value;
-
-const size =
-parseInt(
-document.getElementById("fontSize").value
-);
-
-const color =
-document.getElementById("textColor").value;
-
-const textbox =
-new fabric.IText(text || "Text",{
-
-left:100,
-
-top:100,
-
-fill:color,
-
-fontSize:size
-
-});
-
-canvas.add(textbox);
-
-canvas.setActiveObject(textbox);
-
-saveState();
-
-}
-
-function addWhiteCover(){
-
-const canvas = activeCanvas();
-
-const rect =
-new fabric.Rect({
-
-left:150,
-top:150,
-fill:'white',
-width:250,
-height:60
-
-});
-
-canvas.add(rect);
-
-saveState();
-
-}
-
-function addRectangle(){
-
-const canvas = activeCanvas();
-
-const rect =
-new fabric.Rect({
-
-left:120,
-top:120,
-fill:'transparent',
-stroke:'red',
-strokeWidth:3,
-width:200,
-height:100
-
-});
-
-canvas.add(rect);
-
-saveState();
-
-}
-
-function addCircle(){
-
-const canvas = activeCanvas();
-
-const circle =
-new fabric.Circle({
-
-radius:50,
-fill:'transparent',
-stroke:'blue',
-strokeWidth:3,
-left:150,
-top:150
-
-});
-
-canvas.add(circle);
-
-saveState();
-
-}
-
-function enableDraw(){
-
-const canvas = activeCanvas();
-
-canvas.isDrawingMode = true;
-
-canvas.freeDrawingBrush.width =
-parseInt(
-document.getElementById("brushSize").value
-);
-
-canvas.freeDrawingBrush.color = "red";
-
-}
-
-function disableDraw(){
-
-const canvas = activeCanvas();
-
-canvas.isDrawingMode = false;
-
-}
-
-function deleteSelected(){
-
-const canvas = activeCanvas();
-
-const active =
-canvas.getActiveObject();
-
-if(active){
-
-canvas.remove(active);
-
-saveState();
-
-}
-
-}
-
-function duplicateSelected(){
-
-const canvas = activeCanvas();
-
-const active =
-canvas.getActiveObject();
-
-if(active){
-
-active.clone(function(cloned){
-
-cloned.set({
-
-left:active.left + 20,
-top:active.top + 20
-
-});
-
-canvas.add(cloned);
-
-saveState();
-
-});
-
-}
-
-}
-
-function bringFront(){
-
-const canvas = activeCanvas();
-
-const active =
-canvas.getActiveObject();
-
-if(active){
-
-active.bringToFront();
 
 canvas.renderAll();
 
-}
+await detectText(
+imageData
+);
+
+document.getElementById("loading")
+.style.display = "none";
 
 }
-
-function sendBack(){
-
-const canvas = activeCanvas();
-
-const active =
-canvas.getActiveObject();
-
-if(active){
-
-active.sendToBack();
-
-canvas.renderAll();
-
-}
-
-}
-
-function uploadImage(){
-
-const file =
-document.getElementById("imageUpload")
-.files[0];
-
-if(!file) return;
-
-const reader =
-new FileReader();
-
-reader.onload = function(f){
-
-fabric.Image.fromURL(
-f.target.result,
-function(img){
-
-img.set({
-
-left:100,
-top:100,
-scaleX:0.5,
-scaleY:0.5
-
-});
-
-activeCanvas().add(img);
-
-saveState();
-
-});
+);
 
 };
 
-reader.readAsDataURL(file);
-
-}
-
-function zoomIn(){
-
-zoomLevel += 0.1;
-
-canvases.forEach(c=>{
-
-c.setZoom(zoomLevel);
+fileReader.readAsArrayBuffer(file);
 
 });
 
-}
-
-function zoomOut(){
-
-if(zoomLevel > 0.3){
-
-zoomLevel -= 0.1;
-
-canvases.forEach(c=>{
-
-c.setZoom(zoomLevel);
-
-});
-
-}
-
-}
-
-function saveState(){
-
-const canvas = activeCanvas();
-
-history.push(
-JSON.stringify(canvas)
-);
-
-}
-
-function undoAction(){
-
-const canvas = activeCanvas();
-
-if(history.length > 0){
-
-redoStack.push(
-JSON.stringify(canvas)
-);
-
-canvas.loadFromJSON(
-history.pop(),
-canvas.renderAll.bind(canvas)
-);
-
-}
-
-}
-
-function redoAction(){
-
-const canvas = activeCanvas();
-
-if(redoStack.length > 0){
-
-history.push(
-JSON.stringify(canvas)
-);
-
-canvas.loadFromJSON(
-redoStack.pop(),
-canvas.renderAll.bind(canvas)
-);
-
-}
-
-}
-
-function attachCanvasEvents(canvas){
-
-canvas.on(
-'object:modified',
-saveState
-);
-
-canvas.on(
-'object:added',
-saveState
-);
-
-}
-
-async function downloadPDF(){
-
-const { jsPDF } =
-window.jspdf;
-
-const pdf =
-new jsPDF();
-
-for(let i=0;i<canvases.length;i++){
-
-const canvas =
-canvases[i];
-
-const img =
-canvas.toDataURL("image/png");
-
-const width =
-canvas.width;
-
-const height =
-canvas.height;
-
-if(i > 0){
-
-pdf.addPage([width,height]);
-
-}
-
-pdf.addImage(
-img,
-'PNG',
-0,
-0,
-width,
-height
-);
-
-}
-
-pdf.save(
-"KJSynthora-Pro-Editor.pdf"
-);
-
-}
-
-async function detectPDFText(imageData, canvas){
-
-loading.innerHTML =
-"🔍 Detecting Editable Text...";
+async function detectText(imageData){
 
 const result =
 await Tesseract.recognize(
@@ -990,7 +454,7 @@ result.data.words.forEach(word=>{
 
 if(word.text.trim() !== ""){
 
-const textbox =
+const text =
 new fabric.IText(word.text,{
 
 left:word.bbox.x0,
@@ -999,17 +463,15 @@ top:word.bbox.y0,
 
 fontSize:
 Math.max(
-12,
+14,
 word.bbox.y1 - word.bbox.y0
 ),
 
 fill:'transparent',
 
-backgroundColor:'transparent',
-
 editable:true,
 
-selectable:true,
+backgroundColor:'transparent',
 
 borderColor:'#38bdf8',
 
@@ -1017,29 +479,189 @@ cornerColor:'#38bdf8'
 
 });
 
-canvas.add(textbox);
+canvas.add(text);
 
 }
 
 });
 
-loading.innerHTML = "";
+canvas.renderAll();
 
 }
-  
-document.addEventListener(
-'keydown',
-function(e){
 
-const canvas =
-activeCanvas();
+function addText(){
 
-if(!canvas) return;
+const value =
+document.getElementById("textInput")
+.value;
 
-if(
-e.key === "Delete" ||
-e.key === "Backspace"
-){
+if(value.trim() === ""){
+return;
+}
+
+const size =
+parseInt(
+document.getElementById("fontSize")
+.value
+);
+
+const color =
+document.getElementById("textColor")
+.value;
+
+const text =
+new fabric.IText(value,{
+
+left:150,
+
+top:150,
+
+fontSize:size,
+
+fill:color
+
+});
+
+canvas.add(text);
+
+canvas.setActiveObject(text);
+
+}
+
+function addWhiteBox(){
+
+const rect =
+new fabric.Rect({
+
+left:200,
+
+top:200,
+
+width:180,
+
+height:60,
+
+fill:'white'
+
+});
+
+canvas.add(rect);
+
+}
+
+function addRectangle(){
+
+const rect =
+new fabric.Rect({
+
+left:200,
+
+top:200,
+
+width:160,
+
+height:80,
+
+fill:'transparent',
+
+stroke:'red',
+
+strokeWidth:2
+
+});
+
+canvas.add(rect);
+
+}
+
+function addCircle(){
+
+const circle =
+new fabric.Circle({
+
+left:200,
+
+top:200,
+
+radius:50,
+
+fill:'transparent',
+
+stroke:'blue',
+
+strokeWidth:2
+
+});
+
+canvas.add(circle);
+
+}
+
+function enableDraw(){
+
+canvas.isDrawingMode = true;
+
+canvas.freeDrawingBrush.width =
+parseInt(
+document.getElementById("brushSize")
+.value
+);
+
+canvas.freeDrawingBrush.color =
+"red";
+
+}
+
+function disableDraw(){
+
+canvas.isDrawingMode = false;
+
+}
+
+function addImage(){
+
+const file =
+document.getElementById("imageUpload")
+.files[0];
+
+if(!file){
+return;
+}
+
+const reader =
+new FileReader();
+
+reader.onload =
+function(f){
+
+fabric.Image.fromURL(
+f.target.result,
+function(img){
+
+img.set({
+
+left:200,
+
+top:200,
+
+scaleX:0.4,
+
+scaleY:0.4
+
+});
+
+canvas.add(img);
+
+}
+);
+
+};
+
+reader.readAsDataURL(file);
+
+}
+
+function deleteSelected(){
 
 const active =
 canvas.getActiveObject();
@@ -1048,9 +670,123 @@ if(active){
 
 canvas.remove(active);
 
-saveState();
+}
 
 }
+
+function clearCanvas(){
+
+canvas.clear();
+
+}
+
+function undo(){
+
+if(history.length > 0){
+
+redoHistory.push(
+history.pop()
+);
+
+const state =
+history[history.length - 1];
+
+if(state){
+
+canvas.loadFromJSON(
+state,
+canvas.renderAll.bind(canvas)
+);
+
+}
+
+}
+
+}
+
+function redo(){
+
+if(redoHistory.length > 0){
+
+const state =
+redoHistory.pop();
+
+history.push(state);
+
+canvas.loadFromJSON(
+state,
+canvas.renderAll.bind(canvas)
+);
+
+}
+
+}
+
+function zoomIn(){
+
+canvas.setZoom(
+canvas.getZoom() + 0.1
+);
+
+}
+
+function zoomOut(){
+
+canvas.setZoom(
+canvas.getZoom() - 0.1
+);
+
+}
+
+async function downloadPDF(){
+
+const { jsPDF } =
+window.jspdf;
+
+const pdf =
+new jsPDF({
+
+orientation:'portrait',
+
+unit:'px',
+
+format:[
+canvas.width,
+canvas.height
+]
+
+});
+
+const image =
+canvas.toDataURL({
+
+format:'png',
+
+quality:1
+});
+
+pdf.addImage(
+image,
+'PNG',
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+pdf.save(
+'KJSynthora-Edited.pdf'
+);
+
+}
+
+document.addEventListener(
+'keydown',
+function(e){
+
+if(e.key === "Delete"){
+
+deleteSelected();
 
 }
 
@@ -1059,5 +795,4 @@ saveState();
 </script>
 
 </body>
-
 </html>
