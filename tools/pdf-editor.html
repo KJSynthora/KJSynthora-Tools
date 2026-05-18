@@ -39,7 +39,7 @@ height:100vh;
 }
 
 .sidebar{
-width:260px;
+width:270px;
 background:#081028;
 padding:20px;
 overflow-y:auto;
@@ -47,8 +47,8 @@ border-right:1px solid rgba(255,255,255,0.08);
 }
 
 .sidebar h2{
+font-size:30px;
 margin-bottom:25px;
-font-size:28px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -60,12 +60,11 @@ margin-bottom:25px;
 
 .tool-group h3{
 margin-bottom:10px;
-font-size:16px;
 color:#94a3b8;
+font-size:15px;
 }
 
 input,
-select,
 button{
 width:100%;
 padding:14px;
@@ -120,7 +119,7 @@ gap:10px;
 .canvas-wrapper{
 flex:1;
 overflow:auto;
-padding:30px;
+padding:25px;
 }
 
 .canvas-box{
@@ -135,7 +134,7 @@ min-height:100%;
 
 canvas{
 background:white;
-border-radius:10px;
+border-radius:12px;
 box-shadow:0 0 25px rgba(0,0,0,0.5);
 }
 
@@ -147,7 +146,7 @@ background:#0f172a;
 padding:14px 20px;
 border-radius:12px;
 display:none;
-z-index:9999;
+z-index:99999;
 }
 
 </style>
@@ -157,7 +156,7 @@ z-index:9999;
 <body>
 
 <div id="loading">
-Loading...
+Loading PDF...
 </div>
 
 <div class="main">
@@ -170,7 +169,7 @@ Loading...
 
 <h3>Navigation</h3>
 
-<a href="../index.html" style="text-decoration:none;">
+<a href="../index.html">
 
 <button>
 ← Return Home
@@ -190,7 +189,7 @@ Loading...
 
 <div class="tool-group">
 
-<h3>Add Text</h3>
+<h3>Add New Text</h3>
 
 <input type="text" id="textInput" placeholder="Enter text">
 
@@ -209,7 +208,7 @@ Add Text
 <h3>White Cover</h3>
 
 <button onclick="addWhiteBox()">
-Add White Box
+Hide Existing Text
 </button>
 
 </div>
@@ -350,7 +349,9 @@ canvas.on('object:modified', saveHistory);
 canvas.on('object:removed', saveHistory);
 
 document.getElementById('pdfUpload')
-.addEventListener('change', async function(e){
+.addEventListener(
+'change',
+async function(e){
 
 const file = e.target.files[0];
 
@@ -361,10 +362,10 @@ return;
 document.getElementById("loading")
 .style.display = "block";
 
-const fileReader =
+const reader =
 new FileReader();
 
-fileReader.onload =
+reader.onload =
 async function(){
 
 const typedarray =
@@ -379,7 +380,9 @@ const page =
 await pdf.getPage(1);
 
 const viewport =
-page.getViewport({scale:1.5});
+page.getViewport({
+scale:1.8
+});
 
 const tempCanvas =
 document.createElement('canvas');
@@ -387,11 +390,11 @@ document.createElement('canvas');
 const tempContext =
 tempCanvas.getContext('2d');
 
-tempCanvas.height =
-viewport.height;
-
 tempCanvas.width =
 viewport.width;
+
+tempCanvas.height =
+viewport.height;
 
 await page.render({
 
@@ -408,20 +411,23 @@ fabric.Image.fromURL(
 imageData,
 async function(img){
 
+canvas.clear();
+
 canvas.setWidth(viewport.width);
 
 canvas.setHeight(viewport.height);
 
+img.scaleToWidth(viewport.width);
+
+img.scaleToHeight(viewport.height);
+
+img.selectable = false;
+
+img.evented = false;
+
 canvas.setBackgroundImage(
 img,
-canvas.renderAll.bind(canvas),
-{
-scaleX:
-canvas.width / img.width,
-
-scaleY:
-canvas.height / img.height
-}
+canvas.renderAll.bind(canvas)
 );
 
 canvas.renderAll();
@@ -438,9 +444,10 @@ document.getElementById("loading")
 
 };
 
-fileReader.readAsArrayBuffer(file);
+reader.readAsArrayBuffer(file);
 
-});
+}
+);
 
 async function detectText(imageData){
 
@@ -454,8 +461,10 @@ result.data.words.forEach(word=>{
 
 if(word.text.trim() !== ""){
 
-const text =
-new fabric.IText(word.text,{
+const textbox =
+new fabric.IText(
+word.text,
+{
 
 left:word.bbox.x0,
 
@@ -463,23 +472,39 @@ top:word.bbox.y0,
 
 fontSize:
 Math.max(
-14,
-word.bbox.y1 - word.bbox.y0
+12,
+(word.bbox.y1 - word.bbox.y0)
 ),
 
 fill:'transparent',
 
 editable:true,
 
-backgroundColor:'transparent',
+backgroundColor:'rgba(255,255,255,0.01)',
 
 borderColor:'#38bdf8',
 
-cornerColor:'#38bdf8'
+cornerColor:'#38bdf8',
 
-});
+transparentCorners:false
 
-canvas.add(text);
+}
+);
+
+textbox.on(
+'mousedblclick',
+function(){
+
+textbox.enterEditing();
+
+textbox.selectAll();
+
+textbox.hiddenTextarea.focus();
+
+}
+);
+
+canvas.add(textbox);
 
 }
 
@@ -510,17 +535,20 @@ document.getElementById("textColor")
 .value;
 
 const text =
-new fabric.IText(value,{
+new fabric.IText(
+value,
+{
 
-left:150,
+left:200,
 
-top:150,
+top:200,
 
 fontSize:size,
 
 fill:color
 
-});
+}
+);
 
 canvas.add(text);
 
@@ -537,7 +565,7 @@ left:200,
 
 top:200,
 
-width:180,
+width:200,
 
 height:60,
 
@@ -558,9 +586,9 @@ left:200,
 
 top:200,
 
-width:160,
+width:180,
 
-height:80,
+height:100,
 
 fill:'transparent',
 
@@ -579,9 +607,9 @@ function addCircle(){
 const circle =
 new fabric.Circle({
 
-left:200,
+left:250,
 
-top:200,
+top:250,
 
 radius:50,
 
@@ -644,9 +672,9 @@ left:200,
 
 top:200,
 
-scaleX:0.4,
+scaleX:0.5,
 
-scaleY:0.4
+scaleY:0.5
 
 });
 
@@ -682,23 +710,19 @@ canvas.clear();
 
 function undo(){
 
-if(history.length > 0){
+if(history.length > 1){
 
 redoHistory.push(
 history.pop()
 );
 
-const state =
+const prev =
 history[history.length - 1];
 
-if(state){
-
 canvas.loadFromJSON(
-state,
+prev,
 canvas.renderAll.bind(canvas)
 );
-
-}
 
 }
 
@@ -757,7 +781,7 @@ canvas.height
 
 });
 
-const image =
+const imgData =
 canvas.toDataURL({
 
 format:'png',
@@ -766,7 +790,7 @@ quality:1
 });
 
 pdf.addImage(
-image,
+imgData,
 'PNG',
 0,
 0,
@@ -790,7 +814,8 @@ deleteSelected();
 
 }
 
-});
+}
+);
 
 </script>
 
