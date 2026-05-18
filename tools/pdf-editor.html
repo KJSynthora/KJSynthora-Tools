@@ -4,21 +4,27 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Visual PDF Editor | KJSynthora</title>
+<title>Pro PDF Editor | KJSynthora</title>
 
 <link rel="icon"
 type="image/png"
 href="../logo.png">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
 rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -32,96 +38,109 @@ font-family:'Poppins',sans-serif;
 body{
 background:#020617;
 color:white;
-padding:30px;
 min-height:100vh;
+padding:20px;
 }
 
 .container{
-max-width:1300px;
+max-width:1500px;
 margin:auto;
 background:#081028;
-padding:40px;
+padding:25px;
 border-radius:25px;
 }
 
 h1{
 text-align:center;
 font-size:42px;
-margin-bottom:30px;
+margin-bottom:25px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
 .toolbar{
+
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+
+grid-template-columns:
+repeat(auto-fit,minmax(150px,1fr));
+
 gap:15px;
+
 margin-bottom:25px;
+
 }
 
-input,select,button{
+.toolbar button,
+.toolbar input,
+.toolbar select{
+
 padding:14px;
+
 border:none;
+
 border-radius:12px;
+
 background:#111827;
+
 color:white;
+
+font-size:15px;
+
 }
 
-button{
+.toolbar button{
+
 cursor:pointer;
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
+
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+
 font-weight:600;
+
 }
 
-.editor-container{
-position:relative;
-overflow:auto;
-border-radius:20px;
-background:white;
+.editor-wrapper{
+
+background:#111827;
+
 padding:20px;
+
+border-radius:20px;
+
+overflow:auto;
+
+height:900px;
+
 }
 
 canvas{
-display:block;
-max-width:100%;
-margin:auto;
-}
 
-.text-layer{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-pointer-events:none;
-}
+border-radius:12px;
 
-.draggable{
-position:absolute;
-min-width:100px;
-padding:5px 10px;
-border:1px dashed #38bdf8;
-cursor:move;
-pointer-events:auto;
-background:rgba(255,255,255,0.2);
-}
-
-.white-box{
-position:absolute;
 background:white;
-border:2px dashed red;
-cursor:move;
-pointer-events:auto;
+
 }
 
 .home-btn{
+
 display:block;
-margin-top:40px;
+
 text-align:center;
+
+margin-top:25px;
+
 color:#38bdf8;
+
 text-decoration:none;
+
 font-weight:600;
+
 }
 
 </style>
@@ -132,7 +151,7 @@ font-weight:600;
 
 <div class="container">
 
-<h1>Visual PDF Editor</h1>
+<h1>Pro PDF Editor</h1>
 
 <div class="toolbar">
 
@@ -146,10 +165,10 @@ placeholder="Enter text">
 
 <select id="fontSize">
 
-<option value="14">14</option>
-<option value="18">18</option>
-<option value="24">24</option>
-<option value="30">30</option>
+<option value="16">16</option>
+<option value="22">22</option>
+<option value="28">28</option>
+<option value="36">36</option>
 
 </select>
 
@@ -157,27 +176,43 @@ placeholder="Enter text">
 id="textColor"
 value="#ff0000">
 
-<button onclick="enableTextMode()">
+<button onclick="addText()">
 Add Text
 </button>
 
-<button onclick="enableWhiteBoxMode()">
+<button onclick="addRectangle()">
 White Cover
 </button>
 
+<button onclick="enableDrawing()">
+Draw
+</button>
+
+<button onclick="disableDrawing()">
+Stop Draw
+</button>
+
+<button onclick="deleteSelected()">
+Delete
+</button>
+
+<button onclick="zoomIn()">
+Zoom +
+</button>
+
+<button onclick="zoomOut()">
+Zoom -
+</button>
+
 <button onclick="downloadPDF()">
-Download PDF
+Download
 </button>
 
 </div>
 
-<div class="editor-container"
-id="editorContainer">
+<div class="editor-wrapper">
 
 <canvas id="pdfCanvas"></canvas>
-
-<div class="text-layer"
-id="textLayer"></div>
 
 </div>
 
@@ -192,25 +227,15 @@ class="home-btn">
 
 <script>
 
+const canvas =
+new fabric.Canvas(
+'pdfCanvas'
+);
+
+let currentZoom = 1;
+
 const pdfUpload =
 document.getElementById("pdfUpload");
-
-const canvas =
-document.getElementById("pdfCanvas");
-
-const ctx =
-canvas.getContext("2d");
-
-const textLayer =
-document.getElementById("textLayer");
-
-let uploadedPDF = null;
-
-let pdfImage = null;
-
-let currentMode = "";
-
-let elements = [];
 
 pdfUpload.addEventListener(
 "change",
@@ -227,12 +252,68 @@ async function(){
 const typedarray =
 new Uint8Array(this.result);
 
-uploadedPDF =
+const pdf =
 await pdfjsLib
 .getDocument(typedarray)
 .promise;
 
-renderPDF();
+const page =
+await pdf.getPage(1);
+
+const viewport =
+page.getViewport({
+scale:2
+});
+
+const tempCanvas =
+document.createElement("canvas");
+
+const tempCtx =
+tempCanvas.getContext("2d");
+
+tempCanvas.width =
+viewport.width;
+
+tempCanvas.height =
+viewport.height;
+
+await page.render({
+
+canvasContext:tempCtx,
+
+viewport:viewport
+
+}).promise;
+
+const bg =
+tempCanvas.toDataURL("image/png");
+
+canvas.setWidth(
+viewport.width
+);
+
+canvas.setHeight(
+viewport.height
+);
+
+fabric.Image.fromURL(
+bg,
+function(img){
+
+canvas.setBackgroundImage(
+img,
+canvas.renderAll.bind(canvas),
+{
+scaleX:
+canvas.width / img.width,
+
+scaleY:
+canvas.height / img.height
+}
+);
+
+}
+);
 
 };
 
@@ -240,171 +321,99 @@ reader.readAsArrayBuffer(file);
 
 });
 
-async function renderPDF(){
-
-const page =
-await uploadedPDF.getPage(1);
-
-const viewport =
-page.getViewport({scale:1.5});
-
-canvas.width =
-viewport.width;
-
-canvas.height =
-viewport.height;
-
-textLayer.style.width =
-viewport.width + "px";
-
-textLayer.style.height =
-viewport.height + "px";
-
-await page.render({
-canvasContext:ctx,
-viewport:viewport
-}).promise;
-
-pdfImage =
-canvas.toDataURL("image/png");
-
-}
-
-function enableTextMode(){
-
-currentMode = "text";
-
-}
-
-function enableWhiteBoxMode(){
-
-currentMode = "whitebox";
-
-}
-
-document.getElementById("editorContainer")
-.addEventListener("click",
-function(e){
-
-const rect =
-canvas.getBoundingClientRect();
-
-const x =
-e.clientX - rect.left;
-
-const y =
-e.clientY - rect.top;
-
-if(currentMode === "text"){
-
-addText(x,y);
-
-}
-
-if(currentMode === "whitebox"){
-
-addWhiteBox(x,y);
-
-}
-
-});
-
-function addText(x,y){
+function addText(){
 
 const text =
 document.getElementById("textInput").value;
 
 const size =
-document.getElementById("fontSize").value;
+parseInt(
+document.getElementById("fontSize").value
+);
 
 const color =
 document.getElementById("textColor").value;
 
-const div =
-document.createElement("div");
+const textbox =
+new fabric.IText(text,{
 
-div.className = "draggable";
-
-div.contentEditable = true;
-
-div.innerText = text;
-
-div.style.left = x + "px";
-
-div.style.top = y + "px";
-
-div.style.fontSize = size + "px";
-
-div.style.color = color;
-
-makeDraggable(div);
-
-textLayer.appendChild(div);
-
-elements.push(div);
-
-}
-
-function addWhiteBox(x,y){
-
-const box =
-document.createElement("div");
-
-box.className = "white-box";
-
-box.style.left = x + "px";
-
-box.style.top = y + "px";
-
-box.style.width = "150px";
-
-box.style.height = "40px";
-
-makeDraggable(box);
-
-textLayer.appendChild(box);
-
-elements.push(box);
-
-}
-
-function makeDraggable(el){
-
-let offsetX,offsetY,isDown=false;
-
-el.addEventListener("mousedown",
-function(e){
-
-isDown = true;
-
-offsetX =
-e.offsetX;
-
-offsetY =
-e.offsetY;
+left:100,
+top:100,
+fill:color,
+fontSize:size
 
 });
 
-document.addEventListener("mouseup",
-()=> isDown=false);
+canvas.add(textbox);
 
-document.addEventListener("mousemove",
-function(e){
+canvas.setActiveObject(textbox);
 
-if(!isDown) return;
+}
+
+function addRectangle(){
 
 const rect =
-canvas.getBoundingClientRect();
+new fabric.Rect({
 
-el.style.left =
-(e.clientX - rect.left - offsetX)
-+ "px";
+left:150,
+top:150,
 
-el.style.top =
-(e.clientY - rect.top - offsetY)
-+ "px";
+fill:'white',
+
+width:180,
+
+height:40
 
 });
+
+canvas.add(rect);
+
+canvas.setActiveObject(rect);
+
+}
+
+function enableDrawing(){
+
+canvas.isDrawingMode = true;
+
+canvas.freeDrawingBrush.width = 5;
+
+canvas.freeDrawingBrush.color = "red";
+
+}
+
+function disableDrawing(){
+
+canvas.isDrawingMode = false;
+
+}
+
+function deleteSelected(){
+
+const active =
+canvas.getActiveObject();
+
+if(active){
+
+canvas.remove(active);
+
+}
+
+}
+
+function zoomIn(){
+
+currentZoom += 0.1;
+
+canvas.setZoom(currentZoom);
+
+}
+
+function zoomOut(){
+
+currentZoom -= 0.1;
+
+canvas.setZoom(currentZoom);
 
 }
 
@@ -414,73 +423,50 @@ const { jsPDF } =
 window.jspdf;
 
 const pdf =
-new jsPDF();
+new jsPDF('p','pt',[
+canvas.width,
+canvas.height
+]);
 
 const img =
-new Image();
-
-img.src = pdfImage;
-
-img.onload = function(){
+canvas.toDataURL("image/png");
 
 pdf.addImage(
 img,
 'PNG',
 0,
 0,
-210,
-297
+canvas.width,
+canvas.height
 );
 
-elements.forEach(el=>{
-
-const left =
-parseInt(el.style.left);
-
-const top =
-parseInt(el.style.top);
-
-if(el.className === "draggable"){
-
-pdf.setFontSize(
-parseInt(el.style.fontSize)
-);
-
-pdf.setTextColor(
-el.style.color
-);
-
-pdf.text(
-el.innerText,
-left/3,
-top/3
+pdf.save(
+"KJSynthora-Pro-Edited.pdf"
 );
 
 }
 
-if(el.className === "white-box"){
+document.addEventListener(
+'keydown',
+function(e){
 
-pdf.setFillColor(255,255,255);
+if(
+e.key === "Delete" ||
+e.key === "Backspace"
+){
 
-pdf.rect(
-left/3,
-top/3,
-50,
-12,
-'F'
-);
+const active =
+canvas.getActiveObject();
+
+if(active){
+
+canvas.remove(active);
+
+}
 
 }
 
 });
-
-pdf.save(
-"KJSynthora-Edited.pdf"
-);
-
-};
-
-}
 
 </script>
 
