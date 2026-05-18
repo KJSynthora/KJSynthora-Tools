@@ -29,8 +29,8 @@ font-family:'Poppins',sans-serif;
 
 body{
 background:#020617;
-color:white;
 overflow:hidden;
+color:white;
 }
 
 .main{
@@ -47,7 +47,7 @@ border-right:1px solid rgba(255,255,255,0.08);
 }
 
 .sidebar h2{
-font-size:30px;
+font-size:32px;
 margin-bottom:25px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
@@ -60,20 +60,20 @@ margin-bottom:25px;
 
 .tool-group h3{
 margin-bottom:10px;
-color:#94a3b8;
 font-size:15px;
+color:#94a3b8;
 }
 
 input,
 button{
 width:100%;
 padding:14px;
-margin-bottom:10px;
 border:none;
 outline:none;
 border-radius:12px;
 background:#0f172a;
 color:white;
+margin-bottom:10px;
 }
 
 button{
@@ -105,7 +105,7 @@ border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
 .topbar h1{
-font-size:40px;
+font-size:42px;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -119,12 +119,12 @@ gap:10px;
 .canvas-wrapper{
 flex:1;
 overflow:auto;
-padding:25px;
+padding:30px;
 }
 
 .canvas-box{
 background:#000814;
-padding:20px;
+padding:25px;
 border-radius:20px;
 display:flex;
 justify-content:center;
@@ -134,8 +134,8 @@ min-height:100%;
 
 canvas{
 background:white;
-border-radius:12px;
-box-shadow:0 0 25px rgba(0,0,0,0.5);
+border-radius:10px;
+box-shadow:0 0 30px rgba(0,0,0,0.5);
 }
 
 #loading{
@@ -146,7 +146,7 @@ background:#0f172a;
 padding:14px 20px;
 border-radius:12px;
 display:none;
-z-index:99999;
+z-index:9999;
 }
 
 </style>
@@ -156,7 +156,7 @@ z-index:99999;
 <body>
 
 <div id="loading">
-Loading PDF...
+Processing PDF...
 </div>
 
 <div class="main">
@@ -189,7 +189,7 @@ Loading PDF...
 
 <div class="tool-group">
 
-<h3>Add New Text</h3>
+<h3>Add Text</h3>
 
 <input type="text" id="textInput" placeholder="Enter text">
 
@@ -205,10 +205,10 @@ Add Text
 
 <div class="tool-group">
 
-<h3>White Cover</h3>
+<h3>Hide Existing Text</h3>
 
 <button onclick="addWhiteBox()">
-Hide Existing Text
+White Cover
 </button>
 
 </div>
@@ -264,7 +264,7 @@ Delete Selected
 </button>
 
 <button onclick="clearCanvas()">
-Clear All
+Clear Canvas
 </button>
 
 </div>
@@ -326,7 +326,6 @@ const canvas =
 new fabric.Canvas('pdfCanvas');
 
 canvas.setWidth(900);
-
 canvas.setHeight(1200);
 
 let history = [];
@@ -342,11 +341,11 @@ JSON.stringify(canvas)
 
 }
 
-canvas.on('object:added', saveHistory);
+canvas.on('object:added',saveHistory);
 
-canvas.on('object:modified', saveHistory);
+canvas.on('object:modified',saveHistory);
 
-canvas.on('object:removed', saveHistory);
+canvas.on('object:removed',saveHistory);
 
 document.getElementById('pdfUpload')
 .addEventListener(
@@ -381,13 +380,13 @@ await pdf.getPage(1);
 
 const viewport =
 page.getViewport({
-scale:1.8
+scale:1.2
 });
 
 const tempCanvas =
 document.createElement('canvas');
 
-const tempContext =
+const context =
 tempCanvas.getContext('2d');
 
 tempCanvas.width =
@@ -398,7 +397,7 @@ viewport.height;
 
 await page.render({
 
-canvasContext:tempContext,
+canvasContext:context,
 
 viewport:viewport
 
@@ -410,8 +409,6 @@ tempCanvas.toDataURL("image/png");
 fabric.Image.fromURL(
 imageData,
 async function(img){
-
-canvas.clear();
 
 canvas.setWidth(viewport.width);
 
@@ -425,16 +422,13 @@ img.selectable = false;
 
 img.evented = false;
 
-canvas.setBackgroundImage(
-img,
-canvas.renderAll.bind(canvas)
-);
+img.excludeFromExport = false;
 
-canvas.renderAll();
+canvas.backgroundImage = img;
 
-await detectText(
-imageData
-);
+canvas.requestRenderAll();
+
+await detectText(imageData);
 
 document.getElementById("loading")
 .style.display = "none";
@@ -473,14 +467,14 @@ top:word.bbox.y0,
 fontSize:
 Math.max(
 12,
-(word.bbox.y1 - word.bbox.y0)
+word.bbox.y1 - word.bbox.y0
 ),
 
-fill:'transparent',
+fill:'black',
 
 editable:true,
 
-backgroundColor:'rgba(255,255,255,0.01)',
+backgroundColor:'rgba(255,255,255,0.5)',
 
 borderColor:'#38bdf8',
 
@@ -516,11 +510,11 @@ canvas.renderAll();
 
 function addText(){
 
-const value =
+const textValue =
 document.getElementById("textInput")
 .value;
 
-if(value.trim() === ""){
+if(textValue.trim() === ""){
 return;
 }
 
@@ -536,7 +530,7 @@ document.getElementById("textColor")
 
 const text =
 new fabric.IText(
-value,
+textValue,
 {
 
 left:200,
@@ -565,7 +559,7 @@ left:200,
 
 top:200,
 
-width:200,
+width:180,
 
 height:60,
 
@@ -706,6 +700,10 @@ function clearCanvas(){
 
 canvas.clear();
 
+canvas.backgroundImage = null;
+
+canvas.renderAll();
+
 }
 
 function undo(){
@@ -716,11 +714,11 @@ redoHistory.push(
 history.pop()
 );
 
-const prev =
+const previous =
 history[history.length - 1];
 
 canvas.loadFromJSON(
-prev,
+previous,
 canvas.renderAll.bind(canvas)
 );
 
@@ -781,7 +779,7 @@ canvas.height
 
 });
 
-const imgData =
+const image =
 canvas.toDataURL({
 
 format:'png',
@@ -790,7 +788,7 @@ quality:1
 });
 
 pdf.addImage(
-imgData,
+image,
 'PNG',
 0,
 0,
@@ -820,4 +818,5 @@ deleteSelected();
 </script>
 
 </body>
+
 </html>
