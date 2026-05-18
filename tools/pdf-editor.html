@@ -7,7 +7,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Advanced PDF Editor | KJSynthora</title>
+<title>Visual PDF Editor | KJSynthora</title>
 
 <link rel="icon"
 type="image/png"
@@ -37,7 +37,7 @@ min-height:100vh;
 }
 
 .container{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 background:#081028;
 padding:40px;
@@ -53,18 +53,15 @@ background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-text-fill-color:transparent;
 }
 
-.upload-box{
-background:#0f172a;
-padding:30px;
-border-radius:20px;
-text-align:center;
-margin-bottom:30px;
+.toolbar{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-bottom:25px;
 }
 
-input,textarea,select{
-width:100%;
+input,select,button{
 padding:14px;
-margin-top:15px;
 border:none;
 border-radius:12px;
 background:#111827;
@@ -72,30 +69,50 @@ color:white;
 }
 
 button{
-margin-top:20px;
-padding:15px;
-width:100%;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
-color:white;
-font-size:16px;
-font-weight:600;
 cursor:pointer;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+font-weight:600;
+}
+
+.editor-container{
+position:relative;
+overflow:auto;
+border-radius:20px;
+background:white;
+padding:20px;
 }
 
 canvas{
-width:100%;
-margin-top:30px;
-border-radius:20px;
-background:white;
+display:block;
+max-width:100%;
+margin:auto;
 }
 
-.editor-tools{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-top:30px;
+.text-layer{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+}
+
+.draggable{
+position:absolute;
+min-width:100px;
+padding:5px 10px;
+border:1px dashed #38bdf8;
+cursor:move;
+pointer-events:auto;
+background:rgba(255,255,255,0.2);
+}
+
+.white-box{
+position:absolute;
+background:white;
+border:2px dashed red;
+cursor:move;
+pointer-events:auto;
 }
 
 .home-btn{
@@ -115,30 +132,17 @@ font-weight:600;
 
 <div class="container">
 
-<h1>Advanced PDF Editor</h1>
+<h1>Visual PDF Editor</h1>
 
-<div class="upload-box">
+<div class="toolbar">
 
 <input type="file"
 id="pdfUpload"
 accept=".pdf">
 
-</div>
-
-<div class="editor-tools">
-
-<div>
-
-<label>Add Text</label>
-
-<textarea id="customText"
-placeholder="Enter text"></textarea>
-
-</div>
-
-<div>
-
-<label>Font Size</label>
+<input type="text"
+id="textInput"
+placeholder="Enter text">
 
 <select id="fontSize">
 
@@ -149,25 +153,33 @@ placeholder="Enter text"></textarea>
 
 </select>
 
-</div>
-
-<div>
-
-<label>Text Color</label>
-
 <input type="color"
 id="textColor"
 value="#ff0000">
 
-</div>
-
-</div>
-
-<button onclick="downloadEditedPDF()">
-Download Edited PDF
+<button onclick="enableTextMode()">
+Add Text
 </button>
 
+<button onclick="enableWhiteBoxMode()">
+White Cover
+</button>
+
+<button onclick="downloadPDF()">
+Download PDF
+</button>
+
+</div>
+
+<div class="editor-container"
+id="editorContainer">
+
 <canvas id="pdfCanvas"></canvas>
+
+<div class="text-layer"
+id="textLayer"></div>
+
+</div>
 
 <a href="../index.html"
 class="home-btn">
@@ -189,21 +201,27 @@ document.getElementById("pdfCanvas");
 const ctx =
 canvas.getContext("2d");
 
+const textLayer =
+document.getElementById("textLayer");
+
 let uploadedPDF = null;
 
-let uploadedImage = null;
+let pdfImage = null;
 
-pdfUpload.addEventListener("change",
+let currentMode = "";
+
+let elements = [];
+
+pdfUpload.addEventListener(
+"change",
 async function(e){
 
 const file = e.target.files[0];
 
-if(!file) return;
-
-const fileReader =
+const reader =
 new FileReader();
 
-fileReader.onload =
+reader.onload =
 async function(){
 
 const typedarray =
@@ -218,7 +236,7 @@ renderPDF();
 
 };
 
-fileReader.readAsArrayBuffer(file);
+reader.readAsArrayBuffer(file);
 
 });
 
@@ -230,23 +248,167 @@ await uploadedPDF.getPage(1);
 const viewport =
 page.getViewport({scale:1.5});
 
+canvas.width =
+viewport.width;
+
 canvas.height =
 viewport.height;
 
-canvas.width =
-viewport.width;
+textLayer.style.width =
+viewport.width + "px";
+
+textLayer.style.height =
+viewport.height + "px";
 
 await page.render({
 canvasContext:ctx,
 viewport:viewport
 }).promise;
 
-uploadedImage =
+pdfImage =
 canvas.toDataURL("image/png");
 
 }
 
-async function downloadEditedPDF(){
+function enableTextMode(){
+
+currentMode = "text";
+
+}
+
+function enableWhiteBoxMode(){
+
+currentMode = "whitebox";
+
+}
+
+document.getElementById("editorContainer")
+.addEventListener("click",
+function(e){
+
+const rect =
+canvas.getBoundingClientRect();
+
+const x =
+e.clientX - rect.left;
+
+const y =
+e.clientY - rect.top;
+
+if(currentMode === "text"){
+
+addText(x,y);
+
+}
+
+if(currentMode === "whitebox"){
+
+addWhiteBox(x,y);
+
+}
+
+});
+
+function addText(x,y){
+
+const text =
+document.getElementById("textInput").value;
+
+const size =
+document.getElementById("fontSize").value;
+
+const color =
+document.getElementById("textColor").value;
+
+const div =
+document.createElement("div");
+
+div.className = "draggable";
+
+div.contentEditable = true;
+
+div.innerText = text;
+
+div.style.left = x + "px";
+
+div.style.top = y + "px";
+
+div.style.fontSize = size + "px";
+
+div.style.color = color;
+
+makeDraggable(div);
+
+textLayer.appendChild(div);
+
+elements.push(div);
+
+}
+
+function addWhiteBox(x,y){
+
+const box =
+document.createElement("div");
+
+box.className = "white-box";
+
+box.style.left = x + "px";
+
+box.style.top = y + "px";
+
+box.style.width = "150px";
+
+box.style.height = "40px";
+
+makeDraggable(box);
+
+textLayer.appendChild(box);
+
+elements.push(box);
+
+}
+
+function makeDraggable(el){
+
+let offsetX,offsetY,isDown=false;
+
+el.addEventListener("mousedown",
+function(e){
+
+isDown = true;
+
+offsetX =
+e.offsetX;
+
+offsetY =
+e.offsetY;
+
+});
+
+document.addEventListener("mouseup",
+()=> isDown=false);
+
+document.addEventListener("mousemove",
+function(e){
+
+if(!isDown) return;
+
+const rect =
+canvas.getBoundingClientRect();
+
+el.style.left =
+(e.clientX - rect.left - offsetX)
++ "px";
+
+el.style.top =
+(e.clientY - rect.top - offsetY)
++ "px";
+
+});
+
+}
+
+async function downloadPDF(){
 
 const { jsPDF } =
 window.jspdf;
@@ -257,7 +419,7 @@ new jsPDF();
 const img =
 new Image();
 
-img.src = uploadedImage;
+img.src = pdfImage;
 
 img.onload = function(){
 
@@ -270,31 +432,51 @@ img,
 297
 );
 
-const text =
-document.getElementById("customText").value;
+elements.forEach(el=>{
 
-const size =
-document.getElementById("fontSize").value;
+const left =
+parseInt(el.style.left);
 
-const color =
-document.getElementById("textColor").value;
+const top =
+parseInt(el.style.top);
 
-const r =
-parseInt(color.substr(1,2),16);
+if(el.className === "draggable"){
 
-const g =
-parseInt(color.substr(3,2),16);
+pdf.setFontSize(
+parseInt(el.style.fontSize)
+);
 
-const b =
-parseInt(color.substr(5,2),16);
+pdf.setTextColor(
+el.style.color
+);
 
-pdf.setFontSize(size);
+pdf.text(
+el.innerText,
+left/3,
+top/3
+);
 
-pdf.setTextColor(r,g,b);
+}
 
-pdf.text(text,20,40);
+if(el.className === "white-box"){
 
-pdf.save("KJSynthora-Edited.pdf");
+pdf.setFillColor(255,255,255);
+
+pdf.rect(
+left/3,
+top/3,
+50,
+12,
+'F'
+);
+
+}
+
+});
+
+pdf.save(
+"KJSynthora-Edited.pdf"
+);
 
 };
 
