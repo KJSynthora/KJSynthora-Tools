@@ -36,47 +36,123 @@ font-family:'Poppins',sans-serif;
 }
 
 body{
+
 background:#020617;
+
 color:white;
-min-height:100vh;
+
 padding:20px;
+
+min-height:100vh;
+
 }
 
 .container{
-max-width:1500px;
+
+max-width:1600px;
+
 margin:auto;
+
 background:#081028;
+
 padding:25px;
+
 border-radius:25px;
+
 }
 
 h1{
+
 text-align:center;
+
 font-size:42px;
+
 margin-bottom:25px;
+
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+
 -webkit-background-clip:text;
+
 -webkit-text-fill-color:transparent;
+
 }
 
 .toolbar{
 
-display:grid;
+display:flex;
 
-grid-template-columns:
-repeat(auto-fit,minmax(150px,1fr));
+flex-wrap:wrap;
 
-gap:15px;
+gap:12px;
 
-margin-bottom:25px;
+margin-bottom:20px;
+
+align-items:center;
+
+background:#0f172a;
+
+padding:18px;
+
+border-radius:18px;
+
+position:sticky;
+
+top:10px;
+
+z-index:999;
 
 }
 
-.toolbar button,
+.toolbar-group{
+
+display:flex;
+
+gap:10px;
+
+align-items:center;
+
+flex-wrap:wrap;
+
+}
+
+.upload-btn,
+.toolbar button{
+
+padding:13px 20px;
+
+border:none;
+
+border-radius:12px;
+
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+
+color:white;
+
+font-weight:600;
+
+cursor:pointer;
+
+font-size:14px;
+
+}
+
+.toolbar button:disabled{
+
+opacity:0.4;
+
+cursor:not-allowed;
+
+}
+
 .toolbar input,
 .toolbar select{
 
-padding:14px;
+padding:12px;
 
 border:none;
 
@@ -86,22 +162,7 @@ background:#111827;
 
 color:white;
 
-font-size:15px;
-
-}
-
-.toolbar button{
-
-cursor:pointer;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-font-weight:600;
+font-size:14px;
 
 }
 
@@ -109,21 +170,45 @@ font-weight:600;
 
 background:#111827;
 
-padding:20px;
-
 border-radius:20px;
+
+padding:20px;
 
 overflow:auto;
 
 height:900px;
 
+position:relative;
+
+}
+
+#emptyState{
+
+position:absolute;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+font-size:26px;
+
+color:#64748b;
+
+pointer-events:none;
+
+text-align:center;
+
 }
 
 canvas{
 
+background:white;
+
 border-radius:12px;
 
-background:white;
+box-shadow:0 0 20px rgba(0,0,0,0.4);
 
 }
 
@@ -135,11 +220,17 @@ text-align:center;
 
 margin-top:25px;
 
-color:#38bdf8;
-
 text-decoration:none;
 
+color:#38bdf8;
+
 font-weight:600;
+
+}
+
+input[type=file]{
+
+display:none;
 
 }
 
@@ -155,62 +246,132 @@ font-weight:600;
 
 <div class="toolbar">
 
+<div class="toolbar-group">
+
+<label class="upload-btn">
+
+Upload PDF
+
 <input type="file"
 id="pdfUpload"
 accept=".pdf">
+
+</label>
+
+<button
+id="downloadBtn"
+onclick="downloadPDF()"
+disabled>
+
+Download PDF
+
+</button>
+
+</div>
+
+<div class="toolbar-group">
 
 <input type="text"
 id="textInput"
 placeholder="Enter text">
 
-<select id="fontSize">
-
-<option value="16">16</option>
-<option value="22">22</option>
-<option value="28">28</option>
-<option value="36">36</option>
-
-</select>
+<input type="number"
+id="fontSize"
+min="1"
+max="500"
+value="16"
+placeholder="Size">
 
 <input type="color"
 id="textColor"
 value="#ff0000">
 
-<button onclick="addText()">
+<button
+onclick="addText()"
+id="addTextBtn"
+disabled>
+
 Add Text
-</button>
 
-<button onclick="addRectangle()">
-White Cover
-</button>
-
-<button onclick="enableDrawing()">
-Draw
-</button>
-
-<button onclick="disableDrawing()">
-Stop Draw
-</button>
-
-<button onclick="deleteSelected()">
-Delete
-</button>
-
-<button onclick="zoomIn()">
-Zoom +
-</button>
-
-<button onclick="zoomOut()">
-Zoom -
-</button>
-
-<button onclick="downloadPDF()">
-Download
 </button>
 
 </div>
 
+<div class="toolbar-group">
+
+<button
+onclick="addRectangle()"
+id="coverBtn"
+disabled>
+
+White Cover
+
+</button>
+
+<button
+onclick="enableDrawing()"
+id="drawBtn"
+disabled>
+
+Draw
+
+</button>
+
+<button
+onclick="disableDrawing()">
+
+Stop Draw
+
+</button>
+
+<button
+onclick="deleteSelected()"
+id="deleteBtn"
+disabled>
+
+Delete
+
+</button>
+
+</div>
+
+<div class="toolbar-group">
+
+<button
+onclick="zoomIn()"
+id="zoomInBtn"
+disabled>
+
+Zoom +
+
+</button>
+
+<button
+onclick="zoomOut()"
+id="zoomOutBtn"
+disabled>
+
+Zoom -
+
+</button>
+
+<input type="range"
+id="brushSize"
+min="1"
+max="50"
+value="5">
+
+</div>
+
+</div>
+
 <div class="editor-wrapper">
+
+<div id="emptyState">
+
+📄 Upload PDF to Start Editing
+
+</div>
 
 <canvas id="pdfCanvas"></canvas>
 
@@ -228,11 +389,14 @@ class="home-btn">
 <script>
 
 const canvas =
-new fabric.Canvas(
-'pdfCanvas'
-);
+new fabric.Canvas('pdfCanvas');
 
 let currentZoom = 1;
+
+let pdfLoaded = false;
+
+const emptyState =
+document.getElementById("emptyState");
 
 const pdfUpload =
 document.getElementById("pdfUpload");
@@ -242,6 +406,14 @@ pdfUpload.addEventListener(
 async function(e){
 
 const file = e.target.files[0];
+
+if(!file){
+
+return;
+
+}
+
+emptyState.style.display = "none";
 
 const reader =
 new FileReader();
@@ -262,7 +434,7 @@ await pdf.getPage(1);
 
 const viewport =
 page.getViewport({
-scale:2
+scale:1.8
 });
 
 const tempCanvas =
@@ -288,13 +460,9 @@ viewport:viewport
 const bg =
 tempCanvas.toDataURL("image/png");
 
-canvas.setWidth(
-viewport.width
-);
+canvas.setWidth(viewport.width);
 
-canvas.setHeight(
-viewport.height
-);
+canvas.setHeight(viewport.height);
 
 fabric.Image.fromURL(
 bg,
@@ -312,8 +480,11 @@ canvas.height / img.height
 }
 );
 
-}
-);
+});
+
+pdfLoaded = true;
+
+enableButtons();
 
 };
 
@@ -321,10 +492,38 @@ reader.readAsArrayBuffer(file);
 
 });
 
+function enableButtons(){
+
+document
+.querySelectorAll("button")
+.forEach(btn=>{
+
+btn.disabled = false;
+
+});
+
+}
+
 function addText(){
+
+if(!pdfLoaded){
+
+alert("Upload PDF First");
+
+return;
+
+}
 
 const text =
 document.getElementById("textInput").value;
+
+if(text.trim() === ""){
+
+alert("Enter Text");
+
+return;
+
+}
 
 const size =
 parseInt(
@@ -338,9 +537,14 @@ const textbox =
 new fabric.IText(text,{
 
 left:100,
+
 top:100,
+
 fill:color,
-fontSize:size
+
+fontSize:size,
+
+editable:true
 
 });
 
@@ -356,13 +560,14 @@ const rect =
 new fabric.Rect({
 
 left:150,
+
 top:150,
 
 fill:'white',
 
-width:180,
+width:220,
 
-height:40
+height:50
 
 });
 
@@ -376,9 +581,14 @@ function enableDrawing(){
 
 canvas.isDrawingMode = true;
 
-canvas.freeDrawingBrush.width = 5;
+const brushSize =
+document.getElementById("brushSize").value;
 
-canvas.freeDrawingBrush.color = "red";
+canvas.freeDrawingBrush.width =
+parseInt(brushSize);
+
+canvas.freeDrawingBrush.color =
+"red";
 
 }
 
@@ -411,22 +621,38 @@ canvas.setZoom(currentZoom);
 
 function zoomOut(){
 
+if(currentZoom > 0.2){
+
 currentZoom -= 0.1;
 
 canvas.setZoom(currentZoom);
 
 }
 
+}
+
 async function downloadPDF(){
+
+if(!pdfLoaded){
+
+alert("Upload PDF First");
+
+return;
+
+}
 
 const { jsPDF } =
 window.jspdf;
 
 const pdf =
-new jsPDF('p','pt',[
+new jsPDF(
+'p',
+'pt',
+[
 canvas.width,
 canvas.height
-]);
+]
+);
 
 const img =
 canvas.toDataURL("image/png");
@@ -465,6 +691,26 @@ canvas.remove(active);
 }
 
 }
+
+});
+
+canvas.on(
+'selection:created',
+function(){
+
+document
+.getElementById("deleteBtn")
+.disabled = false;
+
+});
+
+canvas.on(
+'selection:cleared',
+function(){
+
+document
+.getElementById("deleteBtn")
+.disabled = true;
 
 });
 
