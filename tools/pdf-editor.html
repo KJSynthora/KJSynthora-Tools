@@ -259,7 +259,7 @@ color:#64748b;
 }
 
 </style>
-
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 
 <body>
@@ -450,6 +450,8 @@ document.getElementById("loading");
 
 let canvases = [];
 
+let detectedTexts = [];  
+
 let history = [];
 
 let redoStack = [];
@@ -552,7 +554,7 @@ tempCanvas.toDataURL("image/png");
 
 fabric.Image.fromURL(
 imgData,
-function(img){
+async function(img){
 
 fabricCanvas.setBackgroundImage(
 img,
@@ -564,6 +566,13 @@ fabricCanvas.width / img.width,
 scaleY:
 fabricCanvas.height / img.height
 }
+);
+
+fabricCanvas.renderAll();
+
+await detectPDFText(
+imgData,
+fabricCanvas
 );
 
 }
@@ -966,6 +975,58 @@ pdf.save(
 
 }
 
+async function detectPDFText(imageData, canvas){
+
+loading.innerHTML =
+"🔍 Detecting Editable Text...";
+
+const result =
+await Tesseract.recognize(
+imageData,
+'eng'
+);
+
+result.data.words.forEach(word=>{
+
+if(word.text.trim() !== ""){
+
+const textbox =
+new fabric.IText(word.text,{
+
+left:word.bbox.x0,
+
+top:word.bbox.y0,
+
+fontSize:
+Math.max(
+12,
+word.bbox.y1 - word.bbox.y0
+),
+
+fill:'transparent',
+
+backgroundColor:'transparent',
+
+editable:true,
+
+selectable:true,
+
+borderColor:'#38bdf8',
+
+cornerColor:'#38bdf8'
+
+});
+
+canvas.add(textbox);
+
+}
+
+});
+
+loading.innerHTML = "";
+
+}
+  
 document.addEventListener(
 'keydown',
 function(e){
