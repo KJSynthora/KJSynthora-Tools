@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Solar Generation Forecast & Smart Automation Optimizer
+</title>
+
+<meta name="description"
+content="AI-powered solar generation forecast dashboard with smart appliance automation, power estimation, savings analysis and live solar graphs.">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+:root{
+
+--bg:#020617;
+--card:#0f172a;
+--border:#1e293b;
+--text:#f8fafc;
+--muted:#94a3b8;
+--orange:#f59e0b;
+--green:#22c55e;
+--blue:#38bdf8;
+--purple:#8b5cf6;
+
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:
+linear-gradient(
+135deg,
+#020617,
+#0f172a
+);
+
+color:var(--text);
+
+padding:30px;
+
+min-height:100vh;
+
+}
+
+.container{
+
+max-width:1200px;
+
+margin:auto;
+
+}
+
+.header{
+
+text-align:center;
+
+margin-bottom:35px;
+
+}
+
+.header h1{
+
+font-size:48px;
+
+margin-bottom:12px;
+
+background:
+linear-gradient(
+90deg,
+var(--blue),
+var(--purple)
+);
+
+-webkit-background-clip:text;
+
+-webkit-text-fill-color:transparent;
+
+}
+
+.header p{
+
+color:var(--muted);
+
+font-size:18px;
+
+}
+
+.main-grid{
+
+display:grid;
+
+grid-template-columns:
+350px 1fr;
+
+gap:25px;
+
+}
+
+.sidebar{
+
+background:var(--card);
+
+border:1px solid var(--border);
+
+border-radius:24px;
+
+padding:25px;
+
+height:fit-content;
+
+}
+
+.section-title{
+
+font-size:20px;
+
+margin-bottom:18px;
+
+color:white;
+
+}
+
+.input-group{
+
+margin-bottom:18px;
+
+}
+
+label{
+
+display:block;
+
+margin-bottom:8px;
+
+font-size:14px;
+
+color:var(--muted);
+
+}
+
+input,
+select{
+
+width:100%;
+
+padding:14px;
+
+border-radius:14px;
+
+border:1px solid var(--border);
+
+background:#020617;
+
+color:white;
+
+font-size:15px;
+
+outline:none;
+
+}
+
+input:focus,
+select:focus{
+
+border-color:var(--blue);
+
+}
+
+button{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:16px;
+
+background:
+linear-gradient(
+90deg,
+var(--blue),
+var(--purple)
+);
+
+color:white;
+
+font-size:16px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+button:hover{
+
+transform:translateY(-2px);
+
+}
+
+.dashboard{
+
+display:flex;
+
+flex-direction:column;
+
+gap:22px;
+
+}
+
+.metrics-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(4,1fr);
+
+gap:20px;
+
+}
+
+.metric-card{
+
+background:var(--card);
+
+border:1px solid var(--border);
+
+border-radius:22px;
+
+padding:22px;
+
+}
+
+.metric-label{
+
+color:var(--muted);
+
+font-size:14px;
+
+margin-bottom:10px;
+
+}
+
+.metric-value{
+
+font-size:32px;
+
+font-weight:700;
+
+}
+
+.orange{
+color:var(--orange);
+}
+
+.green{
+color:var(--green);
+}
+
+.blue{
+color:var(--blue);
+}
+
+.purple{
+color:var(--purple);
+}
+
+.chart-card{
+
+background:var(--card);
+
+border:1px solid var(--border);
+
+border-radius:24px;
+
+padding:25px;
+
+}
+
+.recommendation-card{
+
+background:
+linear-gradient(
+135deg,
+rgba(34,197,94,0.15),
+rgba(34,197,94,0.05)
+);
+
+border:1px solid rgba(34,197,94,0.4);
+
+border-radius:24px;
+
+padding:25px;
+
+}
+
+.recommendation-title{
+
+font-size:20px;
+
+font-weight:600;
+
+margin-bottom:12px;
+
+color:#4ade80;
+
+}
+
+.recommendation-time{
+
+font-size:42px;
+
+font-weight:700;
+
+margin:18px 0;
+
+}
+
+.recommendation-text{
+
+color:#cbd5e1;
+
+line-height:1.8;
+
+}
+
+.status{
+
+margin-top:20px;
+
+text-align:center;
+
+color:var(--muted);
+
+font-size:14px;
+
+}
+
+.home-btn{
+
+display:inline-block;
+
+margin-top:20px;
+
+width:100%;
+
+}
+
+.footer{
+
+margin-top:40px;
+
+text-align:center;
+
+color:#64748b;
+
+font-size:14px;
+
+}
+
+@media(max-width:950px){
+
+.main-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.metrics-grid{
+
+grid-template-columns:
+1fr 1fr;
+
+}
+
+}
+
+@media(max-width:650px){
+
+.metrics-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.header h1{
+
+font-size:34px;
+
+}
+
+.recommendation-time{
+
+font-size:28px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>
+Solar Forecast AI
+</h1>
+
+<p>
+Smart Solar Generation Forecast & Automation Optimizer
+</p>
+
+</div>
+
+<div class="main-grid">
+
+<div class="sidebar">
+
+<h2 class="section-title">
+Plant Configuration
+</h2>
+
+<div class="input-group">
+
+<label>
+Latitude
+</label>
+
+<input type="number"
+id="lat"
+value="17.3850"
+step="0.0001">
+
+</div>
+
+<div class="input-group">
+
+<label>
+Longitude
+</label>
+
+<input type="number"
+id="lon"
+value="78.4867"
+step="0.0001">
+
+</div>
+
+<div class="input-group">
+
+<label>
+Solar Capacity (kWp)
+</label>
+
+<input type="number"
+id="capacity"
+value="5"
+step="0.1">
+
+</div>
+
+<div class="input-group">
+
+<label>
+Panel Efficiency (%)
+</label>
+
+<input type="number"
+id="efficiency"
+value="18">
+
+</div>
+
+<div class="input-group">
+
+<label>
+Electricity Price (₹/unit)
+</label>
+
+<input type="number"
+id="price"
+value="8">
+
+</div>
+
+<div class="input-group">
+
+<label>
+Appliance
+</label>
+
+<select id="appliance">
+
+<option>
+EV Charger
+</option>
+
+<option>
+Washing Machine
+</option>
+
+<option>
+Water Motor
+</option>
+
+<option>
+Air Conditioner
+</option>
+
+<option>
+Dishwasher
+</option>
+
+</select>
+
+</div>
+
+<button onclick="runSolarForecast()">
+Generate Smart Forecast
+</button>
+
+<a href="../index.html"
+class="home-btn">
+
+<button>
+← Return Home
+</button>
+
+</a>
+
+<div class="status"
+id="status">
+
+Waiting for forecast execution...
+
+</div>
+
+</div>
+
+<div class="dashboard">
+
+<div class="metrics-grid">
+
+<div class="metric-card">
+
+<div class="metric-label">
+Peak Power
+</div>
+
+<div class="metric-value orange"
+id="peakPower">
+
+0.00 kW
+
+</div>
+
+</div>
+
+<div class="metric-card">
+
+<div class="metric-label">
+Daily Energy
+</div>
+
+<div class="metric-value green"
+id="dailyEnergy">
+
+0.00 kWh
+
+</div>
+
+</div>
+
+<div class="metric-card">
+
+<div class="metric-label">
+Monthly Savings
+</div>
+
+<div class="metric-value blue"
+id="monthlySavings">
+
+₹0
+
+</div>
+
+</div>
+
+<div class="metric-card">
+
+<div class="metric-label">
+Solar Score
+</div>
+
+<div class="metric-value purple"
+id="solarScore">
+
+0%
+
+</div>
+
+</div>
+
+</div>
+
+<div class="chart-card">
+
+<h2 class="section-title">
+Live Solar Output Forecast
+</h2>
+
+<canvas id="solarChart"
+height="120">
+</canvas>
+
+</div>
+
+<div class="recommendation-card">
+
+<div class="recommendation-title">
+
+🤖 Smart Automation Window
+
+</div>
+
+<div class="recommendation-text">
+
+Recommended time to run
+high-energy appliances
+based on solar peak production.
+
+</div>
+
+<div class="recommendation-time"
+id="bestTime">
+
+--:--
+
+</div>
+
+<div class="recommendation-text"
+id="aiRecommendation">
+
+AI recommendation will appear here...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+
+© 2026 KJSynthora.
+All rights reserved.
+
+</div>
+
+</div>
+
+<script>
+
+let solarChart;
+
+async function runSolarForecast(){
+
+const lat =
+document.getElementById('lat').value;
+
+const lon =
+document.getElementById('lon').value;
+
+const capacity =
+parseFloat(
+document.getElementById('capacity').value
+);
+
+const efficiency =
+parseFloat(
+document.getElementById('efficiency').value
+) / 100;
+
+const price =
+parseFloat(
+document.getElementById('price').value
+);
+
+const appliance =
+document.getElementById('appliance').value;
+
+const status =
+document.getElementById('status');
+
+status.innerText =
+"Fetching live solar forecast...";
+
+try{
+
+const api =
+`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=direct_radiation,diffuse_radiation,temperature_2m,cloudcover&forecast_days=1`;
+
+const response =
+await fetch(api);
+
+const data =
+await response.json();
+
+const times =
+data.hourly.time;
+
+const direct =
+data.hourly.direct_radiation;
+
+const diffuse =
+data.hourly.diffuse_radiation;
+
+const cloud =
+data.hourly.cloudcover;
+
+let labels = [];
+
+let values = [];
+
+let totalEnergy = 0;
+
+let peakPower = 0;
+
+let bestIndex = 0;
+
+for(let i=0;i<times.length;i++){
+
+const radiation =
+direct[i] + diffuse[i];
+
+let power =
+(radiation / 1000)
+* capacity
+* efficiency
+* 4;
+
+if(power > capacity){
+
+power = capacity;
+
+}
+
+values.push(power);
+
+labels.push(
+
+new Date(times[i])
+.toLocaleTimeString([],{
+hour:'2-digit',
+minute:'2-digit'
+})
+
+);
+
+totalEnergy += power;
+
+if(power > peakPower){
+
+peakPower = power;
+
+bestIndex = i;
+
+}
+
+}
+
+const bestStart =
+labels[bestIndex];
+
+const bestEnd =
+labels[
+Math.min(
+bestIndex + 2,
+labels.length - 1
+)
+];
+
+const monthlySavings =
+(totalEnergy * price * 30)
+.toFixed(0);
+
+const solarScore =
+Math.min(
+100,
+Math.round(
+(peakPower / capacity) * 100
+)
+);
+
+document.getElementById('peakPower')
+.innerText =
+`${peakPower.toFixed(2)} kW`;
+
+document.getElementById('dailyEnergy')
+.innerText =
+`${totalEnergy.toFixed(2)} kWh`;
+
+document.getElementById('monthlySavings')
+.innerText =
+`₹${monthlySavings}`;
+
+document.getElementById('solarScore')
+.innerText =
+`${solarScore}%`;
+
+document.getElementById('bestTime')
+.innerText =
+`${bestStart} - ${bestEnd}`;
+
+document.getElementById('aiRecommendation')
+.innerText =
+`Best time to operate ${appliance} is during peak solar generation between ${bestStart} and ${bestEnd}. Current atmospheric conditions indicate optimized renewable energy utilization with approximately ${solarScore}% efficiency potential.`;
+
+status.innerText =
+"Forecast generated successfully.";
+
+if(solarChart){
+
+solarChart.destroy();
+
+}
+
+const ctx =
+document.getElementById('solarChart');
+
+solarChart =
+new Chart(ctx,{
+
+type:'line',
+
+data:{
+
+labels:labels,
+
+datasets:[{
+
+label:'Solar Output (kW)',
+
+data:values,
+
+borderColor:'#f59e0b',
+
+backgroundColor:
+'rgba(245,158,11,0.2)',
+
+fill:true,
+
+tension:0.4,
+
+borderWidth:3
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+
+legend:{
+
+labels:{
+color:'#ffffff'
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+
+ticks:{
+color:'#cbd5e1'
+}
+
+},
+
+y:{
+
+ticks:{
+color:'#cbd5e1'
+}
+
+}
+
+}
+
+}
+
+});
+
+}
+catch(error){
+
+console.log(error);
+
+status.innerText =
+"Forecast execution failed.";
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
