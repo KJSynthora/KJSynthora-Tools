@@ -1,58 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Date Difference Calculator | KJSynthora</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
 body{
-background:#020617;
-font-family:Poppins,sans-serif;
+min-height:100vh;
+background:
+radial-gradient(circle at top left,#1e3a8a33,transparent 35%),
+linear-gradient(135deg,#020617,#020b2d,#000814);
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
+padding:30px;
+overflow-x:hidden;
 color:white;
 }
 
 .container{
-background:#081028;
-padding:40px;
-border-radius:20px;
-width:400px;
-text-align:center;
-}
-
-input,button{
 width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:10px;
-background:#0f172a;
-color:white;
+max-width:1200px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
 }
 
-button{
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
-cursor:pointer;
+.left-panel,
+.right-panel{
+background:rgba(15,23,42,.72);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
+border-radius:30px;
+padding:35px;
+box-shadow:
+0 0 40px rgba(59,130,246,.15),
+0 0 90px rgba(168,85,247,.08);
 }
 
-.result{
-margin-top:20px;
-font-size:22px;
-color:#38bdf8;
+.title{
+font-size:52px;
+font-weight:800;
+line-height:1.1;
+margin-bottom:25px;
+
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-.home-btn{
+.subtitle{
+color:#94a3b8;
+margin-bottom:30px;
+font-size:17px;
+}
+
+.input-group{
+margin-bottom:22px;
+}
+
+label{
 display:block;
-margin-top:20px;
+margin-bottom:10px;
+font-size:15px;
+font-weight:600;
+color:#cbd5e1;
+}
+
+input{
+width:100%;
+height:65px;
+padding:0 20px;
+border:none;
+outline:none;
+border-radius:18px;
+background:rgba(255,255,255,.05);
+color:white;
+font-size:18px;
+}
+
+.mode-buttons{
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+margin-bottom:30px;
+}
+
+.mode-buttons button{
+padding:12px 18px;
+border:none;
+border-radius:14px;
+background:rgba(255,255,255,.05);
+color:white;
+cursor:pointer;
+transition:.3s;
+font-weight:600;
+}
+
+.mode-buttons button:hover{
+transform:scale(1.05);
+background:linear-gradient(135deg,#0ea5e9,#9333ea);
+}
+
+.calculate-btn{
+width:100%;
+height:65px;
+border:none;
+border-radius:18px;
+font-size:18px;
+font-weight:700;
+cursor:pointer;
+margin-top:10px;
+color:white;
+
+background:linear-gradient(135deg,#0ea5e9,#9333ea);
+
+transition:.3s;
+}
+
+.calculate-btn:hover{
+transform:translateY(-3px);
+}
+
+.result-title{
+font-size:34px;
+margin-bottom:25px;
+
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.result-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+}
+
+.result-card{
+background:rgba(255,255,255,.05);
+padding:25px;
+border-radius:22px;
+text-align:center;
+transition:.3s;
+}
+
+.result-card:hover{
+transform:translateY(-5px);
+background:rgba(255,255,255,.08);
+}
+
+.result-number{
+font-size:42px;
+font-weight:800;
+margin-bottom:10px;
 color:#38bdf8;
+}
+
+.result-label{
+color:#cbd5e1;
+font-size:15px;
+}
+
+.timeline{
+margin-top:30px;
+padding:25px;
+border-radius:22px;
+background:rgba(255,255,255,.05);
+}
+
+.timeline-line{
+height:6px;
+border-radius:20px;
+margin:20px 0;
+background:linear-gradient(90deg,#0ea5e9,#9333ea);
+}
+
+.timeline-text{
+display:flex;
+justify-content:space-between;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.bottom-buttons{
+margin-top:30px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.bottom-buttons a{
+flex:1;
+text-align:center;
+padding:16px;
+border-radius:16px;
 text-decoration:none;
+font-weight:600;
+color:white;
+
+background:linear-gradient(135deg,#0ea5e9,#9333ea);
+
+transition:.3s;
+}
+
+.bottom-buttons a:hover{
+transform:scale(1.03);
+}
+
+.live-status{
+margin-top:18px;
+color:#22c55e;
+font-size:15px;
+}
+
+@media(max-width:900px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+.title{
+font-size:42px;
+}
+
+.result-grid{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
@@ -62,40 +249,186 @@ text-decoration:none;
 
 <div class="container">
 
-<h1>Date Difference</h1>
+<div class="left-panel">
 
-<input type="date" id="date1">
+<h1 class="title">Date Difference Calculator</h1>
 
-<input type="date" id="date2">
+<p class="subtitle">
+Calculate years, months, weeks and days between two dates instantly.
+</p>
 
-<button onclick="calculateDiff()">
+<div class="mode-buttons">
+<button onclick="setToday()">Today</button>
+<button onclick="setTomorrow()">Tomorrow</button>
+<button onclick="add7Days()">+7 Days</button>
+<button onclick="add30Days()">+30 Days</button>
+</div>
+
+<div class="input-group">
+<label>From Date</label>
+<input type="date" id="fromDate">
+</div>
+
+<div class="input-group">
+<label>To Date</label>
+<input type="date" id="toDate">
+</div>
+
+<button class="calculate-btn" onclick="calculateDifference()">
 Calculate Difference
 </button>
 
-<div class="result" id="result"></div>
+<div class="live-status">
+⚡ Live Auto Calculation Enabled
+</div>
 
-<a href="../index.html" class="home-btn">
-← Return Home
-</a>
+<div class="bottom-buttons">
+<a href="../index.html">← Return Home</a>
+<a href="../index.html#tools">More Tools</a>
+</div>
+
+</div>
+
+<div class="right-panel">
+
+<h2 class="result-title">Results</h2>
+
+<div class="result-grid">
+
+<div class="result-card">
+<div class="result-number" id="days">0</div>
+<div class="result-label">Total Days</div>
+</div>
+
+<div class="result-card">
+<div class="result-number" id="weeks">0</div>
+<div class="result-label">Weeks</div>
+</div>
+
+<div class="result-card">
+<div class="result-number" id="months">0</div>
+<div class="result-label">Months</div>
+</div>
+
+<div class="result-card">
+<div class="result-number" id="years">0</div>
+<div class="result-label">Years</div>
+</div>
+
+</div>
+
+<div class="timeline">
+
+<h3 style="margin-bottom:15px;">Timeline</h3>
+
+<div class="timeline-line"></div>
+
+<div class="timeline-text">
+<span id="startText">Start Date</span>
+<span id="endText">End Date</span>
+</div>
+
+<p style="margin-top:20px;color:#38bdf8;font-size:18px;font-weight:600;" id="summary">
+No calculation yet
+</p>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-function calculateDiff(){
+const fromDate = document.getElementById("fromDate");
+const toDate = document.getElementById("toDate");
 
-const d1 = new Date(document.getElementById("date1").value);
+function calculateDifference(){
 
-const d2 = new Date(document.getElementById("date2").value);
+if(!fromDate.value || !toDate.value){
+return;
+}
 
-const diff = Math.abs(d2 - d1);
+const start = new Date(fromDate.value);
+const end = new Date(toDate.value);
 
-const days = Math.ceil(diff / (1000*60*60*24));
+const diff = Math.abs(end - start);
 
-document.getElementById("result").innerHTML =
-`${days} Days Difference`;
+const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+const weeks = Math.floor(totalDays / 7);
+const months = Math.floor(totalDays / 30.44);
+const years = Math.floor(totalDays / 365.25);
+
+document.getElementById("days").innerText = totalDays;
+document.getElementById("weeks").innerText = weeks;
+document.getElementById("months").innerText = months;
+document.getElementById("years").innerText = years;
+
+document.getElementById("startText").innerText = fromDate.value;
+document.getElementById("endText").innerText = toDate.value;
+
+document.getElementById("summary").innerHTML =
+`Difference is <strong>${totalDays}</strong> days`;
 
 }
+
+fromDate.addEventListener("input",calculateDifference);
+toDate.addEventListener("input",calculateDifference);
+
+function setToday(){
+
+const today = new Date().toISOString().split("T")[0];
+
+fromDate.value = today;
+toDate.value = today;
+
+calculateDifference();
+
+}
+
+function setTomorrow(){
+
+const today = new Date();
+
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate()+1);
+
+fromDate.value = today.toISOString().split("T")[0];
+toDate.value = tomorrow.toISOString().split("T")[0];
+
+calculateDifference();
+
+}
+
+function add7Days(){
+
+const today = new Date();
+
+const future = new Date();
+future.setDate(today.getDate()+7);
+
+fromDate.value = today.toISOString().split("T")[0];
+toDate.value = future.toISOString().split("T")[0];
+
+calculateDifference();
+
+}
+
+function add30Days(){
+
+const today = new Date();
+
+const future = new Date();
+future.setDate(today.getDate()+30);
+
+fromDate.value = today.toISOString().split("T")[0];
+toDate.value = future.toISOString().split("T")[0];
+
+calculateDifference();
+
+}
+
+setToday();
 
 </script>
 
