@@ -1,59 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Age Calculator | KJSynthora</title>
-
-<link rel="icon" type="image/png" href="../logo.png">
+<title>KJSynthora Age Calculator Pro</title>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
 body{
-background:#020617;
-font-family:Poppins,sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+background:#020b2d;
 color:white;
+padding:30px;
+min-height:100vh;
 }
 
 .container{
-background:#081028;
-padding:40px;
-border-radius:20px;
-width:400px;
-text-align:center;
+max-width:1400px;
+margin:auto;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:25px;
 }
 
-input,button{
+.card{
+background:#07154a;
+border-radius:25px;
+padding:35px;
+box-shadow:0 0 25px rgba(0,140,255,0.2);
+}
+
+.title{
+font-size:60px;
+font-weight:800;
+margin-bottom:30px;
+background:linear-gradient(90deg,#2aa9ff,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.input-group{
+margin-bottom:25px;
+}
+
+label{
+display:block;
+font-size:22px;
+margin-bottom:10px;
+font-weight:600;
+}
+
+input{
 width:100%;
-padding:14px;
-margin-top:15px;
+padding:18px;
 border:none;
-border-radius:10px;
-background:#0f172a;
+border-radius:14px;
+background:#081238;
 color:white;
+font-size:18px;
+outline:none;
+}
+
+.buttons{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+margin-top:25px;
 }
 
 button{
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
+padding:16px;
+border:none;
+border-radius:14px;
 cursor:pointer;
+font-size:18px;
+font-weight:700;
+color:white;
+background:linear-gradient(90deg,#2aa9ff,#8b5cf6);
+transition:.3s;
 }
 
-.result{
+button:hover{
+transform:translateY(-3px);
+}
+
+.result-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
 margin-top:20px;
+}
+
+.result-box{
+background:#101f5c;
+padding:25px;
+border-radius:20px;
+text-align:center;
+}
+
+.result-box h3{
 font-size:22px;
-color:#38bdf8;
+margin-bottom:12px;
 }
 
-a{
-display:block;
+.result-box p{
+font-size:32px;
+font-weight:700;
+color:#2aa9ff;
+}
+
+.big-result{
+background:#101f5c;
+padding:30px;
+border-radius:20px;
 margin-top:20px;
-color:#38bdf8;
+text-align:center;
+}
+
+.big-result h2{
+font-size:38px;
+margin-bottom:15px;
+}
+
+.big-result p{
+font-size:28px;
+color:#2aa9ff;
+font-weight:700;
+}
+
+.section-title{
+font-size:38px;
+margin-bottom:20px;
+}
+
+textarea{
+width:100%;
+height:120px;
+padding:18px;
+border:none;
+border-radius:15px;
+background:#081238;
+color:white;
+font-size:16px;
+resize:none;
+}
+
+.working-result{
+margin-top:20px;
+font-size:28px;
+font-weight:700;
+color:#2aa9ff;
+}
+
+.timeline{
+margin-top:25px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+}
+
+.timeline-box{
+background:#101f5c;
+padding:20px;
+border-radius:18px;
+text-align:center;
+}
+
+.timeline-box h4{
+font-size:20px;
+margin-bottom:10px;
+}
+
+.timeline-box p{
+font-size:24px;
+font-weight:700;
+color:#8b5cf6;
+}
+
+@media(max-width:950px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+.title{
+font-size:42px;
+}
+
+.result-grid,
+.timeline,
+.buttons{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
@@ -63,19 +209,145 @@ color:#38bdf8;
 
 <div class="container">
 
-<h1>Age Calculator</h1>
+<!-- LEFT -->
 
+<div class="card">
+
+<h1 class="title">Age Calculator</h1>
+
+<div class="input-group">
+<label>Date of Birth</label>
 <input type="date" id="dob">
+</div>
+
+<div class="input-group">
+<label>As of Date</label>
+<input type="date" id="asof">
+</div>
+
+<div class="input-group">
+<label>Retirement Age</label>
+<input type="number" id="retireAge" value="60">
+</div>
+
+<div class="buttons">
 
 <button onclick="calculateAge()">
-Calculate Age
+Calculate
 </button>
 
-<div class="result" id="result"></div>
+<button onclick="copySummary()">
+Copy Summary
+</button>
 
-<a href="../index.html">
-← Return Home
-</a>
+<button onclick="window.print()">
+Print
+</button>
+
+<button onclick="shareResult()">
+Share
+</button>
+
+<button onclick="resetFields()">
+Reset
+</button>
+
+<button onclick="window.location.href='/'">
+Return Home
+</button>
+
+</div>
+
+<div class="big-result">
+
+<h2>Exact Age</h2>
+
+<p id="exactAge">
+--
+</p>
+
+</div>
+
+<div class="result-grid">
+
+<div class="result-box">
+<h3>Next Birthday</h3>
+<p id="nextBirthday">--</p>
+</div>
+
+<div class="result-box">
+<h3>Zodiac Sign</h3>
+<p id="zodiac">--</p>
+</div>
+
+<div class="result-box">
+<h3>Born On</h3>
+<p id="bornDay">--</p>
+</div>
+
+<div class="result-box">
+<h3>Retirement In</h3>
+<p id="retirement">--</p>
+</div>
+
+</div>
+
+<div class="timeline">
+
+<div class="timeline-box">
+<h4>Total Days</h4>
+<p id="daysLived">--</p>
+</div>
+
+<div class="timeline-box">
+<h4>Total Hours</h4>
+<p id="hoursLived">--</p>
+</div>
+
+<div class="timeline-box">
+<h4>Total Minutes</h4>
+<p id="minutesLived">--</p>
+</div>
+
+<div class="timeline-box">
+<h4>Half Birthday</h4>
+<p id="halfBirthday">--</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="card">
+
+<h2 class="section-title">Working Days Calculator</h2>
+
+<div class="input-group">
+<label>Start Date</label>
+<input type="date" id="startDate">
+</div>
+
+<div class="input-group">
+<label>End Date</label>
+<input type="date" id="endDate">
+</div>
+
+<div class="input-group">
+<label>Optional Holidays</label>
+<textarea id="holidays" placeholder="2026-01-26,2026-08-15"></textarea>
+</div>
+
+<button onclick="calculateWorkingDays()">
+Count Working Days
+</button>
+
+<div class="working-result" id="workingDaysResult">
+--
+</div>
+
+</div>
 
 </div>
 
@@ -83,28 +355,167 @@ Calculate Age
 
 function calculateAge(){
 
-const dob =
-new Date(document.getElementById("dob").value);
+const dob=new Date(document.getElementById('dob').value);
 
-const today = new Date();
+const asofInput=document.getElementById('asof').value;
 
-let age =
-today.getFullYear() - dob.getFullYear();
+const today=asofInput ? new Date(asofInput) : new Date();
 
-const month =
-today.getMonth() - dob.getMonth();
+if(!dob || dob=="Invalid Date"){
+alert("Select Date of Birth");
+return;
+}
 
-if(month < 0 ||
-(month === 0 &&
-today.getDate() < dob.getDate())){
+let years=today.getFullYear()-dob.getFullYear();
+let months=today.getMonth()-dob.getMonth();
+let days=today.getDate()-dob.getDate();
 
-age--;
+if(days<0){
+months--;
+days+=30;
+}
+
+if(months<0){
+years--;
+months+=12;
+}
+
+document.getElementById('exactAge').innerText=
+`${years} Years ${months} Months ${days} Days`;
+
+const nextBirthday=new Date(today.getFullYear(),dob.getMonth(),dob.getDate());
+
+if(nextBirthday<today){
+nextBirthday.setFullYear(today.getFullYear()+1);
+}
+
+const diff=Math.ceil((nextBirthday-today)/(1000*60*60*24));
+
+document.getElementById('nextBirthday').innerText=
+diff+" Days";
+
+const signs=[
+["Capricorn",19],
+["Aquarius",18],
+["Pisces",20],
+["Aries",19],
+["Taurus",20],
+["Gemini",20],
+["Cancer",22],
+["Leo",22],
+["Virgo",22],
+["Libra",22],
+["Scorpio",21],
+["Sagittarius",21],
+["Capricorn",31]
+];
+
+const month=dob.getMonth();
+const day=dob.getDate();
+
+const zodiac=
+day>signs[month][1]
+?signs[month+1][0]
+:signs[month][0];
+
+document.getElementById('zodiac').innerText=zodiac;
+
+const daysArr=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+document.getElementById('bornDay').innerText=
+daysArr[dob.getDay()];
+
+const retire=parseInt(document.getElementById('retireAge').value);
+
+document.getElementById('retirement').innerText=
+(retire-years)+" Years";
+
+const totalDays=Math.floor((today-dob)/(1000*60*60*24));
+
+document.getElementById('daysLived').innerText=
+totalDays.toLocaleString();
+
+document.getElementById('hoursLived').innerText=
+(totalDays*24).toLocaleString();
+
+document.getElementById('minutesLived').innerText=
+(totalDays*24*60).toLocaleString();
+
+const halfBirthday=new Date(
+dob.getFullYear(),
+dob.getMonth()+6,
+dob.getDate()
+);
+
+document.getElementById('halfBirthday').innerText=
+halfBirthday.toDateString();
 
 }
 
-document.getElementById("result")
-.innerHTML =
-`Your Age: ${age} Years`;
+function copySummary(){
+
+const text=document.getElementById('exactAge').innerText;
+
+navigator.clipboard.writeText(text);
+
+alert("Summary Copied");
+
+}
+
+function shareResult(){
+
+const text=document.getElementById('exactAge').innerText;
+
+if(navigator.share){
+
+navigator.share({
+title:"My Age",
+text:text
+});
+
+}else{
+
+alert("Sharing not supported");
+
+}
+
+}
+
+function resetFields(){
+
+document.getElementById('dob').value='';
+document.getElementById('asof').value='';
+document.getElementById('exactAge').innerText='--';
+
+}
+
+function calculateWorkingDays(){
+
+const start=new Date(document.getElementById('startDate').value);
+
+const end=new Date(document.getElementById('endDate').value);
+
+const holidayInput=document.getElementById('holidays')
+.value
+.split(',')
+.map(h=>h.trim());
+
+let count=0;
+
+for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+
+const day=d.getDay();
+
+const dateStr=d.toISOString().split('T')[0];
+
+if(day!==0 && day!==6 && !holidayInput.includes(dateStr)){
+count++;
+}
+
+}
+
+document.getElementById('workingDaysResult').innerText=
+count+" Working Days";
 
 }
 
