@@ -1,685 +1,486 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KJSynthora Solar Forecast AI</title>
+<!-- ========================= -->
+<!-- SOLAR FORECAST AI CARD -->
+<!-- ========================= -->
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<div class="tool-card solar-card">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div class="solar-badge">🔥 AI Powered</div>
+
+    <img src="https://cdn-icons-png.flaticon.com/512/869/869869.png"
+         class="solar-icon">
+
+    <h3>Solar Forecast AI</h3>
+
+    <p>
+        Smart solar generation forecasting,
+        live weather analytics, AI automation,
+        battery prediction and energy optimization dashboard.
+    </p>
+
+    <!-- FEATURES -->
+    <div class="solar-features">
+
+        <span>⚡ Live Forecast</span>
+        <span>☀ Weather AI</span>
+        <span>🔋 Battery AI</span>
+        <span>📈 Smart Analytics</span>
+
+    </div>
+
+    <!-- LIVE STATUS -->
+    <div class="solar-status">
+
+        <div class="status-box">
+            <small>Efficiency</small>
+            <strong>92%</strong>
+        </div>
+
+        <div class="status-box">
+            <small>Today's Output</small>
+            <strong>24.7kWh</strong>
+        </div>
+
+    </div>
+
+    <!-- MINI GRAPH -->
+    <div class="mini-chart">
+
+        <div class="bar" style="height:20%"></div>
+        <div class="bar" style="height:35%"></div>
+        <div class="bar" style="height:60%"></div>
+        <div class="bar" style="height:90%"></div>
+        <div class="bar" style="height:75%"></div>
+        <div class="bar" style="height:45%"></div>
+        <div class="bar" style="height:25%"></div>
+
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="solar-buttons">
+
+        <a href="tools/solar-generation-forecast-optimizer.html"
+           class="tool-btn">
+           Open Tool
+        </a>
+
+        <button class="preview-btn"
+                onclick="showSolarPreview()">
+            Preview
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CSS -->
+<!-- ========================= -->
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+html{
+scroll-behavior:smooth;
 }
 
 body{
-background:#020b2f;
-color:white;
-min-height:100vh;
-padding:40px;
+overflow-x:hidden;
+background:#020b2d;
 }
 
-.container{
-max-width:1400px;
-margin:auto;
+/* GRID FIX */
+
+.tools-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:28px;
+align-items:stretch;
 }
 
-.header{
-text-align:center;
-margin-bottom:40px;
+.tools-section{
+padding-bottom:120px;
 }
 
-.header h1{
-font-size:60px;
+/* SOLAR CARD */
+
+.solar-card{
+
+position:relative;
+overflow:hidden;
+
+background:
+linear-gradient(
+145deg,
+#07133d,
+#0b1f5e
+);
+
+border-radius:24px;
+
+padding:28px;
+
+border:1px solid rgba(66,182,255,.25);
+
+box-shadow:
+0 0 30px rgba(66,182,255,.15);
+
+transition:.4s;
+
+}
+
+.solar-card:hover{
+
+transform:translateY(-10px);
+
+box-shadow:
+0 0 40px rgba(66,182,255,.4);
+
+}
+
+/* GLOW EFFECT */
+
+.solar-card::before{
+
+content:"";
+
+position:absolute;
+
+top:-100px;
+right:-100px;
+
+width:220px;
+height:220px;
+
+background:
+radial-gradient(
+circle,
+rgba(66,182,255,.3),
+transparent
+);
+
+}
+
+/* BADGE */
+
+.solar-badge{
+
+position:absolute;
+
+top:18px;
+right:18px;
+
+padding:6px 12px;
+
+background:
+linear-gradient(
+to right,
+#ff9800,
+#ff5722
+);
+
+border-radius:20px;
+
+font-size:12px;
 font-weight:700;
-background:linear-gradient(to right,#42b6ff,#9d4edd);
+
+color:white;
+
+box-shadow:
+0 0 15px rgba(255,87,34,.4);
+
+}
+
+/* ICON */
+
+.solar-icon{
+
+width:72px;
+height:72px;
+
+margin-bottom:18px;
+
+filter:
+drop-shadow(0 0 15px rgba(255,193,7,.6));
+
+animation:float 3s ease-in-out infinite;
+
+}
+
+@keyframes float{
+
+0%{
+transform:translateY(0px);
+}
+
+50%{
+transform:translateY(-8px);
+}
+
+100%{
+transform:translateY(0px);
+}
+
+}
+
+/* TITLE */
+
+.solar-card h3{
+
+font-size:30px;
+font-weight:800;
+
+margin-bottom:14px;
+
+background:
+linear-gradient(
+to right,
+#42b6ff,
+#9d4edd
+);
+
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+
 }
 
-.header p{
-margin-top:10px;
-font-size:18px;
-opacity:0.8;
-}
+/* TEXT */
 
-.dashboard{
-display:grid;
-grid-template-columns:350px 1fr;
-gap:25px;
-}
+.solar-card p{
 
-.card{
-background:#091750;
-border-radius:25px;
-padding:25px;
-box-shadow:0 0 25px rgba(0,162,255,0.15);
-}
+color:#d5e3ff;
 
-.left-panel h2{
+line-height:1.7;
+
+font-size:15px;
+
 margin-bottom:20px;
+
 }
 
-.input-group{
-margin-bottom:18px;
+/* FEATURES */
+
+.solar-features{
+
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+
+margin-bottom:20px;
+
 }
 
-.input-group label{
-display:block;
-margin-bottom:8px;
-font-size:14px;
-}
+.solar-features span{
 
-.input-group input,
-.input-group select{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-background:#020b2f;
-color:white;
-font-size:15px;
-outline:none;
-}
+padding:8px 14px;
 
-.btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
-background:linear-gradient(to right,#2ea8ff,#9d4edd);
-color:white;
-font-weight:600;
-font-size:16px;
-cursor:pointer;
-transition:0.3s;
-margin-top:10px;
-}
+background:
+rgba(255,255,255,.08);
 
-.btn:hover{
-transform:translateY(-3px);
-}
-
-.stats{
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:20px;
-margin-bottom:25px;
-}
-
-.stat-card{
-background:#091750;
-padding:25px;
-border-radius:20px;
-box-shadow:0 0 20px rgba(0,162,255,0.15);
-}
-
-.stat-card h3{
-font-size:15px;
-opacity:0.7;
-margin-bottom:12px;
-}
-
-.stat-card p{
-font-size:38px;
-font-weight:700;
-}
-
-.orange{color:#ffb703;}
-.green{color:#2be46f;}
-.blue{color:#42b6ff;}
-.purple{color:#b15cff;}
-.red{color:#ff4d6d;}
-
-.main-grid{
-display:grid;
-grid-template-columns:2fr 1fr;
-gap:25px;
-}
-
-.forecast-box{
-height:420px;
-}
-
-.ai-box{
-background:linear-gradient(135deg,#063f39,#091750);
-border:1px solid #00c896;
-}
-
-.ai-box h2{
-color:#2be46f;
-margin-bottom:15px;
-}
-
-.ai-box p{
-line-height:1.8;
-opacity:0.9;
-}
-
-.weather-box{
-margin-top:25px;
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-}
-
-.weather-card{
-background:#122169;
-padding:18px;
-border-radius:18px;
-text-align:center;
-}
-
-.weather-card h4{
-font-size:14px;
-margin-bottom:8px;
-opacity:0.7;
-}
-
-.weather-card p{
-font-size:22px;
-font-weight:600;
-}
-
-.image-box{
-margin-top:25px;
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-}
-
-.image-box img{
-width:100%;
-height:220px;
-object-fit:cover;
-border-radius:20px;
-}
-
-.live-meter{
-margin-top:25px;
-background:#122169;
-padding:20px;
-border-radius:20px;
-}
-
-.progress{
-width:100%;
-height:24px;
-background:#020b2f;
 border-radius:30px;
-overflow:hidden;
-margin-top:15px;
+
+font-size:13px;
+font-weight:600;
+
+color:#9fd4ff;
+
+border:
+1px solid rgba(255,255,255,.08);
+
 }
 
-.progress-bar{
-height:100%;
-width:0%;
-background:linear-gradient(to right,#2ea8ff,#9d4edd);
-transition:1s;
-}
+/* STATUS */
 
-.chat-box{
-margin-top:25px;
-background:#122169;
-padding:20px;
-border-radius:20px;
-}
+.solar-status{
 
-.chat-box input{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-background:#020b2f;
-color:white;
-margin-top:15px;
-}
-
-.footer-buttons{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:15px;
-margin-top:20px;
+
+margin-bottom:22px;
+
 }
 
-@media(max-width:1100px){
+.status-box{
 
-.dashboard{
-grid-template-columns:1fr;
+background:
+rgba(255,255,255,.05);
+
+padding:14px;
+
+border-radius:16px;
+
+text-align:center;
+
+border:
+1px solid rgba(255,255,255,.05);
+
 }
 
-.stats{
-grid-template-columns:1fr 1fr;
+.status-box small{
+
+display:block;
+
+color:#9fb6ff;
+
+margin-bottom:6px;
+
 }
 
-.main-grid{
-grid-template-columns:1fr;
+.status-box strong{
+
+font-size:22px;
+
+color:#42ff9c;
+
 }
 
-.weather-box{
-grid-template-columns:1fr 1fr;
+/* MINI CHART */
+
+.mini-chart{
+
+display:flex;
+align-items:flex-end;
+gap:8px;
+
+height:90px;
+
+margin-bottom:25px;
+
 }
 
-.image-box{
-grid-template-columns:1fr;
+.bar{
+
+flex:1;
+
+background:
+linear-gradient(
+to top,
+#42b6ff,
+#9d4edd
+);
+
+border-radius:12px 12px 0 0;
+
+animation:bars 2s ease infinite alternate;
+
+}
+
+@keyframes bars{
+
+from{
+opacity:.7;
+}
+
+to{
+opacity:1;
+}
+
+}
+
+/* BUTTONS */
+
+.solar-buttons{
+
+display:flex;
+gap:12px;
+
+}
+
+.tool-btn,
+.preview-btn{
+
+flex:1;
+
+padding:14px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:15px;
+font-weight:700;
+
+cursor:pointer;
+
+transition:.3s;
+
+text-align:center;
+
+text-decoration:none;
+
+}
+
+.tool-btn{
+
+background:
+linear-gradient(
+to right,
+#29b6ff,
+#9d4edd
+);
+
+color:white;
+
+}
+
+.preview-btn{
+
+background:
+rgba(255,255,255,.08);
+
+color:#9fd4ff;
+
+border:
+1px solid rgba(255,255,255,.08);
+
+}
+
+.tool-btn:hover,
+.preview-btn:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+0 0 20px rgba(66,182,255,.35);
+
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.solar-card{
+padding:22px;
+}
+
+.solar-card h3{
+font-size:24px;
 }
 
 }
 
 </style>
-</head>
 
-<body>
 
-<div class="container">
-
-<div class="header">
-<h1>Solar Forecast AI</h1>
-<p>Advanced Solar Automation & Smart Energy Optimizer</p>
-</div>
-
-<div class="dashboard">
-
-<div class="card left-panel">
-
-<h2>Plant Configuration</h2>
-
-<div class="input-group">
-<label>Latitude</label>
-<input type="number" id="lat" value="17.3850">
-</div>
-
-<div class="input-group">
-<label>Longitude</label>
-<input type="number" id="lon" value="78.4867">
-</div>
-
-<div class="input-group">
-<label>Solar Capacity (kWp)</label>
-<input type="number" id="capacity" value="5">
-</div>
-
-<div class="input-group">
-<label>Panel Efficiency (%)</label>
-<input type="number" id="efficiency" value="18">
-</div>
-
-<div class="input-group">
-<label>Battery Capacity (kWh)</label>
-<input type="number" id="battery" value="10">
-</div>
-
-<div class="input-group">
-<label>Electricity Price (₹/unit)</label>
-<input type="number" id="price" value="8">
-</div>
-
-<div class="input-group">
-<label>Appliance</label>
-<select id="appliance">
-<option>EV Charger</option>
-<option>Air Conditioner</option>
-<option>Washing Machine</option>
-<option>Water Heater</option>
-<option>Refrigerator</option>
-</select>
-</div>
-
-<button class="btn" onclick="generateForecast()">
-Generate Smart Forecast
-</button>
-
-<div class="footer-buttons">
-
-<button class="btn"
-onclick="window.location.href='../index.html'">
-← Return Home
-</button>
-
-<button class="btn"
-onclick="window.location.href='../index.html#tools'">
-More Tools
-</button>
-
-</div>
-
-</div>
-
-<div>
-
-<div class="stats">
-
-<div class="stat-card">
-<h3>Peak Power</h3>
-<p class="orange" id="peakPower">0 kW</p>
-</div>
-
-<div class="stat-card">
-<h3>Daily Energy</h3>
-<p class="green" id="dailyEnergy">0 kWh</p>
-</div>
-
-<div class="stat-card">
-<h3>Monthly Savings</h3>
-<p class="blue" id="monthlySavings">₹0</p>
-</div>
-
-<div class="stat-card">
-<h3>Solar Score</h3>
-<p class="purple" id="solarScore">0%</p>
-</div>
-
-<div class="stat-card">
-<h3>Battery Backup</h3>
-<p class="red" id="backupHours">0h</p>
-</div>
-
-</div>
-
-<div class="main-grid">
-
-<div class="card forecast-box">
-
-<h2>Live Solar Output Forecast</h2>
-
-<canvas id="solarChart"></canvas>
-
-<div class="live-meter">
-
-<h3>Live Production Meter</h3>
-
-<div class="progress">
-<div class="progress-bar" id="meterBar"></div>
-</div>
-
-<p id="meterText" style="margin-top:12px;">
-Waiting for forecast...
-</p>
-
-</div>
-
-<div class="weather-box">
-
-<div class="weather-card">
-<h4>Temperature</h4>
-<p id="temp">32°C</p>
-</div>
-
-<div class="weather-card">
-<h4>Cloud Cover</h4>
-<p id="cloud">15%</p>
-</div>
-
-<div class="weather-card">
-<h4>UV Index</h4>
-<p id="uv">9</p>
-</div>
-
-<div class="weather-card">
-<h4>Weather</h4>
-<p id="weather">Sunny</p>
-</div>
-
-</div>
-
-<div class="image-box">
-
-<img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1200&auto=format&fit=crop">
-
-<img src="https://images.unsplash.com/photo-1497440001374-f26997328c1b?q=80&w=1200&auto=format&fit=crop">
-
-</div>
-
-</div>
-
-<div>
-
-<div class="card ai-box">
-
-<h2>🤖 Smart AI Recommendation</h2>
-
-<p id="aiRecommendation">
-AI recommendation will appear here...
-</p>
-
-</div>
-
-<div class="card chat-box">
-
-<h2>⚡ Solar AI Assistant</h2>
-
-<p>Ask anything about solar optimization.</p>
-
-<input type="text"
-placeholder="Can I run AC today?"
-id="chatInput">
-
-<button class="btn"
-onclick="solarAI()">
-Ask AI
-</button>
-
-<p id="chatResponse"
-style="margin-top:20px;">
-—
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+<!-- ========================= -->
+<!-- JS -->
+<!-- ========================= -->
 
 <script>
 
-let chart;
+function showSolarPreview(){
 
-function generateForecast(){
+alert(
+"☀ Solar Forecast AI\n\n" +
 
-const capacity=
-parseFloat(document.getElementById("capacity").value);
-
-const efficiency=
-parseFloat(document.getElementById("efficiency").value);
-
-const battery=
-parseFloat(document.getElementById("battery").value);
-
-const price=
-parseFloat(document.getElementById("price").value);
-
-const appliance=
-document.getElementById("appliance").value;
-
-const peak=(capacity*0.92).toFixed(2);
-
-const daily=(capacity*5.5*efficiency/20).toFixed(2);
-
-const savings=(daily*30*price).toFixed(0);
-
-const score=Math.min(100,
-Math.floor((efficiency*5)));
-
-const backup=(battery/2).toFixed(1);
-
-document.getElementById("peakPower").innerHTML=
-peak+" kW";
-
-document.getElementById("dailyEnergy").innerHTML=
-daily+" kWh";
-
-document.getElementById("monthlySavings").innerHTML=
-"₹"+savings;
-
-document.getElementById("solarScore").innerHTML=
-score+"%";
-
-document.getElementById("backupHours").innerHTML=
-backup+"h";
-
-document.getElementById("meterBar").style.width=
-score+"%";
-
-document.getElementById("meterText").innerHTML=
-"Current solar efficiency "+score+"%";
-
-let recommendation="";
-
-if(score>80){
-
-recommendation=
-"☀️ Excellent solar conditions today. Best time to run heavy appliances between 11AM - 3PM.";
+"✅ Live Solar Forecast\n" +
+"✅ AI Energy Optimization\n" +
+"✅ Battery Prediction\n" +
+"✅ Weather Analytics\n" +
+"✅ Savings Estimation\n" +
+"✅ Smart Appliance Scheduling"
+);
 
 }
-else if(score>60){
-
-recommendation=
-"⚡ Moderate generation expected. Use EV charging carefully.";
-
-}
-else{
-
-recommendation=
-"☁️ Low solar generation expected because of cloud cover.";
-
-}
-
-if(appliance==="EV Charger"){
-
-recommendation+=" EV charging recommended at peak noon production.";
-
-}
-
-document.getElementById("aiRecommendation").innerHTML=
-recommendation;
-
-drawChart();
-
-}
-
-function drawChart(){
-
-const ctx=document.getElementById('solarChart');
-
-if(chart){
-chart.destroy();
-}
-
-chart=new Chart(ctx,{
-
-type:'line',
-
-data:{
-
-labels:[
-'6AM','7AM','8AM','9AM',
-'10AM','11AM','12PM',
-'1PM','2PM','3PM',
-'4PM','5PM','6PM'
-],
-
-datasets:[{
-
-label:'Solar Output (kW)',
-
-data:[
-0,1,2,3.5,4.5,5.5,
-6,5.8,5.2,4.3,3.2,1.8,0.5
-],
-
-borderColor:'#42b6ff',
-
-backgroundColor:'rgba(66,182,255,0.25)',
-
-fill:true,
-
-tension:0.4
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-legend:{
-labels:{
-color:'white'
-}
-}
-},
-
-scales:{
-
-x:{
-ticks:{color:'white'}
-},
-
-y:{
-ticks:{color:'white'}
-}
-
-}
-
-}
-
-});
-
-}
-
-function solarAI(){
-
-const input=
-document.getElementById("chatInput").value.toLowerCase();
-
-let response="";
-
-if(input.includes("ac")){
-
-response=
-"✅ Yes. Best time to run AC is between 12PM - 3PM.";
-
-}
-else if(input.includes("battery")){
-
-response=
-"🔋 Battery backup estimated around 5 hours.";
-
-}
-else if(input.includes("save")){
-
-response=
-"💰 Estimated monthly savings ₹4,000+.";
-
-}
-else{
-
-response=
-"⚡ Solar conditions look stable today.";
-
-}
-
-document.getElementById("chatResponse").innerHTML=
-response;
-
-}
-
-generateForecast();
 
 </script>
-
-</body>
-</html>
