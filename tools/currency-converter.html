@@ -1,59 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Currency Converter | KJSynthora</title>
-
-<link rel="icon" type="image/png" href="../logo.png">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KJSynthora Currency Converter</title>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
 body{
-background:#020617;
-font-family:Poppins,sans-serif;
+background:#020b2d;
+min-height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
+padding:20px;
 color:white;
 }
 
 .container{
-background:#081028;
-padding:40px;
-border-radius:20px;
-width:400px;
-text-align:center;
-}
-
-input,select,button{
 width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:10px;
-background:#0f172a;
-color:white;
+max-width:500px;
+background:#07133d;
+padding:40px;
+border-radius:25px;
+box-shadow:0 0 40px rgba(0,140,255,0.2);
 }
 
-button{
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
+h1{
+text-align:center;
+margin-bottom:30px;
+font-size:42px;
+background:linear-gradient(90deg,#2fb7ff,#9d4dff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+input,select{
+width:100%;
+padding:16px;
+margin-bottom:20px;
+border:none;
+outline:none;
+border-radius:12px;
+background:#0d1b4d;
+color:white;
+font-size:18px;
+}
+
+select{
 cursor:pointer;
 }
 
-.result{
-margin-top:20px;
-font-size:22px;
-color:#38bdf8;
+button{
+width:100%;
+padding:16px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#2fb7ff,#9d4dff);
+color:white;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
 }
 
-a{
-display:block;
+button:hover{
+transform:scale(1.02);
+}
+
+.result{
+margin-top:25px;
+padding:20px;
+background:#0d1b4d;
+border-radius:15px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+display:none;
+}
+
+.info{
+margin-top:12px;
+text-align:center;
+font-size:14px;
+opacity:0.7;
+}
+
+.quick{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin-bottom:20px;
+}
+
+.quick button{
+padding:12px;
+font-size:14px;
+border-radius:10px;
+}
+
+.bottom-buttons{
+display:flex;
+gap:15px;
 margin-top:20px;
-color:#38bdf8;
+}
+
+.bottom-buttons a{
+flex:1;
+text-align:center;
+padding:14px;
+border-radius:12px;
+text-decoration:none;
+color:white;
+font-weight:bold;
+background:linear-gradient(90deg,#2fb7ff,#9d4dff);
+}
+
+.swap{
+margin-bottom:20px;
+background:#111f55;
 }
 
 </style>
@@ -65,40 +137,152 @@ color:#38bdf8;
 
 <h1>Currency Converter</h1>
 
-<input type="number" id="amount" placeholder="Amount">
+<div class="quick">
 
-<select id="currency">
-<option value="83">USD to INR</option>
-<option value="0.012">INR to USD</option>
+<button onclick="setPair('USD','INR')">🇺🇸 USD → 🇮🇳 INR</button>
+
+<button onclick="setPair('INR','USD')">🇮🇳 INR → 🇺🇸 USD</button>
+
+<button onclick="setPair('EUR','INR')">🇪🇺 EUR → 🇮🇳 INR</button>
+
+<button onclick="setPair('AED','INR')">🇦🇪 AED → 🇮🇳 INR</button>
+
+</div>
+
+<input type="number" id="amount" placeholder="Enter Amount"/>
+
+<select id="fromCurrency">
+
+<option value="USD">🇺🇸 USD</option>
+<option value="INR">🇮🇳 INR</option>
+<option value="EUR">🇪🇺 EUR</option>
+<option value="AED">🇦🇪 AED</option>
+<option value="GBP">🇬🇧 GBP</option>
+<option value="JPY">🇯🇵 JPY</option>
+<option value="CAD">🇨🇦 CAD</option>
+<option value="AUD">🇦🇺 AUD</option>
+
 </select>
 
-<button onclick="convertCurrency()">
-Convert
-</button>
+<select id="toCurrency">
 
-<div class="result" id="result"></div>
+<option value="INR">🇮🇳 INR</option>
+<option value="USD">🇺🇸 USD</option>
+<option value="EUR">🇪🇺 EUR</option>
+<option value="AED">🇦🇪 AED</option>
+<option value="GBP">🇬🇧 GBP</option>
+<option value="JPY">🇯🇵 JPY</option>
+<option value="CAD">🇨🇦 CAD</option>
+<option value="AUD">🇦🇺 AUD</option>
 
-<a href="../index.html">
-← Return Home
-</a>
+</select>
+
+<button class="swap" onclick="swapCurrencies()">⇅ Swap Currencies</button>
+
+<button onclick="convertCurrency()">Convert Currency</button>
+
+<div class="result" id="resultBox"></div>
+
+<div class="info" id="updateInfo"></div>
+
+<div class="bottom-buttons">
+
+<a href="../index.html">← Return Home</a>
+
+<a href="../index.html#tools">More Tools</a>
+
+</div>
 
 </div>
 
 <script>
 
-function convertCurrency(){
+async function convertCurrency(){
 
-const amount =
-parseFloat(document.getElementById("amount").value);
+const amount=document.getElementById("amount").value;
 
-const rate =
-parseFloat(document.getElementById("currency").value);
+const from=document.getElementById("fromCurrency").value;
 
-const result = amount * rate;
+const to=document.getElementById("toCurrency").value;
 
-document.getElementById("result")
-.innerHTML =
-`Converted: ${result.toFixed(2)}`;
+const resultBox=document.getElementById("resultBox");
+
+const updateInfo=document.getElementById("updateInfo");
+
+if(amount==="" || amount<=0){
+
+alert("Please enter valid amount");
+
+return;
+
+}
+
+try{
+
+const response=await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+
+const data=await response.json();
+
+const rate=data.rates[to];
+
+const result=(amount*rate).toFixed(2);
+
+resultBox.style.display="block";
+
+resultBox.innerHTML=`
+${amount} ${from} = <br><br>
+${result} ${to}
+`;
+
+const now=new Date();
+
+updateInfo.innerHTML=
+`Live exchange rate updated at ${now.toLocaleTimeString()}`;
+
+saveHistory(amount,from,to,result);
+
+}
+catch(error){
+
+alert("Error fetching exchange rates");
+
+}
+
+}
+
+function swapCurrencies(){
+
+const from=document.getElementById("fromCurrency");
+
+const to=document.getElementById("toCurrency");
+
+let temp=from.value;
+
+from.value=to.value;
+
+to.value=temp;
+
+}
+
+function setPair(from,to){
+
+document.getElementById("fromCurrency").value=from;
+
+document.getElementById("toCurrency").value=to;
+
+}
+
+function saveHistory(amount,from,to,result){
+
+let history=JSON.parse(localStorage.getItem("currencyHistory")) || [];
+
+history.unshift(`${amount} ${from} → ${result} ${to}`);
+
+history=history.slice(0,5);
+
+localStorage.setItem("currencyHistory",JSON.stringify(history));
+
+console.log(history);
 
 }
 
