@@ -1,9 +1,3 @@
-<!-- ====================================================== -->
-<!-- KJSYNTHORA PREMIUM MEDIA STUDIO -->
-<!-- IMAGE ↔ PDF AI WORKSPACE -->
-<!-- FULL PREMIUM REALISTIC VERSION -->
-<!-- ====================================================== -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,140 +6,80 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KJSynthora Media Studio</title>
+<title>KJSynthora AI Workspace</title>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
-
-/* ========================= */
-/* GLOBAL */
-/* ========================= */
 
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
+font-family:'Poppins',sans-serif;
 }
 
 body{
-font-family:Poppins,sans-serif;
 background:
-linear-gradient(135deg,#020617,#020b2c,#000814);
+linear-gradient(135deg,#060816,#020617 60%,#0f172a);
 color:white;
-overflow-x:hidden;
 min-height:100vh;
+overflow-x:hidden;
 }
 
-/* ========================= */
-/* BACKGROUND GLOW */
-/* ========================= */
+/* NAVBAR */
 
-body::before{
-content:"";
-position:fixed;
-width:600px;
-height:600px;
-background:#2563eb;
-filter:blur(180px);
-opacity:.15;
-top:-200px;
-left:-200px;
-z-index:-1;
-}
-
-body::after{
-content:"";
-position:fixed;
-width:500px;
-height:500px;
-background:#9333ea;
-filter:blur(180px);
-opacity:.12;
-bottom:-150px;
-right:-150px;
-z-index:-1;
-}
-
-/* ========================= */
-/* MAIN */
-/* ========================= */
-
-.media-studio{
-padding:30px 7%;
-}
-
-/* ========================= */
-/* TOPBAR */
-/* ========================= */
-
-.topbar{
+.navbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:40px;
-flex-wrap:wrap;
-gap:20px;
+padding:20px 7%;
+border-bottom:1px solid rgba(255,255,255,.06);
+backdrop-filter:blur(20px);
 }
 
-.back-home{
-display:flex;
-align-items:center;
-gap:10px;
-padding:12px 22px;
-border-radius:16px;
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.08);
-color:#38bdf8;
-text-decoration:none;
-font-weight:600;
-transition:.3s;
-}
-
-.back-home:hover{
-transform:translateY(-4px);
-}
-
-.logo-title h1{
-font-size:42px;
-font-weight:800;
+.logo{
+font-size:34px;
+font-weight:700;
 background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.logo-title p{
-opacity:.7;
-margin-top:5px;
+.home-btn{
+padding:12px 24px;
+border-radius:14px;
+background:rgba(255,255,255,.06);
+text-decoration:none;
+color:white;
+transition:.3s;
 }
 
-.live-clock{
-padding:14px 20px;
-border-radius:18px;
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.08);
-font-size:14px;
+.home-btn:hover{
+background:#8b5cf6;
 }
 
-/* ========================= */
 /* HERO */
-/* ========================= */
 
 .hero{
 text-align:center;
-padding:40px 0 70px;
+padding:70px 7% 40px;
 }
 
-.hero h2{
+.hero h1{
 font-size:64px;
+font-weight:700;
 line-height:1.1;
 margin-bottom:20px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
@@ -153,373 +87,235 @@ background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 .hero p{
 max-width:850px;
 margin:auto;
-font-size:20px;
-line-height:1.8;
-opacity:.75;
+line-height:1.9;
+font-size:18px;
+color:#cbd5e1;
 }
 
-/* ========================= */
-/* WORKSPACE */
-/* ========================= */
+/* MAIN */
 
 .workspace{
+padding:40px 7% 90px;
 display:grid;
-grid-template-columns:1.1fr .9fr;
+grid-template-columns:1fr 1fr;
 gap:30px;
 }
 
-@media(max-width:1100px){
+.panel{
+background:
+linear-gradient(180deg,
+rgba(15,23,42,.9),
+rgba(2,6,23,.95));
+
+border:1px solid rgba(255,255,255,.06);
+border-radius:30px;
+padding:35px;
+box-shadow:
+0 0 40px rgba(59,130,246,.1);
+}
+
+.panel h2{
+font-size:32px;
+margin-bottom:25px;
+}
+
+/* DROP AREA */
+
+.drop-area{
+border:2px dashed rgba(255,255,255,.15);
+border-radius:24px;
+padding:60px 30px;
+text-align:center;
+cursor:pointer;
+transition:.3s;
+}
+
+.drop-area:hover{
+border-color:#8b5cf6;
+transform:translateY(-2px);
+}
+
+.drop-icon{
+font-size:70px;
+margin-bottom:20px;
+}
+
+.drop-area h3{
+font-size:34px;
+margin-bottom:10px;
+}
+
+.drop-area p{
+color:#94a3b8;
+margin-bottom:30px;
+}
+
+.upload-btn{
+display:inline-block;
+padding:15px 35px;
+border-radius:14px;
+background:linear-gradient(90deg,#38bdf8,#9333ea);
+cursor:pointer;
+font-weight:600;
+}
+
+/* PREVIEW */
+
+.preview-grid{
+margin-top:25px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:20px;
+}
+
+.preview-card{
+background:#0f172a;
+padding:12px;
+border-radius:20px;
+text-align:center;
+border:1px solid rgba(255,255,255,.05);
+}
+
+.preview-card img{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:14px;
+margin-bottom:10px;
+}
+
+.preview-card canvas{
+width:100%;
+border-radius:14px;
+margin-bottom:10px;
+}
+
+/* OPTIONS */
+
+.options{
+margin-top:30px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+.option{
+background:rgba(255,255,255,.04);
+padding:14px;
+border-radius:14px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+/* BUTTONS */
+
+.action-buttons{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:30px;
+}
+
+.main-btn{
+padding:18px;
+border:none;
+border-radius:16px;
+font-size:17px;
+font-weight:600;
+cursor:pointer;
+color:white;
+
+background:
+linear-gradient(90deg,#38bdf8,#9333ea);
+
+transition:.3s;
+}
+
+.main-btn:hover{
+transform:translateY(-3px);
+}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-top:25px;
+}
+
+.stat-box{
+background:#081226;
+padding:20px;
+border-radius:18px;
+text-align:center;
+}
+
+.stat-box h3{
+font-size:34px;
+color:#38bdf8;
+}
+
+.stat-box p{
+font-size:13px;
+color:#94a3b8;
+}
+
+/* FEATURES */
+
+.features{
+padding:0 7% 90px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+}
+
+.feature{
+background:#091224;
+padding:30px;
+border-radius:24px;
+text-align:center;
+border:1px solid rgba(255,255,255,.05);
+}
+
+.feature h3{
+margin-top:15px;
+margin-bottom:10px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
 
 .workspace{
 grid-template-columns:1fr;
 }
 
-.hero h2{
-font-size:44px;
+.features{
+grid-template-columns:1fr 1fr;
+}
+
+.hero h1{
+font-size:48px;
 }
 
 }
 
-/* ========================= */
-/* GLASS CARD */
-/* ========================= */
+@media(max-width:700px){
 
-.glass{
-background:rgba(255,255,255,.04);
-backdrop-filter:blur(25px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:32px;
-padding:30px;
-box-shadow:0 0 50px rgba(0,0,0,.3);
+.features{
+grid-template-columns:1fr;
 }
 
-/* ========================= */
-/* DROPZONE */
-/* ========================= */
-
-.dropzone{
-border:2px dashed rgba(255,255,255,.15);
-border-radius:28px;
-padding:70px 20px;
-text-align:center;
-cursor:pointer;
-transition:.35s;
-position:relative;
-overflow:hidden;
+.stats{
+grid-template-columns:1fr 1fr;
 }
 
-.dropzone:hover{
-border-color:#38bdf8;
-transform:translateY(-4px);
-}
-
-.dropzone i{
-font-size:70px;
-margin-bottom:25px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.dropzone h3{
+.hero h1{
 font-size:38px;
-margin-bottom:15px;
 }
 
-.dropzone p{
-opacity:.7;
-line-height:1.8;
-}
-
-.upload-btn{
-margin-top:30px;
-padding:16px 32px;
-border:none;
-border-radius:18px;
-font-size:17px;
-font-weight:700;
-cursor:pointer;
-background:linear-gradient(90deg,#38bdf8,#9333ea);
-color:white;
-transition:.35s;
-}
-
-.upload-btn:hover{
-transform:translateY(-4px);
-}
-
-/* ========================= */
-/* STATS */
-/* ========================= */
-
-.stats{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:18px;
-margin-top:25px;
-}
-
-@media(max-width:700px){
-
-.stats{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
-.stat-box{
-padding:25px;
-border-radius:24px;
-background:rgba(0,0,0,.25);
-text-align:center;
-}
-
-.stat-box h2{
-font-size:34px;
-margin-bottom:8px;
-color:#38bdf8;
-}
-
-/* ========================= */
-/* FEATURES */
-/* ========================= */
-
-.options{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-margin-top:30px;
-}
-
-@media(max-width:700px){
-
-.options{
-grid-template-columns:1fr;
-}
-
-}
-
-.option{
-padding:18px;
-border-radius:18px;
-background:rgba(255,255,255,.04);
-display:flex;
-align-items:center;
-gap:14px;
-transition:.3s;
-}
-
-.option:hover{
-transform:translateY(-3px);
-}
-
-.option input{
-transform:scale(1.2);
-}
-
-/* ========================= */
-/* ACTION BUTTONS */
-/* ========================= */
-
-.actions{
-display:flex;
-gap:18px;
-margin-top:35px;
-flex-wrap:wrap;
-}
-
-.action-btn{
-flex:1;
-padding:18px;
-border:none;
-border-radius:20px;
-font-size:16px;
-font-weight:700;
-cursor:pointer;
-transition:.35s;
-}
-
-.convert-btn{
-background:linear-gradient(90deg,#38bdf8,#9333ea);
-color:white;
-}
-
-.extract-btn{
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.08);
-color:white;
-}
-
-.action-btn:hover{
-transform:translateY(-5px);
-}
-
-/* ========================= */
-/* PREVIEW */
-/* ========================= */
-
-.preview-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-}
-
-.preview-header h2{
-font-size:28px;
-}
-
-.preview-tools{
-display:flex;
-gap:10px;
-}
-
-.preview-tools button{
-width:44px;
-height:44px;
-border:none;
-border-radius:14px;
-background:rgba(255,255,255,.05);
-color:white;
-cursor:pointer;
-}
-
-.preview-list{
-display:flex;
-flex-direction:column;
-gap:18px;
-min-height:700px;
-}
-
-.preview-item{
-display:flex;
-align-items:center;
-gap:16px;
-padding:16px;
-border-radius:20px;
-background:rgba(255,255,255,.04);
-transition:.35s;
-cursor:grab;
-}
-
-.preview-item:hover{
-transform:
-translateY(-4px)
-rotateX(4deg)
-rotateY(-4deg);
-background:rgba(255,255,255,.06);
-}
-
-.preview-thumb{
-width:85px;
-height:85px;
-object-fit:cover;
-border-radius:18px;
-}
-
-.preview-info h3{
-font-size:18px;
-margin-bottom:8px;
-}
-
-.preview-info p{
-opacity:.7;
-font-size:14px;
-}
-
-/* ========================= */
-/* AI FEATURES */
-/* ========================= */
-
-.ai-features{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-margin-top:40px;
-}
-
-@media(max-width:1000px){
-
-.ai-features{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
-@media(max-width:650px){
-
-.ai-features{
-grid-template-columns:1fr;
-}
-
-}
-
-.feature-card{
-padding:30px;
-border-radius:28px;
-background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.08);
-transition:.35s;
-text-align:center;
-}
-
-.feature-card:hover{
-transform:
-translateY(-8px)
-rotateX(4deg)
-rotateY(-4deg);
-}
-
-.feature-card i{
-font-size:40px;
-margin-bottom:20px;
-background:linear-gradient(90deg,#38bdf8,#9333ea);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.feature-card h3{
-margin-bottom:14px;
-font-size:22px;
-}
-
-.feature-card p{
-opacity:.7;
-line-height:1.8;
-}
-
-/* ========================= */
-/* FLOATING BAR */
-/* ========================= */
-
-.floating-bar{
-position:fixed;
-bottom:25px;
-left:50%;
-transform:translateX(-50%);
-background:rgba(255,255,255,.06);
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.08);
-padding:14px 20px;
-border-radius:22px;
-display:flex;
-gap:15px;
-z-index:999;
-}
-
-.floating-bar button{
-padding:14px 22px;
-border:none;
-border-radius:16px;
-background:rgba(255,255,255,.05);
-color:white;
-cursor:pointer;
-font-weight:600;
-transition:.3s;
-}
-
-.floating-bar button:hover{
-background:linear-gradient(90deg,#38bdf8,#9333ea);
 }
 
 </style>
@@ -528,78 +324,71 @@ background:linear-gradient(90deg,#38bdf8,#9333ea);
 
 <body>
 
-<section class="media-studio">
+<!-- NAVBAR -->
 
-<!-- TOPBAR -->
+<div class="navbar">
 
-<div class="topbar">
+<div class="logo">
+KJSynthora
+</div>
 
-<a href="../index.html" class="back-home">
-<i class="fa-solid fa-arrow-left"></i>
-Return Home
+<a href="../index.html" class="home-btn">
+← Return Home
 </a>
-
-<div class="logo-title">
-<h1>KJSynthora</h1>
-<p>Premium AI Media Workspace</p>
-</div>
-
-<div class="live-clock" id="liveClock">
-Loading time...
-</div>
 
 </div>
 
 <!-- HERO -->
 
-<div class="hero">
+<section class="hero">
 
-<h2>
+<h1>
 Image ↔ PDF AI Workspace
-</h2>
+</h1>
 
 <p>
-Professional futuristic workspace for converting Images into PDFs
-and extracting high-quality images from PDFs with realtime preview,
-AI enhancement, drag-and-drop organization, OCR scanning,
-lossless export and Apple-inspired 3D experience.
+Premium futuristic workspace for converting images to PDFs and extracting high-quality images from PDFs with realtime preview, drag-drop uploads, AI-style dashboard, export settings and professional Apple-inspired interface.
 </p>
 
+</section>
+
+<!-- MAIN -->
+
+<section class="workspace">
+
+<!-- LEFT PANEL -->
+
+<div class="panel">
+
+<h2>Upload Workspace</h2>
+
+<div class="drop-area" id="dropArea">
+
+<div class="drop-icon">
+📂
 </div>
 
-<!-- WORKSPACE -->
+<h3>
+Drop Files Here
+</h3>
 
-<div class="workspace">
+<p>
+Upload images or PDF files
+</p>
 
-<!-- LEFT -->
+<label class="upload-btn">
 
-<div class="glass">
-
-<div class="dropzone" id="dropZone">
+Choose Files
 
 <input
 type="file"
 id="fileInput"
 multiple
-accept=".pdf,image/*"
 hidden
+accept=".pdf,image/*"
 >
 
-<i class="fa-solid fa-cloud-arrow-up"></i>
-
-<h3>Drop Files Here</h3>
-
-<p>
-Upload PDF or image files into your premium workspace
-for realtime rendering and conversion.
-</p>
-
-<button
-class="upload-btn"
-onclick="document.getElementById('fileInput').click()"
->
-Choose Files
-</button>
+</label>
 
 </div>
 
@@ -608,22 +397,22 @@ Choose Files
 <div class="stats">
 
 <div class="stat-box">
-<h2 id="fileCount">0</h2>
+<h3 id="fileCount">0</h3>
 <p>Files</p>
 </div>
 
 <div class="stat-box">
-<h2 id="pageCount">0</h2>
+<h3 id="pageCount">0</h3>
 <p>Pages</p>
 </div>
 
 <div class="stat-box">
-<h2 id="totalSize">0MB</h2>
+<h3 id="sizeCount">0MB</h3>
 <p>Total Size</p>
 </div>
 
 <div class="stat-box">
-<h2>600</h2>
+<h3>600</h3>
 <p>DPI</p>
 </div>
 
@@ -633,149 +422,61 @@ Choose Files
 
 <div class="options">
 
-<label class="option">
+<div class="option">
 <input type="checkbox" checked>
 Lossless Quality
-</label>
+</div>
 
-<label class="option">
+<div class="option">
 <input type="checkbox" checked>
-OCR Text Recognition
-</label>
+OCR Recognition
+</div>
 
-<label class="option">
+<div class="option">
 <input type="checkbox">
 Compress PDF
-</label>
+</div>
 
-<label class="option">
+<div class="option">
 <input type="checkbox">
 AI Enhancement
-</label>
+</div>
 
-<label class="option">
+<div class="option">
 <input type="checkbox">
-Generate Bookmarks
-</label>
+Bookmarks
+</div>
 
-<label class="option">
+<div class="option">
 <input type="checkbox">
-Auto Optimize Pages
-</label>
-
-<label class="option">
-<input type="checkbox">
-Remove Noise
-</label>
-
-<label class="option">
-<input type="checkbox">
-Smart Sharpening
-</label>
+Auto Optimize
+</div>
 
 </div>
 
-<!-- ACTIONS -->
+<!-- BUTTONS -->
 
-<div class="actions">
+<div class="action-buttons">
 
-<button class="action-btn convert-btn">
-<i class="fa-solid fa-file-pdf"></i>
-Convert To PDF
+<button class="main-btn" onclick="convertImagesToPDF()">
+📄 Convert To PDF
 </button>
 
-<button class="action-btn extract-btn">
-<i class="fa-solid fa-image"></i>
-PDF To Images
+<button class="main-btn" onclick="extractPDFImages()">
+🖼 PDF To Images
 </button>
 
 </div>
 
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT PANEL -->
 
-<div class="glass">
-
-<div class="preview-header">
+<div class="panel">
 
 <h2>Realtime Preview</h2>
 
-<div class="preview-tools">
-
-<button>
-<i class="fa-solid fa-expand"></i>
-</button>
-
-<button>
-<i class="fa-solid fa-rotate"></i>
-</button>
-
-<button>
-<i class="fa-solid fa-trash"></i>
-</button>
-
-</div>
-
-</div>
-
-<div class="preview-list" id="previewList">
-
-</div>
-
-</div>
-
-</div>
-
-<!-- FEATURES -->
-
-<div class="ai-features">
-
-<div class="feature-card">
-
-<i class="fa-solid fa-bolt"></i>
-
-<h3>Realtime Engine</h3>
-
-<p>
-Instant rendering and browser-side processing for ultra fast conversions.
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<i class="fa-solid fa-lock"></i>
-
-<h3>Secure Workspace</h3>
-
-<p>
-Your files never leave your device ensuring complete privacy.
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<i class="fa-solid fa-layer-group"></i>
-
-<h3>Visual Page Editor</h3>
-
-<p>
-Drag reorder pages visually like Adobe Acrobat premium tools.
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<i class="fa-solid fa-wand-magic-sparkles"></i>
-
-<h3>AI Enhancement</h3>
-
-<p>
-Enhance images, sharpen text and optimize quality automatically.
-</p>
+<div class="preview-grid" id="previewGrid">
 
 </div>
 
@@ -783,176 +484,261 @@ Enhance images, sharpen text and optimize quality automatically.
 
 </section>
 
-<!-- FLOATING BAR -->
+<!-- FEATURES -->
 
-<div class="floating-bar">
+<section class="features">
 
-<button>
-<i class="fa-solid fa-plus"></i>
-Add Files
-</button>
-
-<button>
-<i class="fa-solid fa-wand-magic"></i>
-Enhance
-</button>
-
-<button>
-<i class="fa-solid fa-compress"></i>
-Compress
-</button>
-
-<button>
-<i class="fa-solid fa-download"></i>
-Download
-</button>
-
+<div class="feature">
+<h2>⚡</h2>
+<h3>Realtime Engine</h3>
+<p>
+Instant rendering and live preview generation
+</p>
 </div>
+
+<div class="feature">
+<h2>🔒</h2>
+<h3>Secure Workspace</h3>
+<p>
+Files processed fully inside browser
+</p>
+</div>
+
+<div class="feature">
+<h2>🎯</h2>
+<h3>Visual Editing</h3>
+<p>
+Realtime thumbnails and smart arrangement
+</p>
+</div>
+
+<div class="feature">
+<h2>✨</h2>
+<h3>AI Enhancement</h3>
+<p>
+Professional futuristic rendering system
+</p>
+</div>
+
+</section>
 
 <script>
 
-/* ========================= */
-/* LIVE CLOCK */
-/* ========================= */
+const input = document.getElementById("fileInput");
+const previewGrid = document.getElementById("previewGrid");
 
-function updateClock(){
+let uploadedFiles = [];
 
-const now = new Date();
-
-const options = {
-hour:'numeric',
-minute:'numeric',
-second:'numeric',
-hour12:true,
-weekday:'long',
-month:'long',
-day:'numeric',
-year:'numeric'
-};
-
-document.getElementById("liveClock").innerHTML =
-now.toLocaleString([],options);
-
-}
-
-setInterval(updateClock,1000);
-
-updateClock();
-
-/* ========================= */
-/* FILE HANDLING */
-/* ========================= */
-
-const fileInput =
-document.getElementById("fileInput");
-
-const previewList =
-document.getElementById("previewList");
-
-fileInput.addEventListener("change",handleFiles);
+input.addEventListener("change", handleFiles);
 
 function handleFiles(e){
 
-const files = [...e.target.files];
+uploadedFiles = [...e.target.files];
 
-previewList.innerHTML = "";
+previewGrid.innerHTML = "";
 
 let totalSize = 0;
 
-files.forEach((file,index)=>{
+document.getElementById("fileCount").innerText =
+uploadedFiles.length;
+
+uploadedFiles.forEach(async(file)=>{
 
 totalSize += file.size;
 
+if(file.type.startsWith("image/")){
+
 const reader = new FileReader();
 
-reader.onload = function(event){
+reader.onload = function(ev){
 
-const div =
-document.createElement("div");
+const card = document.createElement("div");
+card.className = "preview-card";
 
-div.className = "preview-item";
-
-div.innerHTML = `
-
-<img
-class="preview-thumb"
-src="${event.target.result}"
->
-
-<div class="preview-info">
-
-<h3>${file.name}</h3>
-
-<p>
-${(file.size/1024/1024).toFixed(2)} MB
-</p>
-
-</div>
-
+card.innerHTML = `
+<img src="${ev.target.result}">
+<p>${file.name}</p>
 `;
 
-previewList.appendChild(div);
+previewGrid.appendChild(card);
 
-};
+}
+
+reader.readAsDataURL(file);
+
+}
+
+else if(file.type === "application/pdf"){
+
+const url = URL.createObjectURL(file);
+
+const pdf = await pdfjsLib.getDocument(url).promise;
+
+document.getElementById("pageCount").innerText =
+pdf.numPages;
+
+const page = await pdf.getPage(1);
+
+const viewport = page.getViewport({scale:1});
+
+const canvas = document.createElement("canvas");
+
+const context = canvas.getContext("2d");
+
+canvas.height = viewport.height;
+canvas.width = viewport.width;
+
+await page.render({
+canvasContext:context,
+viewport:viewport
+}).promise;
+
+const card = document.createElement("div");
+
+card.className = "preview-card";
+
+card.appendChild(canvas);
+
+const p = document.createElement("p");
+p.innerText = file.name;
+
+card.appendChild(p);
+
+previewGrid.appendChild(card);
+
+}
+
+});
+
+document.getElementById("sizeCount").innerText =
+(totalSize / 1024 / 1024).toFixed(1) + "MB";
+
+}
+
+/* IMAGE → PDF */
+
+async function convertImagesToPDF(){
+
+const { jsPDF } = window.jspdf;
+
+const pdf = new jsPDF();
+
+let first = true;
+
+for(let file of uploadedFiles){
+
+if(file.type.startsWith("image/")){
+
+const data = await fileToDataURL(file);
+
+if(!first){
+pdf.addPage();
+}
+
+pdf.addImage(
+data,
+"JPEG",
+10,
+10,
+190,
+250
+);
+
+first = false;
+
+}
+
+}
+
+pdf.save("KJSynthora.pdf");
+
+}
+
+/* PDF → IMAGES */
+
+async function extractPDFImages(){
+
+for(let file of uploadedFiles){
+
+if(file.type === "application/pdf"){
+
+const url = URL.createObjectURL(file);
+
+const pdf = await pdfjsLib.getDocument(url).promise;
+
+const zip = new JSZip();
+
+for(let i=1;i<=pdf.numPages;i++){
+
+const page = await pdf.getPage(i);
+
+const viewport =
+page.getViewport({scale:2});
+
+const canvas =
+document.createElement("canvas");
+
+const context =
+canvas.getContext("2d");
+
+canvas.width = viewport.width;
+canvas.height = viewport.height;
+
+await page.render({
+canvasContext:context,
+viewport:viewport
+}).promise;
+
+const imgData =
+canvas.toDataURL("image/png");
+
+zip.file(
+`page-${i}.png`,
+imgData.split(",")[1],
+{base64:true}
+);
+
+}
+
+zip.generateAsync({type:"blob"})
+.then(content=>{
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(content);
+
+a.download =
+"KJSynthora_Images.zip";
+
+a.click();
+
+});
+
+}
+
+}
+
+}
+
+/* HELPER */
+
+function fileToDataURL(file){
+
+return new Promise((resolve)=>{
+
+const reader = new FileReader();
+
+reader.onload = e => resolve(e.target.result);
 
 reader.readAsDataURL(file);
 
 });
 
-document.getElementById("fileCount")
-.innerText = files.length;
-
-document.getElementById("pageCount")
-.innerText = files.length;
-
-document.getElementById("totalSize")
-.innerText =
-(totalSize/1024/1024).toFixed(2)+"MB";
-
 }
-
-/* ========================= */
-/* DRAG DROP */
-/* ========================= */
-
-const dropZone =
-document.getElementById("dropZone");
-
-dropZone.addEventListener("dragover",(e)=>{
-
-e.preventDefault();
-
-dropZone.style.borderColor="#38bdf8";
-
-});
-
-dropZone.addEventListener("dragleave",()=>{
-
-dropZone.style.borderColor=
-"rgba(255,255,255,.15)";
-
-});
-
-dropZone.addEventListener("drop",(e)=>{
-
-e.preventDefault();
-
-fileInput.files = e.dataTransfer.files;
-
-handleFiles({target:fileInput});
-
-});
-
-/* ========================= */
-/* SORTABLE */
-/* ========================= */
-
-new Sortable(previewList,{
-animation:200
-});
 
 </script>
 
 </body>
-
 </html>
