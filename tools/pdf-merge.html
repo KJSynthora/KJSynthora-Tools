@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Premium PDF Merge | KJSynthora</title>
+<title>KJSynthora Premium PDF Merge</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
@@ -24,213 +26,342 @@ font-family:'Poppins',sans-serif;
 }
 
 body{
+
 background:
 linear-gradient(
 135deg,
-#070b2d,
-#020617 60%,
+#020617,
+#030b2d,
 #000814
 );
-min-height:100vh;
+
 color:white;
+min-height:100vh;
 overflow-x:hidden;
-padding:40px 20px;
+padding:30px 20px;
+position:relative;
+
 }
 
-.container{
-max-width:1200px;
+/* BACKGROUND GLOW */
+
+body::before{
+
+content:"";
+position:absolute;
+width:500px;
+height:500px;
+background:#2563eb;
+filter:blur(180px);
+opacity:0.18;
+top:-120px;
+left:-120px;
+border-radius:50%;
+z-index:-1;
+
+}
+
+body::after{
+
+content:"";
+position:absolute;
+width:500px;
+height:500px;
+background:#9333ea;
+filter:blur(180px);
+opacity:0.15;
+bottom:-200px;
+right:-150px;
+border-radius:50%;
+z-index:-1;
+
+}
+
+/* TOPBAR */
+
+.topbar{
+
+max-width:1400px;
 margin:auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding-bottom:25px;
+
 }
 
-.title{
-text-align:center;
-margin-bottom:50px;
-}
+.logo{
 
-.title h1{
-font-size:58px;
+font-size:34px;
 font-weight:700;
-background:linear-gradient(90deg,#36c2ff,#8b5cf6);
+
+background:
+linear-gradient(
+90deg,
+#38bdf8,
+#8b5cf6
+);
+
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+
 }
 
-.title p{
-color:#cbd5e1;
-margin-top:15px;
-font-size:18px;
+.nav{
+
+display:flex;
+gap:18px;
+
 }
+
+.nav a{
+
+text-decoration:none;
+color:#cbd5e1;
+font-size:15px;
+transition:0.3s;
+
+}
+
+.nav a:hover{
+
+color:white;
+
+}
+
+/* HERO */
+
+.hero{
+
+max-width:1200px;
+margin:60px auto 70px;
+text-align:center;
+
+}
+
+.hero-badge{
+
+display:inline-block;
+padding:10px 18px;
+border-radius:50px;
+
+background:
+rgba(255,255,255,0.08);
+
+border:
+1px solid rgba(255,255,255,0.1);
+
+font-size:14px;
+margin-bottom:25px;
+
+}
+
+.hero h1{
+
+font-size:72px;
+line-height:1.1;
+margin-bottom:25px;
+
+background:
+linear-gradient(
+90deg,
+#38bdf8,
+#8b5cf6
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
+}
+
+.hero p{
+
+font-size:20px;
+line-height:1.8;
+color:#cbd5e1;
+max-width:850px;
+margin:auto;
+
+}
+
+/* MAIN */
 
 .main-layout{
+
+max-width:1400px;
+margin:auto;
+
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:30px;
+gap:35px;
+
 }
 
 .panel{
-background:rgba(15,23,42,0.75);
-border:1px solid rgba(255,255,255,0.08);
-border-radius:28px;
-padding:30px;
+
+background:
+rgba(15,23,42,0.65);
+
+border:
+1px solid rgba(255,255,255,0.08);
+
+border-radius:30px;
+
+padding:35px;
+
 backdrop-filter:blur(20px);
+
 box-shadow:
-0 0 40px rgba(59,130,246,0.15);
+0 0 40px rgba(59,130,246,0.08);
+
 }
 
+/* UPLOAD */
+
 .upload-box{
-border:2px dashed rgba(255,255,255,0.15);
-border-radius:24px;
-padding:60px 30px;
+
+border:
+2px dashed rgba(255,255,255,0.12);
+
+border-radius:28px;
+
+padding:70px 30px;
 text-align:center;
-transition:0.3s;
 cursor:pointer;
+
+transition:0.35s;
+
 background:
 linear-gradient(
 145deg,
 rgba(255,255,255,0.03),
 rgba(255,255,255,0.01)
 );
+
 }
 
 .upload-box:hover{
-border-color:#3b82f6;
-transform:translateY(-3px);
+
+transform:translateY(-4px);
+
+border-color:#38bdf8;
+
+box-shadow:
+0 0 30px rgba(56,189,248,0.2);
+
+}
+
+.upload-box.dragover{
+
+border-color:#38bdf8;
+
+background:
+rgba(56,189,248,0.08);
+
+transform:scale(1.02);
+
 }
 
 .upload-icon{
-font-size:70px;
-margin-bottom:20px;
+
+font-size:90px;
+margin-bottom:25px;
+
 }
 
 .upload-box h2{
-font-size:28px;
-margin-bottom:12px;
+
+font-size:38px;
+margin-bottom:15px;
+
 }
 
 .upload-box p{
+
 color:#94a3b8;
+font-size:16px;
+
 }
 
 input[type="file"]{
+
 display:none;
+
 }
 
+/* STATS */
+
 .stats{
+
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:15px;
-margin-top:25px;
+gap:18px;
+margin-top:28px;
+
 }
 
 .stat-card{
-background:#081122;
-padding:18px;
-border-radius:18px;
+
+background:#071122;
+padding:22px;
+border-radius:24px;
 text-align:center;
+
 }
 
 .stat-card h3{
-font-size:28px;
+
+font-size:34px;
+margin-bottom:8px;
 color:#38bdf8;
-margin-bottom:5px;
+
 }
 
 .stat-card span{
+
+color:#94a3b8;
 font-size:14px;
-color:#94a3b8;
+
 }
 
-.file-list{
-display:flex;
-flex-direction:column;
-gap:15px;
-max-height:550px;
-overflow:auto;
-padding-right:10px;
-}
-
-.file-card{
-background:
-linear-gradient(
-145deg,
-#0f172a,
-#101f3a
-);
-
-border-radius:22px;
-padding:18px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-border:1px solid rgba(255,255,255,0.06);
-cursor:grab;
-transition:0.3s;
-}
-
-.file-card:hover{
-transform:translateY(-2px);
-}
-
-.file-left{
-display:flex;
-gap:15px;
-align-items:center;
-}
-
-.pdf-icon{
-font-size:38px;
-}
-
-.file-info h3{
-font-size:16px;
-margin-bottom:6px;
-}
-
-.file-info p{
-font-size:13px;
-color:#94a3b8;
-}
-
-.remove-btn{
-background:#ef4444;
-border:none;
-width:40px;
-height:40px;
-border-radius:50%;
-color:white;
-font-size:18px;
-cursor:pointer;
-transition:0.3s;
-}
-
-.remove-btn:hover{
-transform:scale(1.08);
-}
+/* SETTINGS */
 
 .controls{
-margin-top:25px;
+
+margin-top:30px;
 display:flex;
 flex-direction:column;
 gap:18px;
+
 }
 
 .option{
+
 display:flex;
 align-items:center;
 gap:12px;
 font-size:15px;
 color:#cbd5e1;
+
 }
 
+/* BUTTONS */
+
 .merge-btn{
-margin-top:25px;
+
+margin-top:30px;
 width:100%;
 padding:18px;
+
 border:none;
 border-radius:18px;
+
 font-size:18px;
 font-weight:600;
+
 cursor:pointer;
+transition:0.3s;
+
 background:
 linear-gradient(
 90deg,
@@ -239,96 +370,382 @@ linear-gradient(
 );
 
 color:white;
-transition:0.3s;
+
 }
 
 .merge-btn:hover{
+
 transform:translateY(-3px);
-box-shadow:0 10px 30px rgba(59,130,246,0.35);
+
+box-shadow:
+0 10px 30px rgba(59,130,246,0.35);
+
 }
 
+.home-btn{
+
+display:block;
+text-align:center;
+
+margin-top:18px;
+
+color:#38bdf8;
+
+text-decoration:none;
+font-weight:600;
+
+transition:0.3s;
+
+}
+
+.home-btn:hover{
+
+color:white;
+
+}
+
+/* FILE LIST */
+
+.section-title{
+
+font-size:30px;
+margin-bottom:25px;
+
+}
+
+.file-list{
+
+display:flex;
+flex-direction:column;
+gap:18px;
+
+max-height:720px;
+overflow:auto;
+padding-right:10px;
+
+}
+
+.file-card{
+
+background:
+linear-gradient(
+145deg,
+#0f172a,
+#101f3a
+);
+
+border-radius:24px;
+
+padding:18px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+border:
+1px solid rgba(255,255,255,0.06);
+
+cursor:grab;
+
+transition:0.3s;
+
+}
+
+.file-card:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 0 25px rgba(59,130,246,0.12);
+
+}
+
+.file-left{
+
+display:flex;
+align-items:center;
+gap:15px;
+
+}
+
+.pdf-icon{
+
+font-size:42px;
+
+}
+
+.file-info h3{
+
+font-size:16px;
+margin-bottom:6px;
+
+}
+
+.file-info p{
+
+font-size:13px;
+color:#94a3b8;
+
+}
+
+.remove-btn{
+
+background:#ef4444;
+
+border:none;
+
+width:42px;
+height:42px;
+
+border-radius:50%;
+
+color:white;
+font-size:18px;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+.remove-btn:hover{
+
+transform:scale(1.1);
+
+}
+
+/* PROGRESS */
+
 .progress-section{
-margin-top:25px;
+
+margin-top:28px;
 display:none;
+
 }
 
 .progress-bar{
+
 height:14px;
 background:#111827;
+
 border-radius:20px;
 overflow:hidden;
-margin-top:12px;
+
+margin-top:14px;
+
 }
 
 .progress-fill{
+
 height:100%;
 width:0%;
+
 background:
 linear-gradient(
 90deg,
 #38bdf8,
 #8b5cf6
 );
+
 transition:0.4s;
+
 }
 
 .progress-text{
-margin-top:10px;
+
+margin-top:12px;
 font-size:14px;
 color:#cbd5e1;
+
 }
 
+/* FEATURES */
+
 .features{
-margin-top:60px;
+
+max-width:1400px;
+margin:70px auto 0;
+
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:20px;
+gap:22px;
+
 }
 
 .feature-card{
-background:rgba(15,23,42,0.7);
-padding:25px;
-border-radius:24px;
+
+background:
+rgba(15,23,42,0.65);
+
+padding:30px;
+
+border-radius:28px;
+
 text-align:center;
-border:1px solid rgba(255,255,255,0.05);
+
+border:
+1px solid rgba(255,255,255,0.06);
+
+transition:0.3s;
+
+}
+
+.feature-card:hover{
+
+transform:translateY(-4px);
+
+}
+
+.feature-card .icon{
+
+font-size:48px;
+margin-bottom:18px;
+
 }
 
 .feature-card h3{
-margin-top:15px;
-margin-bottom:10px;
-font-size:20px;
+
+font-size:22px;
+margin-bottom:12px;
+
 }
 
 .feature-card p{
+
 font-size:14px;
+line-height:1.8;
 color:#94a3b8;
-line-height:1.6;
+
 }
 
-@media(max-width:950px){
+/* SUCCESS MODAL */
+
+.modal{
+
+position:fixed;
+inset:0;
+
+background:
+rgba(0,0,0,0.7);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+
+z-index:1000;
+
+}
+
+.modal-content{
+
+background:
+#081122;
+
+padding:40px;
+
+border-radius:30px;
+
+text-align:center;
+max-width:420px;
+width:90%;
+
+border:
+1px solid rgba(255,255,255,0.08);
+
+}
+
+.modal-content h2{
+
+font-size:34px;
+margin-bottom:15px;
+
+}
+
+.modal-content p{
+
+color:#94a3b8;
+line-height:1.7;
+margin-bottom:25px;
+
+}
+
+.modal-btn{
+
+padding:15px 30px;
+border:none;
+
+border-radius:16px;
+
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+
+color:white;
+font-weight:600;
+
+cursor:pointer;
+
+}
+
+/* MOBILE */
+
+@media(max-width:1000px){
 
 .main-layout{
+
 grid-template-columns:1fr;
+
 }
 
 .features{
+
 grid-template-columns:1fr 1fr;
-}
 
 }
 
-@media(max-width:650px){
+.hero h1{
 
-.title h1{
-font-size:42px;
+font-size:56px;
+
 }
+
+}
+
+@media(max-width:700px){
 
 .features{
+
 grid-template-columns:1fr;
+
 }
 
 .stats{
+
 grid-template-columns:1fr;
+
+}
+
+.hero h1{
+
+font-size:42px;
+
+}
+
+.hero p{
+
+font-size:16px;
+
+}
+
+.topbar{
+
+flex-direction:column;
+gap:15px;
+
 }
 
 }
@@ -339,101 +756,211 @@ grid-template-columns:1fr;
 
 <body>
 
-<div class="container">
+<!-- TOPBAR -->
 
-<div class="title">
+<div class="topbar">
 
-<h1>Premium PDF Merge</h1>
+<div class="logo">
+KJSynthora
+</div>
 
-<p>
-Merge PDFs with futuristic AI-style workspace experience
-</p>
+<div class="nav">
+
+<a href="../index.html">
+Home
+</a>
+
+<a href="pdf-splitter.html">
+Split PDF
+</a>
+
+<a href="pdf-compress.html">
+Compress
+</a>
+
+<a href="pdf-unlock.html">
+Unlock
+</a>
 
 </div>
 
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="hero-badge">
+✨ AI Powered PDF Workspace
+</div>
+
+<h1>
+Premium PDF Merge
+</h1>
+
+<p>
+
+Merge PDFs with futuristic AI-style workspace experience,
+drag reorder, smart processing and premium UI inspired by
+Apple, Adobe and Notion.
+
+</p>
+
+</section>
+
+<!-- MAIN -->
+
 <div class="main-layout">
+
+<!-- LEFT -->
 
 <div class="panel">
 
 <label class="upload-box" for="pdfInput">
 
-<div class="upload-icon">📂</div>
+<div class="upload-icon">
+📂
+</div>
 
-<h2>Drop PDFs Here</h2>
+<h2>
+Drop PDFs Here
+</h2>
 
 <p>
+
 Upload multiple PDF files and arrange them visually
+
 </p>
 
 </label>
 
-<input type="file" id="pdfInput" multiple accept=".pdf">
+<input
+type="file"
+id="pdfInput"
+multiple
+accept=".pdf"
+>
+
+<!-- STATS -->
 
 <div class="stats">
 
 <div class="stat-card">
-<h3 id="fileCount">0</h3>
-<span>Files</span>
+
+<h3 id="fileCount">
+0
+</h3>
+
+<span>
+Files
+</span>
+
 </div>
 
 <div class="stat-card">
-<h3 id="totalSize">0 MB</h3>
-<span>Total Size</span>
+
+<h3 id="totalSize">
+0 MB
+</h3>
+
+<span>
+Total Size
+</span>
+
 </div>
 
 <div class="stat-card">
-<h3>Lossless</h3>
-<span>Quality</span>
+
+<h3>
+Lossless
+</h3>
+
+<span>
+Quality
+</span>
+
 </div>
 
 </div>
+
+<!-- SETTINGS -->
 
 <div class="controls">
 
 <label class="option">
+
 <input type="checkbox" checked>
+
 Preserve Original Quality
+
 </label>
 
 <label class="option">
+
 <input type="checkbox" checked>
+
 Auto Optimize Pages
+
 </label>
 
 <label class="option">
+
 <input type="checkbox">
+
 Compress Final PDF
+
 </label>
 
 <label class="option">
+
 <input type="checkbox">
+
 Generate Bookmarks
+
 </label>
 
 </div>
 
 <button class="merge-btn" onclick="mergePDFs()">
+
 Merge PDFs
+
 </button>
+
+<a href="../index.html" class="home-btn">
+
+← Return Home
+
+</a>
+
+<!-- PROGRESS -->
 
 <div class="progress-section" id="progressSection">
 
 <div class="progress-text" id="progressText">
+
 Preparing merge...
+
 </div>
 
 <div class="progress-bar">
+
 <div class="progress-fill" id="progressFill"></div>
-</div>
 
 </div>
 
 </div>
+
+</div>
+
+<!-- RIGHT -->
 
 <div class="panel">
 
-<h2 style="margin-bottom:25px;">
+<h2 class="section-title">
+
 Selected PDFs
+
 </h2>
 
 <div class="file-list" id="fileList"></div>
@@ -442,39 +969,108 @@ Selected PDFs
 
 </div>
 
+<!-- FEATURES -->
+
 <div class="features">
 
 <div class="feature-card">
-<div style="font-size:40px;">⚡</div>
-<h3>Fast Merge</h3>
+
+<div class="icon">
+⚡
+</div>
+
+<h3>
+Fast Merge
+</h3>
+
 <p>
+
 Instant high-speed PDF processing directly in browser.
+
 </p>
+
 </div>
 
 <div class="feature-card">
-<div style="font-size:40px;">🔒</div>
-<h3>Secure</h3>
+
+<div class="icon">
+🔒
+</div>
+
+<h3>
+Secure
+</h3>
+
 <p>
+
 Files never leave your device for maximum privacy.
+
 </p>
+
 </div>
 
 <div class="feature-card">
-<div style="font-size:40px;">🎯</div>
-<h3>Drag Reorder</h3>
+
+<div class="icon">
+🎯
+</div>
+
+<h3>
+Drag Reorder
+</h3>
+
 <p>
+
 Visually arrange PDFs exactly how you want.
+
 </p>
+
 </div>
 
 <div class="feature-card">
-<div style="font-size:40px;">🚀</div>
-<h3>Premium UI</h3>
-<p>
-Modern futuristic workspace inspired by Apple & Adobe.
-</p>
+
+<div class="icon">
+🚀
 </div>
+
+<h3>
+Premium UI
+</h3>
+
+<p>
+
+Modern futuristic workspace inspired by Apple & Adobe.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- SUCCESS MODAL -->
+
+<div class="modal" id="successModal">
+
+<div class="modal-content">
+
+<h2>
+✅ Merge Complete
+</h2>
+
+<p>
+
+Your PDF files were successfully merged and downloaded.
+
+</p>
+
+<button
+class="modal-btn"
+onclick="closeModal()"
+>
+
+Awesome
+
+</button>
 
 </div>
 
@@ -490,6 +1086,8 @@ document.getElementById("pdfInput");
 const fileList =
 document.getElementById("fileList");
 
+/* FILE INPUT */
+
 pdfInput.addEventListener("change",(e)=>{
 
 const files =
@@ -497,7 +1095,11 @@ Array.from(e.target.files);
 
 files.forEach(file=>{
 
+if(file.type==="application/pdf"){
+
 pdfFiles.push(file);
+
+}
 
 });
 
@@ -505,15 +1107,70 @@ renderFiles();
 
 });
 
-function renderFiles(){
+/* DRAG DROP */
+
+const uploadBox =
+document.querySelector(".upload-box");
+
+uploadBox.addEventListener("dragover",(e)=>{
+
+e.preventDefault();
+
+uploadBox.classList.add("dragover");
+
+});
+
+uploadBox.addEventListener("dragleave",()=>{
+
+uploadBox.classList.remove("dragover");
+
+});
+
+uploadBox.addEventListener("drop",(e)=>{
+
+e.preventDefault();
+
+uploadBox.classList.remove("dragover");
+
+const files =
+Array.from(e.dataTransfer.files);
+
+files.forEach(file=>{
+
+if(file.type==="application/pdf"){
+
+pdfFiles.push(file);
+
+}
+
+});
+
+renderFiles();
+
+});
+
+/* RENDER */
+
+async function renderFiles(){
 
 fileList.innerHTML = "";
 
 let totalSize = 0;
 
-pdfFiles.forEach((file,index)=>{
+for(let index=0; index<pdfFiles.length; index++){
+
+const file = pdfFiles[index];
 
 totalSize += file.size;
+
+const bytes =
+await file.arrayBuffer();
+
+const pdfDoc =
+await PDFLib.PDFDocument.load(bytes);
+
+const pages =
+pdfDoc.getPageCount();
 
 const card =
 document.createElement("div");
@@ -524,14 +1181,19 @@ card.innerHTML = `
 
 <div class="file-left">
 
-<div class="pdf-icon">📄</div>
+<div class="pdf-icon">
+📄
+</div>
 
 <div class="file-info">
 
 <h3>${file.name}</h3>
 
 <p>
+
 ${(file.size/1024/1024).toFixed(2)} MB
+• ${pages} Pages
+
 </p>
 
 </div>
@@ -542,14 +1204,16 @@ ${(file.size/1024/1024).toFixed(2)} MB
 class="remove-btn"
 onclick="removeFile(${index})"
 >
+
 ✕
+
 </button>
 
 `;
 
 fileList.appendChild(card);
 
-});
+}
 
 document.getElementById("fileCount")
 .innerText = pdfFiles.length;
@@ -560,6 +1224,8 @@ document.getElementById("totalSize")
 
 }
 
+/* REMOVE */
+
 function removeFile(index){
 
 pdfFiles.splice(index,1);
@@ -568,9 +1234,11 @@ renderFiles();
 
 }
 
+/* DRAG REORDER */
+
 new Sortable(fileList,{
 
-animation:200,
+animation:220,
 
 onEnd:function(evt){
 
@@ -582,6 +1250,8 @@ pdfFiles.splice(evt.newIndex,0,movedItem);
 }
 
 });
+
+/* MERGE */
 
 async function mergePDFs(){
 
@@ -604,27 +1274,29 @@ document.getElementById("progressText");
 
 progressSection.style.display = "block";
 
-progressFill.style.width = "10%";
+progressFill.style.width = "5%";
 
 progressText.innerText =
-"Initializing merge engine...";
+"Initializing AI merge engine...";
 
 const mergedPdf =
 await PDFLib.PDFDocument.create();
 
-for(let i=0;i<pdfFiles.length;i++){
+for(let i=0; i<pdfFiles.length; i++){
+
+const file = pdfFiles[i];
 
 progressFill.style.width =
-((i+1)/pdfFiles.length)*80 + "%";
+((i+1)/pdfFiles.length)*85 + "%";
 
 progressText.innerText =
-"Merging " + pdfFiles[i].name;
+"Merging " + file.name;
 
-const fileBytes =
-await pdfFiles[i].arrayBuffer();
+const bytes =
+await file.arrayBuffer();
 
 const pdf =
-await PDFLib.PDFDocument.load(fileBytes);
+await PDFLib.PDFDocument.load(bytes);
 
 const copiedPages =
 await mergedPdf.copyPages(
@@ -643,15 +1315,16 @@ mergedPdf.addPage(page);
 progressFill.style.width = "95%";
 
 progressText.innerText =
-"Generating final PDF...";
+"Generating final document...";
 
 const mergedBytes =
 await mergedPdf.save();
 
 const blob =
-new Blob([mergedBytes],{
-type:"application/pdf"
-});
+new Blob(
+[mergedBytes],
+{type:"application/pdf"}
+);
 
 const url =
 URL.createObjectURL(blob);
@@ -669,6 +1342,18 @@ progressFill.style.width = "100%";
 
 progressText.innerText =
 "Merge completed successfully";
+
+document.getElementById("successModal")
+.style.display = "flex";
+
+}
+
+/* MODAL */
+
+function closeModal(){
+
+document.getElementById("successModal")
+.style.display = "none";
 
 }
 
