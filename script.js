@@ -242,3 +242,68 @@ totalTools + "+";
 
 },1000);
 
+const searchInput =
+document.getElementById("searchInput");
+
+searchInput.addEventListener(
+"keyup",
+function(){
+
+const value =
+this.value.toLowerCase();
+
+const cards =
+document.querySelectorAll(".tool-card");
+
+cards.forEach(card=>{
+
+const text =
+card.innerText.toLowerCase();
+
+if(text.includes(value)){
+
+card.style.display="block";
+
+}else{
+
+card.style.display="none";
+
+}
+
+});
+
+});
+
+function filterTools(category){
+
+const cards =
+document.querySelectorAll(".tool-card");
+
+cards.forEach(card=>{
+
+if(
+category==="all" ||
+card.classList.contains(category)
+){
+
+card.style.display="block";
+
+}else{
+
+card.style.display="none";
+
+}
+
+});
+
+document
+.querySelectorAll(".side-btn")
+.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+event.target.classList.add("active");
+
+}
