@@ -2993,129 +2993,118 @@ YouTube
 </footer>
 
 <script>
-const tools=document.querySelectorAll('.tool-card');
-const searchInput=document.getElementById('searchInput');
 
-searchInput.addEventListener("input",()=>{
-
-const value =
-searchInput.value
-.toLowerCase()
-.trim();
-
-let visibleCount = 0;
-
-tools.forEach(tool=>{
-
-const text =
-tool.innerText.toLowerCase();
-
-const words =
-value.split(" ");
-
-const matched =
-words.every(word=>
-text.includes(word)
-);
-
-if(matched){
-
-tool.style.display="flex";
-
-visibleCount++;
-
-}else{
-
-tool.style.display="none";
-
-}
-
-});
-
-document.getElementById("noResults")
-.style.display =
-visibleCount===0
-? "block"
-: "none";
-
-});
-
-function filterTools(category){
-
-const buttons =
+const filterButtons =
 document.querySelectorAll(".filter-btn");
 
-buttons.forEach(btn=>{
-btn.classList.remove("active");
+const toolCards =
+document.querySelectorAll(".tool-card");
+
+let activeFilter = "all";
+
+filterButtons.forEach(button=>{
+
+button.addEventListener("click",()=>{
+
+filterButtons.forEach(btn=>
+btn.classList.remove("active")
+);
+
+button.classList.add("active");
+
+activeFilter =
+button.dataset.filter;
+
+applyFilters();
+
 });
 
-event.target.classList.add("active");
+});
 
-tools.forEach(tool=>{
+function searchTools(){
+applyFilters();
+}
 
-if(category==="all"){
+function applyFilters(){
 
-tool.style.display="flex";
+const searchValue =
+document
+.getElementById("toolSearch")
+.value
+.toLowerCase();
 
-}else if(
-tool.classList.contains(category)
-){
+toolCards.forEach(card=>{
 
-tool.style.display="flex";
+const text =
+card.innerText.toLowerCase();
+
+const matchesSearch =
+text.includes(searchValue);
+
+const matchesFilter =
+activeFilter === "all" ||
+card.classList.contains(activeFilter);
+
+if(matchesSearch && matchesFilter){
+
+card.style.display = "block";
 
 }else{
 
-tool.style.display="none";
+card.style.display = "none";
 
 }
 
 });
 
 }
+
+document
+.getElementById("toolSearch")
+.addEventListener("keyup",function(e){
+
+if(e.key==="Enter"){
+applyFilters();
+}
+
+applyFilters();
+
+});
 
 function updateClock(){
 
 const now = new Date();
 
-const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const timezone =
+Intl.DateTimeFormat()
+.resolvedOptions()
+.timeZone;
 
-const country = userTimeZone.split("/")[0];
-
-const formatter = new Intl.DateTimeFormat([],{
-weekday:'long',
-year:'numeric',
-month:'long',
-day:'numeric',
+const time =
+now.toLocaleTimeString([],{
 hour:'2-digit',
 minute:'2-digit',
-second:'2-digit'
+second:'2-digit',
+hour12:true
 });
 
-const formatted = formatter.format(now);
+document.getElementById("clock").innerHTML = `
 
-let flag="🌍";
+<div class="live-time">
 
-if(userTimeZone.includes("India")) flag="🇮🇳";
-else if(userTimeZone.includes("New_York")) flag="🇺🇸";
-else if(userTimeZone.includes("London")) flag="🇬🇧";
-else if(userTimeZone.includes("Tokyo")) flag="🇯🇵";
-else if(userTimeZone.includes("Dubai")) flag="🇦🇪";
+${time}
 
+<span>${timezone}</span>
 
-document.getElementById("clock").innerHTML =
-`${flag} ${userTimeZone}<br>${formatted}`;
+</div>
+
+`;
 
 }
 
 setInterval(updateClock,1000);
 
 updateClock();
-
-
-document.getElementById("toolCount")
-.innerText =
-document.querySelectorAll(".tool-card").length + "+";
-
 
 </script>
 
