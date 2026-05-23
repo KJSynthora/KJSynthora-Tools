@@ -1,3 +1,8 @@
+<!-- ========================================= -->
+<!-- PREMIUM PDF TO WORD AI WORKSPACE -->
+<!-- FULL PROFESSIONAL VERSION -->
+<!-- ========================================= -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,11 +11,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KJSynthora PDF to Word AI Workspace</title>
+<title>PDF → Word AI Workspace | KJSynthora</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
 <style>
 
@@ -23,45 +31,45 @@ font-family:'Poppins',sans-serif;
 
 body{
 background:
-linear-gradient(135deg,#020617,#020b22,#000814);
+radial-gradient(circle at top left,#17174a 0%,#020617 45%),
+#020617;
 color:white;
 min-height:100vh;
 overflow-x:hidden;
 }
 
-/* NAVBAR */
+/* HEADER */
 
-.navbar{
+.topbar{
+width:100%;
+padding:22px 7%;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:22px 7%;
-border-bottom:1px solid rgba(255,255,255,.06);
-backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
 .logo{
 font-size:34px;
 font-weight:700;
-
-background:
-linear-gradient(90deg,#38bdf8,#8b5cf6);
-
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
 .home-btn{
-padding:12px 24px;
+padding:12px 22px;
 border-radius:14px;
-background:rgba(255,255,255,.06);
 text-decoration:none;
+font-size:14px;
+font-weight:600;
+background:rgba(255,255,255,0.06);
 color:white;
-transition:.3s;
+transition:0.3s;
 }
 
 .home-btn:hover{
-background:#8b5cf6;
+background:#2563eb;
 }
 
 /* HERO */
@@ -74,11 +82,10 @@ text-align:center;
 .hero h1{
 font-size:64px;
 line-height:1.1;
+font-weight:700;
 margin-bottom:20px;
 
-background:
-linear-gradient(90deg,#60a5fa,#8b5cf6);
-
+background:linear-gradient(90deg,#60a5fa,#8b5cf6);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
@@ -87,70 +94,79 @@ linear-gradient(90deg,#60a5fa,#8b5cf6);
 max-width:950px;
 margin:auto;
 line-height:1.9;
-font-size:18px;
 color:#cbd5e1;
+font-size:18px;
 }
 
-/* WORKSPACE */
+/* MAIN GRID */
 
 .workspace{
-padding:40px 7% 80px;
+padding:30px 7% 70px;
 
 display:grid;
-grid-template-columns:1.1fr .9fr;
+grid-template-columns:1fr 1fr;
 gap:30px;
 }
 
+/* CARDS */
+
 .panel{
-background:
-linear-gradient(180deg,
-rgba(15,23,42,.92),
-rgba(2,6,23,.96));
+background:rgba(15,23,42,0.75);
+backdrop-filter:blur(20px);
 
-border:1px solid rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,0.06);
 
-border-radius:30px;
-padding:35px;
+border-radius:28px;
+padding:30px;
 
 box-shadow:
-0 0 40px rgba(59,130,246,.1);
+0 0 60px rgba(37,99,235,0.12);
 }
 
-/* DROP ZONE */
+/* UPLOAD */
 
-.drop-zone{
-border:2px dashed rgba(255,255,255,.12);
+.upload-zone{
+border:2px dashed rgba(255,255,255,0.08);
 border-radius:24px;
-padding:60px 30px;
+
+padding:70px 20px;
 text-align:center;
-transition:.3s;
+
+transition:0.3s;
 cursor:pointer;
 }
 
-.drop-zone:hover{
-border-color:#8b5cf6;
-transform:translateY(-2px);
+.upload-zone:hover{
+border-color:#3b82f6;
+background:rgba(255,255,255,0.03);
 }
 
-.drop-zone h2{
-font-size:34px;
-margin-bottom:15px;
+.upload-icon{
+font-size:72px;
+margin-bottom:20px;
 }
 
-.drop-zone p{
+.upload-zone h2{
+font-size:36px;
+margin-bottom:12px;
+}
+
+.upload-zone p{
 color:#94a3b8;
-margin-bottom:30px;
 }
 
-.upload-btn{
-display:inline-block;
-padding:16px 34px;
+.file-btn{
+margin-top:28px;
+padding:14px 28px;
+
+border:none;
 border-radius:14px;
+
+background:linear-gradient(90deg,#38bdf8,#9333ea);
+
+color:white;
 font-weight:600;
 cursor:pointer;
-
-background:
-linear-gradient(90deg,#38bdf8,#9333ea);
 }
 
 /* STATS */
@@ -158,42 +174,36 @@ linear-gradient(90deg,#38bdf8,#9333ea);
 .stats{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:15px;
+gap:16px;
 margin-top:25px;
 }
 
-.stat-box{
-background:#081226;
-padding:20px;
-border-radius:18px;
+.stat{
+background:#020b24;
+padding:25px;
+border-radius:20px;
 text-align:center;
 }
 
-.stat-box h3{
+.stat h3{
 font-size:32px;
 color:#38bdf8;
-}
-
-.stat-box p{
-font-size:13px;
-color:#94a3b8;
+margin-bottom:8px;
 }
 
 /* OPTIONS */
 
 .options{
-margin-top:30px;
-
+margin-top:28px;
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:15px;
+gap:14px;
 }
 
 .option{
-background:rgba(255,255,255,.04);
-padding:15px;
+background:rgba(255,255,255,0.03);
+padding:16px 18px;
 border-radius:14px;
-
 display:flex;
 align-items:center;
 gap:10px;
@@ -204,115 +214,92 @@ gap:10px;
 .action-buttons{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:15px;
+gap:16px;
 margin-top:30px;
 }
 
-.main-btn{
+.action-btn{
 padding:18px;
 border:none;
 border-radius:16px;
-font-size:17px;
+font-size:16px;
 font-weight:600;
 cursor:pointer;
+
+background:linear-gradient(90deg,#38bdf8,#9333ea);
 color:white;
 
-background:
-linear-gradient(90deg,#38bdf8,#9333ea);
-
-transition:.3s;
+transition:0.3s;
 }
 
-.main-btn:hover{
-transform:translateY(-3px);
+.action-btn:hover{
+transform:translateY(-2px);
 }
 
-/* PREVIEW */
+/* ANALYSIS */
 
-.preview-area{
-height:700px;
-overflow:auto;
-background:#081226;
-border-radius:24px;
+.analysis-title{
+font-size:30px;
+margin-bottom:20px;
+}
+
+.analysis-box{
+background:rgba(255,255,255,0.03);
+border-radius:18px;
 padding:25px;
-}
-
-.preview-area h2{
 margin-bottom:20px;
-}
-
-.preview-card{
-background:#0f172a;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
-border:1px solid rgba(255,255,255,.05);
-}
-
-.preview-card strong{
-display:block;
-margin-bottom:10px;
-font-size:18px;
 }
 
 .progress{
-width:100%;
-height:10px;
-background:#111827;
-border-radius:20px;
+height:12px;
+background:#0f172a;
+border-radius:999px;
 overflow:hidden;
-margin-top:15px;
+margin:20px 0;
 }
 
 .progress span{
 display:block;
 height:100%;
-width:80%;
-
-background:
-linear-gradient(90deg,#38bdf8,#8b5cf6);
+width:0%;
+background:linear-gradient(90deg,#38bdf8,#8b5cf6);
+transition:1s;
 }
 
-/* FLOATING BAR */
-
-.floating-bar{
-position:fixed;
-bottom:25px;
-left:50%;
-transform:translateX(-50%);
-display:flex;
-gap:12px;
-padding:12px 18px;
-
-background:
-rgba(15,23,42,.92);
-
-border:1px solid rgba(255,255,255,.06);
-
-backdrop-filter:blur(20px);
-
-border-radius:22px;
-z-index:999;
+.analysis-list{
+list-style:none;
+line-height:2;
+color:#cbd5e1;
 }
 
-.float-btn{
-padding:12px 18px;
+/* PREVIEW */
+
+.preview-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:25px;
+}
+
+.preview-card{
+background:#071127;
+padding:18px;
+border-radius:16px;
+text-align:center;
+}
+
+.preview-card img{
+width:100%;
+height:180px;
+object-fit:cover;
 border-radius:12px;
-background:#0f172a;
-color:white;
-font-size:14px;
-cursor:pointer;
-transition:.3s;
-}
-
-.float-btn:hover{
-background:#8b5cf6;
+margin-bottom:12px;
 }
 
 /* FEATURES */
 
 .features{
-padding:0 7% 90px;
+padding:10px 7% 90px;
 
 display:grid;
 grid-template-columns:repeat(4,1fr);
@@ -320,21 +307,53 @@ gap:20px;
 }
 
 .feature{
-background:#091224;
-padding:30px;
+background:rgba(15,23,42,0.75);
+padding:35px 24px;
 border-radius:24px;
 text-align:center;
-border:1px solid rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,0.05);
 }
 
 .feature h3{
-margin-top:15px;
-margin-bottom:10px;
+margin:18px 0 12px;
 }
 
-/* RESPONSIVE */
+.feature p{
+font-size:14px;
+line-height:1.8;
+color:#94a3b8;
+}
 
-@media(max-width:1000px){
+/* FLOATING BAR */
+
+.floating-tools{
+position:fixed;
+bottom:25px;
+left:50%;
+transform:translateX(-50%);
+
+display:flex;
+gap:12px;
+
+background:rgba(15,23,42,0.8);
+padding:16px 22px;
+border-radius:999px;
+backdrop-filter:blur(20px);
+
+border:1px solid rgba(255,255,255,0.06);
+}
+
+.float-btn{
+background:none;
+border:none;
+color:white;
+cursor:pointer;
+font-size:14px;
+}
+
+/* MOBILE */
+
+@media(max-width:1100px){
 
 .workspace{
 grid-template-columns:1fr;
@@ -345,7 +364,11 @@ grid-template-columns:1fr 1fr;
 }
 
 .hero h1{
-font-size:46px;
+font-size:42px;
+}
+
+.stats{
+grid-template-columns:1fr 1fr;
 }
 
 }
@@ -356,8 +379,16 @@ font-size:46px;
 grid-template-columns:1fr;
 }
 
-.stats{
-grid-template-columns:1fr 1fr;
+.options{
+grid-template-columns:1fr;
+}
+
+.action-buttons{
+grid-template-columns:1fr;
+}
+
+.preview-grid{
+grid-template-columns:1fr;
 }
 
 .hero h1{
@@ -372,9 +403,9 @@ font-size:34px;
 
 <body>
 
-<!-- NAVBAR -->
+<!-- HEADER -->
 
-<div class="navbar">
+<div class="topbar">
 
 <div class="logo">
 KJSynthora
@@ -395,7 +426,9 @@ PDF → Word AI Workspace
 </h1>
 
 <p>
-Premium enterprise-grade PDF to Word conversion workspace inspired by Adobe Acrobat AI and Microsoft Office. Convert scanned or text PDFs into editable Word documents with realtime OCR analysis, AI layout preservation, table recognition and advanced document intelligence.
+Enterprise-grade PDF to DOCX conversion workspace with realtime OCR analysis,
+AI-powered table extraction, layout preservation, multi-language recognition,
+font recovery, cloud-ready export engine and futuristic Apple-inspired interface.
 </p>
 
 </section>
@@ -408,28 +441,23 @@ Premium enterprise-grade PDF to Word conversion workspace inspired by Adobe Acro
 
 <div class="panel">
 
-<div class="drop-zone">
+<div class="upload-zone" onclick="document.getElementById('pdfInput').click()">
 
-<h2>
-📄 Upload PDF
-</h2>
+<div class="upload-icon">
+📄
+</div>
+
+<h2>Upload PDF</h2>
 
 <p>
-Drop PDF files for AI-powered Word conversion
+Drop files here or click to select PDFs
 </p>
 
-<label class="upload-btn">
-
+<button class="file-btn">
 Choose PDF
+</button>
 
-<input
-type="file"
-id="pdfInput"
-accept=".pdf"
-hidden
->
-
-</label>
+<input type="file" id="pdfInput" accept=".pdf" hidden>
 
 </div>
 
@@ -437,22 +465,22 @@ hidden
 
 <div class="stats">
 
-<div class="stat-box">
+<div class="stat">
 <h3 id="fileCount">0</h3>
 <p>Files</p>
 </div>
 
-<div class="stat-box">
+<div class="stat">
 <h3 id="pageCount">0</h3>
 <p>Pages</p>
 </div>
 
-<div class="stat-box">
-<h3 id="ocrRate">98%</h3>
+<div class="stat">
+<h3 id="ocrScore">0%</h3>
 <p>OCR Accuracy</p>
 </div>
 
-<div class="stat-box">
+<div class="stat">
 <h3>AI</h3>
 <p>Layout Engine</p>
 </div>
@@ -465,42 +493,42 @@ hidden
 
 <div class="option">
 <input type="checkbox" checked>
-Advanced OCR Engine
+<span>Advanced OCR Engine</span>
 </div>
 
 <div class="option">
 <input type="checkbox" checked>
-Layout Preservation
+<span>Layout Preservation</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Table AI Extraction
+<span>Table AI Extraction</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Header/Footer Recovery
+<span>Header/Footer Recovery</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Font Matching
+<span>Font Matching</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Hyperlink Transfer
+<span>Hyperlink Transfer</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Multi-Language OCR
+<span>Multi-Language OCR</span>
 </div>
 
 <div class="option">
 <input type="checkbox">
-Cloud Sync
+<span>Cloud Sync</span>
 </div>
 
 </div>
@@ -509,11 +537,11 @@ Cloud Sync
 
 <div class="action-buttons">
 
-<button class="main-btn" onclick="convertPDF()">
+<button class="action-btn" onclick="convertPDF()">
 ⚡ Convert To Word
 </button>
 
-<button class="main-btn">
+<button class="action-btn" onclick="downloadDOCX()">
 📥 Download DOCX
 </button>
 
@@ -525,19 +553,31 @@ Cloud Sync
 
 <div class="panel">
 
-<div class="preview-area">
-
-<h2>
+<h2 class="analysis-title">
 Realtime AI Analysis
 </h2>
 
-<div id="previewArea">
+<div class="analysis-box">
 
-<p style="color:#94a3b8;">
-No PDF uploaded yet.
-</p>
+<h3 id="analysisFile">
+No File Uploaded
+</h3>
+
+<div class="progress">
+<span id="progressBar"></span>
+</div>
+
+<ul class="analysis-list" id="analysisList">
+
+<li>Waiting for document upload...</li>
+
+</ul>
 
 </div>
+
+<!-- PREVIEW -->
+
+<div class="preview-grid" id="previewGrid">
 
 </div>
 
@@ -553,7 +593,7 @@ No PDF uploaded yet.
 <h2>⚡</h2>
 <h3>Realtime OCR</h3>
 <p>
-Advanced OCR recognition with AI-powered text recovery.
+Advanced OCR recognition with AI-powered editable text recovery.
 </p>
 </div>
 
@@ -561,7 +601,7 @@ Advanced OCR recognition with AI-powered text recovery.
 <h2>📊</h2>
 <h3>Table Intelligence</h3>
 <p>
-Automatically reconstructs complex tables into editable Word structures.
+Automatically rebuilds complex tables into editable Word structures.
 </p>
 </div>
 
@@ -569,7 +609,7 @@ Automatically reconstructs complex tables into editable Word structures.
 <h2>🔒</h2>
 <h3>Secure Workspace</h3>
 <p>
-Files processed securely inside browser environment.
+Files processed locally inside browser without cloud uploads.
 </p>
 </div>
 
@@ -577,112 +617,148 @@ Files processed securely inside browser environment.
 <h2>✨</h2>
 <h3>AI Formatting</h3>
 <p>
-Preserves fonts, layouts, spacing and design structure automatically.
+Preserves layouts, fonts, spacing and alignment automatically.
 </p>
 </div>
 
 </section>
 
-<!-- FLOATING ACTION BAR -->
+<!-- FLOATING BAR -->
 
-<div class="floating-bar">
+<div class="floating-tools">
 
-<div class="float-btn">
+<button class="float-btn">
 ⚡ OCR
-</div>
+</button>
 
-<div class="float-btn">
+<button class="float-btn">
 ✨ Enhance
-</div>
+</button>
 
-<div class="float-btn">
+<button class="float-btn">
 📊 Analyze
-</div>
+</button>
 
-<div class="float-btn">
-📥 Export
-</div>
+<button class="float-btn">
+📤 Export
+</button>
 
-<div class="float-btn">
+<button class="float-btn">
 ☁ Cloud
-</div>
+</button>
 
 </div>
+
+<!-- SCRIPT -->
 
 <script>
 
-const pdfInput =
-document.getElementById("pdfInput");
+let uploadedFile = null;
 
-const previewArea =
-document.getElementById("previewArea");
+const input = document.getElementById("pdfInput");
 
-pdfInput.addEventListener("change", function(){
+input.addEventListener("change", async function(){
 
-const file = this.files[0];
+uploadedFile = this.files[0];
 
-if(!file) return;
+if(!uploadedFile) return;
 
-document.getElementById("fileCount").innerText = 1;
+document.getElementById("fileCount").innerText = "1";
 
-document.getElementById("pageCount").innerText =
-Math.floor(Math.random()*20+1);
+document.getElementById("analysisFile").innerText = uploadedFile.name;
 
-previewArea.innerHTML = `
+simulateAI();
 
-<div class="preview-card">
-
-<strong>${file.name}</strong>
-
-<p>
-AI document analysis completed successfully.
-</p>
-
-<div class="progress">
-<span></span>
-</div>
-
-<p style="margin-top:15px;color:#94a3b8;">
-✔ Layout structure detected
-</p>
-
-<p style="margin-top:10px;color:#94a3b8;">
-✔ OCR text extraction enabled
-</p>
-
-<p style="margin-top:10px;color:#94a3b8;">
-✔ Tables and headers identified
-</p>
-
-<p style="margin-top:10px;color:#94a3b8;">
-✔ Font recovery initialized
-</p>
-
-<p style="margin-top:10px;color:#94a3b8;">
-✔ Hyperlink mapping completed
-</p>
-
-</div>
-
-`;
+renderPreview(uploadedFile);
 
 });
 
-/* DEMO */
+/* AI SIMULATION */
+
+function simulateAI(){
+
+const progress = document.getElementById("progressBar");
+
+const list = document.getElementById("analysisList");
+
+progress.style.width = "100%";
+
+document.getElementById("pageCount").innerText = "17";
+
+document.getElementById("ocrScore").innerText = "98%";
+
+list.innerHTML = `
+<li>✔ Layout structure detected</li>
+<li>✔ OCR extraction enabled</li>
+<li>✔ Tables and headers identified</li>
+<li>✔ Font recovery initialized</li>
+<li>✔ Hyperlink mapping completed</li>
+`;
+
+}
+
+/* PREVIEW */
+
+function renderPreview(file){
+
+const grid = document.getElementById("previewGrid");
+
+grid.innerHTML = "";
+
+for(let i=1;i<=4;i++){
+
+grid.innerHTML += `
+<div class="preview-card">
+
+<img src="https://dummyimage.com/400x500/0f172a/ffffff&text=PDF+Page+${i}">
+
+<p>Page ${i}</p>
+
+</div>
+`;
+
+}
+
+}
+
+/* CONVERT */
 
 function convertPDF(){
 
-if(!pdfInput.files.length){
+if(!uploadedFile){
 
-alert("Please upload a PDF file");
-
+alert("Please upload PDF first.");
 return;
 
 }
 
-alert(
-"Premium AI PDF → Word conversion started 🚀"
+alert("AI PDF → Word conversion started successfully.");
+
+}
+
+/* DOWNLOAD */
+
+function downloadDOCX(){
+
+if(!uploadedFile){
+
+alert("Please upload PDF first.");
+return;
+
+}
+
+const blob = new Blob(
+["KJSynthora Premium DOCX Export"],
+{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 );
+
+const link = document.createElement("a");
+
+link.href = URL.createObjectURL(blob);
+
+link.download = "KJSynthora-Converted.docx";
+
+link.click();
 
 }
 
