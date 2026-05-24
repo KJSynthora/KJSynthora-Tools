@@ -1,31 +1,12 @@
-<!--
-NEXT-GEN ENTERPRISE AI RESUME ENGINE
-FULL END-TO-END UPDATED VERSION
-FEATURES:
-✔ Multi-Step Wizard
-✔ ATS Score Engine
-✔ JD Matcher
-✔ Skill Tags
-✔ AI Suggestions
-✔ Live Resume Canvas
-✔ Theme Switcher
-✔ PDF Export
-✔ Local Storage
-✔ Recruiter Read Timer
-✔ Inline Editing
-✔ Responsive Enterprise UI
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global AI Resume Engine</title>
 
-<title>Global Enterprise AI Resume Engine</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -33,424 +14,391 @@ FEATURES:
 <style>
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
 }
 
 body{
-background:
-linear-gradient(135deg,#020617 0%,#07125f 45%,#5d11b7 100%);
-min-height:100vh;
-padding:25px;
-color:white;
-overflow-x:hidden;
+    background:
+    radial-gradient(circle at top left,#142bff33,transparent 30%),
+    radial-gradient(circle at bottom right,#c43bff33,transparent 30%),
+    #020b3d;
+    color:white;
+    min-height:100vh;
+    padding:25px;
 }
 
-.main-layout{
-display:grid;
-grid-template-columns:380px 1fr 320px;
-gap:22px;
-max-width:1800px;
-margin:auto;
+.main-grid{
+    display:grid;
+    grid-template-columns:340px 1fr 320px;
+    gap:20px;
+    align-items:start;
 }
 
-.panel{
-background:#0d1b6f;
-border-radius:24px;
-padding:24px;
-box-shadow:0 0 30px rgba(0,0,0,.35);
+.card{
+    background:#0d1b72;
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 0 25px rgba(0,0,0,0.3);
 }
 
-h1{
-font-size:34px;
-font-weight:800;
-margin-bottom:10px;
-background:linear-gradient(to right,#3cd5ff,#c84fff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+.left-panel{
+    position:sticky;
+    top:20px;
+    max-height:95vh;
+    overflow:auto;
+}
+
+.section-title{
+    font-size:26px;
+    font-weight:800;
+    margin-bottom:10px;
+    color:#67c1ff;
 }
 
 .subtitle{
-opacity:.82;
-line-height:1.7;
-margin-bottom:20px;
-font-size:14px;
+    font-size:13px;
+    color:#b7c0ff;
+    margin-bottom:18px;
+    line-height:1.6;
 }
 
-.steps{
-display:flex;
-gap:10px;
-margin-bottom:25px;
-flex-wrap:wrap;
+.step-header{
+    margin-top:18px;
+    margin-bottom:12px;
+    font-weight:700;
+    color:#77d9ff;
+    font-size:15px;
 }
 
-.step{
-padding:8px 14px;
-background:#1b2f99;
-border-radius:30px;
-font-size:12px;
+.input-group{
+    margin-bottom:14px;
 }
 
-.field{
-margin-bottom:16px;
+.input-group label{
+    display:block;
+    margin-bottom:6px;
+    font-size:12px;
+    color:#d4dcff;
 }
 
-label{
-display:block;
-margin-bottom:8px;
-font-size:13px;
-font-weight:600;
-}
-
-input,
-textarea,
-select{
-width:100%;
-padding:14px;
-border:none;
-border-radius:14px;
-background:#08145d;
-color:white;
-outline:none;
-font-size:14px;
+.input-group input,
+.input-group textarea,
+.input-group select{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#081450;
+    color:white;
+    outline:none;
 }
 
 textarea{
-min-height:90px;
-resize:vertical;
+    resize:vertical;
+    min-height:80px;
 }
 
-button{
-border:none;
-cursor:pointer;
-transition:.3s;
-font-weight:700;
+.skill-suggestion-wrapper{
+    margin-top:15px;
 }
 
-.primary-btn{
-width:100%;
-padding:16px;
-border-radius:14px;
-background:linear-gradient(90deg,#29b6ff,#d441ff);
-color:white;
-margin-top:10px;
-font-size:15px;
+#skillSuggestions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
 }
 
-.primary-btn:hover{
-transform:translateY(-2px);
+.skill-pill{
+    border:none;
+    padding:8px 14px;
+    border-radius:30px;
+    background:linear-gradient(45deg,#00c6ff,#7b2ff7);
+    color:white;
+    cursor:pointer;
+    font-size:12px;
+    transition:0.3s;
 }
 
-.grid2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
+.skill-pill:hover{
+    transform:scale(1.05);
 }
 
-.secondary-btn{
-padding:13px;
-border-radius:14px;
-background:#2039b8;
-color:white;
+.button{
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:12px;
+    margin-top:12px;
+    cursor:pointer;
+    font-weight:700;
+    color:white;
+    background:linear-gradient(45deg,#1db9ff,#cf3cff);
 }
 
-.secondary-btn:hover{
-background:#3854ff;
+.small-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
 }
 
-.resume-panel{
-background:white;
-color:black;
-border-radius:24px;
-padding:30px;
-min-height:1200px;
-overflow:auto;
-position:relative;
+.preview-toolbar{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+    flex-wrap:wrap;
 }
 
-.resume-toolbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-gap:10px;
-flex-wrap:wrap;
+.toolbar-btn{
+    background:#182889;
+    border:none;
+    color:white;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
 }
 
-.toolbar-group{
-display:flex;
-gap:10px;
+.resume-preview{
+    background:white;
+    color:#111;
+    min-height:1200px;
+    border-radius:18px;
+    padding:40px;
+    box-shadow:0 0 30px rgba(0,0,0,0.4);
 }
 
-.toolbar-select{
-padding:10px;
-border-radius:10px;
-border:none;
-background:#ececec;
+.resume-preview h1{
+    font-size:34px;
+    margin-bottom:10px;
 }
 
-.resume-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:2px solid #ddd;
-padding-bottom:18px;
-margin-bottom:20px;
+.resume-preview h2{
+    margin-top:22px;
+    margin-bottom:10px;
+    border-bottom:2px solid #ddd;
+    padding-bottom:5px;
 }
 
-.resume-name{
-font-size:34px;
-font-weight:800;
+.resume-preview p,
+.resume-preview li{
+    line-height:1.7;
 }
 
-.resume-role{
-font-size:18px;
-color:#555;
-margin-top:4px;
+.analytics-card{
+    background:#13268d;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:15px;
 }
 
-.resume-section{
-margin-top:22px;
+.analytics-card h3{
+    font-size:13px;
+    margin-bottom:10px;
 }
 
-.resume-section h3{
-font-size:18px;
-margin-bottom:10px;
-color:#0d1b6f;
-border-bottom:1px solid #ddd;
-padding-bottom:6px;
-}
-
-.resume-section ul{
-padding-left:20px;
-line-height:1.8;
-}
-
-.resume-section p{
-line-height:1.8;
-font-size:14px;
-}
-
-.analytics{
-display:flex;
-flex-direction:column;
-gap:18px;
-}
-
-.metric{
-background:#15278e;
-padding:20px;
-border-radius:20px;
-}
-
-.metric-title{
-font-size:12px;
-opacity:.8;
-margin-bottom:6px;
-}
-
-.metric-value{
-font-size:34px;
-font-weight:800;
-color:#56ffb0;
+.big-number{
+    font-size:30px;
+    font-weight:800;
+    color:#54ff8f;
 }
 
 .progress{
-height:16px;
-background:#07125f;
-border-radius:20px;
-overflow:hidden;
-margin-top:10px;
+    height:10px;
+    background:#06114f;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:12px;
 }
 
 .progress-fill{
-height:100%;
-width:0%;
-background:linear-gradient(to right,#30ff94,#f7ff4d,#ff4d4d);
-transition:.5s;
+    height:100%;
+    background:linear-gradient(45deg,#00c6ff,#7b2ff7);
 }
 
-.ai-box{
-background:#082d6a;
-padding:18px;
-border-radius:20px;
-line-height:1.8;
-font-size:14px;
+.jd-box{
+    min-height:140px;
 }
 
-.skill-tags{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-top:10px;
+.skill-tag{
+    display:inline-block;
+    background:#1931a3;
+    color:#7affb7;
+    padding:6px 12px;
+    border-radius:30px;
+    margin:5px;
+    font-size:12px;
 }
 
-.skill{
-padding:8px 14px;
-border-radius:30px;
-font-size:12px;
-font-weight:600;
+.experience-card{
+    background:#081450;
+    padding:15px;
+    border-radius:14px;
+    margin-bottom:14px;
 }
 
-.skill.high{
-background:#1ea84d;
+@media(max-width:1300px){
+
+.main-grid{
+    grid-template-columns:1fr;
 }
 
-.skill.medium{
-background:#c98b13;
-}
-
-.skill.low{
-background:#c03939;
-}
-
-canvas{
-background:#0d1b6f;
-padding:12px;
-border-radius:18px;
-}
-
-.editable{
-outline:none;
-}
-
-.inline-edit:hover{
-background:#f1f1f1;
-cursor:text;
-}
-
-@media(max-width:1500px){
-
-.main-layout{
-grid-template-columns:1fr;
+.left-panel{
+    position:relative;
+    max-height:none;
 }
 
 }
 
 </style>
 </head>
-
 <body>
 
-<div class="main-layout">
+<div class="main-grid">
 
 <!-- LEFT PANEL -->
 
-<div class="panel">
+<div class="card left-panel">
 
-<h1>Global AI Resume Engine</h1>
-
-<p class="subtitle">
-Enterprise ATS optimization platform with AI JD matching,
-live recruiter simulation and interactive resume engineering.
-</p>
-
-<div class="steps">
-<div class="step">Step 1: Contact</div>
-<div class="step">Step 2: Experience</div>
-<div class="step">Step 3: Skills</div>
-<div class="step">Step 4: AI Optimize</div>
+<div class="section-title">
+Global AI Resume Engine
 </div>
 
-<div class="field">
+<div class="subtitle">
+Advanced ATS-powered resume engineering platform with live JD matching, recruiter analytics, AI resume enhancement and export engine.
+</div>
+
+<!-- STEP 1 -->
+
+<div class="step-header">
+Step 1 • Contact Details
+</div>
+
+<div class="input-group">
 <label>Full Name</label>
-<input type="text" id="name">
+<input type="text" id="fullName">
 </div>
 
-<div class="grid2">
-
-<div class="field">
+<div class="input-group">
 <label>Email</label>
 <input type="email" id="email">
 </div>
 
-<div class="field">
+<div class="input-group">
 <label>Phone</label>
 <input type="text" id="phone">
 </div>
 
-</div>
-
-<div class="grid2">
-
-<div class="field">
-<label>Primary Role</label>
-<select id="role">
-<option>Service Desk Engineer</option>
-<option>Power BI Developer</option>
-<option>Manual Tester</option>
-<option>Cloud Engineer</option>
-<option>Software Developer</option>
-</select>
-</div>
-
-<div class="field">
-<label>Experience</label>
-<select id="experience">
-<option>Fresher</option>
-<option>3+ Years</option>
-<option selected>7+ Years</option>
-<option>10+ Years</option>
-</select>
-</div>
-
-</div>
-
-<div class="field">
-<label>Paste Target Job Description</label>
-<textarea id="jd"></textarea>
-</div>
-
-<div class="field">
-<label>Skills (comma separated)</label>
-<textarea id="skills">SQL, Power BI, Incident Management, Excel</textarea>
-</div>
-
-<div class="field">
-<label>Professional Summary</label>
-<textarea id="summary"></textarea>
-</div>
-
-<div class="field">
-<label>Projects</label>
-<textarea id="projects"></textarea>
-</div>
-
-<div class="field">
+<div class="input-group">
 <label>LinkedIn URL</label>
 <input type="text" id="linkedin">
 </div>
 
-<div class="field">
+<div class="input-group">
 <label>GitHub URL</label>
 <input type="text" id="github">
 </div>
 
-<button class="primary-btn" onclick="generateResume()">
-🚀 Generate Enterprise Resume
-</button>
+<!-- STEP 2 -->
 
-<div class="grid2" style="margin-top:12px;">
+<div class="step-header">
+Step 2 • Career Details
+</div>
 
-<button class="secondary-btn" onclick="downloadPDF()">
-📄 Export PDF
-</button>
+<div class="input-group">
+<label>Primary Role</label>
 
-<button class="secondary-btn" onclick="clearAll()">
-🗑 Clear
-</button>
+<select id="primaryRole">
+
+<option value="">Select Role</option>
+
+<option>Service Desk Engineer</option>
+<option>Azure DevOps Engineer</option>
+<option>AWS Cloud Engineer</option>
+<option>Java Full Stack Developer</option>
+<option>Angular Developer</option>
+<option>Power BI Developer</option>
+<option>Data Engineer</option>
+<option>Cyber Security Engineer</option>
+
+</select>
 
 </div>
 
-<div class="grid2" style="margin-top:12px;">
+<div class="skill-suggestion-wrapper">
 
-<button class="secondary-btn" onclick="saveData()">
+<label>AI Suggested Skills</label>
+
+<div id="skillSuggestions"></div>
+
+</div>
+
+<div class="input-group">
+<label>Skills</label>
+<textarea id="skillsInput"></textarea>
+</div>
+
+<div class="input-group">
+<label>Professional Summary</label>
+<textarea id="summary"></textarea>
+</div>
+
+<!-- EXPERIENCE -->
+
+<div class="step-header">
+Step 3 • Experience Matrix
+</div>
+
+<div id="experienceContainer"></div>
+
+<button class="button" onclick="addExperience()">
++ Add Company Experience
+</button>
+
+<!-- PROJECTS -->
+
+<div class="input-group" style="margin-top:18px;">
+<label>Projects</label>
+<textarea id="projects"></textarea>
+</div>
+
+<div class="input-group">
+<label>Certifications</label>
+<textarea id="certifications"></textarea>
+</div>
+
+<!-- JD -->
+
+<div class="step-header">
+Step 4 • JD Matching
+</div>
+
+<div class="input-group">
+<label>Paste Target Job Description</label>
+<textarea id="jobDescription" class="jd-box"></textarea>
+</div>
+
+<button class="button" onclick="generateResume()">
+🚀 Generate AI Resume
+</button>
+
+<div class="small-actions">
+
+<button class="button" onclick="downloadPDF()">
+📄 Export PDF
+</button>
+
+<button class="button" onclick="resetAll()">
+🗑 Clear
+</button>
+
+<button class="button" onclick="saveLocal()">
 💾 Save
 </button>
 
-<button class="secondary-btn" onclick="goHome()">
+<button class="button" onclick="window.location.href='../index.html'">
 🏠 Return Home
 </button>
 
@@ -458,479 +406,372 @@ live recruiter simulation and interactive resume engineering.
 
 </div>
 
-<!-- CENTER PANEL -->
+<!-- CENTER -->
 
-<div class="resume-panel" id="resumeCanvas">
+<div class="card">
 
-<div class="resume-toolbar">
+<div class="preview-toolbar">
 
-<div class="toolbar-group">
+<button class="toolbar-btn">Inter</button>
+<button class="toolbar-btn">Helvetica</button>
+<button class="toolbar-btn">Compact</button>
+<button class="toolbar-btn">Modern</button>
 
-<select class="toolbar-select" onchange="changeFont(this.value)">
-<option value="Inter">Inter</option>
-<option value="Georgia">Georgia</option>
-<option value="Arial">Arial</option>
-</select>
+</div>
 
-<select class="toolbar-select" onchange="changeTheme(this.value)">
-<option value="blue">Corporate Blue</option>
-<option value="dark">Dark</option>
-<option value="green">Emerald</option>
-</select>
+<div class="resume-preview" id="resumePreview" contenteditable="true">
 
-<select class="toolbar-select" onchange="changeSpacing(this.value)">
-<option value="normal">Normal</option>
-<option value="compact">Compact</option>
-<option value="loose">Loose</option>
-</select>
+<h1>Your Resume Preview</h1>
+
+<p>
+AI-generated professional resume preview will appear here.
+</p>
 
 </div>
 
 </div>
 
-<div class="resume-header">
+<!-- RIGHT -->
 
 <div>
-<div class="resume-name editable inline-edit" contenteditable="true">
-Resume Preview
-</div>
 
-<div class="resume-role editable inline-edit" contenteditable="true">
-AI Generated Resume
-</div>
-</div>
+<div class="analytics-card">
 
-</div>
+<h3>ATS SCORE</h3>
 
-<div class="resume-section">
-<h3>Summary</h3>
-<p contenteditable="true" class="editable inline-edit">
-Your professional AI-powered ATS resume preview will appear here.
-</p>
-</div>
-
-</div>
-
-<!-- RIGHT PANEL -->
-
-<div class="analytics">
-
-<div class="metric">
-
-<div class="metric-title">
-ATS SCORE
-</div>
-
-<div class="metric-value" id="atsScore">
+<div class="big-number" id="atsScore">
 0%
 </div>
 
 <div class="progress">
-<div class="progress-fill" id="atsFill"></div>
+<div class="progress-fill" id="atsProgress" style="width:0%"></div>
 </div>
 
 </div>
 
-<div class="metric">
+<div class="analytics-card">
 
-<div class="metric-title">
-JD MATCH SCORE
-</div>
+<h3>JD MATCH SCORE</h3>
 
-<div class="metric-value" id="jdScore">
+<div class="big-number" id="jdScore">
 0%
 </div>
 
 </div>
 
-<div class="metric">
+<div class="analytics-card">
 
-<div class="metric-title">
-RECRUITER SCAN TIME
-</div>
+<h3>Recruiter Scan Time</h3>
 
-<div class="metric-value" id="scanTime">
+<div class="big-number" id="scanTime">
 0s
 </div>
 
 </div>
 
-<div class="ai-box" id="aiInsights">
+<div class="analytics-card">
 
-<h3 style="margin-bottom:10px;">
-🤖 AI Resume Insights
-</h3>
+<h3>AI Resume Insights</h3>
 
-<p>AI optimization suggestions will appear here.</p>
+<div id="insights">
+
+Resume insights will appear here.
 
 </div>
 
-<div class="panel" style="padding:16px;">
+</div>
 
-<h3 style="margin-bottom:14px;">
-📊 ATS Analytics
-</h3>
+<div class="analytics-card">
+
+<h3>Skill Tags</h3>
+
+<div id="skillTags"></div>
+
+</div>
+
+<div class="analytics-card">
+
+<h3>ATS Analytics</h3>
 
 <canvas id="atsChart"></canvas>
 
 </div>
 
-<div class="panel" style="padding:16px;">
-
-<h3 style="margin-bottom:14px;">
-🧠 Dynamic Skill Matrix
-</h3>
-
-<div class="skill-tags" id="skillTags"></div>
-
 </div>
 
 </div>
 
-</div>
+<script src="../data/skills-database.js"></script>
 
 <script>
 
-let chart;
+const roleDropdown = document.getElementById("primaryRole");
+const skillSuggestions = document.getElementById("skillSuggestions");
+const skillsInput = document.getElementById("skillsInput");
+
+roleDropdown.addEventListener("change", () => {
+
+    const selectedRole = roleDropdown.value;
+
+    const roleData = ROLE_SKILL_MATRIX[selectedRole];
+
+    skillSuggestions.innerHTML = "";
+
+    if(roleData){
+
+        const allSkills = [
+            ...roleData.core,
+            ...roleData.tools,
+            ...roleData.certifications
+        ];
+
+        allSkills.forEach(skill => {
+
+            const skillTag = document.createElement("button");
+
+            skillTag.className = "skill-pill";
+
+            skillTag.innerText = "+ " + skill;
+
+            skillTag.onclick = () => addSkill(skill);
+
+            skillSuggestions.appendChild(skillTag);
+
+        });
+
+    }
+
+});
+
+function addSkill(skill){
+
+    let current = skillsInput.value.trim();
+
+    if(current.includes(skill)) return;
+
+    if(current.length > 0){
+        skillsInput.value += ", " + skill;
+    }else{
+        skillsInput.value = skill;
+    }
+
+    renderSkillTags();
+
+}
+
+function renderSkillTags(){
+
+    const wrapper = document.getElementById("skillTags");
+
+    wrapper.innerHTML = "";
+
+    const skills = skillsInput.value.split(",");
+
+    skills.forEach(skill => {
+
+        if(skill.trim()){
+
+            const div = document.createElement("div");
+
+            div.className = "skill-tag";
+
+            div.innerText = skill.trim();
+
+            wrapper.appendChild(div);
+
+        }
+
+    });
+
+}
+
+skillsInput.addEventListener("input", renderSkillTags);
+
+function addExperience(){
+
+    const container = document.getElementById("experienceContainer");
+
+    const div = document.createElement("div");
+
+    div.className = "experience-card";
+
+    div.innerHTML = `
+
+    <div class="input-group">
+        <label>Company Name</label>
+        <input type="text" class="company">
+    </div>
+
+    <div class="input-group">
+        <label>Role</label>
+        <input type="text" class="role">
+    </div>
+
+    <div class="input-group">
+        <label>Duration</label>
+        <input type="text" class="duration">
+    </div>
+
+    <div class="input-group">
+        <label>Responsibilities</label>
+        <textarea class="responsibility"></textarea>
+    </div>
+
+    `;
+
+    container.appendChild(div);
+
+}
+
+addExperience();
 
 function generateResume(){
 
-const name = document.getElementById("name").value;
-const email = document.getElementById("email").value;
-const phone = document.getElementById("phone").value;
-const role = document.getElementById("role").value;
-const experience = document.getElementById("experience").value;
-const skills = document.getElementById("skills").value;
-const summary = document.getElementById("summary").value;
-const projects = document.getElementById("projects").value;
-const linkedin = document.getElementById("linkedin").value;
-const github = document.getElementById("github").value;
-const jd = document.getElementById("jd").value;
+    const name = document.getElementById("fullName").value;
 
-let ats = 45;
+    const email = document.getElementById("email").value;
 
-if(summary.length > 40) ats += 15;
-if(projects.length > 20) ats += 10;
-if(linkedin) ats += 5;
-if(github) ats += 5;
-if(skills.length > 20) ats += 10;
-if(jd.length > 50) ats += 10;
+    const phone = document.getElementById("phone").value;
 
-if(ats > 100) ats = 100;
+    const summary = document.getElementById("summary").value;
 
-document.getElementById("atsScore").innerHTML = ats + "%";
-document.getElementById("atsFill").style.width = ats + "%";
+    const skills = document.getElementById("skillsInput").value;
 
-let jdScore = Math.min(96,Math.floor((skills.length + jd.length)/8));
+    const projects = document.getElementById("projects").value;
 
-document.getElementById("jdScore").innerHTML = jdScore + "%";
+    const certs = document.getElementById("certifications").value;
 
-let scan = Math.floor((summary.length + projects.length)/35);
+    const preview = document.getElementById("resumePreview");
 
-document.getElementById("scanTime").innerHTML = scan + "s";
+    preview.innerHTML = `
 
-renderSkills(skills);
+    <h1>${name}</h1>
 
-document.getElementById("resumeCanvas").innerHTML = `
+    <p>${email} | ${phone}</p>
 
-<div class="resume-toolbar">
+    <h2>Professional Summary</h2>
 
-<div class="toolbar-group">
+    <p>${summary}</p>
 
-<select class="toolbar-select" onchange="changeFont(this.value)">
-<option value="Inter">Inter</option>
-<option value="Georgia">Georgia</option>
-<option value="Arial">Arial</option>
-</select>
+    <h2>Skills</h2>
 
-<select class="toolbar-select" onchange="changeTheme(this.value)">
-<option value="blue">Corporate Blue</option>
-<option value="dark">Dark</option>
-<option value="green">Emerald</option>
-</select>
+    <p>${skills}</p>
 
-<select class="toolbar-select" onchange="changeSpacing(this.value)">
-<option value="normal">Normal</option>
-<option value="compact">Compact</option>
-<option value="loose">Loose</option>
-</select>
+    <h2>Projects</h2>
 
-</div>
+    <p>${projects}</p>
 
-</div>
+    <h2>Certifications</h2>
 
-<div class="resume-header">
+    <p>${certs}</p>
 
-<div>
-<div class="resume-name editable inline-edit" contenteditable="true">
-${name}
-</div>
+    `;
 
-<div class="resume-role editable inline-edit" contenteditable="true">
-${role}
-</div>
-</div>
-
-<div>
-<p>${email}</p>
-<p>${phone}</p>
-</div>
-
-</div>
-
-<div class="resume-section">
-<h3>Professional Summary</h3>
-<p contenteditable="true" class="editable inline-edit">
-${summary}
-</p>
-</div>
-
-<div class="resume-section">
-<h3>Skills</h3>
-<ul>
-${skills.split(",").map(skill=>`<li>${skill}</li>`).join("")}
-</ul>
-</div>
-
-<div class="resume-section">
-<h3>Experience</h3>
-<p contenteditable="true" class="editable inline-edit">
-${experience}
-</p>
-</div>
-
-<div class="resume-section">
-<h3>Projects</h3>
-<p contenteditable="true" class="editable inline-edit">
-${projects}
-</p>
-</div>
-
-<div class="resume-section">
-<h3>Professional Links</h3>
-<p><b>LinkedIn:</b> ${linkedin}</p>
-<p><b>GitHub:</b> ${github}</p>
-</div>
-
-`;
-
-document.getElementById("aiInsights").innerHTML = `
-
-<h3 style="margin-bottom:10px;">
-🤖 AI Resume Insights
-</h3>
-
-<p>✅ ATS Optimization Active</p>
-<p>✅ JD Match Score: ${jdScore}%</p>
-<p>⚠ Add quantified achievements</p>
-<p>⚠ Reduce paragraph density</p>
-<p>⚠ Add enterprise cloud tools</p>
-<p>⚠ Improve recruiter readability</p>
-
-`;
-
-renderChart(ats,jdScore);
-
-saveData();
+    calculateATS();
 
 }
 
-function renderSkills(skills){
+function calculateATS(){
 
-const arr = skills.split(",");
+    const skills = skillsInput.value.split(",");
 
-let html = "";
+    const jd = document.getElementById("jobDescription").value.toLowerCase();
 
-arr.forEach(skill=>{
+    let matched = 0;
 
-const s = skill.trim().toLowerCase();
+    skills.forEach(skill => {
 
-let cls = "medium";
+        if(jd.includes(skill.trim().toLowerCase())){
 
-if(
-s.includes("sql") ||
-s.includes("aws") ||
-s.includes("cloud") ||
-s.includes("power bi")
-){
-cls = "high";
-}
-else if(
-s.includes("excel") ||
-s.includes("testing")
-){
-cls = "medium";
-}
-else{
-cls = "low";
-}
+            matched++;
 
-html += `<div class="skill ${cls}">
-${skill.trim()}
-</div>`;
+        }
 
-});
+    });
 
-document.getElementById("skillTags").innerHTML = html;
+    let ats = Math.min(100, 40 + matched * 8);
 
-}
+    let jdMatch = Math.min(100, matched * 10);
 
-function renderChart(ats,jd){
+    document.getElementById("atsScore").innerText = ats + "%";
 
-const ctx = document.getElementById("atsChart");
+    document.getElementById("jdScore").innerText = jdMatch + "%";
 
-if(chart){
-chart.destroy();
-}
+    document.getElementById("atsProgress").style.width = ats + "%";
 
-chart = new Chart(ctx,{
+    document.getElementById("scanTime").innerText =
+    Math.max(3, 12 - Math.floor(skills.length/3)) + "s";
 
-type:'bar',
+    const insights = document.getElementById("insights");
 
-data:{
-labels:['ATS','JD Match'],
-datasets:[{
-label:'Resume Analytics',
-data:[ats,jd],
-backgroundColor:[
-'#31d7ff',
-'#d24bff'
-]
-}]
-},
+    insights.innerHTML = `
 
-options:{
-plugins:{
-legend:{
-labels:{
-color:'white'
-}
-}
-},
-scales:{
-y:{
-ticks:{
-color:'white'
-}
-},
-x:{
-ticks:{
-color:'white'
-}
-}
-}
+    ✅ ATS Optimization Active<br><br>
+
+    ✅ JD Match Ratio: ${jdMatch}%<br><br>
+
+    ✅ Recruiter readability optimized.<br><br>
+
+    ${jdMatch < 50 ? "⚠ Add more JD keywords." : "🚀 Resume highly optimized."}
+
+    `;
+
+    updateChart(ats,jdMatch);
+
 }
 
-});
+let chart;
+
+function updateChart(ats,jd){
+
+    const ctx = document.getElementById("atsChart");
+
+    if(chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+
+        type:'bar',
+
+        data:{
+            labels:['ATS','JD Match'],
+            datasets:[{
+                data:[ats,jd]
+            }]
+        }
+
+    });
 
 }
 
 function downloadPDF(){
 
-html2pdf().from(document.getElementById("resumeCanvas"))
-.save("Enterprise_AI_Resume.pdf");
+    const element = document.getElementById("resumePreview");
+
+    html2pdf().from(element).save();
 
 }
 
-function clearAll(){
+function resetAll(){
 
-localStorage.clear();
-location.reload();
-
-}
-
-function saveData(){
-
-const data = {};
-
-document.querySelectorAll("input, textarea, select")
-.forEach(el=>{
-data[el.id] = el.value;
-});
-
-localStorage.setItem("resumeEngine",JSON.stringify(data));
+    location.reload();
 
 }
 
-function loadData(){
+function saveLocal(){
 
-const data = JSON.parse(localStorage.getItem("resumeEngine"));
+    const data = {
 
-if(!data) return;
+        name:document.getElementById("fullName").value,
 
-Object.keys(data).forEach(key=>{
+        skills:skillsInput.value
 
-const el = document.getElementById(key);
+    };
 
-if(el){
-el.value = data[key];
-}
+    localStorage.setItem("resumeData",JSON.stringify(data));
 
-});
+    alert("Saved Successfully");
 
 }
-
-function goHome(){
-
-window.location.href="../index.html";
-
-}
-
-function changeFont(font){
-
-document.getElementById("resumeCanvas")
-.style.fontFamily = font;
-
-}
-
-function changeTheme(theme){
-
-const canvas = document.getElementById("resumeCanvas");
-
-if(theme==="dark"){
-
-canvas.style.background = "#111";
-canvas.style.color = "white";
-
-}
-else if(theme==="green"){
-
-canvas.style.background = "#ecfff1";
-canvas.style.color = "#111";
-
-}
-else{
-
-canvas.style.background = "white";
-canvas.style.color = "black";
-
-}
-
-}
-
-function changeSpacing(type){
-
-const canvas = document.getElementById("resumeCanvas");
-
-if(type==="compact"){
-
-canvas.style.lineHeight = "1.4";
-
-}
-else if(type==="loose"){
-
-canvas.style.lineHeight = "2";
-
-}
-else{
-
-canvas.style.lineHeight = "1.7";
-
-}
-
-}
-
-loadData();
 
 </script>
 
