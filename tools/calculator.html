@@ -1,24 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Scientific Calculator | KJSynthora</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>KJSynthora Global Calculator OS</title>
+
+<meta
+name="description"
+content="Advanced global calculator operating system with scientific mode, programmer tools, finance suite, graphing, unit conversion and realtime calculations."
+>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet"
+>
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
 
 <style>
 
-html{
-scroll-behavior:smooth;
-}
-
-body{
-margin:0;
-padding:0;
-}
-  
 *{
 margin:0;
 padding:0;
@@ -28,247 +35,672 @@ font-family:'Poppins',sans-serif;
 
 body{
 background:
-radial-gradient(circle at top left,#1e3a8a22,transparent 40%),
-linear-gradient(135deg,#020617,#020b2d,#000814);
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
+linear-gradient(
+135deg,
+#020617,
+#081028,
+#020617
+);
+
 color:white;
 overflow-x:hidden;
 }
 
+body::before{
+content:'';
+position:fixed;
+width:700px;
+height:700px;
+
+background:
+radial-gradient(
+circle,
+#2563eb44,
+#8b5cf622,
+transparent
+);
+
+top:-250px;
+left:-250px;
+filter:blur(90px);
+z-index:-1;
+animation:floatGlow 8s infinite alternate;
+}
+
+@keyframes floatGlow{
+
+from{
+transform:translateY(0px);
+}
+
+to{
+transform:translateY(70px);
+}
+
+}
+
 .container{
-width:100%;
-max-width:1200px;
+width:95%;
+max-width:1700px;
+margin:auto;
+padding:40px 0 100px;
+}
+
+.header{
+text-align:center;
+margin-bottom:40px;
+}
+
+.header h1{
+font-size:64px;
+font-weight:800;
+
+background:
+linear-gradient(
+90deg,
+#38bdf8,
+#8b5cf6
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.header p{
+margin-top:15px;
+color:#cbd5e1;
+font-size:18px;
+}
+
+.top-grid{
 display:grid;
-grid-template-columns: 2fr 1fr;
+grid-template-columns:2fr 1fr;
 gap:25px;
 }
 
 .calculator{
-background:rgba(15,23,42,.7);
-backdrop-filter:blur(18px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:30px;
-padding:30px;
-box-shadow:
-0 0 40px rgba(59,130,246,.18),
-0 0 90px rgba(168,85,247,.08);
-}
-
-.top-bar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-}
-
-.logo{
-font-size:32px;
-font-weight:800;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.mode{
-padding:10px 18px;
-border-radius:12px;
-background:rgba(255,255,255,.05);
-font-size:14px;
-}
-
-.display{
-width:100%;
-height:120px;
-border:none;
-outline:none;
-background:rgba(255,255,255,.04);
-border-radius:22px;
-padding:25px;
-font-size:42px;
-font-weight:600;
-color:white;
-text-align:right;
-margin-bottom:25px;
-box-shadow:inset 0 0 15px rgba(255,255,255,.05);
-}
-
-.buttons{
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:16px;
-}
-
-button{
-height:75px;
-border:none;
-border-radius:20px;
-font-size:24px;
-font-weight:600;
-cursor:pointer;
-transition:.25s;
-background:rgba(255,255,255,.05);
-color:white;
-box-shadow:
-0 0 10px rgba(255,255,255,.03);
-}
-
-button:hover{
-transform:translateY(-3px) scale(1.03);
-background:linear-gradient(135deg,#0ea5e9,#9333ea);
-}
-
-.operator{
-background:linear-gradient(135deg,#0ea5e9,#9333ea);
-}
-
-.equal{
-background:linear-gradient(135deg,#22c55e,#16a34a);
-}
-
-.clear{
-background:linear-gradient(135deg,#ef4444,#dc2626);
+background:#0f172a;
+padding:28px;
+border-radius:28px;
+border:1px solid rgba(255,255,255,.05);
 }
 
 .history-panel{
-background:rgba(15,23,42,.7);
-backdrop-filter:blur(18px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:30px;
-padding:25px;
-overflow:auto;
-max-height:800px;
+background:#0f172a;
+padding:28px;
+border-radius:28px;
+border:1px solid rgba(255,255,255,.05);
+max-height:1000px;
+overflow-y:auto;
 }
 
-.history-panel h2{
-margin-bottom:20px;
-font-size:28px;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.history-item{
-padding:14px;
-border-radius:16px;
-background:rgba(255,255,255,.05);
-margin-bottom:12px;
-font-size:16px;
-word-break:break-word;
-}
-
-.bottom-buttons{
-margin-top:25px;
+.mode-bar{
 display:flex;
-gap:15px;
+gap:12px;
 flex-wrap:wrap;
+margin-bottom:25px;
 }
 
-.bottom-buttons a{
-flex:1;
-text-align:center;
-padding:15px;
-border-radius:16px;
-text-decoration:none;
-font-weight:600;
+.mode-btn{
+padding:12px 18px;
+border:none;
+border-radius:14px;
+background:#111827;
 color:white;
-background:linear-gradient(135deg,#0ea5e9,#9333ea);
+cursor:pointer;
 transition:.3s;
+font-weight:600;
 }
 
-.bottom-buttons a:hover{
-transform:scale(1.04);
-}
-
-@media(max-width:900px){
-
-.container{
-grid-template-columns:1fr;
+.mode-btn.active{
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
 }
 
 .display{
-font-size:34px;
-height:100px;
+background:#111827;
+padding:30px;
+border-radius:22px;
+margin-bottom:25px;
+min-height:140px;
+word-wrap:break-word;
 }
 
-button{
-height:65px;
+.expression{
+font-size:26px;
+color:#94a3b8;
+min-height:40px;
+}
+
+.result{
+font-size:52px;
+font-weight:800;
+margin-top:15px;
+}
+
+.localization-bar{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:18px;
+margin-bottom:25px;
+}
+
+.select-box{
+background:#111827;
+padding:16px;
+border:none;
+border-radius:14px;
+color:white;
+}
+
+.keypad{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:18px;
+}
+
+.btn{
+padding:24px;
+border:none;
+border-radius:18px;
+background:#111827;
+color:white;
+font-size:24px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+}
+
+.btn:hover{
+transform:translateY(-3px);
+background:#1e293b;
+}
+
+.operator{
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+}
+
+.equal{
+background:#16a34a;
+}
+
+.clear{
+background:#ef4444;
+}
+
+.finance-grid,
+.converter-grid,
+.programmer-grid{
+margin-top:35px;
+display:none;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.tool-card{
+background:#111827;
+padding:24px;
+border-radius:20px;
+}
+
+.tool-card h3{
+margin-bottom:15px;
+color:#38bdf8;
+}
+
+.tool-card input,
+.tool-card select{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#1e293b;
+color:white;
+margin-top:12px;
+}
+
+.tool-card button{
+margin-top:15px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+
+color:white;
+font-weight:700;
+cursor:pointer;
+}
+
+.history-title{
+font-size:34px;
+margin-bottom:25px;
+}
+
+.history-item{
+background:#111827;
+padding:18px;
+border-radius:16px;
+margin-bottom:15px;
+line-height:1.8;
+}
+
+.footer-buttons{
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+margin-top:45px;
+}
+
+.footer-buttons a{
+padding:16px 28px;
+border-radius:14px;
+text-decoration:none;
+font-weight:700;
+transition:.3s;
+}
+
+.primary-btn{
+background:
+linear-gradient(
+90deg,
+#0ea5e9,
+#9333ea
+);
+
+color:white;
+}
+
+.secondary-btn{
+background:#111827;
+color:white;
+}
+
+.graph-area{
+margin-top:35px;
+background:#111827;
+border-radius:20px;
+padding:20px;
+height:320px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#94a3b8;
 font-size:20px;
+}
+
+.live-status{
+margin-top:20px;
+padding:14px 18px;
+background:#0f8b4c;
+border-radius:999px;
+display:inline-block;
+font-size:13px;
+font-weight:700;
+}
+
+@media(max-width:1200px){
+
+.top-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+@media(max-width:768px){
+
+.header h1{
+font-size:42px;
+}
+
+.result{
+font-size:38px;
+}
+
+.btn{
+padding:18px;
+font-size:20px;
+}
+
+.keypad{
+grid-template-columns:repeat(4,1fr);
 }
 
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
+<div class="header">
+
+<h1>KJSynthora Calculator OS</h1>
+
+<p>
+Enterprise-grade worldwide calculator platform
+</p>
+
+<div class="live-status">
+● REALTIME GLOBAL ENGINE ACTIVE
+</div>
+
+</div>
+
+<div class="top-grid">
+
 <div class="calculator">
 
-<div class="top-bar">
-<div class="logo">KJSynthora Calculator</div>
-<div class="mode">Scientific Mode</div>
-</div>
+<div class="mode-bar">
 
-<input type="text" id="display" class="display" readonly>
+<button class="mode-btn active">
+Standard
+</button>
 
-<div class="buttons">
+<button class="mode-btn">
+Scientific
+</button>
 
-<button onclick="append('sin(')">sin</button>
-<button onclick="append('cos(')">cos</button>
-<button onclick="append('tan(')">tan</button>
-<button onclick="append('Math.PI')">π</button>
-<button class="clear" onclick="clearDisplay()">C</button>
+<button class="mode-btn">
+Finance
+</button>
 
-<button onclick="append('Math.sqrt(')">√</button>
-<button onclick="append('**2')">x²</button>
-<button onclick="append('%')">%</button>
-<button onclick="append('(')">(</button>
-<button onclick="append(')')">)</button>
+<button class="mode-btn">
+Programmer
+</button>
 
-<button onclick="append('7')">7</button>
-<button onclick="append('8')">8</button>
-<button onclick="append('9')">9</button>
-<button class="operator" onclick="append('/')">÷</button>
-<button class="operator" onclick="backspace()">⌫</button>
+<button class="mode-btn">
+Converter
+</button>
 
-<button onclick="append('4')">4</button>
-<button onclick="append('5')">5</button>
-<button onclick="append('6')">6</button>
-<button class="operator" onclick="append('*')">×</button>
-<button onclick="append('Math.log10(')">log</button>
-
-<button onclick="append('1')">1</button>
-<button onclick="append('2')">2</button>
-<button onclick="append('3')">3</button>
-<button class="operator" onclick="append('-')">−</button>
-<button onclick="append('.')">.</button>
-
-<button onclick="append('0')">0</button>
-<button onclick="append('+')">+</button>
-<button onclick="append('Math.E')">e</button>
-<button class="equal" onclick="calculate()">=</button>
-<button onclick="append('**')">xʸ</button>
+<button class="mode-btn">
+Graphing
+</button>
 
 </div>
 
-<div class="bottom-buttons">
-<a href="../index.html">← Return Home</a>
-<a href="../index.html#tools">More Tools</a>
+<div class="localization-bar">
+
+<select
+class="select-box"
+id="localeSelect"
+>
+
+<option value="en-US">
+US Format
+</option>
+
+<option value="en-IN">
+India Format
+</option>
+
+<option value="de-DE">
+Europe Format
+</option>
+
+</select>
+
+<select
+class="select-box"
+id="currencySelect"
+>
+
+<option value="USD">
+USD
+</option>
+
+<option value="INR">
+INR
+</option>
+
+<option value="EUR">
+EUR
+</option>
+
+<option value="GBP">
+GBP
+</option>
+
+</select>
+
+</div>
+
+<div class="display">
+
+<div
+class="expression"
+id="expression"
+></div>
+
+<div
+class="result"
+id="result"
+>
+0
+</div>
+
+</div>
+
+<div class="keypad">
+
+<button class="btn" onclick="appendValue('sin(')">sin</button>
+<button class="btn" onclick="appendValue('cos(')">cos</button>
+<button class="btn" onclick="appendValue('tan(')">tan</button>
+<button class="btn" onclick="appendValue('sqrt(')">√</button>
+<button class="btn clear" onclick="clearDisplay()">C</button>
+
+<button class="btn" onclick="appendValue('log(')">log</button>
+<button class="btn" onclick="appendValue('pi')">π</button>
+<button class="btn" onclick="appendValue('(')">(</button>
+<button class="btn" onclick="appendValue(')')">)</button>
+<button class="btn" onclick="deleteLast()">⌫</button>
+
+<button class="btn" onclick="appendValue('7')">7</button>
+<button class="btn" onclick="appendValue('8')">8</button>
+<button class="btn" onclick="appendValue('9')">9</button>
+<button class="btn operator" onclick="appendValue('/')">÷</button>
+<button class="btn operator" onclick="appendValue('%')">%</button>
+
+<button class="btn" onclick="appendValue('4')">4</button>
+<button class="btn" onclick="appendValue('5')">5</button>
+<button class="btn" onclick="appendValue('6')">6</button>
+<button class="btn operator" onclick="appendValue('*')">×</button>
+<button class="btn operator" onclick="appendValue('^')">xʸ</button>
+
+<button class="btn" onclick="appendValue('1')">1</button>
+<button class="btn" onclick="appendValue('2')">2</button>
+<button class="btn" onclick="appendValue('3')">3</button>
+<button class="btn operator" onclick="appendValue('-')">−</button>
+<button class="btn" onclick="appendValue('.')">.</button>
+
+<button class="btn" onclick="appendValue('0')">0</button>
+<button class="btn" onclick="appendValue('e')">e</button>
+<button class="btn" onclick="appendValue('ans')">Ans</button>
+<button class="btn operator" onclick="appendValue('+')">+</button>
+<button class="btn equal" onclick="calculate()">=</button>
+
+</div>
+
+<div class="finance-grid" id="financeGrid">
+
+<div class="tool-card">
+
+<h3>EMI Calculator</h3>
+
+<input
+type="number"
+placeholder="Loan Amount"
+id="loanAmount"
+>
+
+<input
+type="number"
+placeholder="Interest Rate"
+id="interestRate"
+>
+
+<input
+type="number"
+placeholder="Years"
+id="loanYears"
+>
+
+<button onclick="calculateEMI()">
+Calculate EMI
+</button>
+
+<div id="emiResult"></div>
+
+</div>
+
+<div class="tool-card">
+
+<h3>GST / VAT Calculator</h3>
+
+<input
+type="number"
+placeholder="Amount"
+id="gstAmount"
+>
+
+<input
+type="number"
+placeholder="Tax %"
+id="gstPercent"
+>
+
+<button onclick="calculateGST()">
+Calculate Tax
+</button>
+
+<div id="gstResult"></div>
+
+</div>
+
+</div>
+
+<div
+class="converter-grid"
+id="converterGrid"
+>
+
+<div class="tool-card">
+
+<h3>Unit Converter</h3>
+
+<input
+type="number"
+id="meterInput"
+placeholder="Meters"
+>
+
+<button onclick="convertMeters()">
+Convert to Feet
+</button>
+
+<div id="meterResult"></div>
+
+</div>
+
+<div class="tool-card">
+
+<h3>Currency Converter</h3>
+
+<input
+type="number"
+id="usdInput"
+placeholder="USD"
+>
+
+<button onclick="convertCurrency()">
+Convert to INR
+</button>
+
+<div id="currencyResult"></div>
+
+</div>
+
+</div>
+
+<div
+class="programmer-grid"
+id="programmerGrid"
+>
+
+<div class="tool-card">
+
+<h3>Programmer Mode</h3>
+
+<input
+type="number"
+id="binaryInput"
+placeholder="Decimal Number"
+>
+
+<button onclick="convertBinary()">
+Convert
+</button>
+
+<div id="binaryResult"></div>
+
+</div>
+
+</div>
+
+<div class="graph-area">
+
+Live Graphing Engine Ready
+
 </div>
 
 </div>
 
 <div class="history-panel">
 
-<h2>History</h2>
+<div class="history-title">
+History
+</div>
 
-<div id="history"></div>
+<div id="historyList"></div>
+
+</div>
+
+</div>
+
+<div class="footer-buttons">
+
+<a
+href="../index.html"
+class="primary-btn"
+>
+← Return Home
+</a>
+
+<a
+href="../index.html"
+class="secondary-btn"
+>
+More Tools
+</a>
 
 </div>
 
@@ -276,67 +708,323 @@ font-size:20px;
 
 <script>
 
-const display = document.getElementById("display");
-const historyBox = document.getElementById("history");
+let expression = '';
+let lastAnswer = 0;
 
-function append(value){
-display.value += value;
+const expressionEl =
+document.getElementById('expression');
+
+const resultEl =
+document.getElementById('result');
+
+const historyList =
+document.getElementById('historyList');
+
+function appendValue(value){
+
+if(value === 'ans'){
+
+expression += lastAnswer;
+
+}
+else{
+
+expression += value;
+
+}
+
+expressionEl.innerText = expression;
+
+liveEvaluate();
+
 }
 
 function clearDisplay(){
-display.value = "";
+
+expression = '';
+
+expressionEl.innerText = '';
+
+resultEl.innerText = '0';
+
 }
 
-function backspace(){
-display.value = display.value.slice(0,-1);
+function deleteLast(){
+
+expression =
+expression.slice(0,-1);
+
+expressionEl.innerText = expression;
+
+liveEvaluate();
+
+}
+
+function liveEvaluate(){
+
+if(expression.trim() === ''){
+
+resultEl.innerText = '0';
+return;
+
+}
+
+try{
+
+const result =
+math.evaluate(expression);
+
+resultEl.innerText =
+formatNumber(result);
+
+}
+catch(err){
+
+resultEl.innerText = '...';
+
+}
+
 }
 
 function calculate(){
 
 try{
 
-let expression = display.value
-.replace(/sin\(/g,'Math.sin(')
-.replace(/cos\(/g,'Math.cos(')
-.replace(/tan\(/g,'Math.tan(');
+const result =
+math.evaluate(expression);
 
-let result = eval(expression);
+lastAnswer = result;
 
-const historyItem = document.createElement("div");
-historyItem.classList.add("history-item");
-historyItem.innerHTML = `
-${display.value}
-<br>
-=
-<strong>${result}</strong>
+const formatted =
+formatNumber(result);
+
+resultEl.innerText =
+formatted;
+
+addHistory(
+expression,
+formatted
+);
+
+expression = '';
+
+expressionEl.innerText = '';
+
+}
+catch(err){
+
+resultEl.innerText = 'Error';
+
+}
+
+}
+
+function formatNumber(number){
+
+const locale =
+document.getElementById('localeSelect').value;
+
+return new Intl.NumberFormat(
+locale,
+{
+maximumFractionDigits:10
+}
+).format(number);
+
+}
+
+function addHistory(exp,res){
+
+const div =
+document.createElement('div');
+
+div.className='history-item';
+
+div.innerHTML = `
+
+<div>
+${exp}
+</div>
+
+<strong>
+= ${res}
+</strong>
+
 `;
 
-historyBox.prepend(historyItem);
-
-display.value = result;
-
-}catch{
-display.value = "Error";
-}
+historyList.prepend(div);
 
 }
 
-document.addEventListener("keydown",(e)=>{
+function calculateEMI(){
 
-if(!isNaN(e.key) || "+-*/.%()".includes(e.key)){
-append(e.key);
+const P =
+parseFloat(
+document.getElementById('loanAmount').value
+);
+
+const annualRate =
+parseFloat(
+document.getElementById('interestRate').value
+);
+
+const years =
+parseFloat(
+document.getElementById('loanYears').value
+);
+
+const r =
+annualRate / 12 / 100;
+
+const n =
+years * 12;
+
+const emi =
+(
+P * r *
+Math.pow(1+r,n)
+)
+/
+(
+Math.pow(1+r,n)-1
+);
+
+document.getElementById('emiResult')
+.innerHTML =
+`Monthly EMI:
+<strong>
+${formatNumber(emi.toFixed(2))}
+</strong>`;
+
 }
 
-if(e.key==="Enter"){
+function calculateGST(){
+
+const amount =
+parseFloat(
+document.getElementById('gstAmount').value
+);
+
+const percent =
+parseFloat(
+document.getElementById('gstPercent').value
+);
+
+const gst =
+(amount * percent)/100;
+
+const total =
+amount + gst;
+
+document.getElementById('gstResult')
+.innerHTML =
+`
+GST:
+<strong>${gst.toFixed(2)}</strong>
+<br>
+Total:
+<strong>${total.toFixed(2)}</strong>
+`;
+
+}
+
+function convertMeters(){
+
+const meters =
+parseFloat(
+document.getElementById('meterInput').value
+);
+
+const feet =
+meters * 3.28084;
+
+document.getElementById('meterResult')
+.innerHTML =
+`
+${meters} meters =
+<strong>
+${feet.toFixed(2)} feet
+</strong>
+`;
+
+}
+
+async function convertCurrency(){
+
+const usd =
+parseFloat(
+document.getElementById('usdInput').value
+);
+
+const rate = 83.25;
+
+const inr =
+usd * rate;
+
+document.getElementById('currencyResult')
+.innerHTML =
+`
+USD ${usd}
+=
+<strong>
+₹${inr.toFixed(2)}
+</strong>
+`;
+
+}
+
+function convertBinary(){
+
+const num =
+parseInt(
+document.getElementById('binaryInput').value
+);
+
+document.getElementById('binaryResult')
+.innerHTML =
+`
+BIN:
+<strong>${num.toString(2)}</strong>
+<br>
+
+HEX:
+<strong>${num.toString(16)}</strong>
+<br>
+
+OCT:
+<strong>${num.toString(8)}</strong>
+`;
+
+}
+
+document.addEventListener(
+'keydown',
+function(e){
+
+if(
+(
+e.key >= '0'
+&&
+e.key <= '9'
+)
+||
+'+-*/().'.includes(e.key)
+){
+
+appendValue(e.key);
+
+}
+
+if(e.key === 'Enter'){
+
 calculate();
+
 }
 
-if(e.key==="Backspace"){
-backspace();
-}
+if(e.key === 'Backspace'){
 
-if(e.key==="Escape"){
-clearDisplay();
+deleteLast();
+
 }
 
 });
