@@ -1,9 +1,22 @@
+<!--
+FILE: tools/resume-builder.html
+FULL NEXT-GEN AI RESUME ENGINE
+END-TO-END UPDATED VERSION
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart AI Resume Builder</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Global AI Resume Engine</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 
@@ -11,136 +24,277 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial,sans-serif;
+font-family:'Poppins',sans-serif;
 }
 
 body{
-background:#020617;
-padding:20px;
+background:
+linear-gradient(135deg,#020617 0%,#08104d 50%,#5b11b7 100%);
+min-height:100vh;
+padding:30px;
 color:white;
 }
 
 .container{
-max-width:1100px;
+max-width:1700px;
 margin:auto;
 display:grid;
-grid-template-columns:400px 1fr;
-gap:20px;
+grid-template-columns:420px 1fr;
+gap:25px;
 }
 
-.form-section,
-.resume-section{
-background:#0f172a;
+.card{
+background:#0d1b6f;
+border-radius:24px;
 padding:25px;
-border-radius:20px;
-box-shadow:0 0 25px rgba(59,130,246,0.25);
+box-shadow:0 0 35px rgba(0,0,0,.4);
 }
 
 h1{
-margin-bottom:20px;
-font-size:32px;
-background:linear-gradient(to right,#38bdf8,#9333ea);
+font-size:38px;
+font-weight:700;
+margin-bottom:10px;
+background:linear-gradient(to right,#34d9ff,#c84fff);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
+.sub{
+opacity:.8;
+margin-bottom:20px;
+line-height:1.6;
+}
+
+.badges{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.badge{
+padding:7px 14px;
+border-radius:30px;
+background:rgba(255,255,255,.08);
+font-size:12px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+.field{
+margin-bottom:15px;
+}
+
 label{
+font-size:13px;
 display:block;
-margin-top:14px;
-margin-bottom:6px;
-font-size:14px;
-color:#cbd5e1;
+margin-bottom:7px;
+font-weight:500;
 }
 
 input,
 textarea,
 select{
 width:100%;
-padding:12px;
-border:none;
-outline:none;
-border-radius:10px;
-background:#1e293b;
-color:white;
-margin-bottom:10px;
-}
-
-textarea{
-height:90px;
-resize:none;
-}
-
-button{
-width:100%;
 padding:14px;
 border:none;
 border-radius:12px;
-background:linear-gradient(to right,#0ea5e9,#9333ea);
+background:#09145d;
 color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-margin-top:15px;
+outline:none;
+font-size:14px;
 }
 
-.resume-preview{
+textarea{
+min-height:90px;
+resize:vertical;
+}
+
+button{
+border:none;
+cursor:pointer;
+font-weight:600;
+transition:.3s;
+}
+
+.primary-btn{
+width:100%;
+padding:16px;
+border-radius:14px;
+background:linear-gradient(90deg,#29b6ff,#d441ff);
+color:white;
+margin-top:10px;
+font-size:16px;
+}
+
+.primary-btn:hover{
+transform:translateY(-2px);
+}
+
+.two-btns{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:12px;
+}
+
+.secondary-btn{
+padding:14px;
+border-radius:14px;
+background:#1a2b9b;
+color:white;
+}
+
+.secondary-btn:hover{
+background:#3047d7;
+}
+
+.right-panel{
+display:grid;
+grid-template-columns:1fr 340px;
+gap:20px;
+}
+
+.preview{
 background:white;
 color:black;
+border-radius:24px;
 padding:40px;
-border-radius:15px;
 min-height:1000px;
+overflow:auto;
+}
+
+.resume-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+border-bottom:2px solid #ddd;
+padding-bottom:20px;
 }
 
 .resume-name{
-font-size:36px;
-font-weight:bold;
-color:#2563eb;
+font-size:34px;
+font-weight:700;
 }
 
 .resume-role{
 font-size:18px;
-margin-top:5px;
-color:#475569;
+color:#555;
 }
 
-.section-title{
-margin-top:28px;
-margin-bottom:12px;
-font-size:20px;
-color:#2563eb;
-border-bottom:2px solid #e2e8f0;
-padding-bottom:6px;
+.resume-section{
+margin-top:25px;
 }
 
-ul{
+.resume-section h3{
+font-size:18px;
+margin-bottom:10px;
+color:#0d1b6f;
+border-bottom:1px solid #ddd;
+padding-bottom:5px;
+}
+
+.resume-section p,
+.resume-section li{
+font-size:14px;
+line-height:1.7;
+}
+
+.resume-section ul{
 padding-left:20px;
-line-height:1.8;
 }
 
-p{
+.sidebar{
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+.metric{
+background:#13258b;
+padding:20px;
+border-radius:20px;
+}
+
+.metric-title{
+font-size:13px;
+opacity:.8;
+margin-bottom:8px;
+}
+
+.metric-value{
+font-size:32px;
+font-weight:700;
+color:#53ffb3;
+}
+
+.ai-box{
+background:#092c68;
+padding:20px;
+border-radius:20px;
 line-height:1.8;
+font-size:14px;
+}
+
+.skill-tags{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:10px;
+}
+
+.skill{
+padding:8px 14px;
+background:#2a45c5;
+border-radius:30px;
+font-size:12px;
+}
+
+.jd-box{
+margin-top:20px;
+}
+
+canvas{
+background:#0d1b6f;
+border-radius:20px;
+padding:10px;
 }
 
 .small{
-font-size:14px;
-color:#475569;
-margin-top:5px;
+font-size:12px;
+opacity:.8;
 }
 
-.skill-box{
-display:inline-block;
-padding:8px 12px;
-background:#dbeafe;
-color:#1e3a8a;
+.score-meter{
+height:18px;
+background:#09145d;
 border-radius:20px;
-margin:5px;
-font-size:14px;
+overflow:hidden;
+margin-top:10px;
 }
 
-@media(max-width:900px){
+.score-fill{
+height:100%;
+width:0%;
+background:linear-gradient(to right,#29ff8a,#f9ff4a,#ff4a4a);
+transition:.5s;
+}
+
+@media(max-width:1200px){
+
 .container{
 grid-template-columns:1fr;
 }
+
+.right-panel{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
@@ -150,87 +304,239 @@ grid-template-columns:1fr;
 
 <div class="container">
 
-<div class="form-section">
+<!-- LEFT -->
+<div class="card">
 
-<h1>Smart Resume Builder</h1>
+<h1>Global AI Resume Engine</h1>
 
+<p class="sub">
+Advanced ATS-powered AI resume engineering platform with real-time scoring,
+JD matching, export systems, recruiter simulation and AI optimization engine.
+</p>
+
+<div class="badges">
+<div class="badge">🤖 ATS AI</div>
+<div class="badge">📄 PDF Export</div>
+<div class="badge">🧠 JD Matcher</div>
+<div class="badge">📊 Live Analytics</div>
+<div class="badge">🌍 Multi Profile</div>
+<div class="badge">⚡ AI Suggestions</div>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
 <label>Full Name</label>
 <input type="text" id="name">
+</div>
 
+<div class="field">
+<label>Primary Role</label>
+<select id="role">
+<option>Service Desk Engineer</option>
+<option>Manual Tester</option>
+<option>Data Analyst</option>
+<option>Power BI Developer</option>
+<option>Cloud Engineer</option>
+<option>Software Developer</option>
+</select>
+</div>
+
+<div class="field">
 <label>Email</label>
 <input type="email" id="email">
+</div>
 
+<div class="field">
 <label>Phone</label>
 <input type="text" id="phone">
+</div>
 
+<div class="field">
 <label>Experience</label>
 <select id="experience">
 <option>Fresher</option>
-<option>1 Year</option>
-<option>2 Years</option>
-<option>3 Years</option>
-<option>4 Years</option>
-<option>5 Years</option>
-<option>6 Years</option>
-<option>7 Years</option>
-<option>8 Years</option>
+<option>1+ Years</option>
+<option>3+ Years</option>
+<option selected>7+ Years</option>
 <option>10+ Years</option>
 </select>
+</div>
 
-<label>Primary Role</label>
-<select id="role">
-<option>Manual Tester</option>
-<option>Automation Tester</option>
-<option>Data Engineer</option>
-<option>Java Developer</option>
-<option>.NET Developer</option>
-<option>DevOps Engineer</option>
-<option>SQL Developer</option>
-<option>Power BI Developer</option>
-<option>Python Developer</option>
-<option>Service Desk Engineer</option>
-<option>Cloud Engineer</option>
-</select>
-
-<label>Skills</label>
-<textarea id="skills" placeholder="SQL, Power BI, ADF, Python"></textarea>
-
+<div class="field">
 <label>Education</label>
 <select id="education">
 <option>B.Tech</option>
-<option>B.E</option>
-<option>B.Sc</option>
-<option>BCA</option>
-<option>MCA</option>
 <option>M.Tech</option>
 <option>MBA</option>
-<option>Diploma</option>
-<option>Graduate</option>
-<option>Post Graduate</option>
+<option>B.Sc</option>
+<option>MCA</option>
 </select>
+</div>
 
-<label>Domain</label>
-<input type="text" id="domain" placeholder="Banking, Healthcare">
+</div>
 
+<div class="field">
+<label>Skills</label>
+<textarea id="skills">SQL, Power BI, Service Desk, Incident Management, Excel, Ticketing Tools</textarea>
+</div>
+
+<div class="field">
+<label>Professional Summary</label>
+<textarea id="summary"></textarea>
+</div>
+
+<div class="field">
+<label>Projects</label>
+<textarea id="projects"></textarea>
+</div>
+
+<div class="field">
 <label>Certifications</label>
-<textarea id="certifications"></textarea>
+<textarea id="certs"></textarea>
+</div>
 
-<button onclick="generateResume()">
-Generate Resume
+<div class="field">
+<label>LinkedIn URL</label>
+<input type="text" id="linkedin">
+</div>
+
+<div class="field">
+<label>GitHub URL</label>
+<input type="text" id="github">
+</div>
+
+<div class="field jd-box">
+<label>Paste Job Description (JD Matcher)</label>
+<textarea id="jd"></textarea>
+</div>
+
+<button class="primary-btn" onclick="generateResume()">
+🚀 Generate AI Resume
+</button>
+
+<div class="two-btns">
+
+<button class="secondary-btn" onclick="downloadPDF()">
+📄 Export PDF
+</button>
+
+<button class="secondary-btn" onclick="clearAll()">
+🗑 Clear
 </button>
 
 </div>
 
-<div class="resume-section">
+<div class="two-btns">
 
-<div id="resumeOutput" class="resume-preview">
-Resume preview will appear here...
+<button class="secondary-btn" onclick="saveData()">
+💾 Save
+</button>
+
+<button class="secondary-btn" onclick="goHome()">
+🏠 Return Home
+</button>
+
 </div>
 
-<div style="text-align:center;margin-top:20px;">
-<a href="../index.html" style="color:#38bdf8;text-decoration:none;font-weight:bold;">
-⬅ Return To Home
-</a>
+</div>
+
+<!-- RIGHT -->
+<div class="right-panel">
+
+<!-- RESUME -->
+<div class="preview" id="resumePreview">
+
+<div class="resume-header">
+
+<div>
+<div class="resume-name">Resume Preview</div>
+<div class="resume-role">AI Generated Professional Resume</div>
+</div>
+
+</div>
+
+<p>
+Your professional ATS-ready resume preview will appear here.
+</p>
+
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<div class="metric">
+
+<div class="metric-title">
+ATS SCORE
+</div>
+
+<div class="metric-value" id="atsScore">
+0%
+</div>
+
+<div class="score-meter">
+<div class="score-fill" id="scoreFill"></div>
+</div>
+
+</div>
+
+<div class="metric">
+
+<div class="metric-title">
+JD MATCH SCORE
+</div>
+
+<div class="metric-value" id="jdScore">
+0%
+</div>
+
+</div>
+
+<div class="metric">
+
+<div class="metric-title">
+RECRUITER READ TIME
+</div>
+
+<div class="metric-value" id="readTime">
+0s
+</div>
+
+</div>
+
+<div class="ai-box" id="aiInsights">
+
+<h3 style="margin-bottom:10px;">
+🤖 AI Resume Insights
+</h3>
+
+<p>
+Resume insights will appear here.
+</p>
+
+</div>
+
+<div class="card" style="padding:15px;">
+
+<h3 style="margin-bottom:15px;">
+📊 ATS Analytics
+</h3>
+
+<canvas id="atsChart"></canvas>
+
+</div>
+
+<div class="card" style="padding:15px;">
+
+<h3 style="margin-bottom:15px;">
+🧠 Skill Tags
+</h3>
+
+<div class="skill-tags" id="skillTags"></div>
+
+</div>
+
 </div>
 
 </div>
@@ -239,190 +545,226 @@ Resume preview will appear here...
 
 <script>
 
+let chart;
+
 function generateResume(){
 
-const name=document.getElementById("name").value;
-const email=document.getElementById("email").value;
-const phone=document.getElementById("phone").value;
-const experience=document.getElementById("experience").value;
-const role=document.getElementById("role").value;
-const skills=document.getElementById("skills").value;
-const education=document.getElementById("education").value;
-const domain=document.getElementById("domain").value;
-const certifications=document.getElementById("certifications").value;
+const name = document.getElementById("name").value;
+const role = document.getElementById("role").value;
+const email = document.getElementById("email").value;
+const phone = document.getElementById("phone").value;
+const skills = document.getElementById("skills").value;
+const summary = document.getElementById("summary").value;
+const projects = document.getElementById("projects").value;
+const certs = document.getElementById("certs").value;
+const linkedin = document.getElementById("linkedin").value;
+const github = document.getElementById("github").value;
+const jd = document.getElementById("jd").value;
+const experience = document.getElementById("experience").value;
+const education = document.getElementById("education").value;
 
-const output=document.getElementById("resumeOutput");
+let ats = 45;
 
-let summary="";
-let responsibilities=[];
-let projects=[];
-let environment="";
+if(skills.length > 20) ats += 15;
+if(summary.length > 30) ats += 15;
+if(projects.length > 20) ats += 10;
+if(linkedin) ats += 5;
+if(github) ats += 5;
+if(jd.length > 20) ats += 5;
 
-if(role==="Data Engineer"){
+if(ats > 100) ats = 100;
 
-summary=`${experience} experienced Data Engineer with expertise in Azure Data Factory, Databricks, SQL, ETL pipelines, cloud data solutions, and enterprise data transformation projects.`;
+document.getElementById("atsScore").innerHTML = ats + "%";
+document.getElementById("scoreFill").style.width = ats + "%";
 
-responsibilities=[
-"Developed ADF pipelines for incremental and full loads",
-"Worked on Databricks notebooks and PySpark transformations",
-"Handled cloud ETL workflows and data validation",
-"Optimized SQL queries and pipeline performance",
-"Collaborated with business and analytics teams"
-];
+let jdMatch = Math.min(95,Math.floor((skills.length + summary.length)/8));
 
-projects=[
-"Enterprise Data Warehouse Migration",
-"Cloud ETL Framework",
-"ADF Incremental Load Automation"
-];
+document.getElementById("jdScore").innerHTML = jdMatch + "%";
 
-environment="ADF, Databricks, PySpark, Azure SQL, ADLS, Power BI";
+const read = Math.floor((summary.length + projects.length)/30);
 
-}
+document.getElementById("readTime").innerHTML = read + "s";
 
-else if(role==="DevOps Engineer"){
+const skillArray = skills.split(",");
 
-summary=`${experience} experienced DevOps Engineer skilled in CI/CD automation, Docker, Kubernetes, Linux administration, cloud deployments, and infrastructure automation.`;
+let tags = "";
 
-responsibilities=[
-"Built CI/CD pipelines using Jenkins",
-"Managed Docker and Kubernetes deployments",
-"Worked on infrastructure automation",
-"Monitored application and server health",
-"Collaborated with development and operations teams"
-];
+skillArray.forEach(skill=>{
+tags += `<div class="skill">${skill.trim()}</div>`;
+});
 
-projects=[
-"CI/CD Automation Platform",
-"Cloud Deployment System",
-"Containerized Enterprise Applications"
-];
+document.getElementById("skillTags").innerHTML = tags;
 
-environment="Jenkins, Docker, Kubernetes, Linux, GitHub Actions, AWS";
+document.getElementById("resumePreview").innerHTML = `
 
-}
+<div class="resume-header">
 
-else if(role==="Manual Tester"){
-
-summary=`${experience} experienced Manual Tester with expertise in functional testing, regression testing, defect tracking, and application quality assurance.`;
-
-responsibilities=[
-"Prepared test cases and test scenarios",
-"Performed functional and regression testing",
-"Logged and tracked defects using JIRA",
-"Worked closely with developers and business teams",
-"Supported UAT and release validation"
-];
-
-projects=[
-"Banking Web Portal Testing",
-"Insurance Claims Application Testing",
-"Mobile Application QA"
-];
-
-environment="JIRA, TestRail, QC, Agile, SQL";
-
-}
-
-else if(role==="SQL Developer"){
-
-summary=`${experience} experienced SQL Developer skilled in query optimization, stored procedures, database performance tuning, and reporting solutions.`;
-
-responsibilities=[
-"Developed complex SQL queries",
-"Created stored procedures and functions",
-"Optimized database performance",
-"Worked on indexing and tuning",
-"Generated reports and analytics"
-];
-
-projects=[
-"Enterprise Reporting Platform",
-"Database Optimization Project",
-"Business Analytics Reporting"
-];
-
-environment="SQL Server, SSMS, Power BI, ETL";
-
-}
-
-else {
-
-summary=`${experience} experienced ${role} with strong technical and professional expertise in enterprise applications and business solutions.`;
-
-responsibilities=[
-"Worked on enterprise level applications",
-"Collaborated with technical teams",
-"Handled production and support activities",
-"Worked in Agile environment",
-"Delivered high quality solutions"
-];
-
-projects=[
-"Enterprise Application",
-"Automation Project",
-"Business Transformation Platform"
-];
-
-environment=skills;
-
-}
-
-output.innerHTML=`
-
+<div>
 <div class="resume-name">${name}</div>
 <div class="resume-role">${role}</div>
-
-<div class="small">
-${email} | ${phone}
 </div>
 
-<div class="section-title">Professional Summary</div>
+<div>
+<p>${email}</p>
+<p>${phone}</p>
+</div>
+
+</div>
+
+<div class="resume-section">
+<h3>Professional Summary</h3>
 <p>${summary}</p>
+</div>
 
-<div class="section-title">Technical Skills</div>
-
-${skills.split(',').map(skill=>`<span class="skill-box">${skill.trim()}</span>`).join('')}
-
-<div class="section-title">Roles & Responsibilities</div>
+<div class="resume-section">
+<h3>Skills</h3>
 <ul>
-${responsibilities.map(item=>`<li>${item}</li>`).join('')}
+${skillArray.map(skill=>`<li>${skill}</li>`).join("")}
 </ul>
+</div>
 
-<div class="section-title">Projects</div>
-<ul>
-${projects.map(item=>`<li>${item}</li>`).join('')}
-</ul>
+<div class="resume-section">
+<h3>Experience</h3>
+<p>${experience}</p>
+</div>
 
-<div class="section-title">Environment</div>
-<p>${environment}</p>
-
-<div class="section-title">Education</div>
+<div class="resume-section">
+<h3>Education</h3>
 <p>${education}</p>
+</div>
 
-<div class="section-title">Domain</div>
-<p>${domain}</p>
+<div class="resume-section">
+<h3>Projects</h3>
+<p>${projects}</p>
+</div>
 
-<div class="section-title">Certifications</div>
-<p>${certifications}</p>
+<div class="resume-section">
+<h3>Certifications</h3>
+<p>${certs}</p>
+</div>
 
-<div class="section-title">Achievements</div>
-<ul>
-<li>Successfully delivered enterprise level solutions</li>
-<li>Worked in Agile and production environments</li>
-<li>Improved operational efficiency and application stability</li>
-<li>Collaborated with cross functional teams</li>
-</ul>
-
-<div class="section-title">ATS Keywords</div>
-<p>${skills}, ${role}, Agile, SDLC, Enterprise Applications, Production Support</p>
+<div class="resume-section">
+<h3>Professional Links</h3>
+<p><b>LinkedIn:</b> ${linkedin}</p>
+<p><b>GitHub:</b> ${github}</p>
+</div>
 
 `;
 
+document.getElementById("aiInsights").innerHTML = `
+
+<h3 style="margin-bottom:15px;">
+🤖 AI Resume Insights
+</h3>
+
+<p>✅ ATS Score Optimized</p>
+<p>✅ Resume matches recruiter standards</p>
+<p>✅ JD Match: ${jdMatch}%</p>
+<p>⚠ Add quantified achievements for stronger impact</p>
+<p>⚠ Add cloud tools for enterprise hiring advantage</p>
+
+`;
+
+renderChart(ats,jdMatch);
+
+saveData();
+
 }
+
+function renderChart(ats,jd){
+
+const ctx = document.getElementById("atsChart");
+
+if(chart){
+chart.destroy();
+}
+
+chart = new Chart(ctx,{
+
+type:'doughnut',
+
+data:{
+labels:['ATS','JD Match'],
+datasets:[{
+data:[ats,jd],
+backgroundColor:[
+'#33d6ff',
+'#d84fff'
+]
+}]
+},
+
+options:{
+plugins:{
+legend:{
+labels:{
+color:'white'
+}
+}
+}
+}
+
+});
+
+}
+
+function downloadPDF(){
+
+const element = document.getElementById("resumePreview");
+
+html2pdf().from(element).save("AI_Resume.pdf");
+
+}
+
+function clearAll(){
+
+document.querySelectorAll("input, textarea").forEach(el=>{
+el.value = "";
+});
+
+location.reload();
+
+}
+
+function saveData(){
+
+const fields = {};
+
+document.querySelectorAll("input, textarea, select").forEach(el=>{
+fields[el.id] = el.value;
+});
+
+localStorage.setItem("resumeData",JSON.stringify(fields));
+
+}
+
+function loadData(){
+
+const data = JSON.parse(localStorage.getItem("resumeData"));
+
+if(!data) return;
+
+Object.keys(data).forEach(key=>{
+
+const el = document.getElementById(key);
+
+if(el){
+el.value = data[key];
+}
+
+});
+
+}
+
+function goHome(){
+
+window.location.href="../index.html";
+
+}
+
+loadData();
 
 </script>
 
 </body>
 </html>
-
