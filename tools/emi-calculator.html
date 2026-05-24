@@ -1,530 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global EMI AI Engine</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Global AI Financial Engine</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
 }
 
 body{
-
-    background:
-    linear-gradient(
-    135deg,
-    #020617,
-    #08153b,
-    #0b1f57
-    );
-
-    color:white;
-    min-height:100vh;
-    padding:30px;
-
+background:#020b33;
+color:white;
+padding:20px;
 }
 
 .container{
-
-    max-width:1600px;
-    margin:auto;
-
-}
-
-.main-grid{
-
-    display:grid;
-    grid-template-columns:
-    1.1fr 1fr;
-
-    gap:25px;
-
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
 }
 
 .card{
-
-    background:
-    rgba(11,31,87,0.92);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    border-radius:28px;
-
-    padding:25px;
-
-    box-shadow:
-    0 10px 40px rgba(0,0,0,0.35);
-
+background:#091b66;
+padding:20px;
+border-radius:20px;
 }
 
-.hero-title{
-
-    font-size:42px;
-    font-weight:700;
-
-    margin-bottom:10px;
-
-    background:
-    linear-gradient(
-    90deg,
-    #4cc9f0,
-    #7b61ff,
-    #f72585
-    );
-
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-
+.title{
+font-size:40px;
+font-weight:bold;
+margin-bottom:10px;
+background:linear-gradient(to right,#38bdf8,#9333ea);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-.hero-sub{
-
-    color:#cbd5e1;
-    line-height:1.8;
-    margin-bottom:25px;
-
+.subtitle{
+color:#d1d5db;
+line-height:1.6;
+margin-bottom:20px;
 }
 
-.hero-image{
-
-    width:100%;
-    height:260px;
-    object-fit:cover;
-    border-radius:22px;
-    margin-bottom:25px;
-
+select,
+input{
+width:100%;
+padding:14px;
+margin-top:8px;
+margin-bottom:20px;
+border-radius:12px;
+border:none;
+background:#04124d;
+color:white;
+font-size:16px;
 }
 
-.badges{
-
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    margin-bottom:25px;
-
+label{
+font-weight:bold;
+display:block;
+margin-bottom:8px;
 }
 
-.badge{
+.result-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-top:20px;
+}
 
-    background:#132f7d;
-    padding:10px 14px;
-    border-radius:50px;
-    font-size:13px;
+.result-box{
+background:#10257a;
+padding:20px;
+border-radius:15px;
+text-align:center;
+}
 
+.result-box h3{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.result-box p{
+font-size:28px;
+font-weight:bold;
+color:#22c55e;
+}
+
+button{
+width:100%;
+padding:16px;
+border:none;
+border-radius:15px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(to right,#0ea5e9,#9333ea);
+color:white;
+margin-top:10px;
 }
 
 .section-title{
-
-    margin-bottom:18px;
-    font-size:20px;
-
+font-size:24px;
+margin-bottom:20px;
+font-weight:bold;
 }
 
-.field{
-
-    margin-bottom:20px;
-
-}
-
-.field label{
-
-    display:block;
-    margin-bottom:10px;
-    font-weight:600;
-
-}
-
-.field input,
-.field select{
-
-    width:100%;
-    padding:16px;
-    border:none;
-    border-radius:16px;
-    background:#08153b;
-    color:white;
-    font-size:16px;
-
-}
-
-.range{
-
-    width:100%;
-    margin-top:12px;
-
-}
-
-.btn{
-
-    width:100%;
-    border:none;
-    padding:18px;
-    border-radius:18px;
-    font-size:17px;
-    font-weight:700;
-    cursor:pointer;
-
-    background:
-    linear-gradient(
-    90deg,
-    #0ea5e9,
-    #7b61ff,
-    #c026d3
-    );
-
-    color:white;
-
-    margin-top:10px;
-
-}
-
-.stats-grid{
-
-    display:grid;
-    grid-template-columns:
-    repeat(3,1fr);
-
-    gap:15px;
-
-    margin-top:25px;
-
-}
-
-.stat-card{
-
-    background:#102766;
-    padding:22px;
-    border-radius:20px;
-    text-align:center;
-
-}
-
-.stat-card h3{
-
-    font-size:14px;
-    color:#dbeafe;
-    margin-bottom:10px;
-
-}
-
-.stat-card h1{
-
-    color:#22c55e;
-    font-size:34px;
-
-}
-
-.ai-box{
-
-    margin-top:25px;
-    background:#102766;
-    padding:25px;
-    border-radius:22px;
-
-}
-
-.ai-box h2{
-
-    margin-bottom:20px;
-
-}
-
-.ai-list{
-
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-
-}
-
-.ai-item{
-
-    background:#08153b;
-    padding:14px;
-    border-radius:14px;
-    color:#dbeafe;
-
-}
-
-.right-grid{
-
-    display:grid;
-    gap:20px;
-
-}
-
-.top-mini-grid{
-
-    display:grid;
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:15px;
-
-}
-
-.mini{
-
-    background:#102766;
-    padding:18px;
-    border-radius:18px;
-    text-align:center;
-
-}
-
-.mini h4{
-
-    margin-bottom:10px;
-    color:#cbd5e1;
-
-}
-
-.mini h2{
-
-    color:#22c55e;
-
-}
-
-.chart-box{
-
-    background:#102766;
-    padding:20px;
-    border-radius:22px;
-
-}
-
-.chart-box canvas{
-
-    width:100%!important;
-    height:420px!important;
-
-}
-
-.property-box{
-
-    background:#102766;
-    padding:25px;
-    border-radius:22px;
-
-}
-
-.property-box h2{
-
-    margin-bottom:20px;
-
-}
-
-.property-box ul{
-
-    list-style:none;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-
-}
-
-.property-box li{
-
-    background:#08153b;
-    padding:14px;
-    border-radius:14px;
-
-}
-
-.table-wrapper{
-
-    max-height:520px;
-    overflow:auto;
-    border-radius:20px;
-
+.table-container{
+overflow:auto;
+max-height:500px;
+margin-top:20px;
 }
 
 table{
+width:100%;
+border-collapse:collapse;
+}
 
-    width:100%;
-    border-collapse:collapse;
-    background:#08153b;
-
+th,
+td{
+padding:12px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+text-align:center;
 }
 
 th{
-
-    background:#132f7d;
-    padding:16px;
-    position:sticky;
-    top:0;
-
+background:#1d4ed8;
 }
 
-td{
-
-    padding:16px;
-    border-bottom:
-    1px solid rgba(255,255,255,0.08);
-
-    text-align:center;
-
+.ai-insights{
+margin-top:20px;
+display:grid;
+gap:12px;
 }
 
-.country-card{
-
-    margin-top:25px;
-    background:#102766;
-    border-radius:22px;
-    padding:25px;
-
+.ai-box{
+background:#10257a;
+padding:15px;
+border-radius:12px;
 }
 
-.country-grid{
-
-    display:grid;
-    grid-template-columns:
-    repeat(2,1fr);
-
-    gap:15px;
-
-    margin-top:20px;
-
+.chart-box{
+height:450px;
 }
 
-.country-item{
-
-    background:#08153b;
-    padding:15px;
-    border-radius:15px;
-
+.disclaimer{
+margin-top:20px;
+background:#10257a;
+padding:15px;
+border-radius:12px;
+font-size:14px;
+color:#cbd5e1;
 }
 
-.bank-box{
-
-    margin-top:25px;
-
+.dynamic-box{
+background:#10257a;
+padding:15px;
+border-radius:15px;
+margin-bottom:20px;
 }
 
-.bank-box h2{
+@media(max-width:1100px){
 
-    margin-bottom:18px;
-
-}
-
-.bank-table{
-
-    overflow:auto;
-    border-radius:18px;
-
-}
-
-footer{
-
-    margin-top:40px;
-    text-align:center;
-    color:#94a3b8;
-
-}
-
-@media(max-width:1200px){
-
-.main-grid{
-
+.container{
 grid-template-columns:1fr;
-
 }
 
-.top-mini-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-.stats-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.country-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.hero-title{
-
-font-size:30px;
-
-}
-
-.top-mini-grid{
-
-grid-template-columns:1fr;
-
+.result-grid{
+grid-template-columns:1fr 1fr;
 }
 
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="main-grid">
+<!-- LEFT PANEL -->
 
-
-<!-- LEFT -->
 <div class="card">
 
-<h1 class="hero-title">
-🌍 Global EMI AI Engine
-</h1>
-
-<p class="hero-sub">
-Advanced worldwide mortgage intelligence,
-AI affordability analytics,
-global banking simulator,
-and property forecasting platform.
-</p>
-
-<img
-class="hero-image"
-src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&auto=format&fit=crop"
-/>
-
-<div class="badges">
-
-<div class="badge">🏦 Global Banks</div>
-<div class="badge">📈 AI Forecast</div>
-<div class="badge">🌎 Multi-Country</div>
-<div class="badge">💱 Live Currency</div>
-
+<div class="title">
+🌍 Global AI Financial Engine
 </div>
 
+<div class="subtitle">
+Advanced worldwide mortgage intelligence, AI affordability analytics, multi-country banking simulator and dynamic EMI forecasting platform.
+</div>
 
-
-<div class="field">
+<!-- COUNTRY -->
 
 <label>🌍 Country</label>
 
@@ -532,237 +206,277 @@ src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&auto=
 
 <option>India</option>
 <option>USA</option>
-<option>UK</option>
-<option>Canada</option>
-<option>Australia</option>
 <option>UAE</option>
-<option>Singapore</option>
-<option>Germany</option>
-<option>France</option>
-<option>Japan</option>
+<option>UK</option>
 
 </select>
 
-</div>
-
-
-
-<div class="field">
+<!-- BANK -->
 
 <label>🏦 Bank</label>
 
-<select id="bank">
+<select id="bank"></select>
 
-</select>
+<!-- LOAN TYPE -->
 
-</div>
-
-
-
-<div class="field">
-
-<label>🏠 Loan Type</label>
+<label>📦 Loan Type</label>
 
 <select id="loanType">
 
-<option>Home Loan</option>
-<option>Car Loan</option>
-<option>Personal Loan</option>
-<option>Education Loan</option>
+<option value="home">Home Loan</option>
+<option value="car">Car Loan</option>
+<option value="personal">Personal Loan</option>
+<option value="education">Education Loan</option>
+<option value="business">Business Loan</option>
 
 </select>
 
-</div>
+<!-- CREDIT TIER -->
 
+<label>⭐ Credit Tier</label>
 
+<select id="creditTier">
 
-<div class="field">
-
-<label>💱 Currency</label>
-
-<select id="currency">
-
-<option>INR ₹</option>
-<option>USD $</option>
-<option>GBP £</option>
-<option>AED</option>
-<option>EUR €</option>
+<option>Excellent</option>
+<option>Good</option>
+<option>Fair</option>
+<option>Poor</option>
 
 </select>
 
-</div>
+<!-- EMPLOYMENT -->
 
+<label>💼 Employment Type</label>
 
+<select id="employmentType">
 
-<div class="field">
+<option>Salaried</option>
+<option>Self Employed</option>
+
+</select>
+
+<!-- LOAN AMOUNT -->
 
 <label>💰 Loan Amount</label>
 
-<input type="number" id="loanAmount" value="5000000">
-
 <input
-type="range"
-min="100000"
-max="50000000"
-step="100000"
+type="number"
+id="loanAmount"
 value="5000000"
-class="range"
-id="loanRange"
->
+/>
 
-</div>
-
-
-
-<div class="field">
+<!-- INTEREST -->
 
 <label>📉 Interest Rate (%)</label>
 
-<input type="number" id="interestRate" value="8.4">
+<input
+type="number"
+id="interestRate"
+value="8.5"
+/>
+
+<!-- TENURE -->
+
+<label>📆 Loan Tenure (Years)</label>
 
 <input
-type="range"
-min="1"
-max="25"
-step="0.1"
-value="8.4"
-class="range"
-id="interestRange"
->
-
-</div>
-
-
-
-<div class="field">
-
-<label>📅 Loan Tenure (Years)</label>
-
-<input type="number" id="tenure" value="20">
-
-<input
-type="range"
-min="1"
-max="35"
-step="1"
+type="number"
+id="tenure"
 value="20"
-class="range"
-id="tenureRange"
->
+/>
 
-</div>
-
-
-
-<div class="field">
+<!-- PROPERTY VALUE -->
 
 <label>🏠 Property Value</label>
 
-<input type="number" id="propertyValue" value="8000000">
+<input
+type="number"
+id="propertyValue"
+value="8000000"
+/>
+
+<!-- SALARY -->
+
+<label>💵 Monthly Salary</label>
+
+<input
+type="number"
+id="salary"
+value="120000"
+/>
+
+<!-- PREPAYMENT -->
+
+<div id="homeFeatures" class="dynamic-box">
+
+<label>⚡ Prepayment Amount</label>
+
+<input
+type="number"
+id="prepayment"
+value="100000"
+/>
 
 </div>
 
+<!-- CAR -->
 
+<div id="carFeatures" class="dynamic-box" style="display:none;">
 
-<div class="field">
-
-<label>💼 Monthly Salary</label>
-
-<input type="number" id="salary" value="120000">
-
-</div>
-
-
-
-<div class="field">
-
-<label>💸 Extra Prepayment</label>
-
-<input type="number" id="prepayment" value="0">
+<label>
+<input type="checkbox" id="advanceEMI">
+ Use Advance EMI
+</label>
 
 </div>
 
+<!-- PERSONAL -->
 
+<div id="personalFeatures" class="dynamic-box" style="display:none;">
 
-<button class="btn" onclick="calculateEMI()">
-🚀 Generate Global AI Forecast
+<label>⚠️ Foreclosure Penalty (%)</label>
+
+<input
+type="number"
+id="foreclosurePenalty"
+value="4"
+/>
+
+</div>
+
+<!-- EDUCATION -->
+
+<div id="educationFeatures" class="dynamic-box" style="display:none;">
+
+<label>🎓 Moratorium Period (Years)</label>
+
+<input
+type="number"
+id="moratoriumYears"
+value="2"
+/>
+
+</div>
+
+<!-- BUSINESS -->
+
+<div id="businessFeatures" class="dynamic-box" style="display:none;">
+
+<label>📈 EMI Growth (%) Per Year</label>
+
+<input
+type="number"
+id="businessGrowth"
+value="10"
+/>
+
+</div>
+
+<button onclick="calculateLoan()">
+🚀 Generate Smart Forecast
 </button>
 
+<!-- RESULTS -->
 
+<div class="result-grid">
 
-<div class="stats-grid">
-
-<div class="stat-card">
+<div class="result-box">
 
 <h3>Monthly EMI</h3>
 
-<h1 id="emiResult">
-₹0
-</h1>
+<p id="emiResult">₹0</p>
 
 </div>
 
-
-<div class="stat-card">
+<div class="result-box">
 
 <h3>Total Interest</h3>
 
-<h1 id="interestResult">
-₹0
-</h1>
+<p id="interestResult">₹0</p>
 
 </div>
 
-
-<div class="stat-card">
+<div class="result-box">
 
 <h3>Total Payment</h3>
 
-<h1 id="paymentResult">
-₹0
-</h1>
+<p id="paymentResult">₹0</p>
+
+</div>
+
+<div class="result-box">
+
+<h3>Hidden Fees</h3>
+
+<p id="hiddenFees">₹0</p>
+
+</div>
+
+<div class="result-box">
+
+<h3>Savings</h3>
+
+<p id="savings">₹0</p>
+
+</div>
+
+<div class="result-box">
+
+<h3>Inflation</h3>
+
+<p id="inflation">0%</p>
+
+</div>
+
+<div class="result-box">
+
+<h3>Risk</h3>
+
+<p id="riskLevel">LOW</p>
+
+</div>
+
+<div class="result-box">
+
+<h3>Credit Score</h3>
+
+<p>785</p>
 
 </div>
 
 </div>
 
+<!-- AI -->
 
+<div class="ai-insights" id="aiInsights"></div>
 
-<div class="ai-box">
+<div class="disclaimer">
 
-<h2>
-🧠 AI Smart Financial Insights
-</h2>
-
-<div class="ai-list" id="aiInsights">
+⚠️ Amortisation estimates are for illustrative purposes. Actual interest rates are determined by individual bank underwriting policies.
 
 </div>
 
 </div>
 
+<!-- RIGHT -->
 
+<div class="card">
 
-<div class="country-card">
+<div class="section-title">
+📊 EMI Forecast Analytics
+</div>
 
-<h2>
-🌎 Country Financial Intelligence
-</h2>
+<div class="chart-box">
 
-<div class="country-grid" id="countryDataBox">
+<canvas id="emiChart"></canvas>
 
 </div>
 
+<div class="section-title" style="margin-top:30px;">
+🏦 Global Bank Comparison
 </div>
 
-
-
-<div class="bank-box">
-
-<h2>
-🏦 Live Bank Comparison
-</h2>
-
-<div class="bank-table">
+<div class="table-container">
 
 <table>
 
@@ -773,95 +487,24 @@ id="tenureRange"
 <th>Bank</th>
 <th>Rate</th>
 <th>EMI</th>
-<th>Total Interest</th>
-<th>Total Payment</th>
+<th>Interest</th>
+<th>Total</th>
 
 </tr>
 
 </thead>
 
-<tbody id="comparisonBody">
-
-</tbody>
+<tbody id="comparisonBody"></tbody>
 
 </table>
 
 </div>
 
+<div class="section-title" style="margin-top:30px;">
+📅 Amortization Schedule
 </div>
 
-</div>
-
-
-
-
-<!-- RIGHT -->
-<div class="right-grid">
-
-<div class="chart-box">
-
-<h2>
-📊 EMI Forecast Analytics
-</h2>
-
-<canvas id="emiChart"></canvas>
-
-</div>
-
-
-
-<div class="top-mini-grid">
-
-<div class="mini">
-
-<h4>🏦 Credit Score</h4>
-<h2 id="creditScore">785</h2>
-
-</div>
-
-
-<div class="mini">
-
-<h4>📈 Inflation</h4>
-<h2 id="inflation">5%</h2>
-
-</div>
-
-
-<div class="mini">
-
-<h4>⚠️ Risk</h4>
-<h2 id="riskLevel">LOW</h2>
-
-</div>
-
-
-<div class="mini">
-
-<h4>💵 Savings</h4>
-<h2 id="savings">₹0</h2>
-
-</div>
-
-</div>
-
-
-
-<div class="property-box">
-
-<h2>
-🏠 Property Intelligence
-</h2>
-
-<ul id="propertyInsights">
-
-</ul>
-
-</div>
-
-
-
-<div class="table-wrapper">
+<div class="table-container">
 
 <table>
 
@@ -879,9 +522,7 @@ id="tenureRange"
 
 </thead>
 
-<tbody id="scheduleBody">
-
-</tbody>
+<tbody id="scheduleBody"></tbody>
 
 </table>
 
@@ -891,525 +532,500 @@ id="tenureRange"
 
 </div>
 
-<footer>
-
-🌍 Global EMI AI Engine — Advanced Multi-National Banking Intelligence Platform
-
-</footer>
-
-</div>
-
-
-
 <script>
 
-/* =========================
-COUNTRY ENGINE
-========================= */
+/* =========================================================
+GLOBAL DATABASE
+========================================================= */
 
-const countries={
+const countries = {
 
-India:{
+India: {
+
 currency:"₹",
+repoRate:6.5,
 inflation:5,
-growth:8,
-risk:"Medium",
-salaryMultiplier:4,
-insight:"High growth real estate market.",
+propertyGrowth:8,
+tax:18,
+
 banks:[
-{name:"SBI",rate:8.4},
-{name:"HDFC",rate:8.7},
-{name:"ICICI",rate:9.1},
-{name:"Axis",rate:8.9},
-{name:"Kotak",rate:8.8}
+
+{name:"SBI",spread:2.15},
+{name:"HDFC",spread:2.30},
+{name:"ICICI",spread:2.45},
+{name:"Axis Bank",spread:2.55},
+{name:"Kotak",spread:2.40},
+{name:"Canara",spread:2.20},
+{name:"Union Bank",spread:2.35},
+{name:"PNB",spread:2.50},
+{name:"Bank of Baroda",spread:2.40},
+{name:"IDFC First",spread:2.90},
+{name:"Yes Bank",spread:3.10}
+
 ]
+
 },
 
-USA:{
+USA: {
+
 currency:"$",
+repoRate:5.25,
 inflation:3,
-growth:5,
-risk:"Low",
-salaryMultiplier:5,
-insight:"Stable mortgage ecosystem.",
+propertyGrowth:5,
+tax:20,
+
 banks:[
-{name:"Chase",rate:6.5},
-{name:"Bank of America",rate:6.3},
-{name:"Wells Fargo",rate:6.6},
-{name:"Citi",rate:6.4}
+
+{name:"Chase",spread:1.2},
+{name:"Bank of America",spread:1.1},
+{name:"Wells Fargo",spread:1.3},
+{name:"Citi",spread:1.25},
+{name:"Capital One",spread:1.4},
+{name:"Goldman Sachs",spread:1.0}
+
 ]
+
 },
 
-UK:{
-currency:"£",
-inflation:4,
-growth:4,
-risk:"Low",
-salaryMultiplier:5,
-insight:"Balanced housing market.",
-banks:[
-{name:"HSBC",rate:6.1},
-{name:"Barclays",rate:6.2},
-{name:"Lloyds",rate:6.3}
-]
-},
+UAE: {
 
-Canada:{
-currency:"CAD $",
-inflation:4,
-growth:6,
-risk:"Low",
-salaryMultiplier:5,
-insight:"Strong affordability and stable market.",
-banks:[
-{name:"RBC",rate:5.8},
-{name:"TD Bank",rate:5.9},
-{name:"Scotiabank",rate:6}
-]
-},
-
-Australia:{
-currency:"AUD $",
-inflation:4,
-growth:7,
-risk:"Low",
-salaryMultiplier:5,
-insight:"Premium real estate market.",
-banks:[
-{name:"CBA",rate:6},
-{name:"Westpac",rate:6.1},
-{name:"NAB",rate:6.2}
-]
-},
-
-UAE:{
 currency:"AED",
+repoRate:4.40,
 inflation:2,
-growth:10,
-risk:"Low",
-salaryMultiplier:6,
-insight:"Tax-free salary and strong rental yield.",
+propertyGrowth:10,
+tax:0,
+
 banks:[
-{name:"Emirates NBD",rate:4.9},
-{name:"ADCB",rate:5.1},
-{name:"FAB",rate:4.8}
+
+{name:"Emirates NBD",spread:0.6},
+{name:"ADCB",spread:0.7},
+{name:"FAB",spread:0.55},
+{name:"Mashreq",spread:0.8}
+
 ]
+
 },
 
-Singapore:{
-currency:"SGD $",
-inflation:2,
-growth:6,
-risk:"Very Low",
-salaryMultiplier:6,
-insight:"Highly regulated premium banking system.",
-banks:[
-{name:"DBS",rate:3.8},
-{name:"OCBC",rate:3.9},
-{name:"UOB",rate:4}
-]
-},
+UK: {
 
-Germany:{
-currency:"€",
-inflation:3,
-growth:4,
-risk:"Very Low",
-salaryMultiplier:5,
-insight:"Stable European economy.",
-banks:[
-{name:"Deutsche Bank",rate:3.7},
-{name:"ING",rate:3.8}
-]
-},
+currency:"£",
+repoRate:4.25,
+inflation:4,
+propertyGrowth:4,
+tax:20,
 
-France:{
-currency:"€",
-inflation:3,
-growth:4,
-risk:"Low",
-salaryMultiplier:5,
-insight:"Strong social economy.",
 banks:[
-{name:"BNP Paribas",rate:4},
-{name:"HSBC France",rate:4.1}
-]
-},
 
-Japan:{
-currency:"¥",
-inflation:1,
-growth:2,
-risk:"Very Low",
-salaryMultiplier:6,
-insight:"Ultra-low interest market.",
-banks:[
-{name:"MUFG",rate:1.8},
-{name:"SMBC",rate:2}
+{name:"Barclays",spread:1.5},
+{name:"HSBC",spread:1.4},
+{name:"Lloyds",spread:1.6},
+{name:"NatWest",spread:1.55}
+
 ]
+
 }
 
 };
 
 
 
-/* =========================
-ELEMENTS
-========================= */
+/* =========================================================
+LOAN TYPES
+========================================================= */
 
-const country=document.getElementById("country");
-const bank=document.getElementById("bank");
+const loanTypes = {
 
-const loanAmount=document.getElementById("loanAmount");
-const interestRate=document.getElementById("interestRate");
-const tenure=document.getElementById("tenure");
+home:{
+processingFee:1,
+insurance:5000
+},
 
-const loanRange=document.getElementById("loanRange");
-const interestRange=document.getElementById("interestRange");
-const tenureRange=document.getElementById("tenureRange");
+car:{
+processingFee:2,
+insurance:2000
+},
 
+personal:{
+processingFee:4,
+insurance:0
+},
 
+education:{
+processingFee:1.5,
+insurance:3000
+},
 
-/* =========================
-SYNC RANGE
-========================= */
+business:{
+processingFee:3,
+insurance:0
+}
 
-loanRange.oninput=()=>{
-loanAmount.value=loanRange.value;
-calculateEMI();
-};
-
-interestRange.oninput=()=>{
-interestRate.value=interestRange.value;
-calculateEMI();
-};
-
-tenureRange.oninput=()=>{
-tenure.value=tenureRange.value;
-calculateEMI();
 };
 
 
 
-/* =========================
+/* =========================================================
 LOAD BANKS
-========================= */
+========================================================= */
 
 function loadBanks(){
 
-const selected=country.value;
+const country =
+document.getElementById("country").value;
 
-bank.innerHTML="";
+const bankSelect =
+document.getElementById("bank");
 
-countries[selected].banks.forEach(item=>{
+bankSelect.innerHTML = "";
 
-const option=document.createElement("option");
+countries[country].banks.forEach(bank=>{
 
-option.value=item.rate;
+const rate =
+countries[country].repoRate + bank.spread;
 
-option.innerHTML=
-`${item.name} (${item.rate}%)`;
+const option =
+document.createElement("option");
 
-bank.appendChild(option);
+option.value = rate;
+
+option.innerHTML =
+`${bank.name} (${rate.toFixed(2)}%)`;
+
+bankSelect.appendChild(option);
 
 });
 
-interestRate.value=
-countries[selected].banks[0].rate;
-
-interestRange.value=
-countries[selected].banks[0].rate;
-
-updateCountryData();
-
-generateComparison();
-
-calculateEMI();
+updateInterestRate();
 
 }
 
 
 
-/* =========================
-UPDATE COUNTRY DATA
-========================= */
+/* =========================================================
+RATE ENGINE
+========================================================= */
 
-function updateCountryData(){
+function updateInterestRate(){
 
-const selected=country.value;
+const bankRate =
+parseFloat(document.getElementById("bank").value);
 
-const data=countries[selected];
+const tier =
+document.getElementById("creditTier").value;
 
-document.getElementById("inflation")
-.innerHTML=
-data.inflation+"%";
+let adjustment = 0;
 
-document.getElementById("riskLevel")
-.innerHTML=
-data.risk;
+if(tier==="Excellent") adjustment -= 0.75;
+if(tier==="Good") adjustment -= 0.25;
+if(tier==="Fair") adjustment += 0.50;
+if(tier==="Poor") adjustment += 1.25;
 
-document.getElementById("countryDataBox")
-.innerHTML=
-`
+document.getElementById("interestRate").value =
+(bankRate + adjustment).toFixed(2);
 
-<div class="country-item">
-💱 Currency:
-<strong>${data.currency}</strong>
-</div>
-
-<div class="country-item">
-📈 Inflation:
-<strong>${data.inflation}%</strong>
-</div>
-
-<div class="country-item">
-🏠 Property Growth:
-<strong>${data.growth}%</strong>
-</div>
-
-<div class="country-item">
-⚠️ Risk:
-<strong>${data.risk}</strong>
-</div>
-
-<div class="country-item">
-💼 Salary Multiplier:
-<strong>${data.salaryMultiplier}x</strong>
-</div>
-
-<div class="country-item">
-🧠 Insight:
-<strong>${data.insight}</strong>
-</div>
-
-`;
+calculateLoan();
 
 }
 
 
 
-/* =========================
-EMI CALCULATOR
-========================= */
+/* =========================================================
+UI ENGINE
+========================================================= */
 
-let chart;
+function updateLoanUI(){
 
-function calculateEMI(){
+const type =
+document.getElementById("loanType").value;
 
-const selected=country.value;
+document.getElementById("homeFeatures").style.display =
+type==="home" ? "block":"none";
 
-const currency=
-countries[selected].currency;
+document.getElementById("carFeatures").style.display =
+type==="car" ? "block":"none";
 
-const P=
-parseFloat(loanAmount.value);
+document.getElementById("personalFeatures").style.display =
+type==="personal" ? "block":"none";
 
-const annual=
-parseFloat(interestRate.value);
+document.getElementById("educationFeatures").style.display =
+type==="education" ? "block":"none";
 
-const years=
-parseFloat(tenure.value);
+document.getElementById("businessFeatures").style.display =
+type==="business" ? "block":"none";
 
-const property=
-parseFloat(
-document.getElementById("propertyValue").value
-);
+calculateLoan();
 
-const salary=
-parseFloat(
-document.getElementById("salary").value
-);
+}
 
-const prepayment=
-parseFloat(
-document.getElementById("prepayment").value
-);
 
-const r=annual/12/100;
 
-const n=years*12;
+/* =========================================================
+MAIN ENGINE
+========================================================= */
 
-let emi=
-P*r*Math.pow(1+r,n)
+function calculateLoan(){
+
+const country =
+document.getElementById("country").value;
+
+const countryData =
+countries[country];
+
+const currency =
+countryData.currency;
+
+const loanType =
+document.getElementById("loanType").value;
+
+const amount =
+parseFloat(document.getElementById("loanAmount").value) || 0;
+
+const rate =
+parseFloat(document.getElementById("interestRate").value) || 0;
+
+const years =
+parseFloat(document.getElementById("tenure").value) || 1;
+
+const salary =
+parseFloat(document.getElementById("salary").value) || 0;
+
+const propertyValue =
+parseFloat(document.getElementById("propertyValue").value) || 0;
+
+const prepayment =
+parseFloat(document.getElementById("prepayment").value) || 0;
+
+const moratorium =
+parseFloat(document.getElementById("moratoriumYears").value) || 0;
+
+
+
+let principal = amount;
+
+const annualRate = rate / 100;
+
+if(loanType==="education"){
+
+principal +=
+principal * annualRate * moratorium;
+
+}
+
+
+
+const monthlyRate =
+annualRate / 12;
+
+const months =
+years * 12;
+
+
+
+const emi =
+(
+principal *
+monthlyRate *
+Math.pow(1 + monthlyRate, months)
+)
 /
-(Math.pow(1+r,n)-1);
-
-
-let total=
-emi*n;
-
-let totalInterest=
-total-P;
-
-if(prepayment>0){
-
-totalInterest=
-Math.max(
-0,
-totalInterest-(prepayment*0.2)
+(
+Math.pow(1 + monthlyRate, months)-1
 );
 
-total=
-P+totalInterest;
+
+
+let totalPayment =
+emi * months;
+
+let totalInterest =
+totalPayment - principal;
+
+
+
+if(prepayment > 0){
+
+totalInterest -= prepayment * 0.35;
 
 }
 
 
-document.getElementById("emiResult")
-.innerHTML=
-currency+
-Math.round(emi).toLocaleString();
 
-document.getElementById("interestResult")
-.innerHTML=
-currency+
-Math.round(totalInterest).toLocaleString();
+const fees =
+principal *
+(loanTypes[loanType].processingFee / 100);
 
-document.getElementById("paymentResult")
-.innerHTML=
-currency+
-Math.round(total).toLocaleString();
+const hiddenFees =
+fees + loanTypes[loanType].insurance;
 
 
 
-/* SAVINGS */
-
-const savings=
-salary-emi;
-
-document.getElementById("savings")
-.innerHTML=
-currency+
-Math.round(savings).toLocaleString();
+const savings =
+salary - emi;
 
 
 
-/* PROPERTY */
+let risk = "LOW";
 
-const futureValue=
-property*
-Math.pow(
-1+(countries[selected].growth/100),
-10
-);
+const ratio =
+(emi / salary) * 100;
+
+if(ratio > 50){
+risk = "HIGH";
+}
+else if(ratio > 35){
+risk = "MEDIUM";
+}
 
 
-document.getElementById("propertyInsights")
-.innerHTML=
-`
 
-<li>
-🏠 Current Property Value:
-<strong>
-${currency}
-${Math.round(property).toLocaleString()}
-</strong>
-</li>
+/* RESULTS */
 
-<li>
-📈 Expected Appreciation:
-<strong>
-+${countries[selected].growth}% in 10 years
-</strong>
-</li>
+document.getElementById("emiResult").innerHTML =
+currency + Math.round(emi).toLocaleString();
 
-<li>
-💵 Estimated Future Value:
-<strong>
-${currency}
-${Math.round(futureValue).toLocaleString()}
-</strong>
-</li>
+document.getElementById("interestResult").innerHTML =
+currency + Math.round(totalInterest).toLocaleString();
 
-<li>
-🏦 Loan-to-Property Ratio:
-<strong>
-${Math.round((P/property)*100)}%
-</strong>
-</li>
+document.getElementById("paymentResult").innerHTML =
+currency + Math.round(totalPayment).toLocaleString();
 
-`;
+document.getElementById("hiddenFees").innerHTML =
+currency + Math.round(hiddenFees).toLocaleString();
+
+document.getElementById("savings").innerHTML =
+currency + Math.round(savings).toLocaleString();
+
+document.getElementById("riskLevel").innerHTML =
+risk;
+
+document.getElementById("inflation").innerHTML =
+countryData.inflation + "%";
 
 
 
 /* AI INSIGHTS */
 
-let risk="LOW";
+document.getElementById("aiInsights").innerHTML =
 
-if((emi/salary)*100>50){
-
-risk="HIGH";
-
-}
-else if((emi/salary)*100>30){
-
-risk="MEDIUM";
-
-}
-
-document.getElementById("aiInsights")
-.innerHTML=
 `
 
-<div class="ai-item">
-✅ Recommended tenure:
-${years} years
+<div class="ai-box">
+🏠 Property Forecast:
+<b>
+${currency}${Math.round(
+propertyValue *
+Math.pow(
+1 + countryData.propertyGrowth / 100,
+10
+)
+).toLocaleString()}
+</b>
 </div>
 
-<div class="ai-item">
-💰 Monthly EMI affordability:
-${Math.round((emi/salary)*100)}% of salary
+<div class="ai-box">
+💰 EMI Burden:
+<b>${Math.round(ratio)}%</b>
+of monthly salary
 </div>
 
-<div class="ai-item">
-📉 Estimated interest burden:
-${currency}${Math.round(totalInterest).toLocaleString()}
+<div class="ai-box">
+⚡ Repo Linked Rate:
+<b>${countryData.repoRate}%</b>
 </div>
 
-<div class="ai-item">
-🏠 Estimated property growth after 10 years:
-${currency}${Math.round(futureValue).toLocaleString()}
-</div>
-
-<div class="ai-item">
-💵 Monthly savings after EMI:
-${currency}${Math.round(savings).toLocaleString()}
-</div>
-
-<div class="ai-item">
-⚠️ Financial Risk:
-${risk}
+<div class="ai-box">
+🌍 Last Updated:
+<b>${new Date().toLocaleString()}</b>
 </div>
 
 `;
 
 
 
+/* BANK COMPARISON */
+
+let comparisonHTML = "";
+
+countries[country].banks.forEach(bank=>{
+
+const bankRate =
+countryData.repoRate + bank.spread;
+
+const r =
+(bankRate/100)/12;
+
+const bankEMI =
+(
+amount *
+r *
+Math.pow(1+r,months)
+)
+/
+(
+Math.pow(1+r,months)-1
+);
+
+const total =
+bankEMI * months;
+
+const interest =
+total - amount;
+
+comparisonHTML +=
+
+`
+
+<tr>
+
+<td>${bank.name}</td>
+
+<td>${bankRate.toFixed(2)}%</td>
+
+<td>
+${currency}${Math.round(bankEMI).toLocaleString()}
+</td>
+
+<td>
+${currency}${Math.round(interest).toLocaleString()}
+</td>
+
+<td>
+${currency}${Math.round(total).toLocaleString()}
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("comparisonBody").innerHTML =
+comparisonHTML;
+
+
+
 /* AMORTIZATION */
 
-let balance=P;
+let balance = principal;
 
-let scheduleHTML="";
+let scheduleHTML = "";
 
-let labels=[];
-let principalData=[];
-let interestData=[];
+for(let month=1; month<=months; month++){
 
-for(let month=1;month<=n;month++){
+const interest =
+balance * monthlyRate;
 
-const interest=
-balance*r;
+const principalPaid =
+emi - interest;
 
-const principal=
-emi-interest;
+balance -= principalPaid;
 
-balance-=principal;
-
-if(balance<0){
-balance=0;
+if(balance < 0){
+balance = 0;
 }
 
-scheduleHTML+=
+scheduleHTML +=
+
 `
 
 <tr>
@@ -1417,55 +1033,45 @@ scheduleHTML+=
 <td>${month}</td>
 
 <td>
-${currency}
-${Math.round(emi).toLocaleString()}
+${currency}${Math.round(emi).toLocaleString()}
 </td>
 
 <td>
-${currency}
-${Math.round(principal).toLocaleString()}
+${currency}${Math.round(principalPaid).toLocaleString()}
 </td>
 
 <td>
-${currency}
-${Math.round(interest).toLocaleString()}
+${currency}${Math.round(interest).toLocaleString()}
 </td>
 
 <td>
-${currency}
-${Math.round(balance).toLocaleString()}
+${currency}${Math.round(balance).toLocaleString()}
 </td>
 
 </tr>
 
 `;
 
-labels.push(month);
-
-principalData.push(principal);
-
-interestData.push(interest);
-
 }
 
-
-document.getElementById("scheduleBody")
-.innerHTML=
+document.getElementById("scheduleBody").innerHTML =
 scheduleHTML;
 
 
 
 /* CHART */
 
-if(chart){
-chart.destroy();
+if(window.loanChart){
+
+window.loanChart.destroy();
+
 }
 
-const ctx=
+const ctx =
 document.getElementById("emiChart");
 
-chart=
-new Chart(ctx,{
+window.loanChart =
+new Chart(ctx, {
 
 type:"doughnut",
 
@@ -1473,19 +1079,22 @@ data:{
 
 labels:[
 "Principal",
-"Interest"
+"Interest",
+"Fees"
 ],
 
 datasets:[{
 
 data:[
-P,
-totalInterest
+principal,
+totalInterest,
+hiddenFees
 ],
 
 backgroundColor:[
 "#38bdf8",
-"#f43f5e"
+"#f43f5e",
+"#22c55e"
 ]
 
 }]
@@ -1516,132 +1125,35 @@ color:"white"
 
 
 
-/* =========================
-BANK COMPARISON
-========================= */
+/* EVENTS */
 
-function generateComparison(){
+document.getElementById("country")
+.addEventListener("change",loadBanks);
 
-const selected=
-country.value;
+document.getElementById("bank")
+.addEventListener("change",updateInterestRate);
 
-const currency=
-countries[selected].currency;
+document.getElementById("loanType")
+.addEventListener("change",updateLoanUI);
 
-const P=
-parseFloat(loanAmount.value);
-
-const years=
-parseFloat(tenure.value);
-
-let html="";
-
-countries[selected].banks.forEach(item=>{
-
-const r=item.rate/12/100;
-
-const n=years*12;
-
-const emi=
-P*r*Math.pow(1+r,n)
-/
-(Math.pow(1+r,n)-1);
-
-const total=
-emi*n;
-
-const interest=
-total-P;
-
-html+=
-`
-
-<tr>
-
-<td>${item.name}</td>
-
-<td>${item.rate}%</td>
-
-<td>
-${currency}
-${Math.round(emi).toLocaleString()}
-</td>
-
-<td>
-${currency}
-${Math.round(interest).toLocaleString()}
-</td>
-
-<td>
-${currency}
-${Math.round(total).toLocaleString()}
-</td>
-
-</tr>
-
-`;
-
-});
-
-document.getElementById("comparisonBody")
-.innerHTML=
-html;
-
-}
+document.getElementById("creditTier")
+.addEventListener("change",updateInterestRate);
 
 
 
-/* =========================
-EVENTS
-========================= */
+/* START */
 
-country.addEventListener(
-"change",
-loadBanks
-);
-
-bank.addEventListener(
-"change",
-()=>{
-
-interestRate.value=
-bank.value;
-
-interestRange.value=
-bank.value;
-
-calculateEMI();
-
-}
-);
-
-
-
-loanAmount.addEventListener(
-"input",
-calculateEMI
-);
-
-interestRate.addEventListener(
-"input",
-calculateEMI
-);
-
-tenure.addEventListener(
-"input",
-calculateEMI
-);
-
-
-
-/* =========================
-INITIAL LOAD
-========================= */
+window.onload = ()=>{
 
 loadBanks();
+
+updateLoanUI();
+
+calculateLoan();
+
+};
 
 </script>
 
 </body>
-
 </html>
