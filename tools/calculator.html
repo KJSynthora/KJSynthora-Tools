@@ -9,7 +9,7 @@
 
 <meta
 name="description"
-content="Advanced global calculator operating system with scientific mode, programmer tools, finance suite, graphing, unit conversion and realtime calculations."
+content="Advanced worldwide calculator platform with scientific mode, finance suite, graphing, programmer tools, localization, realtime currency conversion and AI-style calculations."
 >
 
 <link
@@ -24,6 +24,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 
 *{
@@ -34,6 +36,7 @@ font-family:'Poppins',sans-serif;
 }
 
 body{
+
 background:
 linear-gradient(
 135deg,
@@ -44,11 +47,15 @@ linear-gradient(
 
 color:white;
 overflow-x:hidden;
+
 }
 
 body::before{
+
 content:'';
+
 position:fixed;
+
 width:700px;
 height:700px;
 
@@ -56,43 +63,54 @@ background:
 radial-gradient(
 circle,
 #2563eb44,
-#8b5cf622,
+#8b5cf633,
 transparent
 );
 
 top:-250px;
 left:-250px;
+
 filter:blur(90px);
+
 z-index:-1;
-animation:floatGlow 8s infinite alternate;
+
+animation:glow 10s infinite alternate;
+
 }
 
-@keyframes floatGlow{
+@keyframes glow{
 
 from{
 transform:translateY(0px);
 }
 
 to{
-transform:translateY(70px);
+transform:translateY(80px);
 }
 
 }
 
 .container{
+
 width:95%;
-max-width:1700px;
+max-width:1800px;
+
 margin:auto;
+
 padding:40px 0 100px;
+
 }
 
 .header{
+
 text-align:center;
 margin-bottom:40px;
+
 }
 
 .header h1{
-font-size:64px;
+
+font-size:60px;
 font-weight:800;
 
 background:
@@ -104,176 +122,306 @@ linear-gradient(
 
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+
 }
 
 .header p{
+
 margin-top:15px;
 color:#cbd5e1;
 font-size:18px;
+
 }
 
-.top-grid{
+.live-status{
+
+display:inline-block;
+
+margin-top:18px;
+
+padding:12px 22px;
+
+border-radius:999px;
+
+background:#16a34a;
+
+font-size:13px;
+font-weight:700;
+
+}
+
+.main-grid{
+
 display:grid;
 grid-template-columns:2fr 1fr;
 gap:25px;
+
 }
 
-.calculator{
+.calculator-panel{
+
 background:#0f172a;
-padding:28px;
-border-radius:28px;
+
+padding:30px;
+
+border-radius:30px;
+
 border:1px solid rgba(255,255,255,.05);
+
 }
 
 .history-panel{
+
 background:#0f172a;
-padding:28px;
-border-radius:28px;
+
+padding:30px;
+
+border-radius:30px;
+
 border:1px solid rgba(255,255,255,.05);
-max-height:1000px;
+
+max-height:1200px;
+
 overflow-y:auto;
+
 }
 
 .mode-bar{
+
 display:flex;
 gap:12px;
 flex-wrap:wrap;
+
 margin-bottom:25px;
+
 }
 
 .mode-btn{
+
 padding:12px 18px;
+
 border:none;
+
 border-radius:14px;
+
 background:#111827;
+
 color:white;
+
+font-weight:700;
+
 cursor:pointer;
+
 transition:.3s;
-font-weight:600;
+
 }
 
 .mode-btn.active{
+
 background:
 linear-gradient(
 90deg,
 #0ea5e9,
 #9333ea
 );
+
 }
 
-.display{
-background:#111827;
-padding:30px;
-border-radius:22px;
-margin-bottom:25px;
-min-height:140px;
-word-wrap:break-word;
-}
+.controls-grid{
 
-.expression{
-font-size:26px;
-color:#94a3b8;
-min-height:40px;
-}
-
-.result{
-font-size:52px;
-font-weight:800;
-margin-top:15px;
-}
-
-.localization-bar{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:18px;
+
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+
+gap:16px;
+
 margin-bottom:25px;
+
 }
 
 .select-box{
-background:#111827;
+
 padding:16px;
+
 border:none;
+
 border-radius:14px;
+
+background:#111827;
+
 color:white;
+
+}
+
+.display{
+
+background:#111827;
+
+padding:30px;
+
+border-radius:24px;
+
+margin-bottom:25px;
+
+min-height:150px;
+
+}
+
+.expression{
+
+font-size:24px;
+color:#94a3b8;
+
+word-wrap:break-word;
+
+}
+
+.result{
+
+font-size:56px;
+font-weight:800;
+
+margin-top:20px;
+
+word-wrap:break-word;
+
 }
 
 .keypad{
+
 display:grid;
+
 grid-template-columns:repeat(5,1fr);
+
 gap:18px;
+
 }
 
 .btn{
-padding:24px;
+
+padding:22px;
+
 border:none;
+
 border-radius:18px;
+
 background:#111827;
+
 color:white;
-font-size:24px;
+
+font-size:22px;
 font-weight:700;
+
 cursor:pointer;
+
 transition:.3s;
+
 }
 
 .btn:hover{
+
 transform:translateY(-3px);
+
 background:#1e293b;
+
 }
 
 .operator{
+
 background:
 linear-gradient(
 90deg,
 #0ea5e9,
 #9333ea
 );
+
 }
 
 .equal{
+
 background:#16a34a;
+
 }
 
 .clear{
+
 background:#ef4444;
+
 }
 
-.finance-grid,
-.converter-grid,
-.programmer-grid{
-margin-top:35px;
+.section{
+
 display:none;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:20px;
+
+margin-top:35px;
+
+}
+
+.section.active{
+
+display:block;
+
+}
+
+.tool-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+
+gap:22px;
+
 }
 
 .tool-card{
+
 background:#111827;
+
 padding:24px;
-border-radius:20px;
+
+border-radius:22px;
+
 }
 
 .tool-card h3{
+
 margin-bottom:15px;
 color:#38bdf8;
+
 }
 
 .tool-card input,
 .tool-card select{
+
 width:100%;
-padding:14px;
+
+padding:15px;
+
 border:none;
-border-radius:12px;
+
+border-radius:14px;
+
 background:#1e293b;
+
 color:white;
+
 margin-top:12px;
+
 }
 
 .tool-card button{
+
 margin-top:15px;
+
 width:100%;
-padding:14px;
+
+padding:15px;
+
 border:none;
-border-radius:12px;
+
+border-radius:14px;
 
 background:
 linear-gradient(
@@ -283,40 +431,80 @@ linear-gradient(
 );
 
 color:white;
+
 font-weight:700;
+
 cursor:pointer;
+
+}
+
+.result-box{
+
+margin-top:15px;
+
+line-height:1.9;
+
 }
 
 .history-title{
+
 font-size:34px;
+
 margin-bottom:25px;
+
 }
 
 .history-item{
+
 background:#111827;
+
 padding:18px;
-border-radius:16px;
+
+border-radius:18px;
+
 margin-bottom:15px;
-line-height:1.8;
+
+line-height:1.9;
+
+}
+
+.graph-container{
+
+background:#111827;
+
+padding:25px;
+
+border-radius:24px;
+
 }
 
 .footer-buttons{
+
 display:flex;
 justify-content:center;
 gap:20px;
 flex-wrap:wrap;
+
 margin-top:45px;
+
 }
 
 .footer-buttons a{
+
 padding:16px 28px;
+
 border-radius:14px;
+
 text-decoration:none;
+
 font-weight:700;
+
 transition:.3s;
+
 }
 
 .primary-btn{
+
 background:
 linear-gradient(
 90deg,
@@ -325,40 +513,22 @@ linear-gradient(
 );
 
 color:white;
+
 }
 
 .secondary-btn{
+
 background:#111827;
 color:white;
-}
 
-.graph-area{
-margin-top:35px;
-background:#111827;
-border-radius:20px;
-padding:20px;
-height:320px;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#94a3b8;
-font-size:20px;
-}
-
-.live-status{
-margin-top:20px;
-padding:14px 18px;
-background:#0f8b4c;
-border-radius:999px;
-display:inline-block;
-font-size:13px;
-font-weight:700;
 }
 
 @media(max-width:1200px){
 
-.top-grid{
+.main-grid{
+
 grid-template-columns:1fr;
+
 }
 
 }
@@ -366,20 +536,28 @@ grid-template-columns:1fr;
 @media(max-width:768px){
 
 .header h1{
+
 font-size:42px;
+
 }
 
 .result{
-font-size:38px;
-}
 
-.btn{
-padding:18px;
-font-size:20px;
+font-size:38px;
+
 }
 
 .keypad{
+
 grid-template-columns:repeat(4,1fr);
+
+}
+
+.btn{
+
+padding:18px;
+font-size:18px;
+
 }
 
 }
@@ -397,7 +575,7 @@ grid-template-columns:repeat(4,1fr);
 <h1>KJSynthora Calculator OS</h1>
 
 <p>
-Enterprise-grade worldwide calculator platform
+Enterprise-grade worldwide calculation platform
 </p>
 
 <div class="live-status">
@@ -406,39 +584,35 @@ Enterprise-grade worldwide calculator platform
 
 </div>
 
-<div class="top-grid">
+<div class="main-grid">
 
-<div class="calculator">
+<div class="calculator-panel">
 
 <div class="mode-bar">
 
-<button class="mode-btn active">
+<button class="mode-btn active" data-tab="calculatorSection">
 Standard
 </button>
 
-<button class="mode-btn">
-Scientific
-</button>
-
-<button class="mode-btn">
+<button class="mode-btn" data-tab="financeSection">
 Finance
 </button>
 
-<button class="mode-btn">
-Programmer
-</button>
-
-<button class="mode-btn">
+<button class="mode-btn" data-tab="converterSection">
 Converter
 </button>
 
-<button class="mode-btn">
+<button class="mode-btn" data-tab="programmerSection">
+Programmer
+</button>
+
+<button class="mode-btn" data-tab="graphSection">
 Graphing
 </button>
 
 </div>
 
-<div class="localization-bar">
+<div class="controls-grid">
 
 <select
 class="select-box"
@@ -455,6 +629,10 @@ India Format
 
 <option value="de-DE">
 Europe Format
+</option>
+
+<option value="ar-EG">
+Arabic Format
 </option>
 
 </select>
@@ -480,6 +658,14 @@ EUR
 GBP
 </option>
 
+<option value="JPY">
+JPY
+</option>
+
+<option value="AED">
+AED
+</option>
+
 </select>
 
 </div>
@@ -499,6 +685,11 @@ id="result"
 </div>
 
 </div>
+
+<div
+id="calculatorSection"
+class="section active"
+>
 
 <div class="keypad">
 
@@ -540,7 +731,14 @@ id="result"
 
 </div>
 
-<div class="finance-grid" id="financeGrid">
+</div>
+
+<div
+id="financeSection"
+class="section"
+>
+
+<div class="tool-grid">
 
 <div class="tool-card">
 
@@ -548,27 +746,30 @@ id="result"
 
 <input
 type="number"
-placeholder="Loan Amount"
 id="loanAmount"
+placeholder="Loan Amount"
 >
 
 <input
 type="number"
-placeholder="Interest Rate"
 id="interestRate"
+placeholder="Interest Rate"
 >
 
 <input
 type="number"
-placeholder="Years"
 id="loanYears"
+placeholder="Years"
 >
 
 <button onclick="calculateEMI()">
 Calculate EMI
 </button>
 
-<div id="emiResult"></div>
+<div
+class="result-box"
+id="emiResult"
+></div>
 
 </div>
 
@@ -578,30 +779,37 @@ Calculate EMI
 
 <input
 type="number"
-placeholder="Amount"
 id="gstAmount"
+placeholder="Amount"
 >
 
 <input
 type="number"
-placeholder="Tax %"
 id="gstPercent"
+placeholder="Tax %"
 >
 
 <button onclick="calculateGST()">
 Calculate Tax
 </button>
 
-<div id="gstResult"></div>
+<div
+class="result-box"
+id="gstResult"
+></div>
+
+</div>
 
 </div>
 
 </div>
 
 <div
-class="converter-grid"
-id="converterGrid"
+id="converterSection"
+class="section"
 >
+
+<div class="tool-grid">
 
 <div class="tool-card">
 
@@ -617,13 +825,16 @@ placeholder="Meters"
 Convert to Feet
 </button>
 
-<div id="meterResult"></div>
+<div
+class="result-box"
+id="meterResult"
+></div>
 
 </div>
 
 <div class="tool-card">
 
-<h3>Currency Converter</h3>
+<h3>Realtime Currency Converter</h3>
 
 <input
 type="number"
@@ -632,19 +843,26 @@ placeholder="USD"
 >
 
 <button onclick="convertCurrency()">
-Convert to INR
+Convert Currency
 </button>
 
-<div id="currencyResult"></div>
+<div
+class="result-box"
+id="currencyResult"
+></div>
+
+</div>
 
 </div>
 
 </div>
 
 <div
-class="programmer-grid"
-id="programmerGrid"
+id="programmerSection"
+class="section"
 >
+
+<div class="tool-grid">
 
 <div class="tool-card">
 
@@ -660,15 +878,27 @@ placeholder="Decimal Number"
 Convert
 </button>
 
-<div id="binaryResult"></div>
+<div
+class="result-box"
+id="binaryResult"
+></div>
 
 </div>
 
 </div>
 
-<div class="graph-area">
+</div>
 
-Live Graphing Engine Ready
+<div
+id="graphSection"
+class="section"
+>
+
+<div class="graph-container">
+
+<canvas id="graphCanvas"></canvas>
+
+</div>
 
 </div>
 
@@ -720,6 +950,44 @@ document.getElementById('result');
 const historyList =
 document.getElementById('historyList');
 
+// ===========================
+// TAB SYSTEM
+// ===========================
+
+const modeButtons =
+document.querySelectorAll('.mode-btn');
+
+const sections =
+document.querySelectorAll('.section');
+
+modeButtons.forEach(btn => {
+
+btn.addEventListener('click', () => {
+
+modeButtons.forEach(b =>
+b.classList.remove('active')
+);
+
+btn.classList.add('active');
+
+sections.forEach(section =>
+section.classList.remove('active')
+);
+
+document
+.getElementById(
+btn.dataset.tab
+)
+.classList.add('active');
+
+});
+
+});
+
+// ===========================
+// CALCULATOR ENGINE
+// ===========================
+
 function appendValue(value){
 
 if(value === 'ans'){
@@ -764,7 +1032,7 @@ function liveEvaluate(){
 
 if(expression.trim() === ''){
 
-resultEl.innerText = '0';
+resultEl.innerText='0';
 return;
 
 }
@@ -780,7 +1048,7 @@ formatNumber(result);
 }
 catch(err){
 
-resultEl.innerText = '...';
+resultEl.innerText='...';
 
 }
 
@@ -806,14 +1074,14 @@ expression,
 formatted
 );
 
-expression = '';
+expression='';
 
-expressionEl.innerText = '';
+expressionEl.innerText='';
 
 }
 catch(err){
 
-resultEl.innerText = 'Error';
+resultEl.innerText='Error';
 
 }
 
@@ -840,21 +1108,29 @@ document.createElement('div');
 
 div.className='history-item';
 
-div.innerHTML = `
+div.innerHTML=`
 
-<div>
-${exp}
-</div>
+<div>${exp}</div>
 
-<strong>
-= ${res}
-</strong>
+<strong>= ${res}</strong>
 
 `;
 
 historyList.prepend(div);
 
+localStorage.setItem(
+'calcHistory',
+historyList.innerHTML
+);
+
 }
+
+historyList.innerHTML =
+localStorage.getItem('calcHistory') || '';
+
+// ===========================
+// EMI CALCULATOR
+// ===========================
 
 function calculateEMI(){
 
@@ -889,14 +1165,22 @@ Math.pow(1+r,n)
 Math.pow(1+r,n)-1
 );
 
-document.getElementById('emiResult')
-.innerHTML =
-`Monthly EMI:
+document
+.getElementById('emiResult')
+.innerHTML = `
+
+Monthly EMI:
 <strong>
 ${formatNumber(emi.toFixed(2))}
-</strong>`;
+</strong>
+
+`;
 
 }
+
+// ===========================
+// GST
+// ===========================
 
 function calculateGST(){
 
@@ -916,17 +1200,25 @@ const gst =
 const total =
 amount + gst;
 
-document.getElementById('gstResult')
-.innerHTML =
-`
+document
+.getElementById('gstResult')
+.innerHTML = `
+
 GST:
 <strong>${gst.toFixed(2)}</strong>
+
 <br>
+
 Total:
 <strong>${total.toFixed(2)}</strong>
+
 `;
 
 }
+
+// ===========================
+// UNIT CONVERTER
+// ===========================
 
 function convertMeters(){
 
@@ -938,16 +1230,22 @@ document.getElementById('meterInput').value
 const feet =
 meters * 3.28084;
 
-document.getElementById('meterResult')
-.innerHTML =
-`
+document
+.getElementById('meterResult')
+.innerHTML = `
+
 ${meters} meters =
 <strong>
 ${feet.toFixed(2)} feet
 </strong>
+
 `;
 
 }
+
+// ===========================
+// LIVE CURRENCY
+// ===========================
 
 async function convertCurrency(){
 
@@ -956,22 +1254,55 @@ parseFloat(
 document.getElementById('usdInput').value
 );
 
-const rate = 83.25;
+const currency =
+document.getElementById('currencySelect').value;
 
-const inr =
+try{
+
+const response =
+await fetch(
+'https://open.er-api.com/v6/latest/USD'
+);
+
+const data =
+await response.json();
+
+const rate =
+data.rates[currency];
+
+const converted =
 usd * rate;
 
-document.getElementById('currencyResult')
-.innerHTML =
-`
+document
+.getElementById('currencyResult')
+.innerHTML = `
+
 USD ${usd}
+
 =
+
 <strong>
-₹${inr.toFixed(2)}
+${converted.toFixed(2)}
+${currency}
 </strong>
+
 `;
 
 }
+catch(err){
+
+document
+.getElementById('currencyResult')
+.innerHTML =
+'Currency API Error';
+
+}
+
+}
+
+// ===========================
+// PROGRAMMER MODE
+// ===========================
 
 function convertBinary(){
 
@@ -980,22 +1311,93 @@ parseInt(
 document.getElementById('binaryInput').value
 );
 
-document.getElementById('binaryResult')
-.innerHTML =
-`
+document
+.getElementById('binaryResult')
+.innerHTML = `
+
 BIN:
 <strong>${num.toString(2)}</strong>
+
 <br>
 
 HEX:
 <strong>${num.toString(16)}</strong>
+
 <br>
 
 OCT:
 <strong>${num.toString(8)}</strong>
+
 `;
 
 }
+
+// ===========================
+// GRAPH ENGINE
+// ===========================
+
+const ctx =
+document.getElementById('graphCanvas');
+
+new Chart(ctx, {
+
+type:'line',
+
+data:{
+
+labels:[
+-5,-4,-3,-2,-1,0,1,2,3,4,5
+],
+
+datasets:[{
+
+label:'y = x²',
+
+data:[
+25,16,9,4,1,0,1,4,9,16,25
+],
+
+borderWidth:3
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+legend:{
+labels:{
+color:'white'
+}
+}
+},
+
+scales:{
+
+x:{
+ticks:{
+color:'white'
+}
+},
+
+y:{
+ticks:{
+color:'white'
+}
+}
+
+}
+
+}
+
+});
+
+// ===========================
+// KEYBOARD SUPPORT
+// ===========================
 
 document.addEventListener(
 'keydown',
