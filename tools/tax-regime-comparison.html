@@ -1,348 +1,962 @@
-<!-- =========================================================
-GLOBAL AI TAX ENGINE - ULTRA ENTERPRISE VERSION
-COMPLETE END-TO-END HTML STRUCTURE
-========================================================= -->
+<!-- =========================
+GLOBAL AI TAX ENGINE - FULLY UPDATED ENTERPRISE VERSION
+File: tools/tax-regime-comparison.html
+========================= -->
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Global AI Tax Engine</title>
 
-<link rel="stylesheet" href="tax-regime-comparison.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:
+linear-gradient(135deg,#020617,#08114f,#4c1d95);
+min-height:100vh;
+padding:25px;
+color:white;
+}
+
+.container{
+max-width:1600px;
+margin:auto;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:22px;
+}
+
+.card{
+background:#0f1f74;
+border-radius:24px;
+padding:24px;
+box-shadow:0 0 25px rgba(0,0,0,.4);
+}
+
+.title{
+font-size:42px;
+font-weight:700;
+background:linear-gradient(to right,#38bdf8,#c084fc);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+margin-bottom:10px;
+}
+
+.subtitle{
+opacity:.85;
+font-size:14px;
+line-height:1.7;
+margin-bottom:20px;
+}
+
+.badges{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.badge{
+padding:8px 14px;
+border-radius:999px;
+background:#1e2d91;
+font-size:12px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-bottom:15px;
+}
+
+.input-group{
+display:flex;
+flex-direction:column;
+gap:7px;
+}
+
+label{
+font-size:13px;
+font-weight:500;
+}
+
+input,select{
+height:52px;
+border:none;
+border-radius:14px;
+background:#08144f;
+padding:0 16px;
+color:white;
+font-size:15px;
+outline:none;
+}
+
+button{
+height:58px;
+border:none;
+border-radius:16px;
+background:linear-gradient(to right,#38bdf8,#d946ef);
+color:white;
+font-size:17px;
+font-weight:700;
+cursor:pointer;
+margin-top:10px;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+}
+
+.metrics{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-top:25px;
+}
+
+.metric{
+background:#182983;
+padding:20px;
+border-radius:18px;
+text-align:center;
+}
+
+.metric h4{
+font-size:13px;
+margin-bottom:10px;
+opacity:.8;
+}
+
+.metric p{
+font-size:28px;
+font-weight:700;
+color:#4ade80;
+}
+
+.section{
+margin-top:25px;
+}
+
+.section-title{
+font-size:28px;
+margin-bottom:15px;
+font-weight:700;
+}
+
+.advisor{
+background:#122b74;
+padding:20px;
+border-radius:18px;
+line-height:2;
+}
+
+.green{
+color:#4ade80;
+}
+
+.red{
+color:#f87171;
+}
+
+.orange{
+color:#fbbf24;
+}
+
+.table-wrapper{
+overflow:auto;
+max-height:420px;
+border-radius:18px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#3b4fff;
+padding:14px;
+font-size:14px;
+}
+
+td{
+padding:14px;
+text-align:center;
+background:#14246d;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.chart-box{
+background:#182983;
+padding:18px;
+border-radius:18px;
+margin-top:20px;
+}
+
+.alert{
+padding:18px;
+border-radius:14px;
+margin-top:15px;
+font-weight:600;
+}
+
+.alert.success{
+background:rgba(34,197,94,.18);
+border:1px solid rgba(34,197,94,.4);
+}
+
+.alert.warning{
+background:rgba(251,191,36,.18);
+border:1px solid rgba(251,191,36,.4);
+}
+
+.alert.danger{
+background:rgba(248,113,113,.18);
+border:1px solid rgba(248,113,113,.4);
+}
+
+.timeline{
+margin-top:20px;
+display:grid;
+gap:12px;
+}
+
+.timeline-item{
+background:#162775;
+padding:15px;
+border-radius:14px;
+}
+
+.actions{
+display:flex;
+gap:15px;
+margin-top:20px;
+}
+
+.secondary-btn{
+background:#1e2d91;
+}
+
+.footer-note{
+margin-top:20px;
+font-size:12px;
+opacity:.7;
+line-height:1.8;
+}
+
+.ai-box{
+margin-top:20px;
+padding:20px;
+border-radius:18px;
+background:linear-gradient(135deg,#0f766e,#155e75);
+}
+
+.slabs{
+margin-top:18px;
+display:grid;
+gap:12px;
+}
+
+.slab{
+background:#182983;
+padding:14px;
+border-radius:14px;
+}
+
+.progress{
+height:12px;
+background:#0f172a;
+border-radius:999px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress span{
+display:block;
+height:100%;
+background:linear-gradient(to right,#38bdf8,#d946ef);
+}
+
+@media(max-width:1100px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+.metrics{
+grid-template-columns:repeat(2,1fr);
+}
+
+.form-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="background-glow"></div>
-
-<div class="tax-engine-container" id="taxEngineContainer">
-
-    <!-- LEFT PANEL -->
-
-    <div class="left-panel">
-
-        <h1>
-            🌍 Global AI Tax Engine
-        </h1>
-
-        <p class="subtitle">
-            Advanced AI-powered real-time tax optimization platform with smart deduction intelligence, recursive tax forecasting and global compliance analytics.
-        </p>
-
-        <!-- TAGS -->
-
-        <div class="tags">
-
-            <span>🌎 Global Tax</span>
-            <span>⚡ Real-Time AI</span>
-            <span>📊 Visual Analytics</span>
-            <span>🧠 Smart Deductions</span>
-            <span>📷 OCR Ready</span>
-            <span>💰 Refund Predictor</span>
-
-        </div>
-
-
-        <!-- INPUT GRID -->
-
-        <div class="grid-2">
-
-            <div>
-                <label>Country</label>
-
-                <select id="country">
-
-                    <option>India</option>
-                    <option>USA</option>
-                    <option>UK</option>
-                    <option>UAE</option>
-
-                </select>
-            </div>
-
-
-            <div>
-                <label>Financial Year</label>
-
-                <select id="financialYear">
-
-                    <option>FY 2025-26</option>
-                    <option>FY 2024-25</option>
-
-                </select>
-            </div>
-
-
-            <div>
-                <label>Annual Salary</label>
-                <input type="number" id="annualSalary" placeholder="Annual salary">
-            </div>
-
-            <div>
-                <label>Other Income</label>
-                <input type="number" id="otherIncome" placeholder="Freelance, Interest">
-            </div>
-
-
-            <div>
-                <label>80C Investments</label>
-                <input type="number" id="investment80C" placeholder="PF, ELSS">
-            </div>
-
-            <div>
-                <label>80D Medical Insurance</label>
-                <input type="number" id="medical80D" placeholder="Medical insurance">
-            </div>
-
-
-            <div>
-                <label>NPS 80CCD(1B)</label>
-                <input type="number" id="nps80CCD" placeholder="NPS investment">
-            </div>
-
-            <div>
-                <label>HRA Exemption</label>
-                <input type="number" id="hraExemption" placeholder="HRA">
-            </div>
-
-
-            <div>
-                <label>Home Loan Interest</label>
-                <input type="number" id="homeLoanInterest" placeholder="Home loan interest">
-            </div>
-
-            <div>
-                <label>Donations 80G</label>
-                <input type="number" id="donations80G" placeholder="Donations">
-            </div>
-
-
-            <div>
-                <label>Capital Gains</label>
-                <input type="number" id="capitalGains" placeholder="Capital gains">
-            </div>
-
-            <div>
-                <label>Monthly Rent</label>
-                <input type="number" id="monthlyRent" placeholder="House rent">
-            </div>
-
-        </div>
-
-
-        <!-- BUTTONS -->
-
-        <button class="main-btn" onclick="generateAITaxAnalysis()">
-
-            🚀 Generate AI Tax Analysis
-
-        </button>
-
-
-        <!-- METRICS -->
-
-        <div class="metrics-grid">
-
-            <div class="metric-card">
-                <h3>Old Regime</h3>
-                <p id="oldRegimeTax">₹0</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>New Regime</h3>
-                <p id="newRegimeTax">₹0</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Total Savings</h3>
-                <p id="totalSavings">₹0</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Expected Refund</h3>
-                <p id="expectedRefund">₹0</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Effective Tax Rate</h3>
-                <p id="effectiveTaxRate">0%</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Audit Risk</h3>
-                <p id="auditRisk">LOW</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>AI Score</h3>
-                <p id="aiScore">0%</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Cess Applied</h3>
-                <p id="cessApplied">4%</p>
-            </div>
-
-        </div>
-
-
-        <!-- MONTHLY IN HAND -->
-
-        <div class="advisor-panel">
-
-            💵 Monthly In-Hand Salary:
-            <strong id="monthlyInHand">₹0</strong>
-
-        </div>
-
-
-        <!-- RECOMMENDATION -->
-
-        <div class="recommendation-box" id="recommendation">
-
-            Best recommendation will appear here.
-
-        </div>
-
-
-        <!-- AI ADVISOR -->
-
-        <div class="ai-advisor" id="aiAdvisor">
-
-            AI recommendations will appear here.
-
-        </div>
-
-
-        <!-- ACTION BUTTONS -->
-
-        <div class="button-grid">
-
-            <button onclick="returnHome()">
-                🏠 Return Home
-            </button>
-
-            <button onclick="printReport()">
-                🖨 Print Report
-            </button>
-
-            <button onclick="exportPDF()">
-                📄 Export PDF
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- RIGHT PANEL -->
-
-    <div class="right-panel">
-
-        <h2>
-            📊 Real-Time Tax Breakdown
-        </h2>
-
-
-        <!-- CHARTS -->
-
-        <div class="chart-grid">
-
-            <div class="chart-card">
-
-                <canvas id="taxDoughnutChart"></canvas>
-
-            </div>
-
-            <div class="chart-card">
-
-                <canvas id="taxBarChart"></canvas>
-
-            </div>
-
-        </div>
-
-
-        <!-- MONTHLY FORECAST -->
-
-        <div class="table-section">
-
-            <h2>
-                📅 Monthly TDS Forecast
-            </h2>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Month</th>
-                            <th>TDS</th>
-                            <th>Salary In-Hand</th>
-                            <th>Tax %</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="monthlyForecastBody">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        <!-- MATRIX -->
-
-        <div class="table-section">
-
-            <h2>
-                📑 Tax Computation Matrix
-            </h2>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>Component</th>
-                        <th>Amount</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="taxMatrix">
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
+<div class="container">
+
+<!-- LEFT -->
+
+<div class="card">
+
+<div class="title">🌍 Global AI Tax Engine</div>
+
+<div class="subtitle">
+Advanced real-time tax optimization platform with AI deduction advisor,
+salary restructuring intelligence, refund forecasting and global compliance analytics.
+</div>
+
+<div class="badges">
+<div class="badge">🌐 Multi Country</div>
+<div class="badge">🤖 AI Advisor</div>
+<div class="badge">📈 Live Analytics</div>
+<div class="badge">🧾 OCR Ready</div>
+<div class="badge">💸 Refund Predictor</div>
+<div class="badge">📊 Slab Breakdown</div>
+</div>
+
+<div class="form-grid">
+
+<div class="input-group">
+<label>Country</label>
+<select id="country">
+<option>India</option>
+<option>USA</option>
+<option>UK</option>
+<option>Canada</option>
+<option>Australia</option>
+<option>Singapore</option>
+<option>UAE</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Financial Year</label>
+<select id="fy">
+<option>FY 2025-26</option>
+<option>FY 2024-25</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Annual Salary</label>
+<input type="number" id="salary" value="2400000">
+</div>
+
+<div class="input-group">
+<label>Other Income</label>
+<input type="number" id="otherIncome" value="0">
+</div>
+
+<div class="input-group">
+<label>80C Investments</label>
+<input type="number" id="investment80c" value="80000">
+</div>
+
+<div class="input-group">
+<label>80D Medical Insurance</label>
+<input type="number" id="medical80d" value="50000">
+</div>
+
+<div class="input-group">
+<label>NPS 80CCD(1B)</label>
+<input type="number" id="nps" value="50000">
+</div>
+
+<div class="input-group">
+<label>HRA Exemption</label>
+<input type="number" id="hra" value="180000">
+</div>
+
+<div class="input-group">
+<label>Home Loan Interest</label>
+<input type="number" id="homeLoan" value="200000">
+</div>
+
+<div class="input-group">
+<label>Donations 80G</label>
+<input type="number" id="donations" value="25000">
+</div>
+
+<div class="input-group">
+<label>Capital Gains</label>
+<input type="number" id="capitalGains" value="0">
+</div>
+
+<div class="input-group">
+<label>Monthly Rent</label>
+<input type="number" id="rent" value="18000">
+</div>
 
 </div>
 
-<script src="tax-regime-comparison.js"></script>
+<button onclick="calculateTax()">
+🚀 Generate AI Tax Analysis
+</button>
+
+<div class="metrics">
+
+<div class="metric">
+<h4>Old Regime</h4>
+<p id="oldTax">₹0</p>
+</div>
+
+<div class="metric">
+<h4>New Regime</h4>
+<p id="newTax">₹0</p>
+</div>
+
+<div class="metric">
+<h4>Total Savings</h4>
+<p id="savings">₹0</p>
+</div>
+
+<div class="metric">
+<h4>Expected Refund</h4>
+<p id="refund">₹0</p>
+</div>
+
+<div class="metric">
+<h4>Effective Tax</h4>
+<p id="effective">0%</p>
+</div>
+
+<div class="metric">
+<h4>Audit Risk</h4>
+<p id="risk">LOW</p>
+</div>
+
+<div class="metric">
+<h4>AI Score</h4>
+<p id="aiScore">0%</p>
+</div>
+
+<div class="metric">
+<h4>Cess Applied</h4>
+<p>4%</p>
+</div>
+
+</div>
+
+<div class="ai-box" id="recommendationBox">
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+🧠 AI Tax Optimization Advisor
+</div>
+
+<div class="advisor" id="advisor">
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+📅 Smart Tax Timeline
+</div>
+
+<div class="timeline">
+
+<div class="timeline-item">
+July → Add ELSS investments for early tax planning.
+</div>
+
+<div class="timeline-item">
+October → Review HRA and insurance declarations.
+</div>
+
+<div class="timeline-item">
+January → Optimize NPS for additional deductions.
+</div>
+
+<div class="timeline-item">
+March → Final tax-saving investment window.
+</div>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+📊 Tax Slab Breakdown
+</div>
+
+<div class="slabs">
+
+<div class="slab">
+0 - 3L → 0%
+<div class="progress">
+<span style="width:20%"></span>
+</div>
+</div>
+
+<div class="slab">
+3L - 6L → 5%
+<div class="progress">
+<span style="width:40%"></span>
+</div>
+</div>
+
+<div class="slab">
+6L - 9L → 10%
+<div class="progress">
+<span style="width:60%"></span>
+</div>
+</div>
+
+<div class="slab">
+9L - 12L → 15%
+<div class="progress">
+<span style="width:75%"></span>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="secondary-btn"
+onclick="window.location.href='../index.html'">
+🏠 Return Home
+</button>
+
+<button onclick="window.print()">
+🖨 Print Report
+</button>
+
+</div>
+
+<div class="footer-note">
+⚠ Tax calculations are illustrative estimates.
+Actual taxation depends on latest government regulations,
+income classifications, cess, surcharge, deductions and audit policies.
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="card">
+
+<div class="section-title">
+📈 Real-Time Tax Breakdown
+</div>
+
+<div class="chart-box">
+<canvas id="taxChart"></canvas>
+</div>
+
+<div class="chart-box">
+<canvas id="barChart"></canvas>
+</div>
+
+<div class="section">
+
+<div class="section-title">
+📅 Monthly TDS Forecast
+</div>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+<tr>
+<th>Month</th>
+<th>TDS</th>
+<th>Salary In-Hand</th>
+<th>Tax %</th>
+</tr>
+</thead>
+
+<tbody id="tdsTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+📋 Tax Computation Matrix
+</div>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+<tr>
+<th>Component</th>
+<th>Amount</th>
+</tr>
+</thead>
+
+<tbody id="summaryTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+🤖 AI Tax Chat Insights
+</div>
+
+<div class="alert success">
+✅ New Regime currently optimized for your salary profile.
+</div>
+
+<div class="alert warning">
+⚠ Consider increasing NPS contribution for extra deductions.
+</div>
+
+<div class="alert danger">
+🚨 Low 80C utilization detected. Potential savings being missed.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let taxChart;
+let barChart;
+
+function formatCurrency(value){
+
+return "₹" + Number(value).toLocaleString('en-IN');
+
+}
+
+function calculateTax(){
+
+const salary =
+Number(document.getElementById("salary").value);
+
+const otherIncome =
+Number(document.getElementById("otherIncome").value);
+
+const investment80c =
+Number(document.getElementById("investment80c").value);
+
+const medical80d =
+Number(document.getElementById("medical80d").value);
+
+const nps =
+Number(document.getElementById("nps").value);
+
+const hra =
+Number(document.getElementById("hra").value);
+
+const homeLoan =
+Number(document.getElementById("homeLoan").value);
+
+const donations =
+Number(document.getElementById("donations").value);
+
+const capitalGains =
+Number(document.getElementById("capitalGains").value);
+
+const totalIncome =
+salary + otherIncome + capitalGains;
+
+const standardDeductionOld = 50000;
+const standardDeductionNew = 75000;
+
+const totalDeductions =
+investment80c +
+medical80d +
+nps +
+hra +
+homeLoan +
+donations;
+
+const taxableOld =
+Math.max(
+0,
+totalIncome -
+totalDeductions -
+standardDeductionOld
+);
+
+const taxableNew =
+Math.max(
+0,
+totalIncome -
+standardDeductionNew
+);
+
+const oldTax =
+taxableOld * 0.18 * 1.04;
+
+const newTax =
+taxableNew * 0.15 * 1.04;
+
+const savings =
+Math.abs(oldTax - newTax);
+
+const refund =
+investment80c > 100000 ? 11400 : 0;
+
+const effectiveTax =
+((Math.min(oldTax,newTax) / totalIncome) * 100).toFixed(1);
+
+const aiScore =
+Math.min(
+100,
+Math.round(
+(totalDeductions / 500000) * 100
+)
+);
+
+document.getElementById("oldTax").innerHTML =
+formatCurrency(oldTax);
+
+document.getElementById("newTax").innerHTML =
+formatCurrency(newTax);
+
+document.getElementById("savings").innerHTML =
+formatCurrency(savings);
+
+document.getElementById("refund").innerHTML =
+formatCurrency(refund);
+
+document.getElementById("effective").innerHTML =
+effectiveTax + "%";
+
+document.getElementById("aiScore").innerHTML =
+aiScore + "%";
+
+document.getElementById("risk").innerHTML =
+totalDeductions > 700000 ? "MEDIUM" : "LOW";
+
+const bestRegime =
+oldTax < newTax
+? "OLD REGIME"
+: "NEW REGIME";
+
+document.getElementById("recommendationBox").innerHTML =
+`
+<h2 class="green">
+🏆 Recommended: ${bestRegime}
+</h2>
+
+<p style="margin-top:10px;">
+Estimated Savings:
+<strong>${formatCurrency(savings)}</strong>
+</p>
+`;
+
+document.getElementById("advisor").innerHTML =
+`
+✅ Best Option:
+<strong>${bestRegime}</strong>
+<br>
+
+✅ Estimated Savings:
+<strong>${formatCurrency(savings)}</strong>
+<br>
+
+✅ Effective Tax:
+<strong>${effectiveTax}%</strong>
+<br>
+
+⚠ Add more investments under 80C to maximize savings.
+<br>
+
+⚠ Add NPS for extra deductions.
+<br>
+
+✅ HRA benefits active.
+`;
+
+generateTDS(Math.min(oldTax,newTax),salary);
+
+generateSummary(
+totalIncome,
+totalDeductions,
+oldTax,
+newTax,
+savings
+);
+
+generateCharts(oldTax,newTax,savings);
+
+}
+
+function generateTDS(tax,salary){
+
+const tbody =
+document.getElementById("tdsTable");
+
+tbody.innerHTML = "";
+
+const months = [
+"Apr","May","Jun","Jul",
+"Aug","Sep","Oct","Nov",
+"Dec","Jan","Feb","Mar"
+];
+
+months.forEach(month=>{
+
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
+<td>${month}</td>
+<td>${formatCurrency(tax/12)}</td>
+<td>${formatCurrency((salary/12)-(tax/12))}</td>
+<td>${((tax/salary)*100).toFixed(1)}%</td>
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+function generateSummary(
+income,
+deductions,
+oldTax,
+newTax,
+savings
+){
+
+const tbody =
+document.getElementById("summaryTable");
+
+tbody.innerHTML = `
+<tr>
+<td>Total Income</td>
+<td>${formatCurrency(income)}</td>
+</tr>
+
+<tr>
+<td>Total Deductions</td>
+<td>${formatCurrency(deductions)}</td>
+</tr>
+
+<tr>
+<td>Old Regime Tax</td>
+<td>${formatCurrency(oldTax)}</td>
+</tr>
+
+<tr>
+<td>New Regime Tax</td>
+<td>${formatCurrency(newTax)}</td>
+</tr>
+
+<tr>
+<td>Total Savings</td>
+<td>${formatCurrency(savings)}</td>
+</tr>
+`;
+
+}
+
+function generateCharts(oldTax,newTax,savings){
+
+const ctx1 =
+document.getElementById("taxChart");
+
+if(taxChart){
+taxChart.destroy();
+}
+
+taxChart = new Chart(ctx1,{
+
+type:'doughnut',
+
+data:{
+labels:['Old','New','Savings'],
+datasets:[{
+data:[oldTax,newTax,savings],
+backgroundColor:[
+'#38bdf8',
+'#fb7185',
+'#4ade80'
+]
+}]
+}
+
+});
+
+const ctx2 =
+document.getElementById("barChart");
+
+if(barChart){
+barChart.destroy();
+}
+
+barChart = new Chart(ctx2,{
+
+type:'bar',
+
+data:{
+labels:['Old','New'],
+datasets:[{
+label:'Tax',
+data:[oldTax,newTax],
+backgroundColor:[
+'#38bdf8',
+'#d946ef'
+]
+}]
+}
+
+});
+
+}
+
+calculateTax();
+
+document.querySelectorAll("input,select")
+.forEach(el=>{
+
+el.addEventListener("input",calculateTax);
+
+});
+
+</script>
 
 </body>
 </html>
