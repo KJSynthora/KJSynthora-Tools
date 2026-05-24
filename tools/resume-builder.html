@@ -1,19 +1,31 @@
 <!--
-FILE: tools/resume-builder.html
-FULL NEXT-GEN AI RESUME ENGINE
-END-TO-END UPDATED VERSION
+NEXT-GEN ENTERPRISE AI RESUME ENGINE
+FULL END-TO-END UPDATED VERSION
+FEATURES:
+✔ Multi-Step Wizard
+✔ ATS Score Engine
+✔ JD Matcher
+✔ Skill Tags
+✔ AI Suggestions
+✔ Live Resume Canvas
+✔ Theme Switcher
+✔ PDF Export
+✔ Local Storage
+✔ Recruiter Read Timer
+✔ Inline Editing
+✔ Responsive Enterprise UI
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Global KJ Resume Engine</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Global Enterprise AI Resume Engine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -24,76 +36,72 @@ END-TO-END UPDATED VERSION
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+font-family:'Inter',sans-serif;
 }
 
 body{
 background:
-linear-gradient(135deg,#020617 0%,#08104d 50%,#5b11b7 100%);
+linear-gradient(135deg,#020617 0%,#07125f 45%,#5d11b7 100%);
 min-height:100vh;
-padding:30px;
+padding:25px;
 color:white;
+overflow-x:hidden;
 }
 
-.container{
-max-width:1700px;
-margin:auto;
+.main-layout{
 display:grid;
-grid-template-columns:420px 1fr;
-gap:25px;
+grid-template-columns:380px 1fr 320px;
+gap:22px;
+max-width:1800px;
+margin:auto;
 }
 
-.card{
+.panel{
 background:#0d1b6f;
 border-radius:24px;
-padding:25px;
-box-shadow:0 0 35px rgba(0,0,0,.4);
+padding:24px;
+box-shadow:0 0 30px rgba(0,0,0,.35);
 }
 
 h1{
-font-size:38px;
-font-weight:700;
+font-size:34px;
+font-weight:800;
 margin-bottom:10px;
-background:linear-gradient(to right,#34d9ff,#c84fff);
+background:linear-gradient(to right,#3cd5ff,#c84fff);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.sub{
-opacity:.8;
+.subtitle{
+opacity:.82;
+line-height:1.7;
 margin-bottom:20px;
-line-height:1.6;
+font-size:14px;
 }
 
-.badges{
+.steps{
 display:flex;
-flex-wrap:wrap;
 gap:10px;
 margin-bottom:25px;
+flex-wrap:wrap;
 }
 
-.badge{
-padding:7px 14px;
+.step{
+padding:8px 14px;
+background:#1b2f99;
 border-radius:30px;
-background:rgba(255,255,255,.08);
 font-size:12px;
 }
 
-.form-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-}
-
 .field{
-margin-bottom:15px;
+margin-bottom:16px;
 }
 
 label{
-font-size:13px;
 display:block;
-margin-bottom:7px;
-font-weight:500;
+margin-bottom:8px;
+font-size:13px;
+font-weight:600;
 }
 
 input,
@@ -102,8 +110,8 @@ select{
 width:100%;
 padding:14px;
 border:none;
-border-radius:12px;
-background:#09145d;
+border-radius:14px;
+background:#08145d;
 color:white;
 outline:none;
 font-size:14px;
@@ -117,8 +125,8 @@ resize:vertical;
 button{
 border:none;
 cursor:pointer;
-font-weight:600;
 transition:.3s;
+font-weight:700;
 }
 
 .primary-btn{
@@ -128,67 +136,83 @@ border-radius:14px;
 background:linear-gradient(90deg,#29b6ff,#d441ff);
 color:white;
 margin-top:10px;
-font-size:16px;
+font-size:15px;
 }
 
 .primary-btn:hover{
 transform:translateY(-2px);
 }
 
-.two-btns{
+.grid2{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
-margin-top:12px;
 }
 
 .secondary-btn{
-padding:14px;
+padding:13px;
 border-radius:14px;
-background:#1a2b9b;
+background:#2039b8;
 color:white;
 }
 
 .secondary-btn:hover{
-background:#3047d7;
+background:#3854ff;
 }
 
-.right-panel{
-display:grid;
-grid-template-columns:1fr 340px;
-gap:20px;
-}
-
-.preview{
+.resume-panel{
 background:white;
 color:black;
 border-radius:24px;
-padding:40px;
-min-height:1000px;
+padding:30px;
+min-height:1200px;
 overflow:auto;
+position:relative;
+}
+
+.resume-toolbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.toolbar-group{
+display:flex;
+gap:10px;
+}
+
+.toolbar-select{
+padding:10px;
+border-radius:10px;
+border:none;
+background:#ececec;
 }
 
 .resume-header{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:25px;
 border-bottom:2px solid #ddd;
-padding-bottom:20px;
+padding-bottom:18px;
+margin-bottom:20px;
 }
 
 .resume-name{
 font-size:34px;
-font-weight:700;
+font-weight:800;
 }
 
 .resume-role{
 font-size:18px;
 color:#555;
+margin-top:4px;
 }
 
 .resume-section{
-margin-top:25px;
+margin-top:22px;
 }
 
 .resume-section h3{
@@ -196,46 +220,61 @@ font-size:18px;
 margin-bottom:10px;
 color:#0d1b6f;
 border-bottom:1px solid #ddd;
-padding-bottom:5px;
-}
-
-.resume-section p,
-.resume-section li{
-font-size:14px;
-line-height:1.7;
+padding-bottom:6px;
 }
 
 .resume-section ul{
 padding-left:20px;
+line-height:1.8;
 }
 
-.sidebar{
+.resume-section p{
+line-height:1.8;
+font-size:14px;
+}
+
+.analytics{
 display:flex;
 flex-direction:column;
-gap:20px;
+gap:18px;
 }
 
 .metric{
-background:#13258b;
+background:#15278e;
 padding:20px;
 border-radius:20px;
 }
 
 .metric-title{
-font-size:13px;
+font-size:12px;
 opacity:.8;
-margin-bottom:8px;
+margin-bottom:6px;
 }
 
 .metric-value{
-font-size:32px;
-font-weight:700;
-color:#53ffb3;
+font-size:34px;
+font-weight:800;
+color:#56ffb0;
+}
+
+.progress{
+height:16px;
+background:#07125f;
+border-radius:20px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress-fill{
+height:100%;
+width:0%;
+background:linear-gradient(to right,#30ff94,#f7ff4d,#ff4d4d);
+transition:.5s;
 }
 
 .ai-box{
-background:#092c68;
-padding:20px;
+background:#082d6a;
+padding:18px;
 border-radius:20px;
 line-height:1.8;
 font-size:14px;
@@ -250,48 +289,41 @@ margin-top:10px;
 
 .skill{
 padding:8px 14px;
-background:#2a45c5;
 border-radius:30px;
 font-size:12px;
+font-weight:600;
 }
 
-.jd-box{
-margin-top:20px;
+.skill.high{
+background:#1ea84d;
+}
+
+.skill.medium{
+background:#c98b13;
+}
+
+.skill.low{
+background:#c03939;
 }
 
 canvas{
 background:#0d1b6f;
-border-radius:20px;
-padding:10px;
+padding:12px;
+border-radius:18px;
 }
 
-.small{
-font-size:12px;
-opacity:.8;
+.editable{
+outline:none;
 }
 
-.score-meter{
-height:18px;
-background:#09145d;
-border-radius:20px;
-overflow:hidden;
-margin-top:10px;
+.inline-edit:hover{
+background:#f1f1f1;
+cursor:text;
 }
 
-.score-fill{
-height:100%;
-width:0%;
-background:linear-gradient(to right,#29ff8a,#f9ff4a,#ff4a4a);
-transition:.5s;
-}
+@media(max-width:1500px){
 
-@media(max-width:1200px){
-
-.container{
-grid-template-columns:1fr;
-}
-
-.right-panel{
+.main-layout{
 grid-template-columns:1fr;
 }
 
@@ -302,45 +334,32 @@ grid-template-columns:1fr;
 
 <body>
 
-<div class="container">
+<div class="main-layout">
 
-<!-- LEFT -->
-<div class="card">
+<!-- LEFT PANEL -->
 
-<h1>Global KJ Resume Engine</h1>
+<div class="panel">
 
-<p class="sub">
-Advanced ATS-powered AI resume engineering platform with real-time scoring,
-JD matching, export systems, recruiter simulation and AI optimization engine.
+<h1>Global AI Resume Engine</h1>
+
+<p class="subtitle">
+Enterprise ATS optimization platform with AI JD matching,
+live recruiter simulation and interactive resume engineering.
 </p>
 
-<div class="badges">
-<div class="badge">🤖 ATS AI</div>
-<div class="badge">📄 PDF Export</div>
-<div class="badge">🧠 JD Matcher</div>
-<div class="badge">📊 Live Analytics</div>
-<div class="badge">🌍 Multi Profile</div>
-<div class="badge">⚡ AI Suggestions</div>
+<div class="steps">
+<div class="step">Step 1: Contact</div>
+<div class="step">Step 2: Experience</div>
+<div class="step">Step 3: Skills</div>
+<div class="step">Step 4: AI Optimize</div>
 </div>
-
-<div class="form-grid">
 
 <div class="field">
 <label>Full Name</label>
 <input type="text" id="name">
 </div>
 
-<div class="field">
-<label>Primary Role</label>
-<select id="role">
-<option>Service Desk Engineer</option>
-<option>Manual Tester</option>
-<option>Data Analyst</option>
-<option>Power BI Developer</option>
-<option>Cloud Engineer</option>
-<option>Software Developer</option>
-</select>
-</div>
+<div class="grid2">
 
 <div class="field">
 <label>Email</label>
@@ -352,33 +371,41 @@ JD matching, export systems, recruiter simulation and AI optimization engine.
 <input type="text" id="phone">
 </div>
 
+</div>
+
+<div class="grid2">
+
+<div class="field">
+<label>Primary Role</label>
+<select id="role">
+<option>Service Desk Engineer</option>
+<option>Power BI Developer</option>
+<option>Manual Tester</option>
+<option>Cloud Engineer</option>
+<option>Software Developer</option>
+</select>
+</div>
+
 <div class="field">
 <label>Experience</label>
 <select id="experience">
 <option>Fresher</option>
-<option>1+ Years</option>
 <option>3+ Years</option>
 <option selected>7+ Years</option>
 <option>10+ Years</option>
 </select>
 </div>
 
-<div class="field">
-<label>Education</label>
-<select id="education">
-<option>B.Tech</option>
-<option>M.Tech</option>
-<option>MBA</option>
-<option>B.Sc</option>
-<option>MCA</option>
-</select>
-</div>
-
 </div>
 
 <div class="field">
-<label>Skills</label>
-<textarea id="skills">SQL, Power BI, Service Desk, Incident Management, Excel, Ticketing Tools</textarea>
+<label>Paste Target Job Description</label>
+<textarea id="jd"></textarea>
+</div>
+
+<div class="field">
+<label>Skills (comma separated)</label>
+<textarea id="skills">SQL, Power BI, Incident Management, Excel</textarea>
 </div>
 
 <div class="field">
@@ -392,11 +419,6 @@ JD matching, export systems, recruiter simulation and AI optimization engine.
 </div>
 
 <div class="field">
-<label>Certifications</label>
-<textarea id="certs"></textarea>
-</div>
-
-<div class="field">
 <label>LinkedIn URL</label>
 <input type="text" id="linkedin">
 </div>
@@ -406,16 +428,11 @@ JD matching, export systems, recruiter simulation and AI optimization engine.
 <input type="text" id="github">
 </div>
 
-<div class="field jd-box">
-<label>Paste Job Description (JD Matcher)</label>
-<textarea id="jd"></textarea>
-</div>
-
 <button class="primary-btn" onclick="generateResume()">
-🚀 Generate AI Resume
+🚀 Generate Enterprise Resume
 </button>
 
-<div class="two-btns">
+<div class="grid2" style="margin-top:12px;">
 
 <button class="secondary-btn" onclick="downloadPDF()">
 📄 Export PDF
@@ -427,7 +444,7 @@ JD matching, export systems, recruiter simulation and AI optimization engine.
 
 </div>
 
-<div class="two-btns">
+<div class="grid2" style="margin-top:12px;">
 
 <button class="secondary-btn" onclick="saveData()">
 💾 Save
@@ -441,29 +458,62 @@ JD matching, export systems, recruiter simulation and AI optimization engine.
 
 </div>
 
-<!-- RIGHT -->
-<div class="right-panel">
+<!-- CENTER PANEL -->
 
-<!-- RESUME -->
-<div class="preview" id="resumePreview">
+<div class="resume-panel" id="resumeCanvas">
+
+<div class="resume-toolbar">
+
+<div class="toolbar-group">
+
+<select class="toolbar-select" onchange="changeFont(this.value)">
+<option value="Inter">Inter</option>
+<option value="Georgia">Georgia</option>
+<option value="Arial">Arial</option>
+</select>
+
+<select class="toolbar-select" onchange="changeTheme(this.value)">
+<option value="blue">Corporate Blue</option>
+<option value="dark">Dark</option>
+<option value="green">Emerald</option>
+</select>
+
+<select class="toolbar-select" onchange="changeSpacing(this.value)">
+<option value="normal">Normal</option>
+<option value="compact">Compact</option>
+<option value="loose">Loose</option>
+</select>
+
+</div>
+
+</div>
 
 <div class="resume-header">
 
 <div>
-<div class="resume-name">Resume Preview</div>
-<div class="resume-role">AI Generated Professional Resume</div>
+<div class="resume-name editable inline-edit" contenteditable="true">
+Resume Preview
+</div>
+
+<div class="resume-role editable inline-edit" contenteditable="true">
+AI Generated Resume
+</div>
 </div>
 
 </div>
 
-<p>
-Your professional ATS-ready resume preview will appear here.
+<div class="resume-section">
+<h3>Summary</h3>
+<p contenteditable="true" class="editable inline-edit">
+Your professional AI-powered ATS resume preview will appear here.
 </p>
+</div>
 
 </div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
+<!-- RIGHT PANEL -->
+
+<div class="analytics">
 
 <div class="metric">
 
@@ -475,8 +525,8 @@ ATS SCORE
 0%
 </div>
 
-<div class="score-meter">
-<div class="score-fill" id="scoreFill"></div>
+<div class="progress">
+<div class="progress-fill" id="atsFill"></div>
 </div>
 
 </div>
@@ -496,10 +546,10 @@ JD MATCH SCORE
 <div class="metric">
 
 <div class="metric-title">
-RECRUITER READ TIME
+RECRUITER SCAN TIME
 </div>
 
-<div class="metric-value" id="readTime">
+<div class="metric-value" id="scanTime">
 0s
 </div>
 
@@ -511,15 +561,13 @@ RECRUITER READ TIME
 🤖 AI Resume Insights
 </h3>
 
-<p>
-Resume insights will appear here.
-</p>
+<p>AI optimization suggestions will appear here.</p>
 
 </div>
 
-<div class="card" style="padding:15px;">
+<div class="panel" style="padding:16px;">
 
-<h3 style="margin-bottom:15px;">
+<h3 style="margin-bottom:14px;">
 📊 ATS Analytics
 </h3>
 
@@ -527,15 +575,13 @@ Resume insights will appear here.
 
 </div>
 
-<div class="card" style="padding:15px;">
+<div class="panel" style="padding:16px;">
 
-<h3 style="margin-bottom:15px;">
-🧠 Skill Tags
+<h3 style="margin-bottom:14px;">
+🧠 Dynamic Skill Matrix
 </h3>
 
 <div class="skill-tags" id="skillTags"></div>
-
-</div>
 
 </div>
 
@@ -550,58 +596,79 @@ let chart;
 function generateResume(){
 
 const name = document.getElementById("name").value;
-const role = document.getElementById("role").value;
 const email = document.getElementById("email").value;
 const phone = document.getElementById("phone").value;
+const role = document.getElementById("role").value;
+const experience = document.getElementById("experience").value;
 const skills = document.getElementById("skills").value;
 const summary = document.getElementById("summary").value;
 const projects = document.getElementById("projects").value;
-const certs = document.getElementById("certs").value;
 const linkedin = document.getElementById("linkedin").value;
 const github = document.getElementById("github").value;
 const jd = document.getElementById("jd").value;
-const experience = document.getElementById("experience").value;
-const education = document.getElementById("education").value;
 
 let ats = 45;
 
-if(skills.length > 20) ats += 15;
-if(summary.length > 30) ats += 15;
+if(summary.length > 40) ats += 15;
 if(projects.length > 20) ats += 10;
 if(linkedin) ats += 5;
 if(github) ats += 5;
-if(jd.length > 20) ats += 5;
+if(skills.length > 20) ats += 10;
+if(jd.length > 50) ats += 10;
 
 if(ats > 100) ats = 100;
 
 document.getElementById("atsScore").innerHTML = ats + "%";
-document.getElementById("scoreFill").style.width = ats + "%";
+document.getElementById("atsFill").style.width = ats + "%";
 
-let jdMatch = Math.min(95,Math.floor((skills.length + summary.length)/8));
+let jdScore = Math.min(96,Math.floor((skills.length + jd.length)/8));
 
-document.getElementById("jdScore").innerHTML = jdMatch + "%";
+document.getElementById("jdScore").innerHTML = jdScore + "%";
 
-const read = Math.floor((summary.length + projects.length)/30);
+let scan = Math.floor((summary.length + projects.length)/35);
 
-document.getElementById("readTime").innerHTML = read + "s";
+document.getElementById("scanTime").innerHTML = scan + "s";
 
-const skillArray = skills.split(",");
+renderSkills(skills);
 
-let tags = "";
+document.getElementById("resumeCanvas").innerHTML = `
 
-skillArray.forEach(skill=>{
-tags += `<div class="skill">${skill.trim()}</div>`;
-});
+<div class="resume-toolbar">
 
-document.getElementById("skillTags").innerHTML = tags;
+<div class="toolbar-group">
 
-document.getElementById("resumePreview").innerHTML = `
+<select class="toolbar-select" onchange="changeFont(this.value)">
+<option value="Inter">Inter</option>
+<option value="Georgia">Georgia</option>
+<option value="Arial">Arial</option>
+</select>
+
+<select class="toolbar-select" onchange="changeTheme(this.value)">
+<option value="blue">Corporate Blue</option>
+<option value="dark">Dark</option>
+<option value="green">Emerald</option>
+</select>
+
+<select class="toolbar-select" onchange="changeSpacing(this.value)">
+<option value="normal">Normal</option>
+<option value="compact">Compact</option>
+<option value="loose">Loose</option>
+</select>
+
+</div>
+
+</div>
 
 <div class="resume-header">
 
 <div>
-<div class="resume-name">${name}</div>
-<div class="resume-role">${role}</div>
+<div class="resume-name editable inline-edit" contenteditable="true">
+${name}
+</div>
+
+<div class="resume-role editable inline-edit" contenteditable="true">
+${role}
+</div>
 </div>
 
 <div>
@@ -613,34 +680,30 @@ document.getElementById("resumePreview").innerHTML = `
 
 <div class="resume-section">
 <h3>Professional Summary</h3>
-<p>${summary}</p>
+<p contenteditable="true" class="editable inline-edit">
+${summary}
+</p>
 </div>
 
 <div class="resume-section">
 <h3>Skills</h3>
 <ul>
-${skillArray.map(skill=>`<li>${skill}</li>`).join("")}
+${skills.split(",").map(skill=>`<li>${skill}</li>`).join("")}
 </ul>
 </div>
 
 <div class="resume-section">
 <h3>Experience</h3>
-<p>${experience}</p>
-</div>
-
-<div class="resume-section">
-<h3>Education</h3>
-<p>${education}</p>
+<p contenteditable="true" class="editable inline-edit">
+${experience}
+</p>
 </div>
 
 <div class="resume-section">
 <h3>Projects</h3>
-<p>${projects}</p>
-</div>
-
-<div class="resume-section">
-<h3>Certifications</h3>
-<p>${certs}</p>
+<p contenteditable="true" class="editable inline-edit">
+${projects}
+</p>
 </div>
 
 <div class="resume-section">
@@ -653,21 +716,62 @@ ${skillArray.map(skill=>`<li>${skill}</li>`).join("")}
 
 document.getElementById("aiInsights").innerHTML = `
 
-<h3 style="margin-bottom:15px;">
+<h3 style="margin-bottom:10px;">
 🤖 AI Resume Insights
 </h3>
 
-<p>✅ ATS Score Optimized</p>
-<p>✅ Resume matches recruiter standards</p>
-<p>✅ JD Match: ${jdMatch}%</p>
-<p>⚠ Add quantified achievements for stronger impact</p>
-<p>⚠ Add cloud tools for enterprise hiring advantage</p>
+<p>✅ ATS Optimization Active</p>
+<p>✅ JD Match Score: ${jdScore}%</p>
+<p>⚠ Add quantified achievements</p>
+<p>⚠ Reduce paragraph density</p>
+<p>⚠ Add enterprise cloud tools</p>
+<p>⚠ Improve recruiter readability</p>
 
 `;
 
-renderChart(ats,jdMatch);
+renderChart(ats,jdScore);
 
 saveData();
+
+}
+
+function renderSkills(skills){
+
+const arr = skills.split(",");
+
+let html = "";
+
+arr.forEach(skill=>{
+
+const s = skill.trim().toLowerCase();
+
+let cls = "medium";
+
+if(
+s.includes("sql") ||
+s.includes("aws") ||
+s.includes("cloud") ||
+s.includes("power bi")
+){
+cls = "high";
+}
+else if(
+s.includes("excel") ||
+s.includes("testing")
+){
+cls = "medium";
+}
+else{
+cls = "low";
+}
+
+html += `<div class="skill ${cls}">
+${skill.trim()}
+</div>`;
+
+});
+
+document.getElementById("skillTags").innerHTML = html;
 
 }
 
@@ -681,15 +785,16 @@ chart.destroy();
 
 chart = new Chart(ctx,{
 
-type:'doughnut',
+type:'bar',
 
 data:{
 labels:['ATS','JD Match'],
 datasets:[{
+label:'Resume Analytics',
 data:[ats,jd],
 backgroundColor:[
-'#33d6ff',
-'#d84fff'
+'#31d7ff',
+'#d24bff'
 ]
 }]
 },
@@ -698,6 +803,18 @@ options:{
 plugins:{
 legend:{
 labels:{
+color:'white'
+}
+}
+},
+scales:{
+y:{
+ticks:{
+color:'white'
+}
+},
+x:{
+ticks:{
 color:'white'
 }
 }
@@ -710,37 +827,34 @@ color:'white'
 
 function downloadPDF(){
 
-const element = document.getElementById("resumePreview");
-
-html2pdf().from(element).save("AI_Resume.pdf");
+html2pdf().from(document.getElementById("resumeCanvas"))
+.save("Enterprise_AI_Resume.pdf");
 
 }
 
 function clearAll(){
 
-document.querySelectorAll("input, textarea").forEach(el=>{
-el.value = "";
-});
-
+localStorage.clear();
 location.reload();
 
 }
 
 function saveData(){
 
-const fields = {};
+const data = {};
 
-document.querySelectorAll("input, textarea, select").forEach(el=>{
-fields[el.id] = el.value;
+document.querySelectorAll("input, textarea, select")
+.forEach(el=>{
+data[el.id] = el.value;
 });
 
-localStorage.setItem("resumeData",JSON.stringify(fields));
+localStorage.setItem("resumeEngine",JSON.stringify(data));
 
 }
 
 function loadData(){
 
-const data = JSON.parse(localStorage.getItem("resumeData"));
+const data = JSON.parse(localStorage.getItem("resumeEngine"));
 
 if(!data) return;
 
@@ -759,6 +873,60 @@ el.value = data[key];
 function goHome(){
 
 window.location.href="../index.html";
+
+}
+
+function changeFont(font){
+
+document.getElementById("resumeCanvas")
+.style.fontFamily = font;
+
+}
+
+function changeTheme(theme){
+
+const canvas = document.getElementById("resumeCanvas");
+
+if(theme==="dark"){
+
+canvas.style.background = "#111";
+canvas.style.color = "white";
+
+}
+else if(theme==="green"){
+
+canvas.style.background = "#ecfff1";
+canvas.style.color = "#111";
+
+}
+else{
+
+canvas.style.background = "white";
+canvas.style.color = "black";
+
+}
+
+}
+
+function changeSpacing(type){
+
+const canvas = document.getElementById("resumeCanvas");
+
+if(type==="compact"){
+
+canvas.style.lineHeight = "1.4";
+
+}
+else if(type==="loose"){
+
+canvas.style.lineHeight = "2";
+
+}
+else{
+
+canvas.style.lineHeight = "1.7";
+
+}
 
 }
 
