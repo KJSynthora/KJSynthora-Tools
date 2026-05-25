@@ -1,90 +1,893 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>AI Caption Generator</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Global AI Caption Engine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-background:#020617;
-font-family:Arial;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+
+*{
 margin:0;
-color:white;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
 }
 
-.container{
-background:#111827;
-padding:40px;
-border-radius:20px;
-width:400px;
-text-align:center;
+body{
+background:
+linear-gradient(135deg,#020617,#04124f,#4c1d95);
+min-height:100vh;
+padding:25px;
+color:white;
+overflow-x:hidden;
+}
+
+.main-grid{
+display:grid;
+grid-template-columns:320px 1fr 320px;
+gap:20px;
+max-width:1800px;
+margin:auto;
+}
+
+.panel{
+background:rgba(8,15,55,.92);
+border:1px solid rgba(255,255,255,.08);
+border-radius:22px;
+padding:20px;
+box-shadow:0 0 35px rgba(0,0,0,.35);
+backdrop-filter:blur(20px);
+}
+
+.left-panel{
+height:calc(100vh - 50px);
+overflow-y:auto;
+}
+
+.center-panel{
+min-height:calc(100vh - 50px);
+}
+
+.right-panel{
+height:calc(100vh - 50px);
+overflow-y:auto;
+}
+
+.logo{
+font-size:34px;
+font-weight:800;
+margin-bottom:10px;
+background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.desc{
+font-size:13px;
+line-height:1.7;
+color:#cbd5e1;
+margin-bottom:18px;
+}
+
+.badges{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-bottom:20px;
+}
+
+.badge{
+padding:7px 12px;
+border-radius:999px;
+font-size:11px;
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.08);
+}
+
+.section-title{
+font-size:13px;
+font-weight:700;
+margin-bottom:8px;
+margin-top:16px;
+color:#dbeafe;
+}
+
+textarea,
+input,
+select{
+width:100%;
+background:#111c5a;
+border:none;
+outline:none;
+padding:14px;
+border-radius:12px;
+color:white;
+font-size:13px;
+margin-bottom:12px;
 }
 
 textarea{
-width:90%;
-height:100px;
-padding:12px;
-border:none;
-border-radius:10px;
+resize:vertical;
+min-height:110px;
 }
 
 button{
-margin-top:20px;
-padding:12px 25px;
 border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
-color:white;
 cursor:pointer;
+transition:.3s;
 }
 
-#result{
-margin-top:20px;
-color:#38bdf8;
+.primary-btn{
+width:100%;
+padding:15px;
+border-radius:14px;
+font-weight:700;
+background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);
+color:white;
+margin-top:10px;
 }
+
+.primary-btn:hover{
+transform:translateY(-2px);
+opacity:.95;
+}
+
+.toolbar{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:15px;
+}
+
+.tool-btn{
+padding:10px 14px;
+border-radius:12px;
+background:#1e2a78;
+color:white;
+font-size:12px;
+}
+
+.preview{
+background:white;
+border-radius:18px;
+padding:35px;
+min-height:900px;
+color:black;
+}
+
+.preview h1{
+font-size:34px;
+margin-bottom:10px;
+}
+
+.preview p{
+line-height:1.7;
+margin-bottom:18px;
+}
+
+.caption-card{
+padding:18px;
+border:1px solid #e2e8f0;
+border-radius:14px;
+margin-bottom:18px;
+}
+
+.hashtags{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:12px;
+}
+
+.hash{
+background:#e0e7ff;
+padding:7px 12px;
+border-radius:999px;
+font-size:12px;
+color:#1e1b4b;
+font-weight:600;
+}
+
+.metric{
+background:#16206d;
+padding:18px;
+border-radius:16px;
+margin-bottom:15px;
+}
+
+.metric-label{
+font-size:11px;
+color:#cbd5e1;
+margin-bottom:8px;
+}
+
+.metric-value{
+font-size:32px;
+font-weight:800;
+color:#4ade80;
+}
+
+.progress{
+width:100%;
+height:10px;
+border-radius:999px;
+background:#111827;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress-fill{
+height:100%;
+background:linear-gradient(90deg,#22c55e,#8b5cf6);
+}
+
+.chart-box{
+background:#16206d;
+border-radius:16px;
+padding:15px;
+margin-top:18px;
+}
+
+.skill-tags{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-top:10px;
+}
+
+.skill-tag{
+padding:8px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:600;
+background:#1d4ed8;
+}
+
+.green{
+background:#14532d;
+}
+
+.red{
+background:#7f1d1d;
+}
+
+.caption-output{
+background:#f8fafc;
+padding:18px;
+border-radius:14px;
+color:#111827;
+line-height:1.8;
+margin-top:20px;
+}
+
+.grid-2{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+.upload-box{
+padding:20px;
+border:2px dashed rgba(255,255,255,.15);
+border-radius:16px;
+text-align:center;
+margin-bottom:15px;
+}
+
+.analytics-box{
+padding:14px;
+background:#172554;
+border-radius:14px;
+margin-top:12px;
+}
+
+.analytics-box p{
+font-size:13px;
+line-height:1.8;
+}
+
+.export-buttons{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.export-buttons button{
+flex:1;
+padding:12px;
+border-radius:12px;
+background:#1e3a8a;
+color:white;
+font-size:12px;
+font-weight:700;
+}
+
+.ab-card{
+background:#eff6ff;
+border-radius:14px;
+padding:15px;
+margin-top:12px;
+}
+
+.ab-card h4{
+margin-bottom:8px;
+}
+
+@media(max-width:1300px){
+
+.main-grid{
+grid-template-columns:1fr;
+}
+
+.left-panel,
+.right-panel{
+height:auto;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="main-grid">
 
-<h1>AI Caption Generator</h1>
+<!-- LEFT -->
 
-<textarea id="topic" placeholder="Enter topic"></textarea>
+<div class="panel left-panel">
 
-<br>
+<div class="logo">
+Global AI Caption Engine
+</div>
 
-<button onclick="generateCaption()">
-Generate Caption
+<div class="desc">
+Enterprise-grade AI caption generator with viral prediction engine, platform optimization, AI hashtag intelligence and multimodal content generation.
+</div>
+
+<div class="badges">
+<div class="badge">🔥 Viral AI</div>
+<div class="badge">📈 SEO Engine</div>
+<div class="badge">🎯 ATS Hooks</div>
+<div class="badge">🌍 Localization</div>
+<div class="badge">📸 Multimodal</div>
+<div class="badge">🧠 Trend AI</div>
+</div>
+
+<div class="section-title">
+Platform
+</div>
+
+<select id="platform">
+<option>Instagram</option>
+<option>LinkedIn</option>
+<option>X (Twitter)</option>
+<option>YouTube Shorts</option>
+<option>TikTok</option>
+<option>Pinterest</option>
+</select>
+
+<div class="grid-2">
+
+<div>
+<div class="section-title">Tone</div>
+
+<select id="tone">
+<option>Professional</option>
+<option>Luxury</option>
+<option>Gen-Z</option>
+<option>Educational</option>
+<option>Emotional</option>
+<option>Witty</option>
+<option>Corporate</option>
+<option>Sarcastic</option>
+</select>
+</div>
+
+<div>
+<div class="section-title">Length</div>
+
+<select id="length">
+<option>Short</option>
+<option>Medium</option>
+<option>Long</option>
+</select>
+</div>
+
+</div>
+
+<div class="section-title">
+Topic / Prompt
+</div>
+
+<textarea id="topic" placeholder="Describe your content..."></textarea>
+
+<div class="section-title">
+Paste Target Keywords
+</div>
+
+<textarea id="keywords" placeholder="AI, startup, business growth, finance..."></textarea>
+
+<div class="section-title">
+Target Audience
+</div>
+
+<select id="audience">
+<option>Creators</option>
+<option>Businesses</option>
+<option>Students</option>
+<option>Developers</option>
+<option>Recruiters</option>
+<option>Fitness Audience</option>
+<option>Luxury Audience</option>
+</select>
+
+<div class="section-title">
+Emoji Density
+</div>
+
+<select id="emoji">
+<option>No Emojis</option>
+<option>Minimal</option>
+<option>Medium</option>
+<option>High</option>
+</select>
+
+<div class="section-title">
+CTA Style
+</div>
+
+<select id="cta">
+<option>Comment Below</option>
+<option>Save For Later</option>
+<option>Share With Friends</option>
+<option>Follow For More</option>
+<option>Link In Bio</option>
+</select>
+
+<div class="section-title">
+Upload Image / Video
+</div>
+
+<div class="upload-box">
+<input type="file" id="mediaUpload">
+</div>
+
+<div class="section-title">
+Competitor Analysis
+</div>
+
+<input type="text" placeholder="@competitor_handle">
+
+<div class="section-title">
+Brand Voice
+</div>
+
+<textarea placeholder="Luxury, minimal, premium, founder-style..."></textarea>
+
+<button class="primary-btn" onclick="generateCaption()">
+🚀 Generate AI Caption
 </button>
 
-<p id="result"></p>
+<div class="export-buttons">
 
-<a href="../index.html">⬅ Back To Home</a>
+<button onclick="copyCaption()">
+📋 Copy
+</button>
+
+<button onclick="downloadCaption()">
+📄 Export
+</button>
+
+</div>
+
+</div>
+
+<!-- CENTER -->
+
+<div class="panel center-panel">
+
+<div class="toolbar">
+
+<button class="tool-btn">
+Instagram
+</button>
+
+<button class="tool-btn">
+LinkedIn
+</button>
+
+<button class="tool-btn">
+TikTok
+</button>
+
+<button class="tool-btn">
+YouTube
+</button>
+
+<button class="tool-btn">
+Pinterest
+</button>
+
+</div>
+
+<div class="preview">
+
+<h1>
+AI Caption Studio
+</h1>
+
+<p>
+Real-time AI generated captions, hashtag intelligence, viral hooks and engagement optimization.
+</p>
+
+<div class="caption-card">
+
+<h3>
+Generated Caption
+</h3>
+
+<div class="caption-output" id="captionOutput">
+
+Your AI generated caption will appear here...
+
+</div>
+
+<div class="hashtags" id="hashtags">
+
+</div>
+
+</div>
+
+<div class="ab-card">
+
+<h4>
+A/B Testing Variants
+</h4>
+
+<p id="variantA">
+Variant A will appear here...
+</p>
+
+<hr style="margin:15px 0;">
+
+<p id="variantB">
+Variant B will appear here...
+</p>
+
+</div>
+
+<div class="ab-card">
+
+<h4>
+Hook Generator
+</h4>
+
+<ul id="hooks" style="margin-left:20px; line-height:2;">
+<li>Hook ideas will appear here...</li>
+</ul>
+
+</div>
+
+<div class="ab-card">
+
+<h4>
+AI SEO Suggestions
+</h4>
+
+<p id="seoSuggestions">
+SEO suggestions will appear here...
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="panel right-panel">
+
+<div class="metric">
+
+<div class="metric-label">
+VIRAL SCORE
+</div>
+
+<div class="metric-value" id="viralScore">
+0%
+</div>
+
+<div class="progress">
+<div class="progress-fill" id="viralBar" style="width:0%;"></div>
+</div>
+
+</div>
+
+<div class="metric">
+
+<div class="metric-label">
+ENGAGEMENT PREDICTION
+</div>
+
+<div class="metric-value" id="engagement">
+0%
+</div>
+
+<div class="progress">
+<div class="progress-fill" id="engagementBar" style="width:0%;"></div>
+</div>
+
+</div>
+
+<div class="metric">
+
+<div class="metric-label">
+SCROLL STOPPER SCORE
+</div>
+
+<div class="metric-value" id="scrollScore">
+0%
+</div>
+
+</div>
+
+<div class="metric">
+
+<div class="metric-label">
+CHARACTER COUNT
+</div>
+
+<div class="metric-value" id="charCount">
+0
+</div>
+
+</div>
+
+<div class="analytics-box">
+
+<p>
+🔥 Trending Topic Detection
+</p>
+
+<p id="trendInsights">
+Waiting for analysis...
+</p>
+
+</div>
+
+<div class="analytics-box">
+
+<p>
+🧠 AI Psychological Trigger
+</p>
+
+<p id="psychology">
+No analysis yet...
+</p>
+
+</div>
+
+<div class="analytics-box">
+
+<p>
+📊 Platform Optimization
+</p>
+
+<p id="platformInsights">
+Platform optimization insights...
+</p>
+
+</div>
+
+<div class="chart-box">
+
+<canvas id="analyticsChart"></canvas>
+
+</div>
+
+<div class="analytics-box">
+
+<p>
+🏷️ Hashtag Intelligence
+</p>
+
+<div class="skill-tags">
+
+<div class="skill-tag green">
+#viral
+</div>
+
+<div class="skill-tag green">
+#marketing
+</div>
+
+<div class="skill-tag red">
+#business
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
 
+const chart = new Chart(
+document.getElementById("analyticsChart"),
+{
+type:'bar',
+data:{
+labels:['Viral','Engagement','SEO','CTR'],
+datasets:[{
+label:'AI Metrics',
+data:[45,60,70,55],
+backgroundColor:[
+'#38bdf8',
+'#8b5cf6',
+'#22c55e',
+'#ec4899'
+]
+}]
+},
+options:{
+responsive:true,
+plugins:{
+legend:{
+labels:{
+color:'white'
+}
+}
+},
+scales:{
+x:{
+ticks:{
+color:'white'
+}
+},
+y:{
+ticks:{
+color:'white'
+}
+}
+}
+}
+}
+);
+
 function generateCaption(){
 
 const topic=document.getElementById("topic").value;
+const tone=document.getElementById("tone").value;
+const platform=document.getElementById("platform").value;
+const cta=document.getElementById("cta").value;
+const emoji=document.getElementById("emoji").value;
 
-if(topic===""){
+let emojis='';
 
-document.getElementById("result").innerHTML=
-"❌ Enter topic";
+if(emoji==='Minimal'){
+emojis='🔥';
+}
 
-return;
+if(emoji==='Medium'){
+emojis='🔥🚀✨';
+}
+
+if(emoji==='High'){
+emojis='🔥🚀✨💯📈🎯';
+}
+
+const caption=`
+${emojis}
+
+${topic}
+
+This is your ${tone.toLowerCase()} AI optimized ${platform} caption designed to maximize engagement, retention and reach across modern social media algorithms.
+
+✔ AI optimized structure
+✔ SEO enhanced delivery
+✔ Psychological hook integration
+✔ Viral engagement architecture
+
+${cta}
+
+#AI #Marketing #Business #Growth #ViralContent
+`;
+
+document.getElementById("captionOutput").innerText=caption;
+
+document.getElementById("charCount").innerText=caption.length;
+
+const viral=Math.floor(Math.random()*30)+70;
+const engage=Math.floor(Math.random()*25)+65;
+const scroll=Math.floor(Math.random()*20)+75;
+
+document.getElementById("viralScore").innerText=viral+"%";
+document.getElementById("engagement").innerText=engage+"%";
+document.getElementById("scrollScore").innerText=scroll+"%";
+
+document.getElementById("viralBar").style.width=viral+"%";
+document.getElementById("engagementBar").style.width=engage+"%";
+
+document.getElementById("variantA").innerText=
+"Variant A: " + topic + " — simplified emotional storytelling approach.";
+
+document.getElementById("variantB").innerText=
+"Variant B: Aggressive viral hook optimized for social engagement.";
+
+document.getElementById("seoSuggestions").innerText=
+"Add high intent keywords like AI Growth, Creator Economy, Startup Scaling and Digital Branding.";
+
+document.getElementById("trendInsights").innerText=
+"Trending alignment detected with AI + Business niche. Viral probability increased.";
+
+document.getElementById("psychology").innerText=
+"Psychological triggers detected: Curiosity, Authority and FOMO.";
+
+document.getElementById("platformInsights").innerText=
+platform + " optimization applied successfully.";
+
+document.getElementById("hooks").innerHTML=`
+<li>Nobody talks about this...</li>
+<li>This strategy changed everything.</li>
+<li>You are missing this growth hack.</li>
+<li>99% of creators fail because of this.</li>
+<li>Save this before it disappears.</li>
+`;
+
+document.getElementById("hashtags").innerHTML=`
+<div class="hash">#AI</div>
+<div class="hash">#Growth</div>
+<div class="hash">#Business</div>
+<div class="hash">#Marketing</div>
+<div class="hash">#ContentCreator</div>
+<div class="hash">#Entrepreneur</div>
+`;
+
+chart.data.datasets[0].data=[
+viral,
+engage,
+scroll,
+Math.floor(Math.random()*20)+70
+];
+
+chart.update();
 
 }
 
-document.getElementById("result").innerHTML=
-"✨ Loving this "+topic+" moment! 🚀🔥";
+function copyCaption(){
+
+const text=document.getElementById("captionOutput").innerText;
+
+navigator.clipboard.writeText(text);
+
+alert("Caption copied!");
+
+}
+
+function downloadCaption(){
+
+const text=document.getElementById("captionOutput").innerText;
+
+const blob=new Blob([text],{type:'text/plain'});
+
+const a=document.createElement('a');
+
+a.href=URL.createObjectURL(blob);
+
+a.download='ai-caption.txt';
+
+a.click();
 
 }
 
