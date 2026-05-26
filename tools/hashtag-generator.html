@@ -849,6 +849,148 @@ chart.update();
 }
 
 </script>
+<script>
 
+const tabs = document.querySelectorAll('.tab');
+const platformButtons = document.querySelectorAll('.platform-btn');
+
+tabs.forEach(tab => {
+
+    tab.addEventListener('click', () => {
+
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.innerText;
+
+        const dropZone = document.querySelector('.drop-zone');
+
+        if(tabName === 'Text'){
+            dropZone.innerHTML = '<p>✍️ Enter your text prompt below</p>';
+        }
+
+        if(tabName === 'Image'){
+            dropZone.innerHTML = '<p>🖼️ Drag & Drop Image Here</p>';
+        }
+
+        if(tabName === 'Video'){
+            dropZone.innerHTML = '<p>🎬 Drag & Drop Video Here</p>';
+        }
+
+        if(tabName === 'URL'){
+            dropZone.innerHTML = '<p>🔗 Paste URL to auto-fetch content</p>';
+        }
+
+    });
+
+});
+
+platformButtons.forEach(btn => {
+
+    btn.addEventListener('click', () => {
+
+        platformButtons.forEach(b => b.classList.remove('active'));
+
+        btn.classList.add('active');
+
+        const platform = btn.innerText;
+
+        const limitsBox = document.querySelector('.metric-card:nth-child(3) div:nth-child(2)');
+
+        if(platform === 'Instagram'){
+
+            limitsBox.innerHTML = `
+            Instagram: 0 / 2200<br>
+            Hashtags: 0 / 30<br>
+            Mentions: 0 / 20
+            `;
+
+        }
+
+        if(platform === 'LinkedIn'){
+
+            limitsBox.innerHTML = `
+            LinkedIn: 0 / 3000<br>
+            Hashtags: 0 / 5<br>
+            Mentions: 0 / 30
+            `;
+
+        }
+
+        if(platform === 'TikTok'){
+
+            limitsBox.innerHTML = `
+            TikTok: 0 / 2200<br>
+            Hashtags: 0 / 20<br>
+            Mentions: 0 / 10
+            `;
+
+        }
+
+        if(platform === 'YouTube'){
+
+            limitsBox.innerHTML = `
+            YouTube: 0 / 5000<br>
+            Hashtags: 0 / 15<br>
+            Mentions: 0 / 10
+            `;
+
+        }
+
+    });
+
+});
+
+function generateHashtags(){
+
+    const keyword = document.getElementById('keywordInput').value;
+
+    if(keyword.trim() === ''){
+
+        alert('Please enter keyword');
+        return;
+
+    }
+
+    const hashtags = `
+#${keyword.replace(/\s+/g,'')}
+#${keyword.replace(/\s+/g,'')}Tips
+#${keyword.replace(/\s+/g,'')}Growth
+#AI
+#Marketing
+#ContentCreator
+#Business
+#GrowthHacking
+#ViralContent
+#SocialMediaMarketing
+#ExplorePage
+#Branding
+`;
+
+    document.getElementById('hashtagsOutput').innerHTML = hashtags;
+
+    const viral = Math.floor(Math.random() * 20) + 75;
+    const engagement = Math.floor(Math.random() * 15) + 70;
+
+    document.getElementById('viralScore').innerHTML = viral + '%';
+    document.getElementById('engagementScore').innerHTML = engagement + '%';
+
+    document.getElementById('viralBar').style.width = viral + '%';
+
+    updateChart(viral);
+
+}
+
+function copyHashtags(){
+
+    const text = document.getElementById('hashtagsOutput').innerText;
+
+    navigator.clipboard.writeText(text);
+
+    alert('Copied Successfully');
+
+}
+
+</script>
 </body>
 </html>
