@@ -1,419 +1,429 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Global AI Bio Engine</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Inter',sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
 }
 
 body{
-    background:
-    linear-gradient(135deg,#020617,#07154a,#1d0f52,#ff2d95);
-    min-height:100vh;
-    color:white;
-    overflow-x:hidden;
+background:
+linear-gradient(135deg,#02052b 0%, #12003d 45%, #8b168d 100%);
+min-height:100vh;
+overflow:hidden;
+color:white;
 }
 
-.main-layout{
-    display:grid;
-    grid-template-columns:340px 1fr 270px;
-    gap:18px;
-    padding:18px;
-    max-width:1900px;
-    margin:auto;
+.main-grid{
+display:grid;
+grid-template-columns:320px 1fr 230px;
+gap:14px;
+padding:14px;
+height:100vh;
 }
 
-.panel{
-    background:#07144e;
-    border-radius:22px;
-    padding:18px;
-    box-shadow:0 0 35px rgba(0,0,0,.45);
-}
+/* LEFT PANEL */
 
 .left-panel{
-    height:calc(100vh - 36px);
-    overflow:auto;
+background:#0d1452;
+border-radius:18px;
+padding:18px;
+overflow-y:auto;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 0 25px rgba(0,0,0,.4);
 }
 
-.center-panel{
-    min-height:calc(100vh - 36px);
-}
-
-.right-panel{
-    height:calc(100vh - 36px);
-    overflow:auto;
-}
-
-.logo-title{
-    font-size:46px;
-    font-weight:900;
-    line-height:1;
-    background:linear-gradient(to right,#36d1ff,#8b5cf6,#ff2d95);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-bottom:14px;
+.logo{
+font-size:20px;
+font-weight:900;
+line-height:1.1;
+margin-bottom:10px;
+background:linear-gradient(90deg,#42c4ff,#ff4fd8);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 .desc{
-    font-size:12px;
-    color:#cbd5e1;
-    line-height:1.8;
-    margin-bottom:18px;
+font-size:11px;
+line-height:1.6;
+opacity:.8;
+margin-bottom:16px;
 }
 
 .badges{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-bottom:20px;
+display:flex;
+flex-wrap:wrap;
+gap:7px;
+margin-bottom:20px;
 }
 
 .badge{
-    background:#15266b;
-    padding:8px 12px;
-    border-radius:30px;
-    font-size:11px;
-    border:1px solid rgba(255,255,255,.08);
+padding:5px 10px;
+font-size:10px;
+border-radius:30px;
+background:rgba(255,255,255,.08);
 }
 
 .section-title{
-    margin-top:16px;
-    margin-bottom:8px;
-    font-size:13px;
-    font-weight:700;
+font-size:12px;
+margin-bottom:8px;
+margin-top:18px;
+font-weight:700;
 }
 
-input,
-textarea,
-select{
-    width:100%;
-    background:#13235f;
-    border:none;
-    outline:none;
-    color:white;
-    padding:14px;
-    border-radius:14px;
-    margin-bottom:12px;
+.input,
+.select,
+.textarea{
+width:100%;
+background:#18236d;
+border:none;
+border-radius:12px;
+padding:12px;
+color:white;
+font-size:12px;
+outline:none;
 }
 
-textarea{
-    min-height:90px;
-    resize:none;
+.textarea{
+min-height:90px;
+resize:none;
 }
 
-.tag-cloud{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-bottom:12px;
+.skills-wrap{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-top:10px;
 }
 
 .skill-tag{
-    padding:9px 13px;
-    border-radius:30px;
-    background:#1a2e7a;
-    font-size:12px;
-    cursor:pointer;
-    transition:.3s;
+padding:7px 11px;
+border-radius:30px;
+font-size:11px;
+cursor:pointer;
+transition:.3s;
+background:#2636b8;
 }
 
 .skill-tag:hover{
-    background:#ff2d95;
+transform:scale(1.05);
 }
 
-.tabs{
-    display:flex;
-    gap:8px;
-    margin-bottom:16px;
+.skill-tag.active{
+background:linear-gradient(90deg,#34c7ff,#ff4fd8);
 }
 
-.tab{
-    flex:1;
-    padding:11px;
-    border:none;
-    border-radius:12px;
-    background:#17286d;
-    color:white;
-    cursor:pointer;
+.tone-grid{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-top:10px;
 }
 
-.tab.active{
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
+.tone{
+padding:8px 11px;
+font-size:11px;
+border-radius:12px;
+background:#24318f;
+cursor:pointer;
+}
+
+.tone.active{
+background:linear-gradient(90deg,#39d0ff,#ff3fc8);
 }
 
 .generate-btn{
-    width:100%;
-    padding:16px;
-    border:none;
-    border-radius:14px;
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-    margin-top:12px;
+width:100%;
+margin-top:18px;
+padding:14px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#37c8ff,#ff42cb);
+font-weight:800;
+color:white;
+cursor:pointer;
 }
 
-.action-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:12px;
+.action-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+margin-top:10px;
 }
 
 .action-btn{
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    background:#17307f;
-    color:white;
-    cursor:pointer;
+padding:11px;
+border:none;
+border-radius:12px;
+background:#2637aa;
+color:white;
+font-size:11px;
+cursor:pointer;
 }
 
 .home-btn{
-    width:100%;
-    margin-top:12px;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    background:linear-gradient(to right,#1cb5ff,#8b5cf6);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
+margin-top:12px;
+width:100%;
+padding:13px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#3dcfff,#8d61ff);
+color:white;
+font-weight:800;
+cursor:pointer;
 }
 
-.top-controls{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:16px;
+/* CENTER */
+
+.center-panel{
+background:#0d1452;
+border-radius:20px;
+padding:14px;
+display:flex;
+flex-direction:column;
+border:1px solid rgba(255,255,255,.08);
+position:relative;
+overflow:hidden;
 }
 
-.mode-btn{
-    padding:11px 16px;
-    border:none;
-    border-radius:12px;
-    background:#182868;
-    color:white;
-    cursor:pointer;
+.platform-tabs{
+display:flex;
+gap:8px;
+margin-bottom:12px;
+flex-wrap:wrap;
 }
 
-.mode-btn.active{
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
+.platform-tab{
+padding:9px 14px;
+border-radius:12px;
+background:#2535a7;
+font-size:11px;
+cursor:pointer;
+transition:.3s;
+}
+
+.platform-tab.active{
+background:linear-gradient(90deg,#3dcfff,#ff43cf);
 }
 
 .workspace{
-    background:#f5f5f5;
-    border-radius:22px;
-    padding:24px;
-    color:black;
-    min-height:1000px;
+background:#f5f5f7;
+border-radius:18px;
+padding:22px;
+height:100%;
+overflow-y:auto;
+color:#111;
+position:relative;
 }
 
 .workspace-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
 .workspace-title{
-    font-size:44px;
-    font-weight:900;
+font-size:20px;
+font-weight:900;
 }
 
-.live-ai{
-    background:#dcfce7;
-    color:#16a34a;
-    padding:9px 15px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
+.live-badge{
+padding:8px 14px;
+border-radius:30px;
+background:#d9ffe7;
+font-size:11px;
+font-weight:700;
+color:#00a74f;
 }
 
-.grid-variants{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px;
+.preview-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
 }
 
 .bio-card{
-    background:white;
-    border-radius:18px;
-    padding:18px;
-    border:1px solid #ddd;
+background:white;
+border-radius:16px;
+padding:18px;
+border:1px solid rgba(0,0,0,.07);
+min-height:170px;
+position:relative;
+transition:.3s;
 }
 
-.bio-type{
-    font-size:16px;
-    font-weight:800;
-    margin-bottom:10px;
+.bio-card:hover{
+transform:translateY(-3px);
 }
 
-.bio-content{
-    color:#444;
-    line-height:1.8;
+.card-title{
+font-size:14px;
+font-weight:800;
+margin-bottom:10px;
 }
 
-.highlight{
-    background:yellow;
-    padding:3px 6px;
-    border-radius:6px;
+.card-text{
+font-size:14px;
+line-height:1.7;
 }
 
-.preview-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px;
-    margin-top:20px;
+.keyword{
+background:yellow;
+padding:1px 5px;
+border-radius:5px;
 }
 
 .mockup{
-    background:#fff;
-    border-radius:18px;
-    padding:16px;
-    border:1px solid #ddd;
+margin-top:15px;
+background:#eef1f7;
+border-radius:14px;
+padding:14px;
 }
 
-.mockup-title{
-    font-size:15px;
-    font-weight:800;
-    margin-bottom:12px;
-}
-
-.profile-box{
-    background:#f1f5f9;
-    border-radius:16px;
-    padding:16px;
+.profile-head{
+display:flex;
+gap:12px;
+align-items:center;
+margin-bottom:10px;
 }
 
 .avatar{
-    width:65px;
-    height:65px;
-    border-radius:50%;
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
-    margin-bottom:12px;
-}
-
-.profile-name{
-    font-weight:800;
-    margin-bottom:6px;
-}
-
-.analytics-card{
-    background:#13235f;
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:14px;
-}
-
-.analytics-title{
-    font-size:11px;
-    color:#cbd5e1;
-    margin-bottom:8px;
-}
-
-.analytics-value{
-    font-size:38px;
-    font-weight:900;
-    color:#4ade80;
-}
-
-.progress{
-    width:100%;
-    height:8px;
-    background:#091038;
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:10px;
-}
-
-.progress-bar{
-    width:0%;
-    height:100%;
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
-}
-
-.warning{
-    background:#3f1020;
-    color:#fb7185;
-    padding:14px;
-    border-radius:14px;
-    margin-top:12px;
-    font-size:13px;
-}
-
-.success{
-    background:#052e2b;
-    color:#4ade80;
-    padding:14px;
-    border-radius:14px;
-    margin-top:12px;
-    font-size:13px;
+width:52px;
+height:52px;
+border-radius:50%;
+background:linear-gradient(135deg,#33ccff,#ff46d2);
 }
 
 .bottom-actions{
-    position:sticky;
-    bottom:0;
-    display:flex;
-    gap:10px;
-    margin-top:18px;
-    background:#07144e;
-    padding:16px;
-    border-radius:20px;
+display:flex;
+gap:10px;
+margin-top:14px;
+flex-wrap:wrap;
 }
 
 .bottom-btn{
-    flex:1;
-    border:none;
-    padding:14px;
-    border-radius:12px;
-    background:linear-gradient(to right,#1cb5ff,#ff2d95);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
+padding:12px 18px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#39cfff,#ff44cd);
+color:white;
+font-weight:700;
+font-size:12px;
+cursor:pointer;
+}
+
+/* RIGHT */
+
+.right-panel{
+background:#0d1452;
+border-radius:18px;
+padding:14px;
+overflow-y:auto;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.metric-card{
+background:#1b2680;
+border-radius:14px;
+padding:14px;
+margin-bottom:12px;
+}
+
+.metric-title{
+font-size:10px;
+opacity:.7;
+margin-bottom:8px;
+}
+
+.metric-value{
+font-size:18px;
+font-weight:900;
+color:#56ff9d;
+}
+
+.progress{
+height:8px;
+border-radius:20px;
+background:#111c63;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress-fill{
+height:100%;
+background:linear-gradient(90deg,#37cfff,#ff4ed3);
+width:82%;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{opacity:1}
+50%{opacity:.5}
+100%{opacity:1}
+}
+
+.insight{
+background:#1a278d;
+padding:14px;
+border-radius:14px;
+margin-bottom:12px;
+font-size:12px;
+line-height:1.7;
 }
 
 .chart-box{
-    background:#13235f;
-    border-radius:16px;
-    padding:16px;
+background:#18236d;
+padding:12px;
+border-radius:14px;
 }
 
-@media(max-width:1300px){
-
-.main-layout{
-    grid-template-columns:1fr;
+.typing{
+border-right:2px solid black;
+animation:blink .7s infinite;
 }
 
-.left-panel,
-.right-panel{
-    height:auto;
+@keyframes blink{
+0%,100%{border-color:transparent}
+50%{border-color:black}
 }
 
-.center-panel{
-    order:-1;
+::-webkit-scrollbar{
+width:7px;
 }
 
-.grid-variants,
+::-webkit-scrollbar-thumb{
+background:#4453d8;
+border-radius:20px;
+}
+
+@media(max-width:1200px){
+
+.main-grid{
+grid-template-columns:1fr;
+height:auto;
+overflow:auto;
+}
+
+body{
+overflow:auto;
+}
+
 .preview-grid{
-    grid-template-columns:1fr;
-}
-
-.bottom-actions{
-    flex-wrap:wrap;
+grid-template-columns:1fr;
 }
 
 }
@@ -423,99 +433,97 @@ textarea{
 
 <body>
 
-<div class="main-layout">
+<div class="main-grid">
 
-<div class="panel left-panel">
+<!-- LEFT -->
 
-<div class="logo-title">
+<div class="left-panel">
+
+<div class="logo">
 Global AI<br>
-Bio<br>
-Engine
+Bio Engine
 </div>
 
 <div class="desc">
-Enterprise-grade AI powered personal branding engine with realtime SEO optimization, creator positioning, recruiter attraction analysis and multi-platform bio generation.
+Enterprise AI personal branding engine with SEO optimization,
+recruiter attraction intelligence, and viral positioning systems.
 </div>
 
 <div class="badges">
 <div class="badge">🔥 Viral AI</div>
 <div class="badge">📈 SEO</div>
-<div class="badge">🌍 Multi Platform</div>
-<div class="badge">🧠 Branding AI</div>
-<div class="badge">⚡ Live Analytics</div>
+<div class="badge">⚡ Live</div>
+<div class="badge">🎯 Branding</div>
 </div>
 
 <div class="section-title">Industry / Niche</div>
 
-<select>
-<option>Technology</option>
+<select class="select" id="industry">
 <option>Marketing</option>
-<option>Crypto</option>
+<option>Technology</option>
 <option>Finance</option>
 <option>Creator Economy</option>
-<option>Healthcare</option>
-<option>Real Estate</option>
+<option>Service Desk</option>
+<option>Cloud Engineer</option>
+<option>Data Analyst</option>
+<option>AI Engineer</option>
 </select>
 
 <div class="section-title">Core Skills</div>
 
-<div class="tag-cloud">
+<input type="text" class="input" id="skillInput" placeholder="Type skill and press enter">
 
-<div class="skill-tag">AI</div>
-<div class="skill-tag">Marketing</div>
-<div class="skill-tag">Power BI</div>
-<div class="skill-tag">Azure</div>
-<div class="skill-tag">ServiceNow</div>
-<div class="skill-tag">Branding</div>
+<div class="skills-wrap" id="skillsWrap">
+
+<div class="skill-tag active">AI</div>
+<div class="skill-tag active">Power BI</div>
+<div class="skill-tag active">Azure</div>
+<div class="skill-tag active">Branding</div>
 
 </div>
 
-<textarea id="skillsInput" placeholder="Enter skills separated by commas"></textarea>
-
 <div class="section-title">Achievement Highlights</div>
 
-<textarea id="achievementInput" placeholder="5+ Years Experience, 10M+ Views, Built SaaS Product..."></textarea>
+<textarea class="textarea" id="achievements">5+ Years Experience, 10M+ Views, Built SaaS Products</textarea>
 
 <div class="section-title">Target Audience</div>
 
-<select>
+<select class="select" id="audience">
 <option>Recruiters</option>
 <option>Clients</option>
 <option>Investors</option>
-<option>Followers</option>
-<option>Brands</option>
+<option>Creators</option>
 </select>
 
 <div class="section-title">Reference Profile URL</div>
 
-<input type="text" placeholder="Paste LinkedIn or Twitter URL">
+<input class="input" placeholder="Paste LinkedIn or Twitter URL">
 
 <div class="section-title">Language Style</div>
 
-<select>
+<select class="select">
 <option>Professional English</option>
 <option>Creative Hinglish</option>
-<option>Minimal Corporate</option>
-<option>Founder Style</option>
-<option>Creator Style</option>
+<option>Minimal Founder Tone</option>
 </select>
 
 <div class="section-title">Emoji Density</div>
 
-<select>
+<select class="select" id="emoji">
 <option>No Emojis</option>
-<option>Balanced</option>
-<option>Creator Heavy</option>
+<option>Minimal Emojis</option>
+<option>Creator Style</option>
 </select>
 
 <div class="section-title">Tone Persona</div>
 
-<div class="tabs">
+<div class="tone-grid">
 
-<button class="tab active">Authority</button>
-<button class="tab">Creator</button>
-<button class="tab">Minimal</button>
-<button class="tab">Founder</button>
+<div class="tone active">Authority</div>
+<div class="tone">Minimal</div>
+<div class="tone">Founder</div>
+<div class="tone">Bold</div>
+<div class="tone">Creator</div>
 
 </div>
 
@@ -523,12 +531,23 @@ Enterprise-grade AI powered personal branding engine with realtime SEO optimizat
 🚀 Generate AI Bio
 </button>
 
-<div class="action-grid">
+<div class="action-row">
 
-<button class="action-btn" onclick="copyBio()">📋 Copy</button>
-<button class="action-btn">📄 Export</button>
-<button class="action-btn">⚡ Rewrite</button>
-<button class="action-btn">📈 Analyze</button>
+<button class="action-btn" onclick="copyBio()">
+📋 Copy
+</button>
+
+<button class="action-btn">
+📄 Export
+</button>
+
+<button class="action-btn">
+⚡ Rewrite
+</button>
+
+<button class="action-btn">
+📈 Analyze
+</button>
 
 </div>
 
@@ -538,15 +557,17 @@ Enterprise-grade AI powered personal branding engine with realtime SEO optimizat
 
 </div>
 
-<div class="panel center-panel">
+<!-- CENTER -->
 
-<div class="top-controls">
+<div class="center-panel">
 
-<button class="mode-btn active">LinkedIn</button>
-<button class="mode-btn">Instagram</button>
-<button class="mode-btn">X/Twitter</button>
-<button class="mode-btn">TikTok</button>
-<button class="mode-btn">Founder</button>
+<div class="platform-tabs">
+
+<div class="platform-tab active">LinkedIn</div>
+<div class="platform-tab">Instagram</div>
+<div class="platform-tab">X/Twitter</div>
+<div class="platform-tab">TikTok</div>
+<div class="platform-tab">Founder</div>
 
 </div>
 
@@ -555,117 +576,131 @@ Enterprise-grade AI powered personal branding engine with realtime SEO optimizat
 <div class="workspace-header">
 
 <div>
-
 <div class="workspace-title">
 AI Bio Studio
 </div>
 
-<div style="color:#555;">
-Realtime personal branding & SEO bio intelligence engine
+<div style="font-size:12px;opacity:.6;">
+Realtime personal branding & SEO intelligence engine
+</div>
 </div>
 
-</div>
-
-<div class="live-ai">
+<div class="live-badge">
 🟢 LIVE AI
-</div>
-
-</div>
-
-<div class="grid-variants">
-
-<div class="bio-card">
-
-<div class="bio-type">
-🔥 The Authority Bio
-</div>
-
-<div class="bio-content" id="bio1">
-Your generated authority bio will appear here...
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="bio-type">
-🚀 The Creator Bio
-</div>
-
-<div class="bio-content" id="bio2">
-Your generated creator bio will appear here...
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="bio-type">
-⚡ The Minimalist Bio
-</div>
-
-<div class="bio-content" id="bio3">
-Your generated minimalist bio will appear here...
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="bio-type">
-🎯 The Hook Bio
-</div>
-
-<div class="bio-content" id="bio4">
-Your generated hook bio will appear here...
-</div>
-
 </div>
 
 </div>
 
 <div class="preview-grid">
 
-<div class="mockup">
+<div class="bio-card">
 
-<div class="mockup-title">
+<div class="card-title">
+🔥 The Authority Bio
+</div>
+
+<div class="card-text typing" id="bio1" contenteditable="true">
+Helping brands scale with <span class="keyword">AI</span>,
+analytics and digital transformation.
+</div>
+
+</div>
+
+<div class="bio-card">
+
+<div class="card-title">
+🚀 The Creator Bio
+</div>
+
+<div class="card-text" id="bio2" contenteditable="true">
+Creator building AI-powered products and scalable ecosystems.
+</div>
+
+</div>
+
+<div class="bio-card">
+
+<div class="card-title">
+⚡ The Minimalist Bio
+</div>
+
+<div class="card-text" id="bio3" contenteditable="true">
+AI • Branding • SaaS • Growth
+</div>
+
+</div>
+
+<div class="bio-card">
+
+<div class="card-title">
+🎯 The Hook Bio
+</div>
+
+<div class="card-text" id="bio4" contenteditable="true">
+From support desk to building scalable AI ecosystems ⚡
+</div>
+
+</div>
+
+<div class="bio-card">
+
+<div class="card-title">
 💼 LinkedIn Preview
 </div>
 
-<div class="profile-box">
+<div class="mockup">
+
+<div class="profile-head">
 
 <div class="avatar"></div>
 
-<div class="profile-name">
+<div>
+<div style="font-weight:800;">
 Prasanna K
 </div>
 
-<div id="linkedinPreview">
-LinkedIn optimized bio preview will appear here...
+<div style="font-size:12px;opacity:.7;">
+AI Strategist
+</div>
 </div>
 
 </div>
 
+<div style="font-size:13px;line-height:1.6;">
+Helping brands scale with <span class="keyword">AI</span>,
+analytics and SaaS transformation.
+</div>
+
+</div>
+
+</div>
+
+<div class="bio-card">
+
+<div class="card-title">
+📸 Instagram Preview
 </div>
 
 <div class="mockup">
 
-<div class="mockup-title">
-📸 Instagram Preview
-</div>
-
-<div class="profile-box">
+<div class="profile-head">
 
 <div class="avatar"></div>
 
-<div class="profile-name">
+<div>
+<div style="font-weight:800;">
 @global.creator
 </div>
 
-<div id="instagramPreview">
-Instagram bio preview will appear here...
+<div style="font-size:12px;opacity:.7;">
+Creator
+</div>
 </div>
 
+</div>
+
+<div style="font-size:13px;line-height:1.6;">
+⚡ Creator building AI-powered products & digital experiences.
 </div>
 
 </div>
@@ -678,112 +713,113 @@ Instagram bio preview will appear here...
 
 <button class="bottom-btn">📋 Copy Clean</button>
 <button class="bottom-btn">📄 Export TXT</button>
-<button class="bottom-btn">📊 Export JSON</button>
+<button class="bottom-btn">📦 Export JSON</button>
 <button class="bottom-btn">⚡ Generate More</button>
-<button class="bottom-btn">📅 Save Workspace</button>
+<button class="bottom-btn">💾 Save Workspace</button>
 
 </div>
 
 </div>
 
-<div class="panel right-panel">
+</div>
 
-<div class="analytics-card">
+<!-- RIGHT -->
 
-<div class="analytics-title">
+<div class="right-panel">
+
+<div class="metric-card">
+
+<div class="metric-title">
 PROFILE STRENGTH
 </div>
 
-<div class="analytics-value" id="strengthScore">
-0%
+<div class="metric-value" id="strength">
+82%
 </div>
 
 <div class="progress">
-<div class="progress-bar" id="strengthBar"></div>
+<div class="progress-fill"></div>
 </div>
 
 </div>
 
-<div class="analytics-card">
+<div class="metric-card">
 
-<div class="analytics-title">
+<div class="metric-title">
 SEO DISCOVERABILITY
 </div>
 
-<div class="analytics-value" id="seoScore">
-0%
+<div class="metric-value" id="seo">
+83%
+</div>
+
+<div class="progress">
+<div class="progress-fill"></div>
 </div>
 
 </div>
 
-<div class="analytics-card">
+<div class="metric-card">
 
-<div class="analytics-title">
+<div class="metric-title">
 RECRUITER ATTRACTION
 </div>
 
-<div class="analytics-value" id="recruiterScore">
-0%
+<div class="metric-value" id="recruiter">
+85%
+</div>
+
+<div class="progress">
+<div class="progress-fill"></div>
 </div>
 
 </div>
 
-<div class="analytics-card">
+<div class="metric-card">
 
-<div class="analytics-title">
+<div class="metric-title">
 READABILITY INDEX
 </div>
 
-<div class="analytics-value" id="readabilityScore">
-0%
+<div class="metric-value">
+81%
+</div>
+
+<div class="progress">
+<div class="progress-fill"></div>
 </div>
 
 </div>
 
-<div class="analytics-card">
+<div class="insight">
 
-<div class="analytics-title">
-AI CTA ENGINE
-</div>
+✅ Strong AI & branding keywords detected.<br><br>
 
-<div class="success">
-👇 DM for collaborations & consulting opportunities.
-</div>
+⚡ CTA optimized for recruiter conversion.<br><br>
 
-</div>
-
-<div class="analytics-card">
-
-<div class="analytics-title">
-BUZZWORD VALIDATOR
-</div>
-
-<div class="warning">
-⚠️ Avoid words like "Guru", "Ninja", "Rockstar".
-</div>
+🚫 Avoid buzzwords:
+“Ninja”, “Guru”, “Rockstar”.
 
 </div>
 
-<div class="analytics-card">
+<div class="insight">
 
-<div class="analytics-title">
-TRENDING KEYWORDS
-</div>
+🔥 Trending Keywords
 
-<div class="tag-cloud">
+<br><br>
 
-<div class="skill-tag">AI</div>
-<div class="skill-tag">Creator</div>
-<div class="skill-tag">Startup</div>
-<div class="skill-tag">Branding</div>
-<div class="skill-tag">SaaS</div>
-
-</div>
+#AI<br>
+#CreatorEconomy<br>
+#Branding<br>
+#SaaS<br>
+#GrowthStrategy
 
 </div>
 
 <div class="chart-box">
-<canvas id="analyticsChart"></canvas>
+
+<canvas id="radarChart"></canvas>
+
 </div>
 
 </div>
@@ -792,33 +828,180 @@ TRENDING KEYWORDS
 
 <script>
 
-const chart = new Chart(document.getElementById('analyticsChart'),{
+const tones = document.querySelectorAll('.tone');
+
+tones.forEach(t => {
+
+t.addEventListener('click',()=>{
+
+tones.forEach(x=>x.classList.remove('active'));
+
+t.classList.add('active');
+
+});
+
+});
+
+const platformTabs = document.querySelectorAll('.platform-tab');
+
+platformTabs.forEach(tab=>{
+
+tab.addEventListener('click',()=>{
+
+platformTabs.forEach(t=>t.classList.remove('active'));
+
+tab.classList.add('active');
+
+});
+
+});
+
+function generateBio(){
+
+const industry = document.getElementById('industry').value;
+
+const achievements = document.getElementById('achievements').value;
+
+const audience = document.getElementById('audience').value;
+
+const activeTone =
+document.querySelector('.tone.active').innerText;
+
+const emojis = document.getElementById('emoji').value;
+
+let emojiPrefix = "";
+
+if(emojis === "Creator Style"){
+emojiPrefix = "⚡🔥 ";
+}
+
+if(emojis === "Minimal Emojis"){
+emojiPrefix = "⚡ ";
+}
+
+const bio =
+`${emojiPrefix}Helping ${audience.toLowerCase()}
+through scalable ${industry} systems,
+AI-driven execution and growth innovation.`;
+
+typeEffect(document.getElementById('bio1'), bio);
+
+document.getElementById('bio2').innerHTML =
+`${emojiPrefix}${activeTone} creator building
+enterprise-grade digital ecosystems.`;
+
+document.getElementById('bio3').innerHTML =
+`${industry} • AI • Branding • Growth`;
+
+document.getElementById('bio4').innerHTML =
+`${emojiPrefix}From execution to leadership —
+building scalable impact ecosystems.`;
+
+updateScores();
+
+}
+
+function typeEffect(element, text){
+
+element.innerHTML = "";
+
+let i=0;
+
+const interval = setInterval(()=>{
+
+if(i < text.length){
+
+element.innerHTML += text.charAt(i);
+
+i++;
+
+}else{
+clearInterval(interval);
+}
+
+},20);
+
+}
+
+function updateScores(){
+
+document.getElementById('strength').innerText =
+Math.floor(Math.random()*15 + 82) + "%";
+
+document.getElementById('seo').innerText =
+Math.floor(Math.random()*10 + 84) + "%";
+
+document.getElementById('recruiter').innerText =
+Math.floor(Math.random()*8 + 86) + "%";
+
+chart.data.datasets[0].data = [
+
+Math.random()*20+75,
+Math.random()*20+70,
+Math.random()*20+80,
+Math.random()*20+72,
+Math.random()*20+76
+
+];
+
+chart.update();
+
+}
+
+document.getElementById('skillInput')
+.addEventListener('keypress',function(e){
+
+if(e.key === 'Enter'){
+
+e.preventDefault();
+
+const val = this.value.trim();
+
+if(!val) return;
+
+const tag = document.createElement('div');
+
+tag.className = 'skill-tag active';
+
+tag.innerText = val;
+
+document.getElementById('skillsWrap').appendChild(tag);
+
+this.value = '';
+
+}
+
+});
+
+const ctx =
+document.getElementById('radarChart');
+
+const chart = new Chart(ctx,{
 
 type:'radar',
 
 data:{
-
 labels:[
 'SEO',
 'Clarity',
 'Authority',
-'Trust',
 'Growth',
-'Readability'
+'Trust'
 ],
 
 datasets:[{
 
-label:'AI Branding Metrics',
+label:'AI Metrics',
 
-data:[82,75,88,72,91,80],
+data:[82,83,86,80,85],
 
-backgroundColor:'rgba(59,130,246,.25)',
-borderColor:'#38bdf8',
-borderWidth:2
+backgroundColor:'rgba(70,190,255,.25)',
+
+borderColor:'#42c8ff',
+
+pointBackgroundColor:'#ff46d3'
 
 }]
-
 },
 
 options:{
@@ -833,15 +1016,17 @@ color:'white'
 
 scales:{
 r:{
+angleLines:{
+color:'rgba(255,255,255,.1)'
+},
+grid:{
+color:'rgba(255,255,255,.08)'
+},
 pointLabels:{
 color:'white'
 },
 ticks:{
-color:'white',
-backdropColor:'transparent'
-},
-grid:{
-color:'rgba(255,255,255,.15)'
+display:false
 }
 }
 }
@@ -849,88 +1034,6 @@ color:'rgba(255,255,255,.15)'
 }
 
 });
-
-const tabs = document.querySelectorAll('.tab');
-
-tabs.forEach(tab=>{
-
-tab.addEventListener('click',()=>{
-
-tabs.forEach(t=>t.classList.remove('active'));
-
-tab.classList.add('active');
-
-});
-
-});
-
-function generateBio(){
-
-const skills = document.getElementById('skillsInput').value;
-const achievements = document.getElementById('achievementInput').value;
-
-const authorityBio = `
-Helping brands and enterprises scale with 
-<span class="highlight">AI</span>, analytics and digital transformation. 
-${achievements}
-`;
-
-const creatorBio = `
-🚀 Creator building AI-powered products & digital experiences.<br><br>
-⚡ Skills: ${skills}
-`;
-
-const minimalistBio = `
-AI • Branding • SaaS • Growth
-`;
-
-const hookBio = `
-From support desk to building scalable AI creator ecosystems ⚡
-`;
-
-document.getElementById('bio1').innerHTML = authorityBio;
-document.getElementById('bio2').innerHTML = creatorBio;
-document.getElementById('bio3').innerHTML = minimalistBio;
-document.getElementById('bio4').innerHTML = hookBio;
-
-document.getElementById('linkedinPreview').innerHTML = authorityBio;
-
-document.getElementById('instagramPreview').innerHTML = creatorBio;
-
-const strength = Math.floor(Math.random()*15)+80;
-const seo = Math.floor(Math.random()*10)+78;
-const recruiter = Math.floor(Math.random()*12)+82;
-const readability = Math.floor(Math.random()*10)+75;
-
-document.getElementById('strengthScore').innerHTML = strength + '%';
-document.getElementById('seoScore').innerHTML = seo + '%';
-document.getElementById('recruiterScore').innerHTML = recruiter + '%';
-document.getElementById('readabilityScore').innerHTML = readability + '%';
-
-document.getElementById('strengthBar').style.width = strength + '%';
-
-chart.data.datasets[0].data = [
-seo,
-readability,
-recruiter,
-strength-5,
-strength,
-readability+2
-];
-
-chart.update();
-
-}
-
-function copyBio(){
-
-const text = document.getElementById('bio1').innerText;
-
-navigator.clipboard.writeText(text);
-
-alert('Bio copied successfully');
-
-}
 
 </script>
 
