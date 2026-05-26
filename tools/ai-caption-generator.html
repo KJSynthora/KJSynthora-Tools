@@ -3,15 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Global AI Caption Engine</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -20,58 +18,58 @@ font-family:'Inter',sans-serif;
 }
 
 body{
-background:
-linear-gradient(135deg,#020617,#04124f,#4c1d95);
-color:white;
+background:linear-gradient(135deg,#09092d,#16004b,#6d1b7b,#ff2d95);
 min-height:100vh;
-overflow-x:hidden;
 padding:20px;
-transition:.4s;
+color:white;
+overflow-x:hidden;
 }
 
-.main-grid{
+.container{
 display:grid;
-grid-template-columns:340px 1fr 320px;
+grid-template-columns:320px 1fr 260px;
 gap:18px;
-max-width:1900px;
+max-width:1800px;
 margin:auto;
 }
 
 .panel{
-background:rgba(8,15,55,.92);
-border-radius:24px;
-border:1px solid rgba(255,255,255,.08);
-padding:20px;
-backdrop-filter:blur(18px);
-box-shadow:0 0 35px rgba(0,0,0,.35);
+background:#0e1444;
+border-radius:18px;
+padding:18px;
+box-shadow:0 0 25px rgba(0,0,0,0.35);
+border:1px solid rgba(255,255,255,0.05);
 }
 
-.left-panel,
-.right-panel{
-height:calc(100vh - 40px);
+.left-panel{
+height:95vh;
 overflow-y:auto;
 }
 
 .center-panel{
-min-height:calc(100vh - 40px);
+min-height:95vh;
+}
+
+.right-panel{
+height:95vh;
+overflow-y:auto;
 }
 
 .logo{
-font-size:36px;
+font-size:38px;
 font-weight:800;
 line-height:1.1;
-margin-bottom:14px;
-
-background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);
+margin-bottom:10px;
+background:linear-gradient(to right,#4fc3ff,#ff5bd1);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
 .desc{
 font-size:13px;
-line-height:1.8;
-color:#cbd5e1;
-margin-bottom:18px;
+line-height:1.7;
+opacity:0.8;
+margin-bottom:15px;
 }
 
 .badges{
@@ -82,529 +80,419 @@ margin-bottom:20px;
 }
 
 .badge{
-padding:8px 12px;
-border-radius:999px;
+background:#1d2b7a;
+padding:7px 12px;
+border-radius:30px;
 font-size:11px;
-background:#1e1b4b;
-border:1px solid rgba(255,255,255,.08);
 }
 
-.section-title{
+.input-group{
+margin-bottom:16px;
+}
+
+.input-group label{
+display:block;
+margin-bottom:7px;
 font-size:12px;
-font-weight:700;
-margin-top:15px;
-margin-bottom:8px;
-color:#dbeafe;
+font-weight:600;
 }
 
-textarea,
 input,
+textarea,
 select{
 width:100%;
-background:#111c5a;
+padding:13px;
+background:#16225f;
 border:none;
-outline:none;
-padding:14px;
 border-radius:12px;
 color:white;
 font-size:13px;
-margin-bottom:12px;
+outline:none;
 }
 
 textarea{
+min-height:90px;
 resize:vertical;
-min-height:100px;
 }
 
 button{
 border:none;
 cursor:pointer;
-transition:.3s;
 }
 
-.primary-btn{
+.generate-btn{
 width:100%;
-padding:15px;
+padding:14px;
 border-radius:14px;
-font-weight:700;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);
+background:linear-gradient(to right,#34c8ff,#ff4edb);
 color:white;
+font-weight:700;
+margin-top:10px;
+}
+
+.action-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:10px;
+}
+
+.small-btn{
+padding:12px;
+border-radius:10px;
+background:#1c2d7c;
+color:white;
+font-size:12px;
+}
+
+.home-btn{
+display:block;
+margin-top:12px;
+text-align:center;
+padding:12px;
+background:linear-gradient(to right,#2b8cff,#8f49ff);
+border-radius:12px;
+color:white;
+text-decoration:none;
+font-size:13px;
+font-weight:700;
+}
+
+.platform-tabs{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+flex-wrap:wrap;
+}
+
+.tab{
+padding:10px 18px;
+border-radius:12px;
+background:#1d2b7a;
+font-size:12px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.tab.active{
+background:linear-gradient(to right,#2abfff,#ff4fd6);
+}
+
+.editor{
+background:#f3f4f8;
+border-radius:20px;
+padding:25px;
+min-height:720px;
+color:#111;
+}
+
+.editor h1{
+font-size:38px;
+margin-bottom:10px;
+}
+
+.editor-section{
+background:white;
+padding:18px;
+border-radius:14px;
+margin-top:16px;
+border:1px solid #ddd;
+}
+
+.output{
+font-size:15px;
+line-height:1.8;
+color:#444;
+}
+
+.metrics-card{
+background:#17266c;
+padding:18px;
+border-radius:15px;
+margin-bottom:14px;
+}
+
+.metrics-title{
+font-size:11px;
+opacity:0.7;
+margin-bottom:8px;
+}
+
+.metrics-value{
+font-size:38px;
+font-weight:800;
+color:#4dffb2;
+}
+
+.progress{
+height:8px;
+background:#1f1f1f;
+border-radius:20px;
+margin-top:10px;
+overflow:hidden;
+}
+
+.progress div{
+height:100%;
+background:linear-gradient(to right,#2acbff,#ff4fd6);
+width:0%;
+}
+
+.hash-tags{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
 margin-top:12px;
 }
 
-.primary-btn:hover{
-transform:translateY(-2px);
+.hash{
+padding:8px 12px;
+border-radius:20px;
+font-size:11px;
+font-weight:600;
+}
+
+.green{
+background:#1b7c4c;
+}
+
+.red{
+background:#983838;
+}
+
+.blue{
+background:#2959a8;
+}
+
+.yellow{
+background:#9b791d;
 }
 
 .toolbar{
 display:flex;
 gap:10px;
 flex-wrap:wrap;
-margin-bottom:16px;
+margin-bottom:15px;
 }
 
-.platform-btn{
-padding:10px 15px;
-border-radius:12px;
-background:#172554;
+.toolbar button{
+padding:10px 14px;
+border-radius:10px;
+background:#1d2b7a;
 color:white;
 font-size:12px;
-font-weight:700;
 }
 
-.platform-btn.active{
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
-}
-
-.preview{
-background:white;
-border-radius:18px;
-padding:35px;
-min-height:1000px;
-color:black;
-position:relative;
-overflow:hidden;
-}
-
-.preview-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-}
-
-.preview-title{
-font-size:34px;
-font-weight:800;
-}
-
-.live-indicator{
-padding:8px 12px;
-border-radius:999px;
-background:#dcfce7;
-color:#166534;
-font-size:12px;
-font-weight:700;
-}
-
-.content-card{
-background:#f1f5f9;
-border-radius:16px;
-padding:18px;
-margin-bottom:18px;
-}
-
-.generated-caption{
-line-height:2;
-font-size:15px;
-white-space:pre-wrap;
-}
-
-.metric{
-background:#172554;
-border-radius:18px;
-padding:18px;
-margin-bottom:14px;
-}
-
-.metric-label{
-font-size:11px;
-color:#cbd5e1;
-margin-bottom:8px;
-}
-
-.metric-value{
-font-size:34px;
-font-weight:800;
-color:#4ade80;
-}
-
-.progress{
-width:100%;
-height:10px;
-border-radius:999px;
-background:#0f172a;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progress-fill{
-height:100%;
-background:linear-gradient(90deg,#22c55e,#8b5cf6);
-}
-
-.chart-box{
-background:#172554;
-padding:16px;
-border-radius:16px;
-margin-top:16px;
-}
-
-.skill-tags{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-top:10px;
-}
-
-.skill-tag{
-padding:8px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:700;
-}
-
-.green{
-background:#14532d;
-}
-
-.red{
-background:#7f1d1d;
-}
-
-.blue{
-background:#1d4ed8;
-}
-
-.analytics-box{
-padding:15px;
-background:#172554;
-border-radius:14px;
-margin-top:14px;
-}
-
-.analytics-box p{
-line-height:1.9;
-font-size:13px;
-}
-
-.grid-2{
+.variant-cards{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
+margin-top:12px;
 }
 
-.upload-box{
-border:2px dashed rgba(255,255,255,.12);
-padding:18px;
-border-radius:14px;
-text-align:center;
-margin-bottom:14px;
+.variant{
+background:#f0f2f7;
+padding:14px;
+border-radius:12px;
+font-size:13px;
+line-height:1.7;
 }
 
-.typing{
-border-right:3px solid #8b5cf6;
-animation:blink .6s infinite;
+.skill-bar{
+height:10px;
+background:#111;
+border-radius:20px;
+overflow:hidden;
+margin-top:8px;
 }
 
-@keyframes blink{
-50%{
-border-color:transparent;
-}
-}
-
-.hook-list li{
-margin-left:20px;
-line-height:2;
+.skill-bar div{
+height:100%;
+background:linear-gradient(to right,#31d6ff,#ff4fd6);
 }
 
-.export-buttons{
-display:flex;
+.counter-box{
+display:grid;
+grid-template-columns:1fr 1fr;
 gap:10px;
-margin-top:15px;
+margin-top:12px;
 }
 
-.export-buttons button{
-flex:1;
+.counter{
+background:#17266c;
 padding:12px;
 border-radius:12px;
-background:#1e3a8a;
-color:white;
+text-align:center;
+}
+
+.counter h4{
 font-size:12px;
+opacity:0.7;
+margin-bottom:6px;
+}
+
+.counter p{
+font-size:20px;
 font-weight:700;
 }
 
-.live-stream{
-background:#172554;
-padding:12px;
-border-radius:12px;
-font-size:12px;
-margin-top:12px;
-line-height:1.9;
-color:#4ade80;
-}
-
-.trending-ticker{
-overflow:hidden;
-white-space:nowrap;
-margin-top:10px;
-}
-
-.ticker-content{
-display:inline-block;
-padding-left:100%;
-animation:ticker 18s linear infinite;
-}
-
-@keyframes ticker{
-0%{
-transform:translateX(0);
-}
-100%{
-transform:translateX(-100%);
-}
-}
-
-.ai-loader{
-display:flex;
-gap:8px;
-margin-top:15px;
-}
-
-.dot{
+.live-dot{
 width:10px;
 height:10px;
+background:#39ff84;
 border-radius:50%;
-background:#8b5cf6;
-animation:bounce 1s infinite;
+display:inline-block;
+margin-right:8px;
+animation:pulse 1s infinite;
 }
 
-.dot:nth-child(2){
-animation-delay:.2s;
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.5);}
+100%{transform:scale(1);}
 }
 
-.dot:nth-child(3){
-animation-delay:.4s;
-}
-
-@keyframes bounce{
-0%,100%{
-transform:translateY(0);
-opacity:.5;
-}
-50%{
-transform:translateY(-8px);
-opacity:1;
-}
-}
-
-.theme-instagram{
-background:
-linear-gradient(135deg,#1e1b4b,#db2777,#7c3aed);
-}
-
-.theme-linkedin{
-background:
-linear-gradient(135deg,#0f172a,#1d4ed8,#2563eb);
-}
-
-.theme-tiktok{
-background:
-linear-gradient(135deg,#000000,#111827,#ec4899);
-}
-
-.theme-youtube{
-background:
-linear-gradient(135deg,#0f172a,#991b1b,#dc2626);
-}
-
-.theme-pinterest{
-background:
-linear-gradient(135deg,#111827,#be123c,#e11d48);
-}
-
-@media(max-width:1400px){
-
-.main-grid{
+@media(max-width:1200px){
+.container{
 grid-template-columns:1fr;
 }
-
 .left-panel,
 .right-panel{
 height:auto;
 }
-
+.editor{
+min-height:auto;
 }
-
+}
 </style>
 </head>
 
-<body class="theme-instagram">
+<body>
 
-<div class="main-grid">
+<div class="container">
 
-<!-- LEFT -->
+<!-- LEFT PANEL -->
 
 <div class="panel left-panel">
 
 <div class="logo">
-Global AI Caption Engine
+Global AI<br>Caption Engine
 </div>
 
 <div class="desc">
-Enterprise-grade AI creator platform with viral prediction engine, hashtag intelligence, competitor analysis and AI storytelling optimization.
+Enterprise-grade AI caption generation engine with viral optimization, hashtag intelligence, emotional analytics and platform automation.
 </div>
 
 <div class="badges">
 <div class="badge">🔥 Viral AI</div>
-<div class="badge">📈 SEO Engine</div>
-<div class="badge">🎯 Hook AI</div>
-<div class="badge">📸 Multimodal</div>
-<div class="badge">🧠 Trend AI</div>
-<div class="badge">🎬 Shorts Engine</div>
+<div class="badge">📈 SEO</div>
+<div class="badge">🎯 CTR</div>
+<div class="badge">🧠 Emotional AI</div>
+<div class="badge">📱 Multi Platform</div>
+<div class="badge">⚡ Realtime</div>
 </div>
 
-<div class="section-title">
-Platform
-</div>
-
-<select id="platform" onchange="changePlatform()">
+<div class="input-group">
+<label>Platform</label>
+<select id="platform">
 <option>Instagram</option>
 <option>LinkedIn</option>
-<option>TikTok</option>
+<option>X</option>
 <option>YouTube</option>
+<option>TikTok</option>
 <option>Pinterest</option>
 </select>
-
-<div class="grid-2">
-
-<div>
-
-<div class="section-title">
-Tone
 </div>
 
+<div class="counter-box">
+
+<div class="counter">
+<h4>Tone</h4>
 <select id="tone">
 <option>Professional</option>
+<option>Funny</option>
 <option>Luxury</option>
+<option>Storytelling</option>
 <option>Gen-Z</option>
-<option>Emotional</option>
 <option>Educational</option>
-<option>Witty</option>
-<option>Corporate</option>
-<option>FOMO</option>
 </select>
-
 </div>
 
-<div>
-
-<div class="section-title">
-Length
-</div>
-
+<div class="counter">
+<h4>Length</h4>
 <select id="length">
 <option>Short</option>
 <option>Medium</option>
 <option>Long</option>
 </select>
-
 </div>
 
 </div>
 
-<div class="section-title">
-Topic / Prompt
+<div class="input-group">
+<label>Topic / Prompt</label>
+<textarea id="topic"></textarea>
 </div>
 
-<textarea id="topic" placeholder="Describe your content..."></textarea>
-
-<div class="section-title">
-Target Keywords
+<div class="input-group">
+<label>Target Keywords</label>
+<textarea id="keywords"></textarea>
 </div>
 
-<textarea id="keywords" placeholder="AI, marketing, startup, finance..."></textarea>
-
-<div class="section-title">
-Paste Job / Campaign Brief
-</div>
-
-<textarea id="jdBox" placeholder="Paste target campaign brief or content requirement..."></textarea>
-
-<div class="section-title">
-Target Audience
-</div>
-
+<div class="input-group">
+<label>Target Audience</label>
 <select id="audience">
 <option>Creators</option>
-<option>Businesses</option>
+<option>Business Owners</option>
 <option>Students</option>
-<option>Developers</option>
-<option>Recruiters</option>
-<option>Fitness Audience</option>
-<option>Luxury Audience</option>
+<option>Tech Audience</option>
+<option>Finance Audience</option>
 </select>
-
-<div class="section-title">
-Emoji Density
 </div>
 
+<div class="input-group">
+<label>Emoji Density</label>
 <select id="emoji">
 <option>No Emojis</option>
-<option>Minimal</option>
-<option>Medium</option>
-<option>High</option>
+<option>Minimal Emojis</option>
+<option>High Emojis</option>
 </select>
-
-<div class="section-title">
-CTA Style
 </div>
 
+<div class="input-group">
+<label>CTA Style</label>
 <select id="cta">
 <option>Comment Below</option>
 <option>Save For Later</option>
 <option>Share With Friends</option>
-<option>Follow For More</option>
 <option>Link In Bio</option>
 </select>
-
-<div class="section-title">
-Upload Image / Video
 </div>
 
-<div class="upload-box">
-
-<input type="file" id="media">
-
+<div class="input-group">
+<label>Upload Image / Video</label>
+<input type="file">
 </div>
 
-<div class="section-title">
-Brand Voice
+<div class="input-group">
+<label>Brand Voice</label>
+<textarea></textarea>
 </div>
 
-<textarea placeholder="Luxury, premium, modern, corporate..."></textarea>
-
-<div class="section-title">
-Competitor Analysis
-</div>
-
-<input type="text" placeholder="@competitor_handle">
-
-<button class="primary-btn" onclick="generateCaption()">
+<button class="generate-btn" onclick="generateCaption()">
 🚀 Generate AI Caption
 </button>
 
-<div class="export-buttons">
-
-<button onclick="copyCaption()">
-📋 Copy
-</button>
-
-<button onclick="downloadCaption()">
-📄 Export
-</button>
-
+<div class="action-row">
+<button class="small-btn" onclick="copyCaption()">📋 Copy</button>
+<button class="small-btn">📄 Export PDF</button>
+<button class="small-btn">✨ Rewrite</button>
+<button class="small-btn">🔥 Viralize</button>
 </div>
 
-<div class="live-stream" id="streamBox">
-AI engine ready...
-</div>
-
-<div class="trending-ticker">
-<div class="ticker-content">
-🔥 Trending: #AI2026 #IPL2026 #BusinessGrowth #StartupTips #CreatorEconomy #MarketingAI #FitnessTransformation
-</div>
-</div>
+<a href="../index.html" class="home-btn">
+🏠 Return To Home
+</a>
 
 </div>
 
@@ -612,113 +500,91 @@ AI engine ready...
 
 <div class="panel center-panel">
 
+<div class="platform-tabs">
+
+<div class="tab active" onclick="switchTab(this,'Instagram')">Instagram</div>
+<div class="tab" onclick="switchTab(this,'LinkedIn')">LinkedIn</div>
+<div class="tab" onclick="switchTab(this,'X')">X</div>
+<div class="tab" onclick="switchTab(this,'YouTube')">YouTube</div>
+<div class="tab" onclick="switchTab(this,'TikTok')">TikTok</div>
+
+</div>
+
+<div class="editor">
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div>
+<h1>AI Caption Studio</h1>
+<p style="opacity:0.6;">Realtime AI-powered viral caption system</p>
+</div>
+
+<div style="background:#d7ffe5;padding:10px 14px;border-radius:20px;font-size:12px;color:#0a7c40;">
+<span class="live-dot"></span>
+LIVE AI
+</div>
+
+</div>
+
 <div class="toolbar">
 
-<button class="platform-btn active" onclick="setPlatform('Instagram',this)">
-Instagram
-</button>
-
-<button class="platform-btn" onclick="setPlatform('LinkedIn',this)">
-LinkedIn
-</button>
-
-<button class="platform-btn" onclick="setPlatform('TikTok',this)">
-TikTok
-</button>
-
-<button class="platform-btn" onclick="setPlatform('YouTube',this)">
-YouTube
-</button>
-
-<button class="platform-btn" onclick="setPlatform('Pinterest',this)">
-Pinterest
-</button>
+<button onclick="applyTemplate('corporate')">Corporate</button>
+<button onclick="applyTemplate('viral')">Viral</button>
+<button onclick="applyTemplate('luxury')">Luxury</button>
+<button onclick="applyTemplate('story')">Story</button>
 
 </div>
 
-<div class="preview">
+<div class="editor-section">
 
-<div class="preview-header">
+<h3>Generated Caption</h3>
 
-<div class="preview-title">
-AI Caption Studio
-</div>
-
-<div class="live-indicator">
-🟢 LIVE AI
+<div class="output" id="captionOutput">
+Your AI generated caption will appear here...
 </div>
 
 </div>
 
-<div class="content-card">
+<div class="variant-cards">
 
-<h3>
-Generated Caption
-</h3>
-
-<div id="captionOutput" class="generated-caption">
-AI generated caption will appear here...
+<div class="variant">
+<h4>Variant A</h4>
+<div id="variantA">Variant A will appear...</div>
 </div>
 
-<div class="ai-loader" id="loader" style="display:none;">
-<div class="dot"></div>
-<div class="dot"></div>
-<div class="dot"></div>
+<div class="variant">
+<h4>Variant B</h4>
+<div id="variantB">Variant B will appear...</div>
 </div>
 
 </div>
 
-<div class="content-card">
+<div class="editor-section">
 
-<h3>
-A/B Testing Variants
-</h3>
+<h3>Hook Generator</h3>
 
-<p id="variantA">
-Variant A will appear here...
-</p>
-
-<hr style="margin:14px 0;">
-
-<p id="variantB">
-Variant B will appear here...
-</p>
-
-</div>
-
-<div class="content-card">
-
-<h3>
-Hook Generator
-</h3>
-
-<ul class="hook-list" id="hooks">
-<li>Hook ideas will appear here...</li>
+<ul id="hooks">
+<li>Hook ideas will appear...</li>
 </ul>
 
 </div>
 
-<div class="content-card">
+<div class="editor-section">
 
-<h3>
-SEO Suggestions
-</h3>
+<h3>SEO Suggestions</h3>
 
-<p id="seo">
-SEO suggestions will appear here...
-</p>
+<div id="seoBox">
+SEO suggestions will appear...
+</div>
 
 </div>
 
-<div class="content-card">
+<div class="editor-section">
 
-<h3>
-Multi Platform Repurposing
-</h3>
+<h3>Multi Platform Repurposing</h3>
 
-<p id="multiPlatform">
-Platform content repurposing will appear here...
-</p>
+<div id="repurposeBox">
+Platform content repurposing will appear...
+</div>
 
 </div>
 
@@ -730,127 +596,79 @@ Platform content repurposing will appear here...
 
 <div class="panel right-panel">
 
-<div class="metric">
+<div class="metrics-card">
 
-<div class="metric-label">
-VIRAL SCORE
-</div>
-
-<div class="metric-value" id="viralScore">
-0%
-</div>
+<div class="metrics-title">VIRAL SCORE</div>
+<div class="metrics-value" id="viralScore">0%</div>
 
 <div class="progress">
-<div class="progress-fill" id="viralBar" style="width:0%;"></div>
+<div id="viralBar"></div>
 </div>
 
 </div>
 
-<div class="metric">
+<div class="metrics-card">
 
-<div class="metric-label">
-ENGAGEMENT PREDICTION
-</div>
-
-<div class="metric-value" id="engagement">
-0%
-</div>
-
-<div class="progress">
-<div class="progress-fill" id="engagementBar" style="width:0%;"></div>
-</div>
+<div class="metrics-title">ENGAGEMENT PREDICTION</div>
+<div class="metrics-value" id="engagement">0%</div>
 
 </div>
 
-<div class="metric">
+<div class="metrics-card">
 
-<div class="metric-label">
-SCROLL STOPPER SCORE
-</div>
-
-<div class="metric-value" id="scrollScore">
-0%
-</div>
+<div class="metrics-title">SCROLL STOPPER SCORE</div>
+<div class="metrics-value" id="scrollScore">0%</div>
 
 </div>
 
-<div class="metric">
+<div class="metrics-card">
 
-<div class="metric-label">
-RECRUITER / VIEWER READ TIME
-</div>
-
-<div class="metric-value" id="readTime">
-0s
-</div>
+<div class="metrics-title">RECRUITER / VIEWER READ TIME</div>
+<div class="metrics-value" id="readTime">0s</div>
 
 </div>
 
-<div class="analytics-box">
+<div class="metrics-card">
 
-<p>
-🔥 AI Trend Detection
-</p>
+<div class="metrics-title">Character Count</div>
+<div class="metrics-value" id="charCount">0</div>
 
-<p id="trendBox">
+</div>
+
+<div class="metrics-card">
+
+<div class="metrics-title">Trend Detection</div>
+<div id="trendBox">
 Waiting for analysis...
-</p>
+</div>
 
 </div>
 
-<div class="analytics-box">
+<div class="metrics-card">
 
-<p>
-🧠 Psychological Trigger
-</p>
-
-<p id="psychology">
+<div class="metrics-title">Psychological Trigger</div>
+<div id="emotionBox">
 No analysis yet...
-</p>
+</div>
 
 </div>
 
-<div class="analytics-box">
-
-<p>
-📸 Image Scene Detection
-</p>
-
-<p id="sceneDetection">
-No image analyzed...
-</p>
-
-</div>
-
-<div class="chart-box">
+<div class="metrics-card">
 
 <canvas id="analyticsChart"></canvas>
 
 </div>
 
-<div class="analytics-box">
+<div class="metrics-card">
 
-<p>
-🏷️ Smart Hashtag Intelligence
-</p>
+<div class="metrics-title">Smart Hashtag Intelligence</div>
 
-<div class="skill-tags">
+<div class="hash-tags">
 
-<div class="skill-tag green">
-#viral
-</div>
-
-<div class="skill-tag green">
-#growth
-</div>
-
-<div class="skill-tag blue">
-#marketing
-</div>
-
-<div class="skill-tag red">
-#business
-</div>
+<div class="hash green">#viral</div>
+<div class="hash blue">#marketing</div>
+<div class="hash yellow">#branding</div>
+<div class="hash red">#business</div>
 
 </div>
 
@@ -862,25 +680,139 @@ No image analyzed...
 
 <script>
 
-const chart = new Chart(
-document.getElementById("analyticsChart"),
-{
+let currentPlatform='Instagram';
+
+function switchTab(el,platform){
+
+document.querySelectorAll('.tab').forEach(t=>{
+t.classList.remove('active');
+});
+
+el.classList.add('active');
+
+currentPlatform=platform;
+
+document.getElementById('platform').value=platform;
+
+}
+
+function generateCaption(){
+
+const topic=document.getElementById('topic').value;
+
+if(topic.trim()===''){
+alert('Enter topic');
+return;
+}
+
+const tone=document.getElementById('tone').value;
+const length=document.getElementById('length').value;
+const cta=document.getElementById('cta').value;
+const keywords=document.getElementById('keywords').value;
+
+const caption=
+`🔥 ${topic}
+
+This ${tone.toLowerCase()} ${currentPlatform} caption is optimized for engagement, SEO discoverability, emotional triggers, and audience retention.
+
+✨ Keywords:
+${keywords}
+
+🚀 Built using AI optimization frameworks for viral growth and platform reach.
+
+👉 ${cta}`;
+
+document.getElementById('captionOutput').innerHTML=caption;
+
+document.getElementById('variantA').innerHTML=
+`Variant A:
+More emotional storytelling version optimized for audience connection and comments.`;
+
+document.getElementById('variantB').innerHTML=
+`Variant B:
+Short-form high-CTR version optimized for virality and quick engagement.`;
+
+document.getElementById('hooks').innerHTML=
+`
+<li>⚡ Nobody is talking about this...</li>
+<li>🔥 This changed everything for me...</li>
+<li>🚀 The hidden strategy creators use...</li>
+<li>😳 Most people are doing this wrong...</li>
+`;
+
+document.getElementById('seoBox').innerHTML=
+`
+• Add trending SEO phrases<br>
+• Use searchable intent keywords<br>
+• Optimize caption density
+`;
+
+document.getElementById('repurposeBox').innerHTML=
+`
+Instagram ➜ LinkedIn carousel<br>
+TikTok ➜ YouTube Shorts<br>
+X ➜ Thread repurposing
+`;
+
+const score=Math.floor(Math.random()*35)+65;
+
+document.getElementById('viralScore').innerHTML=score+'%';
+document.getElementById('engagement').innerHTML=(score-8)+'%';
+document.getElementById('scrollScore').innerHTML=(score-4)+'%';
+document.getElementById('readTime').innerHTML='7s';
+document.getElementById('charCount').innerHTML=caption.length;
+
+document.getElementById('viralBar').style.width=score+'%';
+
+document.getElementById('trendBox').innerHTML=
+'🔥 Trending niche detected';
+
+document.getElementById('emotionBox').innerHTML=
+`
+78% Excitement<br>
+14% Curiosity<br>
+8% Urgency
+`;
+
+updateChart(score);
+
+}
+
+function copyCaption(){
+
+const text=document.getElementById('captionOutput').innerText;
+
+navigator.clipboard.writeText(text);
+
+alert('Caption copied');
+
+}
+
+function applyTemplate(type){
+
+document.querySelector('.editor').style.fontFamily=
+type==='luxury'?'Georgia':'Inter';
+
+}
+
+const ctx=document.getElementById('analyticsChart');
+
+let chart=new Chart(ctx,{
 type:'bar',
 data:{
-labels:['Viral','SEO','CTR','Retention'],
+labels:['Viral','SEO','CTR','Emotion'],
 datasets:[{
 label:'AI Metrics',
-data:[40,60,55,80],
+data:[20,10,15,12],
 backgroundColor:[
-'#38bdf8',
-'#8b5cf6',
-'#22c55e',
-'#ec4899'
+'#3dc9ff',
+'#8c4cff',
+'#35ff93',
+'#ff4fcb'
 ]
 }]
 },
 options:{
-responsive:true,
 plugins:{
 legend:{
 labels:{
@@ -901,238 +833,18 @@ color:'white'
 }
 }
 }
-}
-);
-
-function setPlatform(platform,btn){
-
-document.getElementById("platform").value=platform;
-
-document.querySelectorAll(".platform-btn").forEach(b=>{
-b.classList.remove("active");
 });
 
-btn.classList.add("active");
-
-changePlatform();
-
-}
-
-function changePlatform(){
-
-const platform=document.getElementById("platform").value;
-
-document.body.className='';
-
-if(platform==="Instagram"){
-document.body.classList.add("theme-instagram");
-}
-
-if(platform==="LinkedIn"){
-document.body.classList.add("theme-linkedin");
-}
-
-if(platform==="TikTok"){
-document.body.classList.add("theme-tiktok");
-}
-
-if(platform==="YouTube"){
-document.body.classList.add("theme-youtube");
-}
-
-if(platform==="Pinterest"){
-document.body.classList.add("theme-pinterest");
-}
-
-}
-
-function typeEffect(element,text,speed=18){
-
-element.innerHTML='';
-
-let i=0;
-
-const timer=setInterval(()=>{
-
-element.innerHTML+=text.charAt(i);
-
-i++;
-
-if(i>=text.length){
-clearInterval(timer);
-}
-
-},speed);
-
-}
-
-function generateCaption(){
-
-const topic=document.getElementById("topic").value;
-const tone=document.getElementById("tone").value;
-const platform=document.getElementById("platform").value;
-const cta=document.getElementById("cta").value;
-const emoji=document.getElementById("emoji").value;
-
-const loader=document.getElementById("loader");
-
-loader.style.display='flex';
-
-document.getElementById("streamBox").innerHTML=`
-🤖 Generating hooks...<br>
-📈 Applying SEO optimization...<br>
-🔥 Calculating viral score...
-`;
-
-setTimeout(()=>{
-
-loader.style.display='none';
-
-let emojis='';
-
-if(emoji==='Minimal'){
-emojis='🔥';
-}
-
-if(emoji==='Medium'){
-emojis='🔥🚀✨';
-}
-
-if(emoji==='High'){
-emojis='🔥🚀✨💯📈🎯';
-}
-
-let platformStyle='';
-
-if(platform==='Instagram'){
-platformStyle='viral and emotional';
-}
-
-if(platform==='LinkedIn'){
-platformStyle='professional and authoritative';
-}
-
-if(platform==='TikTok'){
-platformStyle='Gen-Z high retention';
-}
-
-if(platform==='YouTube'){
-platformStyle='storytelling and engagement optimized';
-}
-
-if(platform==='Pinterest'){
-platformStyle='visual inspiration optimized';
-}
-
-const caption=`
-${emojis}
-
-${topic}
-
-This ${platformStyle} AI-generated ${platform} caption is optimized for discoverability, retention and social engagement.
-
-✔ AI SEO optimized
-✔ High emotional trigger mapping
-✔ Engagement architecture applied
-✔ Hook optimization active
-
-${cta}
-
-#AI #Marketing #Business #Growth #ContentCreator
-`;
-
-typeEffect(
-document.getElementById("captionOutput"),
-caption
-);
-
-const viral=Math.floor(Math.random()*25)+75;
-const engage=Math.floor(Math.random()*25)+70;
-const scroll=Math.floor(Math.random()*20)+80;
-
-document.getElementById("viralScore").innerText=viral+"%";
-document.getElementById("engagement").innerText=engage+"%";
-document.getElementById("scrollScore").innerText=scroll+"%";
-document.getElementById("readTime").innerText=(Math.floor(Math.random()*5)+5)+'s';
-
-document.getElementById("viralBar").style.width=viral+"%";
-document.getElementById("engagementBar").style.width=engage+"%";
-
-document.getElementById("variantA").innerText=
-"Variant A: Emotional storytelling version focused on audience relatability.";
-
-document.getElementById("variantB").innerText=
-"Variant B: High-conversion viral format using psychological urgency.";
-
-document.getElementById("seo").innerText=
-"Use trending AI, creator economy and startup growth keywords for higher search discovery.";
-
-document.getElementById("multiPlatform").innerHTML=`
-📸 Instagram Caption Generated<br><br>
-💼 LinkedIn Thought Leadership Ready<br><br>
-🎬 TikTok Hook Created<br><br>
-📺 YouTube Shorts Description Generated
-`;
-
-document.getElementById("hooks").innerHTML=`
-<li>Nobody talks about this...</li>
-<li>You are missing this strategy.</li>
-<li>This changes everything.</li>
-<li>99% fail because of this.</li>
-<li>Save this before it disappears.</li>
-`;
-
-document.getElementById("trendBox").innerText=
-"Trending alignment detected with AI + Business niche.";
-
-document.getElementById("psychology").innerText=
-"Curiosity + Authority + FOMO triggers detected.";
-
-document.getElementById("sceneDetection").innerText=
-"Scene AI Ready — upload image for automatic analysis.";
+function updateChart(score){
 
 chart.data.datasets[0].data=[
-viral,
-engage,
-scroll,
-Math.floor(Math.random()*20)+75
+score,
+score-10,
+score-15,
+score-20
 ];
 
 chart.update();
-
-document.getElementById("streamBox").innerHTML=`
-✅ AI optimization complete<br>
-🔥 Viral probability enhanced<br>
-📈 SEO enhancement active
-`;
-
-},1800);
-
-}
-
-function copyCaption(){
-
-navigator.clipboard.writeText(
-document.getElementById("captionOutput").innerText
-);
-
-alert("Caption copied!");
-
-}
-
-function downloadCaption(){
-
-const text=document.getElementById("captionOutput").innerText;
-
-const blob=new Blob([text],{type:'text/plain'});
-
-const a=document.createElement('a');
-
-a.href=URL.createObjectURL(blob);
-
-a.download='ai-caption.txt';
-
-a.click();
 
 }
 
