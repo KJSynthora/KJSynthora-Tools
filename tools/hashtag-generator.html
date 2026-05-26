@@ -5,406 +5,399 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Global AI Hashtag Engine</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
 }
 
 body{
-background:linear-gradient(135deg,#040b2d,#15003e,#6c167f,#ff2e93);
-min-height:100vh;
-padding:18px;
-overflow-x:hidden;
-color:white;
+    background:
+    linear-gradient(135deg,#040b3d,#07175e,#3f0f75,#ff1f8f);
+    min-height:100vh;
+    padding:20px;
+    color:white;
 }
 
-.container{
-display:grid;
-grid-template-columns:340px 1fr 320px;
-gap:18px;
-max-width:1900px;
-margin:auto;
+.main-layout{
+    display:grid;
+    grid-template-columns:320px 1fr 240px;
+    gap:16px;
+    max-width:1800px;
+    margin:auto;
 }
 
 .panel{
-background:#0e1444;
-border-radius:20px;
-padding:20px;
-box-shadow:0 0 25px rgba(0,0,0,0.4);
-border:1px solid rgba(255,255,255,0.06);
+    background:#07144e;
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 0 25px rgba(0,0,0,.4);
 }
 
 .left-panel{
-height:95vh;
-overflow-y:auto;
+    height:calc(100vh - 40px);
+    overflow:auto;
 }
 
 .center-panel{
-height:95vh;
-overflow-y:auto;
+    min-height:calc(100vh - 40px);
 }
 
 .right-panel{
-height:95vh;
-overflow-y:auto;
+    height:calc(100vh - 40px);
+    overflow:auto;
 }
 
-.logo{
-font-size:40px;
-font-weight:800;
-line-height:1.1;
-margin-bottom:12px;
-background:linear-gradient(to right,#39c7ff,#ff4dd8);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+.logo-title{
+    font-size:42px;
+    font-weight:800;
+    line-height:1;
+    background:linear-gradient(to right,#33d2ff,#8b5cf6,#ff3cac);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:12px;
 }
 
 .desc{
-font-size:13px;
-line-height:1.8;
-opacity:0.8;
-margin-bottom:18px;
+    font-size:12px;
+    color:#c7d2fe;
+    line-height:1.7;
+    margin-bottom:16px;
 }
 
 .badges{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-bottom:18px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
 }
 
 .badge{
-padding:8px 12px;
-background:#1a2872;
-border-radius:30px;
-font-size:11px;
+    padding:7px 12px;
+    border-radius:30px;
+    font-size:11px;
+    background:#16256f;
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.section-title{
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:8px;
+    margin-top:16px;
 }
 
 .tabs{
-display:flex;
-gap:8px;
-margin-bottom:15px;
-flex-wrap:wrap;
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
 }
 
 .tab{
-padding:10px 14px;
-background:#1a2872;
-border-radius:12px;
-font-size:12px;
-cursor:pointer;
-transition:0.3s;
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:12px;
+    background:#16256f;
+    color:white;
+    cursor:pointer;
+    font-size:12px;
+    transition:.3s;
 }
 
 .tab.active{
-background:linear-gradient(to right,#35c8ff,#ff4dd9);
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
 }
 
 .drop-zone{
-border:2px dashed rgba(255,255,255,0.2);
-padding:30px;
-border-radius:16px;
-text-align:center;
-margin-bottom:16px;
-background:#121c59;
+    border:2px dashed rgba(255,255,255,.2);
+    padding:18px;
+    border-radius:14px;
+    text-align:center;
+    font-size:12px;
+    color:#dbeafe;
+    margin-bottom:15px;
 }
 
-.drop-zone p{
-font-size:13px;
-opacity:0.8;
-}
-
-.input-group{
-margin-bottom:15px;
-}
-
-.input-group label{
-display:block;
-margin-bottom:8px;
-font-size:12px;
-font-weight:600;
-}
-
-input,
-textarea,
-select{
-width:100%;
-padding:13px;
-border:none;
-border-radius:12px;
-background:#17245f;
-color:white;
-outline:none;
-font-size:13px;
+input,textarea,select{
+    width:100%;
+    background:#13235f;
+    border:none;
+    color:white;
+    padding:13px;
+    border-radius:12px;
+    outline:none;
+    margin-bottom:12px;
 }
 
 textarea{
-min-height:90px;
-resize:vertical;
+    resize:none;
+    min-height:90px;
 }
 
 .platform-grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-margin-bottom:18px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+    margin-bottom:14px;
 }
 
 .platform-btn{
-padding:12px;
-background:#1a2872;
-border-radius:12px;
-text-align:center;
-font-size:12px;
-cursor:pointer;
-transition:0.3s;
+    padding:11px;
+    border:none;
+    border-radius:12px;
+    background:#1b2c74;
+    color:white;
+    cursor:pointer;
+    transition:.3s;
 }
 
 .platform-btn.active{
-background:linear-gradient(to right,#35c8ff,#ff4dd9);
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
 }
 
-.slider-box{
-margin-bottom:20px;
-}
-
-.slider-box input{
-width:100%;
+.range{
+    width:100%;
 }
 
 .generate-btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
-background:linear-gradient(to right,#35c8ff,#ff4dd9);
-color:white;
-font-weight:700;
-cursor:pointer;
-font-size:14px;
-margin-top:10px;
+    width:100%;
+    border:none;
+    padding:16px;
+    border-radius:14px;
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:10px;
 }
 
-.actions{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:12px;
+.action-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-top:12px;
 }
 
 .action-btn{
-padding:12px;
-border:none;
-border-radius:12px;
-background:#1a2872;
-color:white;
-font-size:12px;
-cursor:pointer;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:#17307f;
+    color:white;
+    cursor:pointer;
 }
 
 .home-btn{
-display:block;
-text-align:center;
-margin-top:12px;
-padding:14px;
-border-radius:12px;
-background:linear-gradient(to right,#2d8cff,#8c4cff);
-color:white;
-text-decoration:none;
-font-weight:700;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    margin-top:12px;
+    background:linear-gradient(to right,#1cb5ff,#8b5cf6);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
 }
 
-.editor{
-background:#f4f5f9;
-border-radius:20px;
-padding:25px;
-min-height:100%;
-color:#111;
+.top-toolbar{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
 }
 
-.editor-top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
+.toolbar-btn{
+    padding:10px 16px;
+    border:none;
+    border-radius:12px;
+    background:#182868;
+    color:white;
+    cursor:pointer;
 }
 
-.editor-title{
-font-size:36px;
-font-weight:800;
+.toolbar-btn.active{
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
 }
 
-.live{
-background:#dfffe9;
-padding:10px 15px;
-border-radius:30px;
-font-size:12px;
-color:#0c8b45;
-font-weight:700;
+.workspace{
+    background:#f4f4f5;
+    border-radius:18px;
+    padding:20px;
+    min-height:900px;
+    color:black;
 }
 
-.hook-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-margin-top:15px;
+.workspace-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
-.hook-card{
-background:white;
-padding:16px;
-border-radius:14px;
-border:1px solid #ddd;
-font-size:13px;
-line-height:1.7;
-cursor:pointer;
-transition:0.3s;
+.workspace-title{
+    font-size:42px;
+    font-weight:800;
 }
 
-.hook-card:hover{
-transform:translateY(-3px);
+.live-ai{
+    background:#d1fae5;
+    color:#16a34a;
+    padding:8px 14px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:700;
 }
 
 .output-box{
-background:white;
-padding:20px;
-border-radius:16px;
-margin-top:15px;
-border:1px solid #ddd;
+    background:white;
+    border-radius:16px;
+    border:1px solid #ddd;
+    padding:18px;
+    margin-bottom:18px;
 }
 
 .output-title{
-font-size:18px;
-font-weight:700;
-margin-bottom:12px;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:12px;
 }
 
 .output-content{
-font-size:14px;
-line-height:1.9;
-color:#444;
-white-space:pre-line;
+    color:#444;
+    line-height:1.8;
 }
 
-.keyword{
-background:yellow;
-padding:2px 6px;
-border-radius:5px;
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
 }
 
-.variant-tabs{
-display:flex;
-gap:10px;
-margin-top:15px;
-margin-bottom:15px;
+.hook-card{
+    background:white;
+    border:1px solid #ddd;
+    padding:14px;
+    border-radius:14px;
 }
 
-.variant-tab{
-padding:10px 14px;
-background:#e8e8ef;
-border-radius:10px;
-font-size:12px;
-cursor:pointer;
+.keyword-highlight{
+    background:yellow;
+    padding:3px 7px;
+    border-radius:5px;
+}
+
+.bottom-actions{
+    position:sticky;
+    bottom:0;
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    background:#07144e;
+    padding:16px;
+    border-radius:20px;
+}
+
+.bottom-btn{
+    flex:1;
+    border:none;
+    padding:14px;
+    border-radius:12px;
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
 }
 
 .metric-card{
-background:#17245f;
-padding:18px;
-border-radius:16px;
-margin-bottom:14px;
+    background:#13235f;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:14px;
 }
 
 .metric-title{
-font-size:11px;
-opacity:0.7;
-margin-bottom:8px;
+    font-size:11px;
+    color:#c7d2fe;
+    margin-bottom:8px;
 }
 
 .metric-value{
-font-size:34px;
-font-weight:800;
-color:#4cffaf;
+    font-size:40px;
+    font-weight:800;
+    color:#4ade80;
 }
 
 .progress{
-height:10px;
-background:#111;
-border-radius:30px;
-overflow:hidden;
-margin-top:10px;
+    width:100%;
+    height:8px;
+    background:#091038;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:10px;
 }
 
-.progress div{
-height:100%;
-width:0%;
-background:linear-gradient(to right,#35c8ff,#ff4dd9);
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(to right,#1cb5ff,#ff3cac);
 }
 
-.hash-table{
-margin-top:10px;
+.hashtag-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
 }
 
-.hash-row{
-display:flex;
-justify-content:space-between;
-padding:12px;
-background:#121d56;
-border-radius:10px;
-margin-bottom:10px;
-font-size:12px;
+.hash{
+    padding:8px 12px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:700;
 }
 
-.bottom-bar{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#0a1036;
-padding:15px;
-display:flex;
-justify-content:center;
-gap:12px;
-z-index:999;
-border-top:1px solid rgba(255,255,255,0.08);
+.hash.green{
+    background:#14532d;
 }
 
-.bottom-bar button{
-padding:12px 18px;
-border:none;
-border-radius:12px;
-background:linear-gradient(to right,#35c8ff,#ff4dd9);
-color:white;
-font-size:12px;
-font-weight:700;
-cursor:pointer;
+.hash.orange{
+    background:#78350f;
 }
 
-canvas{
-margin-top:10px;
+.hash.red{
+    background:#7f1d1d;
+}
+
+.chart-box{
+    background:#13235f;
+    border-radius:16px;
+    padding:16px;
 }
 
 @media(max-width:1200px){
 
-.container{
-grid-template-columns:1fr;
+.main-layout{
+    grid-template-columns:1fr;
 }
 
 .left-panel,
-.center-panel,
 .right-panel{
-height:auto;
+    height:auto;
 }
 
-.bottom-bar{
-flex-wrap:wrap;
+.center-panel{
+    order:-1;
+}
+
+.bottom-actions{
+    flex-wrap:wrap;
 }
 
 }
@@ -414,143 +407,128 @@ flex-wrap:wrap;
 
 <body>
 
-<div class="container">
-
-<!-- LEFT -->
+<div class="main-layout">
 
 <div class="panel left-panel">
 
-<div class="logo">
-Global AI<br>Hashtag Engine
+<div class="logo-title">
+Global AI<br>
+Hashtag<br>
+Engine
 </div>
 
 <div class="desc">
-Enterprise-grade AI hashtag intelligence system with viral analytics, trend forecasting, platform optimization and realtime SEO scoring.
+Enterprise-grade AI hashtag studio with realtime viral analytics, platform optimization, SEO targeting and multi-format intelligent generation.
 </div>
 
 <div class="badges">
 <div class="badge">🔥 Viral AI</div>
 <div class="badge">📈 SEO</div>
-<div class="badge">📱 Multi Platform</div>
+<div class="badge">🌍 Multi Platform</div>
 <div class="badge">⚡ Realtime</div>
 <div class="badge">🧠 Smart AI</div>
 </div>
 
 <div class="tabs">
-
-<div class="tab active">Text</div>
-<div class="tab">Image</div>
-<div class="tab">Video</div>
-<div class="tab">URL</div>
-
+<button class="tab active">Text</button>
+<button class="tab">Image</button>
+<button class="tab">Video</button>
+<button class="tab">URL</button>
 </div>
 
 <div class="drop-zone">
-<p>📂 Drag & Drop Image / Video Here</p>
+✍️ Enter your text prompt below
 </div>
 
-<div class="input-group">
-<label>URL Scraper</label>
+<div class="section-title">URL Scraper</div>
 <input type="text" placeholder="Paste social media URL">
-</div>
 
-<div class="input-group">
-<label>Topic / Keyword</label>
-<textarea id="keywordInput"></textarea>
-</div>
+<div class="section-title">Topic / Keyword</div>
+<textarea id="keywordInput" placeholder="AI marketing, startup, reels, fitness..."></textarea>
 
-<div class="input-group">
-<label>Target Audience</label>
+<div class="section-title">Target Audience</div>
 <select>
 <option>Creators</option>
 <option>Business</option>
-<option>Tech Audience</option>
 <option>Students</option>
-<option>Fitness</option>
+<option>Developers</option>
+<option>Influencers</option>
 </select>
-</div>
+
+<div class="section-title">Platforms</div>
 
 <div class="platform-grid">
-
-<div class="platform-btn active">Instagram</div>
-<div class="platform-btn">LinkedIn</div>
-<div class="platform-btn">TikTok</div>
-<div class="platform-btn">YouTube</div>
-
+<button class="platform-btn active">Instagram</button>
+<button class="platform-btn">LinkedIn</button>
+<button class="platform-btn">TikTok</button>
+<button class="platform-btn">YouTube</button>
 </div>
 
-<div class="input-group">
-<label>Tone</label>
+<div class="section-title">Tone</div>
 <select>
 <option>Professional</option>
 <option>Funny</option>
 <option>Luxury</option>
-<option>Educational</option>
-<option>Storytelling</option>
+<option>Minimal</option>
+<option>Sales</option>
+<option>Emotional</option>
 </select>
-</div>
 
-<div class="input-group">
-<label>Length</label>
+<div class="section-title">Length</div>
 <select>
 <option>Short</option>
 <option>Medium</option>
 <option>Long</option>
 </select>
-</div>
 
-<div class="slider-box">
-<label>Emoji Intensity</label>
-<input type="range" min="0" max="100" value="40">
-</div>
+<div class="section-title">Emoji Intensity</div>
+<input type="range" class="range" min="0" max="100">
+
+<div class="section-title">Upload Image / Video</div>
+<input type="file">
+
+<div class="section-title">Brand Voice</div>
+<textarea placeholder="Luxury, modern, corporate, minimalist..."></textarea>
 
 <button class="generate-btn" onclick="generateHashtags()">
 🚀 Generate AI Hashtags
 </button>
 
-<div class="actions">
-
+<div class="action-grid">
 <button class="action-btn" onclick="copyHashtags()">📋 Copy</button>
-<button class="action-btn">📄 Export</button>
-<button class="action-btn">🔥 Viralize</button>
-<button class="action-btn">⚡ Repurpose</button>
-
+<button class="action-btn">📤 Export</button>
+<button class="action-btn">🔥 Variants</button>
+<button class="action-btn">♻️ Repurpose</button>
 </div>
 
-<a href="../index.html" class="home-btn">
+<button class="home-btn" onclick="window.location.href='../index.html'">
 🏠 Return Home
-</a>
+</button>
 
 </div>
-
-<!-- CENTER -->
 
 <div class="panel center-panel">
 
-<div class="editor">
+<div class="top-toolbar">
+<button class="toolbar-btn active">Viral</button>
+<button class="toolbar-btn">Professional</button>
+<button class="toolbar-btn">SEO</button>
+<button class="toolbar-btn">Gen-Z</button>
+</div>
 
-<div class="editor-top">
+<div class="workspace">
 
+<div class="workspace-header">
 <div>
-<div class="editor-title">AI Hashtag Studio</div>
-<div style="opacity:0.6;margin-top:5px;">
+<div class="workspace-title">AI Hashtag Studio</div>
+<div style="color:#666;">
 Realtime hashtag generation & trend intelligence engine
 </div>
 </div>
 
-<div class="live">
+<div class="live-ai">
 🟢 LIVE AI
 </div>
-
-</div>
-
-<div class="variant-tabs">
-
-<div class="variant-tab">Viral</div>
-<div class="variant-tab">Professional</div>
-<div class="variant-tab">SEO</div>
-<div class="variant-tab">Gen-Z</div>
-
 </div>
 
 <div class="output-box">
@@ -571,7 +549,7 @@ Your AI hashtags will appear here...
 Hook Variations
 </div>
 
-<div class="hook-grid">
+<div class="grid-2">
 
 <div class="hook-card">
 🔥 Nobody is talking about this trend...
@@ -586,7 +564,7 @@ Hook Variations
 </div>
 
 <div class="hook-card">
-😳 Most brands are doing this wrong...
+📈 Most brands are doing this wrong...
 </div>
 
 </div>
@@ -601,7 +579,7 @@ Keyword Auto Highlighting
 
 <div class="output-content">
 Your selected keyword:
-<span class="keyword">AI Marketing</span>
+<span class="keyword-highlight">AI Marketing</span>
 is being optimized for discoverability.
 </div>
 
@@ -614,8 +592,8 @@ Repurpose Suggestions
 </div>
 
 <div class="output-content">
-Instagram ➜ TikTok Shorts  
-LinkedIn ➜ Twitter Threads  
+Instagram ➜ TikTok Shorts<br><br>
+LinkedIn ➜ Twitter Threads<br><br>
 YouTube ➜ Pinterest Carousel
 </div>
 
@@ -623,177 +601,94 @@ YouTube ➜ Pinterest Carousel
 
 </div>
 
+<div class="bottom-actions">
+
+<button class="bottom-btn">📋 Copy</button>
+<button class="bottom-btn">📄 Export TXT</button>
+<button class="bottom-btn">📊 Export CSV</button>
+<button class="bottom-btn">⚡ Generate 5 More</button>
+<button class="bottom-btn">📅 Schedule</button>
+
 </div>
 
-<!-- RIGHT -->
+</div>
 
 <div class="panel right-panel">
 
 <div class="metric-card">
-
-<div class="metric-title">
-VIRAL SCORE
-</div>
-
-<div class="metric-value" id="viralScore">
-0%
-</div>
+<div class="metric-title">VIRAL SCORE</div>
+<div class="metric-value" id="viralScore">0%</div>
 
 <div class="progress">
-<div id="viralBar"></div>
+<div class="progress-bar" id="viralBar"></div>
 </div>
-
-</div>
-
-<div class="metric-card">
-
-<div class="metric-title">
-ENGAGEMENT SCORE
-</div>
-
-<div class="metric-value" id="engagementScore">
-0%
-</div>
-
 </div>
 
 <div class="metric-card">
-
-<div class="metric-title">
-CHARACTER LIMITS
+<div class="metric-title">ENGAGEMENT SCORE</div>
+<div class="metric-value" id="engagementScore">0%</div>
 </div>
 
-<div style="font-size:13px;line-height:2;">
+<div class="metric-card">
+<div class="metric-title">CHARACTER LIMITS</div>
+
+<div style="font-size:13px; line-height:2;">
 Instagram: 0 / 2200<br>
 LinkedIn: 0 / 3000<br>
 TikTok: 0 / 2200
 </div>
-
 </div>
 
 <div class="metric-card">
+<div class="metric-title">SHADOWBAN RISK</div>
 
-<div class="metric-title">
-SHADOWBAN RISK
+<div style="color:#fb7185;font-weight:700;">
+⚠️ Low Risk
 </div>
-
-<div style="color:#ff5d5d;font-weight:700;">
-⚠ Low Risk
-</div>
-
 </div>
 
 <div class="metric-card">
+<div class="metric-title">EMOTIONAL TRIGGERS</div>
 
-<div class="metric-title">
-EMOTIONAL TRIGGERS
-</div>
-
-<div style="line-height:2;font-size:13px;">
+<div style="font-size:13px;line-height:2;">
 Curiosity: 82%<br>
 Urgency: 64%<br>
 Trust: 71%
 </div>
-
 </div>
 
 <div class="metric-card">
+<div class="metric-title">HASHTAG INTELLIGENCE</div>
 
-<div class="metric-title">
-HASHTAG INTELLIGENCE
+<div class="hashtag-list">
+
+<div class="hash green">
+#AIMarketing 🔥 1.2M
 </div>
 
-<div class="hash-table">
-
-<div class="hash-row">
-<span>#AIMarketing</span>
-<span>🔥 1.2M</span>
+<div class="hash orange">
+#GrowthStrategy 📈 540K
 </div>
 
-<div class="hash-row">
-<span>#GrowthStrategy</span>
-<span>🎯 540K</span>
-</div>
-
-<div class="hash-row">
-<span>#StartupTips</span>
-<span>📈 Rising</span>
+<div class="hash red">
+#StartupTips 📄 Rising
 </div>
 
 </div>
 
 </div>
 
-<div class="metric-card">
-
+<div class="chart-box">
 <canvas id="analyticsChart"></canvas>
-
 </div>
 
 </div>
-
-</div>
-
-<div class="bottom-bar">
-
-<button onclick="copyHashtags()">📋 Copy</button>
-<button>📄 Export TXT</button>
-<button>📊 Export CSV</button>
-<button>⚡ Generate 5 More</button>
-<button>📅 Schedule</button>
 
 </div>
 
 <script>
 
-function generateHashtags(){
-
-const keyword=document.getElementById('keywordInput').value;
-
-if(keyword.trim()===''){
-alert('Enter keyword');
-return;
-}
-
-const hashtags=`
-#${keyword.replace(/\s+/g,'')}
-#${keyword.replace(/\s+/g,'')}Tips
-#AI
-#Marketing
-#BusinessGrowth
-#ContentStrategy
-#DigitalMarketing
-#Startup
-#CreatorEconomy
-#SocialMediaGrowth
-`;
-
-document.getElementById('hashtagsOutput').innerHTML=hashtags;
-
-const score=Math.floor(Math.random()*25)+70;
-
-document.getElementById('viralScore').innerHTML=score+'%';
-document.getElementById('engagementScore').innerHTML=(score-8)+'%';
-
-document.getElementById('viralBar').style.width=score+'%';
-
-updateChart(score);
-
-}
-
-function copyHashtags(){
-
-const text=document.getElementById('hashtagsOutput').innerText;
-
-navigator.clipboard.writeText(text);
-
-alert('Copied Successfully');
-
-}
-
-const ctx=document.getElementById('analyticsChart');
-
-let chart=new Chart(ctx,{
+const chart = new Chart(document.getElementById('analyticsChart'),{
 
 type:'bar',
 
@@ -801,17 +696,18 @@ data:{
 labels:['Viral','SEO','Trend','CTR'],
 datasets:[{
 label:'AI Metrics',
-data:[60,40,30,20],
+data:[70,55,42,33],
 backgroundColor:[
-'#35c8ff',
-'#8c4cff',
-'#35ff9a',
-'#ff4dd9'
+'#38bdf8',
+'#8b5cf6',
+'#4ade80',
+'#ff4fd8'
 ]
 }]
 },
 
 options:{
+responsive:true,
 plugins:{
 legend:{
 labels:{
@@ -835,162 +731,116 @@ color:'white'
 
 });
 
-function updateChart(score){
+const tabs = document.querySelectorAll('.tab');
 
-chart.data.datasets[0].data=[
-score,
-score-8,
-score-14,
-score-20
+tabs.forEach(tab=>{
+
+tab.addEventListener('click',()=>{
+
+tabs.forEach(t=>t.classList.remove('active'));
+
+tab.classList.add('active');
+
+const tabName = tab.innerText;
+
+const dropZone = document.querySelector('.drop-zone');
+
+if(tabName === 'Text'){
+dropZone.innerHTML='✍️ Enter your text prompt below';
+}
+
+if(tabName === 'Image'){
+dropZone.innerHTML='🖼️ Drag & Drop Image Here';
+}
+
+if(tabName === 'Video'){
+dropZone.innerHTML='🎬 Drag & Drop Video Here';
+}
+
+if(tabName === 'URL'){
+dropZone.innerHTML='🔗 Paste URL to auto-fetch content';
+}
+
+});
+
+});
+
+const platformButtons = document.querySelectorAll('.platform-btn');
+
+platformButtons.forEach(btn=>{
+
+btn.addEventListener('click',()=>{
+
+platformButtons.forEach(b=>b.classList.remove('active'));
+
+btn.classList.add('active');
+
+});
+
+});
+
+function generateHashtags(){
+
+const keyword = document.getElementById('keywordInput').value;
+
+if(keyword.trim()===''){
+
+alert('Please enter keyword/topic');
+return;
+
+}
+
+const clean = keyword.replace(/\s+/g,'');
+
+const hashtags = `
+#${clean}
+#${clean}Growth
+#${clean}Marketing
+#${clean}Strategy
+#AI
+#ContentCreator
+#BusinessGrowth
+#ViralContent
+#MarketingTips
+#SocialMedia
+#ExplorePage
+#Reels
+#Startup
+#DigitalMarketing
+`;
+
+document.getElementById('hashtagsOutput').innerHTML = hashtags;
+
+const viral = Math.floor(Math.random()*20)+75;
+const engagement = Math.floor(Math.random()*20)+70;
+
+document.getElementById('viralScore').innerHTML = viral + '%';
+document.getElementById('engagementScore').innerHTML = engagement + '%';
+
+document.getElementById('viralBar').style.width = viral + '%';
+
+chart.data.datasets[0].data = [
+viral,
+engagement,
+viral-10,
+engagement-20
 ];
 
 chart.update();
 
 }
 
-</script>
-<script>
-
-const tabs = document.querySelectorAll('.tab');
-const platformButtons = document.querySelectorAll('.platform-btn');
-
-tabs.forEach(tab => {
-
-    tab.addEventListener('click', () => {
-
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        const tabName = tab.innerText;
-
-        const dropZone = document.querySelector('.drop-zone');
-
-        if(tabName === 'Text'){
-            dropZone.innerHTML = '<p>✍️ Enter your text prompt below</p>';
-        }
-
-        if(tabName === 'Image'){
-            dropZone.innerHTML = '<p>🖼️ Drag & Drop Image Here</p>';
-        }
-
-        if(tabName === 'Video'){
-            dropZone.innerHTML = '<p>🎬 Drag & Drop Video Here</p>';
-        }
-
-        if(tabName === 'URL'){
-            dropZone.innerHTML = '<p>🔗 Paste URL to auto-fetch content</p>';
-        }
-
-    });
-
-});
-
-platformButtons.forEach(btn => {
-
-    btn.addEventListener('click', () => {
-
-        platformButtons.forEach(b => b.classList.remove('active'));
-
-        btn.classList.add('active');
-
-        const platform = btn.innerText;
-
-        const limitsBox = document.querySelector('.metric-card:nth-child(3) div:nth-child(2)');
-
-        if(platform === 'Instagram'){
-
-            limitsBox.innerHTML = `
-            Instagram: 0 / 2200<br>
-            Hashtags: 0 / 30<br>
-            Mentions: 0 / 20
-            `;
-
-        }
-
-        if(platform === 'LinkedIn'){
-
-            limitsBox.innerHTML = `
-            LinkedIn: 0 / 3000<br>
-            Hashtags: 0 / 5<br>
-            Mentions: 0 / 30
-            `;
-
-        }
-
-        if(platform === 'TikTok'){
-
-            limitsBox.innerHTML = `
-            TikTok: 0 / 2200<br>
-            Hashtags: 0 / 20<br>
-            Mentions: 0 / 10
-            `;
-
-        }
-
-        if(platform === 'YouTube'){
-
-            limitsBox.innerHTML = `
-            YouTube: 0 / 5000<br>
-            Hashtags: 0 / 15<br>
-            Mentions: 0 / 10
-            `;
-
-        }
-
-    });
-
-});
-
-function generateHashtags(){
-
-    const keyword = document.getElementById('keywordInput').value;
-
-    if(keyword.trim() === ''){
-
-        alert('Please enter keyword');
-        return;
-
-    }
-
-    const hashtags = `
-#${keyword.replace(/\s+/g,'')}
-#${keyword.replace(/\s+/g,'')}Tips
-#${keyword.replace(/\s+/g,'')}Growth
-#AI
-#Marketing
-#ContentCreator
-#Business
-#GrowthHacking
-#ViralContent
-#SocialMediaMarketing
-#ExplorePage
-#Branding
-`;
-
-    document.getElementById('hashtagsOutput').innerHTML = hashtags;
-
-    const viral = Math.floor(Math.random() * 20) + 75;
-    const engagement = Math.floor(Math.random() * 15) + 70;
-
-    document.getElementById('viralScore').innerHTML = viral + '%';
-    document.getElementById('engagementScore').innerHTML = engagement + '%';
-
-    document.getElementById('viralBar').style.width = viral + '%';
-
-    updateChart(viral);
-
-}
-
 function copyHashtags(){
 
-    const text = document.getElementById('hashtagsOutput').innerText;
+const text = document.getElementById('hashtagsOutput').innerText;
 
-    navigator.clipboard.writeText(text);
+navigator.clipboard.writeText(text);
 
-    alert('Copied Successfully');
+alert('Copied Successfully');
 
 }
 
 </script>
+
 </body>
 </html>
