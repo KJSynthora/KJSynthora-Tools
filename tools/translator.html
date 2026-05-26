@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Global AI Translation Engine</title>
 
@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/tesseract.js@v5.0.4/dist/tesseract.min.js"></script>
 
 <style>
 
@@ -24,28 +25,28 @@ body{
 background:
 linear-gradient(135deg,#020617 0%,#111c70 45%,#7e22ce 100%);
 min-height:100vh;
+overflow-x:hidden;
 padding:20px;
 color:#fff;
-overflow-x:hidden;
 }
 
 .app{
-display:grid;
-grid-template-columns:300px 1fr 250px;
-gap:18px;
-max-width:1700px;
+max-width:1800px;
 margin:auto;
+display:grid;
+grid-template-columns:320px 1fr 260px;
+gap:18px;
 }
 
 .panel{
-background:rgba(7,13,53,.92);
+background:rgba(7,13,53,.95);
+border-radius:24px;
 border:1px solid rgba(255,255,255,.06);
-border-radius:22px;
-padding:18px;
 box-shadow:
-0 0 30px rgba(0,0,0,.4),
-0 0 20px rgba(79,70,229,.15);
-backdrop-filter:blur(18px);
+0 0 40px rgba(0,0,0,.35),
+0 0 20px rgba(99,102,241,.15);
+backdrop-filter:blur(20px);
+padding:18px;
 }
 
 .left-panel{
@@ -58,7 +59,7 @@ width:5px;
 }
 
 .left-panel::-webkit-scrollbar-thumb{
-background:#7c3aed;
+background:#8b5cf6;
 border-radius:10px;
 }
 
@@ -72,10 +73,10 @@ background:linear-gradient(to right,#38bdf8,#8b5cf6);
 -webkit-text-fill-color:transparent;
 }
 
-.desc{
+.description{
 font-size:11px;
-opacity:.8;
 line-height:1.7;
+opacity:.82;
 margin-bottom:14px;
 }
 
@@ -83,24 +84,25 @@ margin-bottom:14px;
 display:flex;
 flex-wrap:wrap;
 gap:8px;
-margin-bottom:16px;
+margin-bottom:18px;
 }
 
 .badge{
 padding:6px 10px;
 font-size:10px;
+font-weight:700;
 border-radius:999px;
 background:#1e3a8a;
 }
 
-.tabs{
+.mode-tabs{
 display:flex;
 gap:8px;
 flex-wrap:wrap;
-margin-bottom:16px;
+margin-bottom:18px;
 }
 
-.tab{
+.mode-tab{
 padding:8px 12px;
 border:none;
 cursor:pointer;
@@ -108,34 +110,42 @@ border-radius:10px;
 background:#1e1b4b;
 color:#fff;
 font-size:11px;
-font-weight:600;
+font-weight:700;
 transition:.25s;
 }
 
-.tab.active{
+.mode-tab.active{
 background:linear-gradient(to right,#38bdf8,#ec4899);
 }
 
-.upload-box{
+.mode-section{
+display:none;
+}
+
+.mode-section.active{
+display:block;
+}
+
+.upload-zone{
 border:2px dashed rgba(255,255,255,.15);
+padding:18px;
 border-radius:16px;
-padding:20px;
 text-align:center;
 font-size:12px;
-margin-bottom:16px;
+margin-bottom:14px;
 transition:.25s;
 }
 
-.upload-box:hover{
+.upload-zone:hover{
 border-color:#8b5cf6;
 }
 
 label{
 display:block;
 font-size:11px;
-font-weight:600;
-margin-bottom:7px;
+font-weight:700;
 margin-top:14px;
+margin-bottom:7px;
 }
 
 textarea,
@@ -164,8 +174,8 @@ gap:10px;
 
 .range-value{
 font-size:11px;
-margin-top:5px;
 color:#38bdf8;
+margin-top:5px;
 }
 
 .btn{
@@ -181,6 +191,10 @@ color:#fff;
 transition:.25s;
 }
 
+.btn:hover{
+transform:translateY(-2px);
+}
+
 .primary{
 background:linear-gradient(to right,#38bdf8,#ec4899);
 }
@@ -193,14 +207,23 @@ background:#2563eb;
 background:#111827;
 }
 
-.btn:hover{
-transform:translateY(-2px);
-}
-
 .button-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
+}
+
+.return-home{
+display:block;
+margin-top:14px;
+text-align:center;
+padding:12px;
+border-radius:12px;
+background:linear-gradient(to right,#38bdf8,#8b5cf6);
+font-size:12px;
+font-weight:700;
+text-decoration:none;
+color:#fff;
 }
 
 .center-panel{
@@ -215,7 +238,7 @@ gap:10px;
 flex-wrap:wrap;
 }
 
-.mode-btn{
+.top-btn{
 padding:8px 14px;
 border:none;
 cursor:pointer;
@@ -226,36 +249,35 @@ font-size:11px;
 font-weight:700;
 }
 
-.mode-btn.active{
+.top-btn.active{
 background:linear-gradient(to right,#38bdf8,#ec4899);
 }
 
 .workspace{
 background:#f8fafc;
-border-radius:20px;
+border-radius:22px;
 padding:20px;
-min-height:680px;
+min-height:720px;
 color:#111827;
 position:relative;
-overflow:hidden;
 }
 
-.live{
+.live-badge{
 position:absolute;
-right:18px;
 top:18px;
-padding:7px 12px;
-border-radius:999px;
+right:18px;
+padding:8px 12px;
 background:#bbf7d0;
+color:#166534;
 font-size:11px;
 font-weight:700;
-color:#166534;
+border-radius:999px;
 }
 
 .workspace-title{
 font-size:20px;
 font-weight:800;
-margin-bottom:3px;
+margin-bottom:4px;
 }
 
 .workspace-sub{
@@ -274,9 +296,9 @@ margin-bottom:16px;
 .editor{
 background:#fff;
 border:1px solid #e5e7eb;
-border-radius:16px;
+border-radius:18px;
 padding:14px;
-min-height:200px;
+min-height:220px;
 overflow:auto;
 }
 
@@ -287,14 +309,15 @@ margin-bottom:10px;
 
 .editor-content{
 font-size:14px;
-line-height:1.8;
+line-height:1.9;
+white-space:pre-wrap;
 }
 
 .card-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:14px;
-margin-top:16px;
+margin-top:14px;
 }
 
 .info-card{
@@ -325,8 +348,8 @@ margin-top:18px;
 .action-btn{
 padding:12px 16px;
 border:none;
-cursor:pointer;
 border-radius:12px;
+cursor:pointer;
 font-size:12px;
 font-weight:700;
 background:linear-gradient(to right,#38bdf8,#ec4899);
@@ -347,7 +370,7 @@ border-radius:16px;
 
 .metric-title{
 font-size:10px;
-opacity:.8;
+opacity:.82;
 margin-bottom:6px;
 }
 
@@ -371,48 +394,50 @@ height:100%;
 background:linear-gradient(to right,#38bdf8,#ec4899);
 }
 
-.lang-grid{
+.language-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:8px;
 }
 
-.lang{
+.language{
 padding:8px;
-border-radius:10px;
 background:#24337c;
+border-radius:10px;
 font-size:10px;
 text-align:center;
 }
 
 .chart-box{
 background:#1e2b8a;
-padding:14px;
 border-radius:16px;
-}
-
-.return-home{
-margin-top:12px;
-display:block;
-text-align:center;
-text-decoration:none;
-padding:12px;
-border-radius:12px;
-background:linear-gradient(to right,#38bdf8,#8b5cf6);
-font-size:12px;
-font-weight:700;
-color:#fff;
-}
-
-.highlight{
-background:yellow;
-padding:1px 4px;
-border-radius:4px;
+padding:14px;
 }
 
 .streaming{
 border-right:2px solid #111827;
 animation:blink .8s infinite;
+}
+
+.hidden{
+display:none;
+}
+
+.highlight{
+background:yellow;
+padding:2px 5px;
+border-radius:5px;
+}
+
+.history-box{
+margin-top:14px;
+background:#10194b;
+padding:12px;
+border-radius:14px;
+font-size:11px;
+line-height:1.8;
+max-height:150px;
+overflow:auto;
 }
 
 @keyframes blink{
@@ -421,20 +446,19 @@ border-color:transparent;
 }
 }
 
-@media(max-width:1400px){
+@media(max-width:1450px){
 
 .app{
 grid-template-columns:1fr;
 }
 
-.left-panel,
-.right-panel{
-height:auto;
-}
-
 .editor-grid,
 .card-grid{
 grid-template-columns:1fr;
+}
+
+.left-panel{
+height:auto;
 }
 
 }
@@ -454,8 +478,8 @@ Translation<br>
 Engine
 </div>
 
-<div class="desc">
-Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle localization, contextual intelligence and collaborative workflows.
+<div class="description">
+Enterprise multilingual AI translation ecosystem with OCR, voice translation, subtitle localization, contextual intelligence and collaborative workflows.
 </div>
 
 <div class="badges">
@@ -467,58 +491,125 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 <div class="badge">🏢 Enterprise</div>
 </div>
 
-<div class="tabs">
-<button class="tab active" data-type="text">Text</button>
-<button class="tab" data-type="voice">Voice</button>
-<button class="tab" data-type="image">Image</button>
-<button class="tab" data-type="video">Video</button>
-<button class="tab" data-type="url">URL</button>
+<div class="mode-tabs">
+
+<button class="mode-tab active" data-mode="text">
+Text
+</button>
+
+<button class="mode-tab" data-mode="voice">
+Voice
+</button>
+
+<button class="mode-tab" data-mode="image">
+Image
+</button>
+
+<button class="mode-tab" data-mode="video">
+Video
+</button>
+
+<button class="mode-tab" data-mode="url">
+URL
+</button>
+
 </div>
 
-<div class="upload-box" id="uploadBox">
+<div id="text" class="mode-section active">
+
+<div class="upload-zone">
 📄 Text Translation Mode Activated
 </div>
 
+</div>
+
+<div id="voice" class="mode-section">
+
+<div class="upload-zone">
+🎤 Voice Translation Mode Activated
+</div>
+
+<button class="btn secondary" id="voiceBtn">
+🎙 Start Voice Recognition
+</button>
+
+</div>
+
+<div id="image" class="mode-section">
+
+<div class="upload-zone">
+🖼 Upload Image For OCR Translation
+</div>
+
+<input type="file" id="imageInput">
+
+</div>
+
+<div id="video" class="mode-section">
+
+<div class="upload-zone">
+🎬 Subtitle / Video Localization Mode
+</div>
+
+</div>
+
+<div id="url" class="mode-section">
+
+<div class="upload-zone">
+🌐 Website Localization URL Mode
+</div>
+
+<input type="text" placeholder="Paste Website URL">
+
+</div>
+
 <label>Source Text</label>
-<textarea id="sourceText">hello how are you</textarea>
+
+<textarea id="sourceText">hello</textarea>
 
 <div class="row">
 
 <div>
+
 <label>From</label>
+
 <select id="fromLanguage">
-<option>Auto Detect</option>
-<option>English</option>
-<option>Telugu</option>
-<option>Hindi</option>
-<option>Spanish</option>
-<option>French</option>
-<option>German</option>
-<option>Japanese</option>
-<option>Chinese</option>
-<option>Arabic</option>
-<option>Tamil</option>
-<option>Kannada</option>
-<option>Russian</option>
+<option value="auto">Auto Detect</option>
+<option value="en">English</option>
+<option value="te">Telugu</option>
+<option value="hi">Hindi</option>
+<option value="es">Spanish</option>
+<option value="fr">French</option>
+<option value="de">German</option>
+<option value="ja">Japanese</option>
+<option value="zh">Chinese</option>
+<option value="ar">Arabic</option>
+<option value="ta">Tamil</option>
+<option value="kn">Kannada</option>
+<option value="ru">Russian</option>
 </select>
+
 </div>
 
 <div>
+
 <label>Translate To</label>
+
 <select id="toLanguage">
-<option>Telugu</option>
-<option>English</option>
-<option>Hindi</option>
-<option>Spanish</option>
-<option>French</option>
-<option>German</option>
-<option>Japanese</option>
-<option>Chinese</option>
-<option>Arabic</option>
-<option>Tamil</option>
-<option>Kannada</option>
-<option>Russian</option>
+<option value="te">Telugu</option>
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="es">Spanish</option>
+<option value="fr">French</option>
+<option value="de">German</option>
+<option value="ja">Japanese</option>
+<option value="zh">Chinese</option>
+<option value="ar">Arabic</option>
+<option value="ta">Tamil</option>
+<option value="kn">Kannada</option>
+<option value="ru">Russian</option>
 </select>
+
 </div>
 
 </div>
@@ -528,7 +619,8 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 </button>
 
 <label>Industry Preset</label>
-<select id="industry">
+
+<select>
 <option>General</option>
 <option>Legal</option>
 <option>Medical</option>
@@ -539,7 +631,8 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 </select>
 
 <label>Tone & Formality</label>
-<select id="tone">
+
+<select>
 <option>Professional</option>
 <option>Friendly</option>
 <option>Casual</option>
@@ -548,20 +641,23 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 </select>
 
 <label>Formality Scale</label>
-<input type="range" min="0" max="100" value="70" id="formality">
 
-<div class="range-value" id="formalityValue">
+<input type="range" min="0" max="100" value="70" id="formalRange">
+
+<div class="range-value" id="formalValue">
 70%
 </div>
 
 <label>Localization Intelligence</label>
-<input type="range" min="0" max="100" value="85" id="localization">
 
-<div class="range-value" id="localizationValue">
+<input type="range" min="0" max="100" value="85" id="localRange">
+
+<div class="range-value" id="localValue">
 85%
 </div>
 
 <label>Protected Brand Terms</label>
+
 <textarea placeholder="Azure, Power BI, OpenAI, ServiceNow..."></textarea>
 
 <button class="btn primary" id="generateBtn">
@@ -575,7 +671,7 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 </button>
 
 <button class="btn secondary" id="listenBtn">
-🎤 Listen
+🎧 Listen
 </button>
 
 <button class="btn secondary" id="exportBtn">
@@ -592,6 +688,11 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 🧹 Clean Workspace
 </button>
 
+<div class="history-box" id="historyBox">
+<b>Translation History</b><br>
+No history yet.
+</div>
+
 <a href="/" class="return-home">
 🏠 Return Home
 </a>
@@ -602,17 +703,31 @@ Enterprise multilingual AI translation ecosystem with OCR, voice, subtitle local
 
 <div class="top-tabs">
 
-<button class="mode-btn active">Realtime</button>
-<button class="mode-btn">OCR</button>
-<button class="mode-btn">Localization</button>
-<button class="mode-btn">Subtitles</button>
-<button class="mode-btn">Enterprise</button>
+<button class="top-btn active">
+Realtime
+</button>
+
+<button class="top-btn">
+OCR
+</button>
+
+<button class="top-btn">
+Localization
+</button>
+
+<button class="top-btn">
+Subtitles
+</button>
+
+<button class="top-btn">
+Enterprise
+</button>
 
 </div>
 
 <div class="workspace">
 
-<div class="live">
+<div class="live-badge">
 🟢 LIVE AI
 </div>
 
@@ -627,13 +742,23 @@ Realtime multilingual contextual translation ecosystem
 <div class="editor-grid">
 
 <div class="editor">
+
 <h3>Source Editor</h3>
-<div class="editor-content" id="sourcePreview"></div>
+
+<div class="editor-content" id="sourcePreview">
+hello
+</div>
+
 </div>
 
 <div class="editor">
+
 <h3>Translated Output</h3>
-<div class="editor-content streaming" id="translatedText"></div>
+
+<div class="editor-content streaming" id="translatedText">
+Translation will appear here...
+</div>
+
 </div>
 
 </div>
@@ -666,7 +791,7 @@ Reverse validation confirms semantic accuracy preservation.
 <div class="info-card">
 <h4>🧠 Translation Memory</h4>
 <p>
-Repeated phrases and glossary mappings are preserved intelligently.
+Repeated phrases and glossary mappings preserved intelligently.
 </p>
 </div>
 
@@ -680,7 +805,7 @@ Supports SRT, VTT and timestamp-aware localization.
 <div class="info-card">
 <h4>📄 OCR Preservation</h4>
 <p>
-Tables, layouts and formatting structures preserved during translation.
+Tables, formatting and structures preserved during translation.
 </p>
 </div>
 
@@ -722,23 +847,29 @@ Tables, layouts and formatting structures preserved during translation.
 
 <div class="metric">
 <div class="metric-title">TRANSLATION ACCURACY</div>
-<div class="metric-value" id="accuracyScore">96%</div>
+<div class="metric-value" id="accuracyScore">
+96%
+</div>
 <div class="progress">
-<span style="width:96%"></span>
+<span id="accuracyBar" style="width:96%"></span>
 </div>
 </div>
 
 <div class="metric">
 <div class="metric-title">LOCALIZATION SCORE</div>
-<div class="metric-value" id="localScore">91%</div>
+<div class="metric-value" id="localizationScore">
+91%
+</div>
 <div class="progress">
-<span style="width:91%"></span>
+<span id="localizationBar" style="width:91%"></span>
 </div>
 </div>
 
 <div class="metric">
 <div class="metric-title">READABILITY INDEX</div>
-<div class="metric-value">93%</div>
+<div class="metric-value">
+93%
+</div>
 <div class="progress">
 <span style="width:93%"></span>
 </div>
@@ -746,43 +877,54 @@ Tables, layouts and formatting structures preserved during translation.
 
 <div class="metric">
 <div class="metric-title">FORMALITY INDEX</div>
-<div class="metric-value">81%</div>
+<div class="metric-value">
+81%
+</div>
 <div class="progress">
 <span style="width:81%"></span>
 </div>
 </div>
 
 <div class="metric">
-<div class="metric-title">⚠ Sensitive Phrase Radar</div>
+<div class="metric-title">
+⚠ Sensitive Phrase Radar
+</div>
+
 <div style="font-size:11px;line-height:1.8;">
 ✅ Translation passed regional validation
 </div>
+
 </div>
 
 <div class="metric">
-<div class="metric-title">🌐 Supported Languages</div>
 
-<div class="lang-grid">
+<div class="metric-title">
+🌐 Supported Languages
+</div>
 
-<div class="lang">English</div>
-<div class="lang">Telugu</div>
-<div class="lang">Hindi</div>
-<div class="lang">Spanish</div>
-<div class="lang">French</div>
-<div class="lang">German</div>
-<div class="lang">Japanese</div>
-<div class="lang">Chinese</div>
-<div class="lang">Arabic</div>
-<div class="lang">Tamil</div>
-<div class="lang">Kannada</div>
-<div class="lang">Russian</div>
+<div class="language-grid">
+
+<div class="language">English</div>
+<div class="language">Telugu</div>
+<div class="language">Hindi</div>
+<div class="language">Spanish</div>
+<div class="language">French</div>
+<div class="language">German</div>
+<div class="language">Japanese</div>
+<div class="language">Chinese</div>
+<div class="language">Arabic</div>
+<div class="language">Tamil</div>
+<div class="language">Kannada</div>
+<div class="language">Russian</div>
 
 </div>
 
 </div>
 
 <div class="chart-box">
-<canvas id="metricsChart"></canvas>
+
+<canvas id="chart"></canvas>
+
 </div>
 
 </div>
@@ -794,40 +936,32 @@ Tables, layouts and formatting structures preserved during translation.
 const sourceText = document.getElementById('sourceText');
 const sourcePreview = document.getElementById('sourcePreview');
 const translatedText = document.getElementById('translatedText');
-
-sourcePreview.innerHTML = sourceText.value;
+const historyBox = document.getElementById('historyBox');
 
 sourceText.addEventListener('input',()=>{
-sourcePreview.innerHTML = sourceText.value;
+
+sourcePreview.innerText = sourceText.value;
+
 });
 
-const translations = {
+document.querySelectorAll('.mode-tab').forEach(tab=>{
 
-Telugu:"నమస్కారం! మీ టెక్స్ట్ విజయవంతంగా తెలుగులోకి అనువదించబడింది.",
+tab.addEventListener('click',()=>{
 
-Hindi:"नमस्ते! आपका टेक्स्ट सफलतापूर्वक हिंदी में अनुवाद किया गया है।",
+document.querySelectorAll('.mode-tab')
+.forEach(t=>t.classList.remove('active'));
 
-Spanish:"Hola! Tu texto fue traducido correctamente al español.",
+tab.classList.add('active');
 
-French:"Bonjour! Votre texte a été traduit avec succès en français.",
+document.querySelectorAll('.mode-section')
+.forEach(sec=>sec.classList.remove('active'));
 
-German:"Hallo! Ihr Text wurde erfolgreich ins Deutsche übersetzt.",
+document.getElementById(tab.dataset.mode)
+.classList.add('active');
 
-Japanese:"こんにちは！テキストは正常に翻訳されました。",
+});
 
-Chinese:"你好！您的文本已成功翻译。",
-
-Arabic:"مرحبًا! تمت ترجمة النص بنجاح.",
-
-Tamil:"வணக்கம்! உங்கள் உரை வெற்றிகரமாக மொழிபெயர்க்கப்பட்டது.",
-
-Kannada:"ನಮಸ್ಕಾರ! ನಿಮ್ಮ ಪಠ್ಯವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಅನುವಾದಿಸಲಾಗಿದೆ.",
-
-Russian:"Здравствуйте! Ваш текст успешно переведен.",
-
-English:"Hello! Your text has been translated successfully."
-
-};
+});
 
 function streamText(text){
 
@@ -842,117 +976,180 @@ translatedText.innerHTML += text.charAt(i);
 i++;
 
 if(i >= text.length){
+
 clearInterval(interval);
-}
-
-},25);
 
 }
 
-document.getElementById('generateBtn').addEventListener('click',()=>{
+},20);
 
-const lang = document.getElementById('toLanguage').value;
+}
 
-const translated = translations[lang] || translations['English'];
+async function translateText(){
 
-streamText(translated);
+const text = sourceText.value.trim();
+
+if(!text){
+
+translatedText.innerHTML = "Please enter text.";
+
+return;
+
+}
+
+translatedText.innerHTML = "Translating...";
+
+const sourceLang = document.getElementById('fromLanguage').value;
+const targetLang = document.getElementById('toLanguage').value;
+
+try{
+
+const response = await fetch(
+'https://libretranslate.de/translate',
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+q:text,
+source:sourceLang,
+target:targetLang,
+format:'text'
+})
+}
+);
+
+const data = await response.json();
+
+streamText(data.translatedText);
 
 updateMetrics();
 
-});
+saveHistory(text,data.translatedText);
 
-function updateMetrics(){
+}catch(err){
 
-const acc = Math.floor(Math.random()*6)+94;
-const loc = Math.floor(Math.random()*8)+88;
-
-document.getElementById('accuracyScore').innerHTML = acc + '%';
-document.getElementById('localScore').innerHTML = loc + '%';
+translatedText.innerHTML =
+"Translation service unavailable.";
 
 }
 
-document.getElementById('copyBtn').addEventListener('click',()=>{
+}
 
-navigator.clipboard.writeText(translatedText.innerText);
+document.getElementById('generateBtn')
+.addEventListener('click',translateText);
+
+function updateMetrics(){
+
+const accuracy =
+Math.floor(Math.random()*6)+94;
+
+const localization =
+Math.floor(Math.random()*8)+88;
+
+document.getElementById('accuracyScore')
+.innerHTML = accuracy + '%';
+
+document.getElementById('localizationScore')
+.innerHTML = localization + '%';
+
+document.getElementById('accuracyBar')
+.style.width = accuracy + '%';
+
+document.getElementById('localizationBar')
+.style.width = localization + '%';
+
+}
+
+document.getElementById('copyBtn')
+.addEventListener('click',()=>{
+
+navigator.clipboard.writeText(
+translatedText.innerText
+);
 
 alert('Translation copied successfully!');
 
 });
 
-document.getElementById('clearBtn').addEventListener('click',()=>{
+document.getElementById('clearBtn')
+.addEventListener('click',()=>{
 
 sourceText.value='';
-translatedText.innerHTML='';
+
 sourcePreview.innerHTML='';
+
+translatedText.innerHTML='';
 
 });
 
-document.getElementById('swapBtn').addEventListener('click',()=>{
+document.getElementById('swapBtn')
+.addEventListener('click',()=>{
 
-const from = document.getElementById('fromLanguage');
-const to = document.getElementById('toLanguage');
+const from =
+document.getElementById('fromLanguage');
+
+const to =
+document.getElementById('toLanguage');
 
 const temp = from.value;
+
 from.value = to.value;
+
 to.value = temp;
 
 });
 
-document.getElementById('formality').addEventListener('input',(e)=>{
-document.getElementById('formalityValue').innerHTML = e.target.value + '%';
-});
+document.getElementById('listenBtn')
+.addEventListener('click',()=>{
 
-document.getElementById('localization').addEventListener('input',(e)=>{
-document.getElementById('localizationValue').innerHTML = e.target.value + '%';
-});
-
-document.getElementById('listenBtn').addEventListener('click',()=>{
-
-const utterance = new SpeechSynthesisUtterance(translatedText.innerText);
+const utterance =
+new SpeechSynthesisUtterance(
+translatedText.innerText
+);
 
 speechSynthesis.speak(utterance);
 
 });
 
-const tabs = document.querySelectorAll('.tab');
-const uploadBox = document.getElementById('uploadBox');
+document.getElementById('formalRange')
+.addEventListener('input',(e)=>{
 
-tabs.forEach(tab=>{
-
-tab.addEventListener('click',()=>{
-
-tabs.forEach(t=>t.classList.remove('active'));
-
-tab.classList.add('active');
-
-const type = tab.dataset.type;
-
-if(type === 'text'){
-uploadBox.innerHTML = '📄 Text Translation Mode Activated';
-}
-
-if(type === 'voice'){
-uploadBox.innerHTML = '🎤 Voice Translation Mode Activated';
-}
-
-if(type === 'image'){
-uploadBox.innerHTML = '🖼 Upload Image For OCR Translation';
-}
-
-if(type === 'video'){
-uploadBox.innerHTML = '🎬 Upload Video/Subtitles For Localization';
-}
-
-if(type === 'url'){
-uploadBox.innerHTML = '🌐 Website Localization URL Mode Activated';
-}
+document.getElementById('formalValue')
+.innerHTML = e.target.value + '%';
 
 });
 
+document.getElementById('localRange')
+.addEventListener('input',(e)=>{
+
+document.getElementById('localValue')
+.innerHTML = e.target.value + '%';
+
 });
+
+function saveHistory(source,translated){
+
+const item = `
+<hr style="margin:8px 0;border-color:#1e3a8a;">
+<b>Source:</b> ${source}<br>
+<b>Translated:</b> ${translated}
+`;
+
+if(historyBox.innerHTML.includes('No history yet')){
+
+historyBox.innerHTML =
+'<b>Translation History</b>';
+
+}
+
+historyBox.innerHTML += item;
+
+}
 
 const chart = new Chart(
-document.getElementById('metricsChart'),
+document.getElementById('chart'),
 {
 type:'radar',
 data:{
@@ -965,7 +1162,7 @@ labels:[
 ],
 datasets:[{
 label:'AI Metrics',
-data:[96,91,93,88,95],
+data:[96,91,93,89,95],
 backgroundColor:'rgba(56,189,248,.2)',
 borderColor:'#38bdf8'
 }]
@@ -980,15 +1177,73 @@ color:'#fff'
 },
 scales:{
 r:{
-angleLines:{color:'rgba(255,255,255,.2)'},
-grid:{color:'rgba(255,255,255,.1)'},
-pointLabels:{color:'#fff'},
-ticks:{display:false}
+angleLines:{
+color:'rgba(255,255,255,.15)'
+},
+grid:{
+color:'rgba(255,255,255,.1)'
+},
+pointLabels:{
+color:'#fff'
+},
+ticks:{
+display:false
+}
 }
 }
 }
 }
 );
+
+document.getElementById('voiceBtn')
+?.addEventListener('click',()=>{
+
+const recognition =
+new(window.SpeechRecognition ||
+window.webkitSpeechRecognition)();
+
+recognition.lang='en-US';
+
+recognition.start();
+
+recognition.onresult = (event)=>{
+
+sourceText.value =
+event.results[0][0].transcript;
+
+sourcePreview.innerText =
+sourceText.value;
+
+};
+
+});
+
+document.getElementById('imageInput')
+?.addEventListener('change',async(e)=>{
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+translatedText.innerHTML =
+'Running OCR Engine...';
+
+const result =
+await Tesseract.recognize(
+file,
+'eng'
+);
+
+sourceText.value =
+result.data.text;
+
+sourcePreview.innerText =
+result.data.text;
+
+translatedText.innerHTML =
+'OCR completed. Click Generate Translation.';
+
+});
 
 </script>
 
