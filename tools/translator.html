@@ -1,1532 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global AI Translation Studio</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
-
-body{
-background:linear-gradient(135deg,#020617,#4c1d95);
-color:white;
-height:100vh;
-overflow:hidden;
-}
-
-.app{
-display:grid;
-grid-template-columns:280px 1fr 260px;
-gap:14px;
-padding:14px;
-height:100vh;
-}
-
-/* LEFT */
-
-.sidebar{
-background:#07114a;
-border-radius:22px;
-padding:18px;
-overflow:auto;
-border:1px solid rgba(255,255,255,.08);
-}
-
-.logo{
-font-size:18px;
-font-weight:800;
-line-height:1.1;
-margin-bottom:14px;
-
-background:linear-gradient(to right,#38bdf8,#8b5cf6);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.desc{
-font-size:11px;
-line-height:1.6;
-color:#cbd5e1;
-margin-bottom:14px;
-}
-
-.badges{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-margin-bottom:14px;
-}
-
-.badge{
-background:#1e3a8a;
-padding:6px 10px;
-border-radius:20px;
-font-size:10px;
-}
-
-.mode-tabs{
-display:flex;
-gap:8px;
-margin-bottom:14px;
-flex-wrap:wrap;
-}
-
-.mode-tab{
-background:#1e3a8a;
-padding:8px 12px;
-border-radius:10px;
-font-size:11px;
-cursor:pointer;
-transition:.3s;
-}
-
-.mode-tab.active{
-background:linear-gradient(to right,#38bdf8,#ec4899);
-}
-
-.mode-section{
-display:none;
-}
-
-.mode-section.active{
-display:block;
-}
-
-.drop-zone{
-border:2px dashed #334155;
-padding:18px;
-border-radius:14px;
-text-align:center;
-font-size:11px;
-margin-bottom:14px;
-background:#111827;
-}
-
-.section-title{
-font-size:11px;
-font-weight:700;
-margin:10px 0 6px;
-}
-
-textarea,
-select,
-input{
-width:100%;
-background:#18245c;
-border:none;
-outline:none;
-padding:12px;
-border-radius:10px;
-color:white;
-font-size:12px;
-margin-bottom:10px;
-}
-
-textarea{
-resize:none;
-height:85px;
-}
-
-.range-label{
-font-size:10px;
-margin-top:-5px;
-margin-bottom:10px;
-color:#94a3b8;
-}
-
-.primary-btn{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-background:linear-gradient(to right,#38bdf8,#ec4899);
-color:white;
-font-size:12px;
-font-weight:700;
-cursor:pointer;
-margin-top:6px;
-}
-
-.row{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:10px;
-}
-
-.small-btn{
-padding:10px;
-border:none;
-border-radius:10px;
-background:#2563eb;
-color:white;
-font-size:11px;
-cursor:pointer;
-}
-
-.clean-btn{
-background:#111827;
-}
-
-.home-btn{
-background:linear-gradient(to right,#38bdf8,#8b5cf6);
-}
-
-.history{
-margin-top:12px;
-background:#18245c;
-padding:12px;
-border-radius:12px;
-font-size:11px;
-max-height:140px;
-overflow:auto;
-}
-
-/* MAIN */
-
-.main{
-background:#07114a;
-border-radius:22px;
-padding:14px;
-overflow:auto;
-border:1px solid rgba(255,255,255,.08);
-}
-
-.top-tabs{
-display:flex;
-gap:10px;
-margin-bottom:15px;
-flex-wrap:wrap;
-}
-
-.top-tab{
-padding:8px 14px;
-border-radius:10px;
-background:#1e3a8a;
-font-size:11px;
-font-weight:700;
-cursor:pointer;
-transition:.3s;
-}
-
-.top-tab.active{
-background:linear-gradient(to right,#38bdf8,#ec4899);
-}
-
-.workspace{
-background:#f8fafc;
-border-radius:20px;
-padding:18px;
-color:black;
-}
-
-.title{
-font-size:20px;
-font-weight:800;
-}
-
-.subtitle{
-font-size:12px;
-color:#64748b;
-margin-bottom:14px;
-}
-
-.dual{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-margin-bottom:14px;
-}
-
-.editor{
-background:white;
-border:1px solid #e2e8f0;
-border-radius:16px;
-padding:14px;
-min-height:180px;
-}
-
-.editor h3{
-font-size:14px;
-margin-bottom:10px;
-}
-
-.output{
-line-height:1.8;
-font-size:14px;
-white-space:pre-wrap;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-margin-top:10px;
-}
-
-.info{
-background:white;
-border:1px solid #e2e8f0;
-border-radius:14px;
-padding:12px;
-font-size:12px;
-}
-
-.bottom-actions{
-display:flex;
-gap:10px;
-margin-top:15px;
-flex-wrap:wrap;
-}
-
-.action-btn{
-padding:10px 14px;
-border:none;
-border-radius:10px;
-background:linear-gradient(to right,#38bdf8,#ec4899);
-color:white;
-font-size:11px;
-font-weight:700;
-cursor:pointer;
-}
-
-/* RIGHT */
-
-.analytics{
-background:#07114a;
-border-radius:22px;
-padding:18px;
-overflow:auto;
-border:1px solid rgba(255,255,255,.08);
-}
-
-.metric{
-background:#1e2b7a;
-border-radius:16px;
-padding:14px;
-margin-bottom:12px;
-}
-
-.metric h4{
-font-size:10px;
-margin-bottom:8px;
-color:#cbd5e1;
-}
-
-.metric-value{
-font-size:20px;
-font-weight:800;
-color:#4ade80;
-margin-bottom:8px;
-}
-
-.bar{
-height:6px;
-border-radius:10px;
-background:#111827;
-overflow:hidden;
-}
-
-.fill{
-height:100%;
-background:linear-gradient(to right,#38bdf8,#ec4899);
-}
-
-.languages{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin-top:10px;
-}
-
-.lang{
-background:#27348b;
-padding:8px;
-border-radius:8px;
-font-size:10px;
-text-align:center;
-}
-
-.status-live{
-background:#dcfce7;
-padding:6px 10px;
-border-radius:20px;
-font-size:10px;
-font-weight:700;
-color:#166534;
-float:right;
-}
-
-.highlight{
-background:yellow;
-padding:2px 4px;
-border-radius:4px;
-}
-
-@media(max-width:1200px){
-
-.app{
-grid-template-columns:1fr;
-overflow:auto;
-height:auto;
-}
-
-body{
-overflow:auto;
-}
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global AI Translation Studio - Pro Enterprise</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #020617, #4c1d95);
+            --panel-bg: #07114a;
+            --text-main: white;
+            --input-bg: #18245c;
+            --card-bg: #f8fafc;
+            --card-text: black;
+            --editor-bg: white;
+            --border-rgba: rgba(255, 255, 255, .08);
+        }
+
+        .light-mode {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+            --panel-bg: white;
+            --text-main: #0f172a;
+            --input-bg: #e2e8f0;
+            --card-bg: #0f172a;
+            --card-text: white;
+            --editor-bg: #f8fafc;
+            --border-rgba: rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 290px 1fr 270px;
+            gap: 14px;
+            padding: 14px;
+            height: 100vh;
+        }
+
+        /* SIDEBAR LEFT */
+        .sidebar {
+            background: var(--panel-bg);
+            border-radius: 22px;
+            padding: 18px;
+            overflow-y: auto;
+            border: 1px solid var(--border-rgba);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 14px;
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .desc {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .badge {
+            background: #1e3a8a;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            color: white;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .mode-tab {
+            background: #1e3a8a;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            color: white;
+            transition: .3s;
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+        }
+
+        .mode-section {
+            display: none;
+        }
+
+        .mode-section.active {
+            display: block;
+        }
+
+        .drop-zone {
+            border: 2px dashed #334155;
+            padding: 14px;
+            border-radius: 14px;
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 14px;
+            background: #111827;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            margin: 10px 0 4px;
+        }
+
+        textarea, select, input {
+            width: 100%;
+            background: var(--input-bg);
+            border: none;
+            outline: none;
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            resize: none;
+            height: 75px;
+        }
+
+        .range-label {
+            font-size: 10px;
+            margin-top: -4px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        /* MAIN HUBS CENTER */
+        .main {
+            background: var(--panel-bg);
+            border-radius: 22px;
+            padding: 14px;
+            overflow-y: auto;
+            border: 1px solid var(--border-rgba);
+        }
+
+        .top-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tabs-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .top-tab {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #1e3a8a;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+        }
+
+        .top-tab.active {
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+        }
+
+        .theme-toggle {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #334155;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+
+        .workspace {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 18px;
+            color: var(--card-text);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .dual {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .editor {
+            background: var(--editor-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px;
+            min-height: 180px;
+        }
+
+        .editor h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #475569;
+        }
+
+        .output {
+            line-height: 1.8;
+            font-size: 14px;
+            white-space: pre-wrap;
+            color: #0f172a;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .info {
+            background: var(--editor-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 12px;
+        }
+
+        .bottom-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ANALYTICS RIGHT */
+        .analytics {
+            background: var(--panel-bg);
+            border-radius: 22px;
+            padding: 18px;
+            overflow-y: auto;
+            border: 1px solid var(--border-rgba);
+        }
+
+        .metric {
+            background: #1e2b7a;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .metric h4 {
+            font-size: 10px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #4ade80;
+            margin-bottom: 6px;
+        }
+
+        .bar {
+            height: 6px;
+            border-radius: 10px;
+            background: #111827;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            background: linear-gradient(to right, #38bdf8, #ec4899);
+        }
+
+        .languages-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .lang-node {
+            background: #27348b;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .status-live {
+            background: #dcfce7;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #166534;
+            float: right;
+        }
+
+        @media(max-width:1200px){
+            .app { grid-template-columns: 1fr; overflow: auto; height: auto; }
+            body { overflow: auto; }
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="app">
+    <!-- LEFT PANEL SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo">Global AI<br>Translation<br>Engine</div>
+        <div class="desc">Enterprise-grade multilingual AI translation ecosystem with custom glossary maps and metrics dashboard telemetry tracking.</div>
+        
+        <div class="badges">
+            <div class="badge">50+ Active Languages</div>
+            <div class="badge">Enterprise Pro v2</div>
+        </div>
 
-<!-- LEFT -->
-
-<div class="sidebar">
-
-<div class="logo">
-Global AI<br>
-Translation<br>
-Engine
-</div>
-
-<div class="desc">
-Enterprise-grade multilingual AI translation ecosystem with OCR, voice translation, subtitle localization, glossary intelligence and contextual adaptation.
-</div>
-
-<div class="badges">
-<div class="badge">50+ Languages</div>
-<div class="badge">Voice AI</div>
-<div class="badge">OCR</div>
-<div class="badge">Localization</div>
-<div class="badge">Enterprise</div>
-</div>
-
-<div class="mode-tabs">
-
-<div class="mode-tab active" data-mode="text">
-Text
-</div>
-
-<div class="mode-tab" data-mode="voice">
-Voice
-</div>
-
-<div class="mode-tab" data-mode="image">
-Image
-</div>
-
-<div class="mode-tab" data-mode="url">
-URL
-</div>
-
-</div>
-
-<!-- TEXT -->
-
-<div class="mode-section active" id="text">
-
-<div class="drop-zone">
-📝 Text Translation Mode Activated
-</div>
-
-</div>
-
-<!-- VOICE -->
-
-<div class="mode-section" id="voice">
-
-<div class="drop-zone">
-🎤 Realtime Voice Translation Enabled
-</div>
-
-<button id="voiceBtn" class="primary-btn">
-🎤 Start Voice Input
-</button>
-
-</div>
-
-<!-- IMAGE -->
-
-<div class="mode-section" id="image">
-
-<div class="drop-zone">
-🖼 OCR Image Translation
-</div>
-
-<input type="file" id="imageInput">
-
-</div>
-
-<!-- URL -->
-
-<div class="mode-section" id="url">
-
-<div class="drop-zone">
-🌍 Website Localization Mode
-</div>
-
-<input type="text" placeholder="Paste website URL">
-
-</div>
-
-<div class="section-title">
-Source Text
-</div>
-
-<textarea id="sourceText">hello</textarea>
-
-<div class="row">
-
-<div>
-
-<div class="section-title">
-From
-</div>
-
-<select id="fromLanguage">
-
-<option value="auto">
-Auto Detect
-</option>
-
-<option value="en">
-English
-</option>
-
-<option value="te">
-Telugu
-</option>
-
-<option value="hi">
-Hindi
-</option>
-
-<option value="es">
-Spanish
-</option>
-
-<option value="fr">
-French
-</option>
-
-</select>
-
-</div>
-
-<div>
-
-<div class="section-title">
-Translate To
-</div>
-
-<select id="toLanguage">
-
-<option value="te">
-Telugu
-</option>
-
-<option value="hi">
-Hindi
-</option>
-
-<option value="es">
-Spanish
-</option>
-
-<option value="fr">
-French
-</option>
-
-<option value="de">
-German
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-<button id="swapBtn" class="primary-btn">
-⇄ Swap Languages
-</button>
-
-<div class="section-title">
-Industry Preset
-</div>
-
-<select>
-<option>General</option>
-<option>Technology</option>
-<option>Medical</option>
-<option>Legal</option>
-<option>Finance</option>
-</select>
-
-<div class="section-title">
-Tone & Formality
-</div>
-
-<select>
-<option>Professional</option>
-<option>Casual</option>
-<option>Academic</option>
-<option>Diplomatic</option>
-</select>
-
-<div class="section-title">
-Formality Scale
-</div>
-
-<input type="range" value="70">
-
-<div class="range-label">
-70%
-</div>
-
-<div class="section-title">
-Localization Intelligence
-</div>
-
-<input type="range" value="85">
-
-<div class="range-label">
-85%
-</div>
-
-<div class="section-title">
-Protected Brand Terms
-</div>
-
-<textarea placeholder="Azure, Power BI, OpenAI, ServiceNow..."></textarea>
-
-<button id="generateBtn" class="primary-btn">
-🔥 Generate Translation
-</button>
-
-<div class="row">
-
-<button id="copyBtn" class="small-btn">
-📋 Copy
-</button>
-
-<button id="listenBtn" class="small-btn">
-🎧 Listen
-</button>
-
-</div>
-
-<div class="row">
-
-<button class="small-btn">
-📥 Export
-</button>
-
-<button class="small-btn">
-🧠 Analyze
-</button>
-
-</div>
-
-<button id="clearBtn" class="small-btn clean-btn"
-style="width:100%;margin-top:10px;">
-🧹 Clean Workspace
-</button>
-
-<div class="history" id="historyBox">
-
-<b>Translation History</b><br>
-No history yet.
-
-</div>
-
-<button class="primary-btn home-btn"
-onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-</div>
-
-<!-- CENTER -->
-
-<div class="main">
-
-<div class="top-tabs">
-
-<div class="top-tab active">
-Realtime
-</div>
-
-<div class="top-tab">
-OCR
-</div>
-
-<div class="top-tab">
-Localization
-</div>
-
-<div class="top-tab">
-Subtitles
-</div>
-
-<div class="top-tab">
-Enterprise
-</div>
-
-</div>
-
-<div class="workspace">
-
-<div class="status-live">
-🟢 LIVE AI
-</div>
-
-<div class="title">
-AI Translation Studio
-</div>
-
-<div class="subtitle">
-Realtime multilingual contextual translation ecosystem
-</div>
-
-<div class="dual">
-
-<div class="editor">
-
-<h3>
-Source Editor
-</h3>
-
-<div id="sourcePreview" class="output">
-hello
-</div>
-
-</div>
-
-<div class="editor">
-
-<h3>
-Translated Output
-</h3>
-
-<div id="translatedText" class="output">
-Your translated content will appear here...
-</div>
-
-</div>
-
-</div>
-
-<div class="grid">
-
-<div class="info">
-
-🌸 AI Alternatives<br><br>
-
-• Executive localized variation<br>
-• Friendly conversational adaptation<br>
-• Regional natural-language equivalent
-
-</div>
-
-<div class="info">
-
-🌍 Cultural Context<br><br>
-
-Translation culturally adapted with contextual localization intelligence.
-
-</div>
-
-<div class="info">
-
-🔁 Back Translation Validator<br><br>
-
-Reverse validation confirms semantic accuracy preservation.
-
-</div>
-
-<div class="info">
-
-🧠 Translation Memory<br><br>
-
-Repeated phrases and glossary mappings preserved intelligently.
-
-</div>
-
-<div class="info">
-
-🎬 Subtitle Localization<br><br>
-
-Supports SRT, VTT and timestamp-aware localization.
-
-</div>
-
-<div class="info">
-
-📄 OCR Preservation<br><br>
-
-Tables, layouts and formatting preserved during translation.
-
-</div>
-
-</div>
-
-<div class="bottom-actions">
-
-<button class="action-btn">
-📋 Copy Clean
-</button>
-
-<button class="action-btn">
-📄 Export TXT
-</button>
-
-<button class="action-btn">
-📦 Export JSON
-</button>
-
-<button class="action-btn">
-🎬 Export SRT
-</button>
-
-<button class="action-btn">
-🧠 Generate More
-</button>
-
-<button class="action-btn">
-👥 Team Workspace
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="analytics">
-
-<div class="metric">
-
-<h4>
-TRANSLATION ACCURACY
-</h4>
-
-<div id="accuracyScore" class="metric-value">
-96%
-</div>
-
-<div class="bar">
-<div id="accuracyBar" class="fill"
-style="width:96%;">
-</div>
-</div>
-
-</div>
-
-<div class="metric">
-
-<h4>
-LOCALIZATION SCORE
-</h4>
-
-<div id="localizationScore" class="metric-value">
-91%
-</div>
-
-<div class="bar">
-<div id="localizationBar" class="fill"
-style="width:91%;">
-</div>
-</div>
-
-</div>
-
-<div class="metric">
-
-<h4>
-READABILITY INDEX
-</h4>
-
-<div class="metric-value">
-93%
-</div>
-
-<div class="bar">
-<div class="fill"
-style="width:93%;">
-</div>
-</div>
-
-</div>
-
-<div class="metric">
-
-<h4>
-FORMALITY INDEX
-</h4>
-
-<div class="metric-value">
-81%
-</div>
-
-<div class="bar">
-<div class="fill"
-style="width:81%;">
-</div>
-</div>
-
-</div>
-
-<div class="metric">
-
-<h4>
-SUPPORTED LANGUAGES
-</h4>
-
-<div class="languages">
-
-<div class="lang">English</div>
-<div class="lang">Telugu</div>
-
-<div class="lang">Hindi</div>
-<div class="lang">Spanish</div>
-
-<div class="lang">French</div>
-<div class="lang">German</div>
-
-<div class="lang">Arabic</div>
-<div class="lang">Japanese</div>
-
-<div class="lang">Tamil</div>
-<div class="lang">Chinese</div>
-
-<div class="lang">Kannada</div>
-<div class="lang">Russian</div>
-
-</div>
-
-<canvas id="chart"></canvas>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-/* =====================================================
-   MODE TABS
-===================================================== */
-
-const modeTabs =
-document.querySelectorAll(".mode-tab");
-
-const modeSections =
-document.querySelectorAll(".mode-section");
-
-modeTabs.forEach(tab => {
-
-tab.addEventListener("click", () => {
-
-modeTabs.forEach(t =>
-t.classList.remove("active")
-);
-
-modeSections.forEach(section => {
-
-section.classList.remove("active");
-section.style.display = "none";
-
-});
-
-tab.classList.add("active");
-
-const target =
-document.getElementById(
-tab.dataset.mode
-);
-
-target.style.display = "block";
-target.classList.add("active");
-
-});
-
-});
-
-/* =====================================================
-   LIVE SOURCE PREVIEW
-===================================================== */
-
-const sourceText =
-document.getElementById("sourceText");
-
-const sourcePreview =
-document.getElementById("sourcePreview");
-
-sourceText.addEventListener("input", () => {
-
-sourcePreview.innerText =
-sourceText.value;
-
-});
-
-/* =====================================================
-   LANGUAGE DATABASE
-===================================================== */
-
-const translations = {
-
-te:{
-
-"hello":"హలో",
-
-"how are you":"మీరు ఎలా ఉన్నారు",
-
-"thank you":"ధన్యవాదాలు",
-
-"welcome":"స్వాగతం",
-
-"my name is jashuva":"నా పేరు జాషువా"
-
-},
-
-hi:{
-
-"hello":"नमस्ते",
-
-"thank you":"धन्यवाद",
-
-"welcome":"स्वागत है"
-
-},
-
-es:{
-
-"hello":"hola",
-
-"thank you":"gracias"
-
-},
-
-fr:{
-
-"hello":"bonjour"
-
-},
-
-de:{
-
-"hello":"hallo"
-
-}
-
-};
-
-/* =====================================================
-   STREAM TRANSLATION
-===================================================== */
-
-function streamText(text){
-
-const translated =
-document.getElementById(
-"translatedText"
-);
-
-translated.innerHTML = "";
-
-let i = 0;
-
-const interval =
-setInterval(() => {
-
-translated.innerHTML +=
-text.charAt(i);
-
-i++;
-
-if(i >= text.length){
-
-clearInterval(interval);
-
-}
-
-},15);
-
-}
-
-/* =====================================================
-   GENERATE TRANSLATION
-===================================================== */
-
-document
-.getElementById("generateBtn")
-
-.addEventListener("click", () => {
-
-const input =
-sourceText.value
-.toLowerCase()
-.trim();
-
-const targetLang =
-document
-.getElementById("toLanguage")
-.value;
-
-if(!input){
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"Please enter text.";
-
-return;
-
-}
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"Generating translation...";
-
-setTimeout(() => {
-
-let result;
-
-if(
-translations[targetLang] &&
-translations[targetLang][input]
-){
-
-result =
-translations[targetLang][input];
-
-}else{
-
-result =
-"[AI Translation]\\n\\n" +
-input;
-
-}
-
-streamText(result);
-
-updateAnalytics();
-
-saveHistory(input,result);
-
-},700);
-
-});
-
-/* =====================================================
-   ANALYTICS
-===================================================== */
-
-function updateAnalytics(){
-
-const accuracy =
-Math.floor(Math.random()*10)+90;
-
-const localization =
-Math.floor(Math.random()*10)+85;
-
-document
-.getElementById("accuracyScore")
-.innerText =
-accuracy + "%";
-
-document
-.getElementById("localizationScore")
-.innerText =
-localization + "%";
-
-document
-.getElementById("accuracyBar")
-.style.width =
-accuracy + "%";
-
-document
-.getElementById("localizationBar")
-.style.width =
-localization + "%";
-
-}
-
-/* =====================================================
-   COPY
-===================================================== */
-
-document
-.getElementById("copyBtn")
-
-.addEventListener("click", async() => {
-
-await navigator.clipboard.writeText(
-
-document
-.getElementById("translatedText")
-.innerText
-
-);
-
-alert("Copied Successfully");
-
-});
-
-/* =====================================================
-   CLEAN
-===================================================== */
-
-document
-.getElementById("clearBtn")
-
-.addEventListener("click", () => {
-
-sourceText.value = "";
-
-sourcePreview.innerHTML = "";
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"Workspace cleaned.";
-
-});
-
-/* =====================================================
-   LISTEN
-===================================================== */
-
-document
-.getElementById("listenBtn")
-
-.addEventListener("click", () => {
-
-const speech =
-new SpeechSynthesisUtterance(
-
-document
-.getElementById("translatedText")
-.innerText
-
-);
-
-speech.lang =
-document
-.getElementById("toLanguage")
-.value;
-
-speechSynthesis.speak(speech);
-
-});
-
-/* =====================================================
-   SWAP LANGUAGES
-===================================================== */
-
-document
-.getElementById("swapBtn")
-
-.addEventListener("click", () => {
-
-const from =
-document.getElementById(
-"fromLanguage"
-);
-
-const to =
-document.getElementById(
-"toLanguage"
-);
-
-const temp =
-from.value;
-
-from.value =
-to.value;
-
-to.value =
-temp;
-
-});
-
-/* =====================================================
-   HISTORY
-===================================================== */
-
-function saveHistory(source,translated){
-
-const history =
-document.getElementById(
-"historyBox"
-);
-
-if(
-history.innerHTML.includes(
-"No history"
-)
-){
-
-history.innerHTML =
-"<b>Translation History</b>";
-
-}
-
-history.innerHTML += `
-
-<hr style="margin:8px 0;border-color:#334155">
-
-<div style="margin-bottom:10px">
-
-<div style="color:#38bdf8">
-SOURCE:
-</div>
-
-<div>${source}</div>
-
-<div style="margin-top:5px;color:#ec4899">
-TRANSLATED:
-</div>
-
-<div>${translated}</div>
-
-</div>
-
-`;
-
-}
-
-/* =====================================================
-   VOICE INPUT
-===================================================== */
-
-const voiceBtn =
-document.getElementById(
-"voiceBtn"
-);
-
-if(voiceBtn){
-
-voiceBtn.addEventListener("click", () => {
-
-const SpeechRecognition =
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
-
-if(!SpeechRecognition){
-
-alert(
-"Voice Recognition Not Supported"
-);
-
-return;
-
-}
-
-const recognition =
-new SpeechRecognition();
-
-recognition.lang =
-"en-US";
-
-recognition.start();
-
-voiceBtn.innerText =
-"🎤 Listening...";
-
-recognition.onresult =
-(event) => {
-
-const transcript =
-event.results[0][0].transcript;
-
-sourceText.value =
-transcript;
-
-sourcePreview.innerText =
-transcript;
-
-voiceBtn.innerText =
-"🎤 Start Voice Input";
-
-};
-
-});
-
-}
-
-/* =====================================================
-   OCR
-===================================================== */
-
-const imageInput =
-document.getElementById(
-"imageInput"
-);
-
-if(imageInput){
-
-imageInput.addEventListener(
-"change",
-async(event) => {
-
-const file =
-event.target.files[0];
-
-if(!file) return;
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"Running OCR...";
-
-try{
-
-const result =
-await Tesseract.recognize(
-file,
-"eng"
-);
-
-sourceText.value =
-result.data.text;
-
-sourcePreview.innerText =
-result.data.text;
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"OCR completed successfully.";
-
-}catch{
-
-document
-.getElementById("translatedText")
-.innerHTML =
-"OCR failed.";
-
-}
-
-});
-
-}
-
-/* =====================================================
-   TOP TABS
-===================================================== */
-
-const topTabs =
-document.querySelectorAll(".top-tab");
-
-topTabs.forEach(tab => {
-
-tab.addEventListener("click", () => {
-
-topTabs.forEach(t =>
-t.classList.remove("active")
-);
-
-tab.classList.add("active");
-
-});
-
-});
-
-/* =====================================================
-   RADAR CHART
-===================================================== */
-
-new Chart(
-
-document.getElementById("chart"),
-
-{
-
-type:"radar",
-
-data:{
-
-labels:[
-"Accuracy",
-"Localization",
-"Readability",
-"Context",
-"Speed"
-],
-
-datasets:[{
-
-data:[96,91,93,88,95],
-
-borderColor:"#38bdf8",
-
-backgroundColor:
-"rgba(56,189,248,.2)"
-
-}]
-
-},
-
-options:{
-
-plugins:{
-legend:{
-display:false
-}
-},
-
-scales:{
-r:{
-
-ticks:{
-display:false
-},
-
-grid:{
-color:"#334155"
-},
-
-pointLabels:{
-color:"#fff"
-}
-
-}
-}
-
-}
-
-}
-
-);
-
-</script>
-
-</body>
-</html>
