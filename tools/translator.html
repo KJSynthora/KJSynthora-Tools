@@ -455,7 +455,20 @@ Source Input Box
 
 <textarea
 id="sourceText"
+oninput="liveTranslate()"
 placeholder="Enter text..."></textarea>
+
+let liveTimer;
+
+function liveTranslate(){
+
+clearTimeout(liveTimer);
+
+liveTimer = setTimeout(()=>{
+translateText();
+},700);
+
+}  
 
 </div>
 
@@ -588,23 +601,28 @@ No history yet
 
 <div class="top-actions">
 
-<div class="top-btn active">
+<div class="top-btn active"
+onclick="switchDashboard(this)">
 Realtime Dashboard
 </div>
 
-<div class="top-btn">
+<div class="top-btn"
+onclick="switchDashboard(this)">
 OCR Engine
 </div>
 
-<div class="top-btn">
+<div class="top-btn"
+onclick="switchDashboard(this)">
 Localization
 </div>
 
-<div class="top-btn">
+<div class="top-btn"
+onclick="switchDashboard(this)">
 Subtitles
 </div>
 
-<div class="top-btn">
+<div class="top-btn"
+onclick="switchDashboard(this)">
 Enterprise
 </div>
 
@@ -845,6 +863,8 @@ document.getElementById(
 "toLanguage"
 ).value;
 
+
+
 const source =
 languageMap[fromLanguage];
 
@@ -858,29 +878,26 @@ document.getElementById(
 
 try{
 
-const response =
-await fetch(
-"https://libretranslate.de/translate",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-q:text,
-source:source,
-target:target,
-format:"text"
-})
-});
+const response = await fetch(
+`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`
+);
+
+const data = await response.json();
+
+const translated = data[0]
+.map(item => item[0])
+.join("");
 
 const data =
 await response.json();
 
+const translated =
+data.responseData.translatedText;
+
 document.getElementById(
 "translatedOutput"
 ).innerHTML =
-data.translatedText;
+translated;
 
 document.getElementById(
 "tokenCount"
@@ -889,7 +906,7 @@ text.length;
 
 saveHistory(
 text,
-data.translatedText,
+translated,
 fromLanguage,
 toLanguage
 );
@@ -897,12 +914,12 @@ toLanguage
 }
 catch(error){
 
+console.log(error);
+
 document.getElementById(
 "translatedOutput"
 ).innerHTML =
 "Translation failed";
-
-console.log(error);
 
 }
 
@@ -934,6 +951,10 @@ item.innerHTML =
 ${source}<br><br>
 ${translated}
 `;
+
+if(historyBox.innerHTML.includes("No history")){
+historyBox.innerHTML = "";
+}
 
 historyBox.prepend(item);
 
@@ -1036,12 +1057,21 @@ document.getElementById(
 document.getElementById(
 "translatedOutput"
 ).innerHTML =
-"Workspace cleared";
+"Your translated content will appear here...";
 
 document.getElementById(
 "sourceMirror"
 ).innerHTML =
 "Waiting for input...";
+
+document.getElementById(
+"historyBox"
+).innerHTML =
+"No history yet";
+
+document.getElementById(
+"tokenCount"
+).innerHTML = "0";
 
 }
 
@@ -1135,6 +1165,17 @@ tab + "Tab"
 
 }
 
+function switchDashboard(element){
+
+document.querySelectorAll(
+".top-btn"
+).forEach(btn=>{
+btn.classList.remove("active");
+});
+
+element.classList.add("active");
+
+}  
 /* CHART */
 
 new Chart(
