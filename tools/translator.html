@@ -592,7 +592,7 @@
     // LIVE TYPING SYNC BUFFER CONTINUATION
     sourceText.addEventListener('input', () => { sourceMirror.innerText = sourceText.value || "..."; });
 
-    // 🚀 INJECT "RETURN TO HOME" BUTTON VIA JS (HOMEPAGE LINK UPDATED TO HTTPS://KJSYNTHORA.COM)
+    // 🚀 INJECT "RETURN TO HOME" BUTTON VIA JS (HOMEPAGE LINK: HTTPS://KJSYNTHORA.COM)
     const topTabsContainer = document.querySelector('.top-tabs');
     if (topTabsContainer) {
         const homeBtn = document.createElement('button');
@@ -638,30 +638,44 @@
         anchor.click();
     });
 
-    // PIPELINE API TRANSLATE INTEGRATION CORE ENGINE (100% FIXED PARSING)
+    // PIPELINE API TRANSLATE INTEGRATION CORE ENGINE (WITH AUTO-DETECTED LANGUAGE VISUALIZER)
     document.getElementById('translateBtn').addEventListener('click', async () => {
         const text = sourceText.value.trim();
+        const fromLang = document.getElementById('fromLanguage').value;
         const targetLanguage = document.getElementById('toLanguage').value;
         const outputField = document.getElementById('translatedOutput');
         const altBox = document.getElementById('altBox');
         const backBox = document.getElementById('backBox');
         const glossaryInput = document.getElementById('glossaryTerms').value;
+        const sourceHeader = document.querySelector('.editor:nth-child(1) h3');
 
         if (!text) { outputField.innerText = "Provide active query string parameters..."; return; }
         outputField.innerText = "Querying live enterprise multi-channel translation arrays...";
 
         try {
-            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage}&dt=t&q=${encodeURIComponent(text)}`);
+            const res = await fetch(`https://googleapis.com{fromLang}&tl=${targetLanguage}&dt=t&q=${encodeURIComponent(text)}`);
             const data = await res.json();
             
-            // 🔥 FIXED: Correct Nested Array parsing loop from Google API Response Structure
-            if (data && data[0]) {
+            if (data && data) {
                 let parsedString = "";
-                data[0].forEach(segment => {
-                    if (segment && segment[0]) {
-                        parsedString += segment[0];
+                data.forEach(segment => {
+                    if (segment && segment) {
+                        parsedString += segment;
                     }
                 });
+
+                // 🌐 AUTO-DETECTED LANGUAGE DETECTOR & DISPLAY LOGIC
+                if (fromLang === 'auto' && data && data) {
+                    const detectedCode = data; 
+                    const langMapping = {
+                        'te': 'Telugu (తెలుగు)', 'hi': 'Hindi (हिन्दी)', 'en': 'English',
+                        'es': 'Spanish', 'fr': 'French', 'de': 'German', 'ja': 'Japanese'
+                    };
+                    const detectedName = langMapping[detectedCode] || detectedCode.toUpperCase();
+                    sourceHeader.innerHTML = `Source Layout Mirror <span style="color:#38bdf8; font-size:11px; margin-left:10px; background:rgba(56,189,248,0.1); padding:2px 6px; border-radius:4px;">✨ Detected: ${detectedName}</span>`;
+                } else {
+                    sourceHeader.innerText = "Source Layout Mirror";
+                }
                 
                 // GLOSSARY REPLACEMENT PROCESSING LAYER
                 if (glossaryInput.trim()) {
@@ -690,7 +704,7 @@
                 document.getElementById('bar-local').style.width = locVal + "%";
 
                 if (performanceChart) {
-                    performanceChart.data.datasets[0].data = [
+                    performanceChart.data.datasets.data = [
                         Math.floor(Math.random() * 15 + 85),
                         accVal,
                         Math.floor(Math.random() * 10 + 90),
@@ -708,7 +722,7 @@
         }
     });
 
-    // CHART JS METRICS CANVAS RENDER INITIALIZER (FIXED CHANNELS DATA ARRAY)
+    // CHART JS METRICS CANVAS RENDER INITIALIZER
     const ctx = document.getElementById('radarChart').getContext('2d');
     performanceChart = new Chart(ctx, {
         type: 'radar',
@@ -716,7 +730,7 @@
             labels: ['Speed', 'Accuracy', 'Context', 'Readability', 'Localization'],
             datasets: [{
                 label: 'Telemetry Monitor',
-                data: [92, 95, 88, 93, 86],
+                data:,
                 backgroundColor: 'rgba(56, 189, 248, 0.2)',
                 borderColor: '#38bdf8',
                 borderWidth: 2,
