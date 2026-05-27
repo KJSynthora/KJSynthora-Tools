@@ -600,9 +600,8 @@ languageMap[toLanguage.value] || 'en';
 
 try{
 
-const response =
-await fetch(
-'https://libretranslate.de/translate',
+const response = await fetch(
+'https://translate.argosopentech.com/translate',
 {
 method:'POST',
 
@@ -621,8 +620,20 @@ format:'text'
 
 });
 
-const data =
-await response.json();
+let data;
+
+try{
+
+data = await response.json();
+
+}catch{
+
+translatedOutput.innerText =
+'Translation API temporary unavailable';
+
+return;
+
+}
 
 const translated =
 data.translatedText ||
