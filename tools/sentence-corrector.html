@@ -775,6 +775,97 @@ document.getElementById(
 
 }
 
+function onInput(){
+
+const text =
+document.getElementById(
+"sourceText"
+).value;
+
+document.getElementById(
+"charCount"
+).innerHTML =
+`${text.length} characters · ${text.trim().split(/\s+/).filter(Boolean).length} words`;
+
+}
+
+function listenOutput(){
+
+if(!latestOutput) return;
+
+const speech =
+new SpeechSynthesisUtterance(
+latestOutput
+);
+
+speech.lang = "en-US";
+
+window.speechSynthesis.speak(
+speech
+);
+
+}
+
+function exportTXT(){
+
+const blob = new Blob(
+[latestOutput],
+{type:"text/plain"}
+);
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"correction.txt";
+
+a.click();
+
+}
+
+function exportJSON(){
+
+const blob = new Blob(
+[
+JSON.stringify(
+{output:latestOutput},
+null,
+2
+)
+],
+{type:"application/json"}
+);
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"correction.json";
+
+a.click();
+
+}
+
+function copyOriginal(){
+
+const original =
+document.getElementById(
+"originalOutput"
+).innerText;
+
+navigator.clipboard.writeText(
+original
+);
+
+alert("Original copied");
+
+}
 </script>
 
 
