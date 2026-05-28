@@ -233,54 +233,17 @@ select option{background:#090979;color:white}
 
 # FULL END-TO-END AI SENTENCE CORRECTOR SCRIPT
 
+
 <script>
 
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = "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";
 
 const GROQ_URL =
 "https://api.groq.com/openai/v1/chat/completions";
 
-let liveTimer = null;
-let isProcessing = false;
-let correctionHistory = [];
 let latestOutput = "";
 
-function updateLivePreview(){
-
-const text =
-document.getElementById(
-"sourceText"
-).value;
-
-document.getElementById(
-"originalOutput"
-).innerHTML =
-text || "Waiting for input...";
-
-document.getElementById(
-"wordCount"
-).innerHTML =
-text.trim()
-? text.trim().split(/\s+/).length
-: 0;
-
-clearTimeout(liveTimer);
-
-if(text.trim().length > 2){
-
-liveTimer = setTimeout(()=>{
-correctSentence();
-},1000);
-
-}
-
-}
-
 async function correctSentence(){
-
-if(isProcessing){
-return;
-}
 
 const text =
 document.getElementById(
@@ -294,42 +257,18 @@ return;
 
 }
 
-isProcessing = true;
+document.getElementById(
+"originalOutput"
+).innerHTML =
+text;
 
 document.getElementById(
 "correctedOutput"
 ).innerHTML =
-"AI correcting sentence...";
-
-const language =
-document.getElementById(
-"language"
-).value;
-
-const tone =
-document.getElementById(
-"tone"
-).value;
-
-const rewriteMode =
-document.getElementById(
-"rewriteMode"
-).value;
+"Correcting...";
 
 const prompt = `
-
-You are a world-class AI grammar correction engine.
-
-Analyze and correct this sentence.
-
-Language:
-${language}
-
-Tone:
-${tone}
-
-Rewrite Mode:
-${rewriteMode}
+Correct grammar and rewrite professionally.
 
 Sentence:
 "${text}"
@@ -342,19 +281,8 @@ Return ONLY valid JSON.
 "friendly":"",
 "formal":"",
 "grammar_explanation":"",
-"errors":[
-"",
-""
-],
-"errors_count":0,
-"seo":"",
-"grammar_score":97,
-"readability":94,
-"clarity":96,
-"human":95,
-"accuracy":98
+"errors":[]
 }
-
 `;
 
 try{
@@ -378,11 +306,11 @@ model:
 messages:[
 {
 role:"user",
-content: prompt
+content:prompt
 }
 ],
 
-temperature:0.3
+temperature:0.2
 
 })
 
@@ -395,16 +323,12 @@ await response.json();
 const raw =
 data.choices[0]
 .message.content
-.trim();
-
-const clean =
-raw
 .replace(/```json/g,"")
 .replace(/```/g,"")
 .trim();
 
 const result =
-JSON.parse(clean);
+JSON.parse(raw);
 
 latestOutput =
 result.corrected;
@@ -419,25 +343,27 @@ document.getElementById(
 ).innerHTML =
 
 `
-
-<div class="rewrite-card">
-<b>Professional:</b>
+<div>
+• Professional:
 <br>
 ${result.professional}
 </div>
 
-<div class="rewrite-card">
-<b>Friendly:</b>
+<br>
+
+<div>
+• Friendly:
 <br>
 ${result.friendly}
 </div>
 
-<div class="rewrite-card">
-<b>Formal:</b>
+<br>
+
+<div>
+• Formal:
 <br>
 ${result.formal}
 </div>
-
 `;
 
 document.getElementById(
@@ -453,49 +379,12 @@ document.getElementById(
 ).innerHTML =
 
 result.errors.length
-? result.errors.map(err=>`
-<div class="error-item">
-• ${err}
-</div>
-`).join("")
-: "No errors found";
-
-document.getElementById(
-"seoInsights"
-).innerHTML =
-result.seo;
-
-updateBar(
-"grammarScore",
-"grammarBar",
-result.grammar_score
-);
-
-updateBar(
-"readabilityScore",
-"readabilityBar",
-result.readability
-);
-
-updateMiniMetric(
-"clarityScore",
-result.clarity
-);
-
-updateMiniMetric(
-"humanScore",
-result.human
-);
-
-updateMiniMetric(
-"accuracyScore",
-result.accuracy
-);
-
-saveHistory(
-text,
-result.corrected
-);
+?
+result.errors.map(
+e=>`• ${e}<br>`
+).join("")
+:
+"No errors found";
 
 }
 catch(error){
@@ -509,204 +398,15 @@ document.getElementById(
 
 }
 
-isProcessing = false;
-
-}
-
-function updateBar(
-id,
-barId,
-value
-){
-
-document.getElementById(
-id
-).innerHTML =
-value + "%";
-
-document.getElementById(
-barId
-).style.width =
-value + "%";
-
-}
-
-function updateMiniMetric(
-id,
-value
-){
-
-document.getElementById(
-id
-).innerHTML =
-value + "%";
-
-}
-
-function saveHistory(
-original,
-corrected
-){
-
-correctionHistory.unshift({
-
-original,
-corrected,
-time:
-new Date()
-.toLocaleTimeString()
-
-});
-
-if(correctionHistory.length > 20){
-
-correctionHistory.pop();
-
-}
-
-document.getElementById(
-"historyBox"
-).innerHTML =
-
-correctionHistory.map(item=>`
-
-<div class="history-card">
-
-<div class="history-title">
-Original
-</div>
-
-<div class="history-text">
-${item.original}
-</div>
-
-<div class="history-title"
-style="margin-top:8px;">
-Corrected
-</div>
-
-<div class="history-text success">
-${item.corrected}
-</div>
-
-<div class="history-time">
-${item.time}
-</div>
-
-</div>
-
-`).join("");
-
 }
 
 function copyOutput(){
-
-if(!latestOutput){
-return;
-}
 
 navigator.clipboard.writeText(
 latestOutput
 );
 
-showToast(
-"Copied successfully"
-);
-
-}
-
-function listenOutput(){
-
-if(!latestOutput){
-return;
-}
-
-const speech =
-new SpeechSynthesisUtterance(
-latestOutput
-);
-
-speech.lang = "en-US";
-
-speechSynthesis.speak(
-speech
-);
-
-}
-
-function exportTXT(){
-
-if(!latestOutput){
-return;
-}
-
-const blob =
-new Blob(
-[latestOutput],
-{
-type:"text/plain"
-}
-);
-
-const a =
-document.createElement("a");
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-"sentence-correction.txt";
-
-a.click();
-
-}
-
-function exportJSON(){
-
-if(!latestOutput){
-return;
-}
-
-const data = {
-
-original:
-document.getElementById(
-"originalOutput"
-).innerText,
-
-corrected:
-latestOutput,
-
-time:
-new Date()
-.toLocaleString()
-
-};
-
-const blob =
-new Blob(
-[
-JSON.stringify(
-data,
-null,
-2
-)
-],
-{
-type:"application/json"
-}
-);
-
-const a =
-document.createElement("a");
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-"sentence-correction.json";
-
-a.click();
+alert("Copied");
 
 }
 
@@ -741,62 +441,7 @@ document.getElementById(
 ).innerHTML =
 "Errors appear here";
 
-document.getElementById(
-"seoInsights"
-).innerHTML =
-"SEO insights appear here";
-
 }
-
-function showToast(message){
-
-const toast =
-document.createElement("div");
-
-toast.className =
-"toast";
-
-toast.innerHTML =
-message;
-
-document.body.appendChild(
-toast
-);
-
-setTimeout(()=>{
-
-toast.remove();
-
-},2000);
-
-}
-
-function switchDashboard(element){
-
-document.querySelectorAll(
-".top-btn"
-).forEach(btn=>{
-
-btn.classList.remove(
-"active"
-);
-
-});
-
-element.classList.add(
-"active"
-);
-
-}
-
-window.onload = ()=>{
-
-document.getElementById(
-"historyBox"
-).innerHTML =
-"No history yet";
-
-};
 
 </script>
 
