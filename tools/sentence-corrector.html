@@ -283,23 +283,358 @@ text:text
 const data =
 await response.json();
 
-const raw =
-data.choices[0]
-.message.content
-.replace(/```json/g,"")
-.replace(/```/g,"")
-.trim();
+const raw = data.corrected;
 
-const result =
-JSON.parse(raw);
+const result = {
+  corrected: raw,
+  professional: raw,
+  friendly: raw,
+  formal: raw
+};  
 
-latestOutput =
-result.corrected;
+latestOutput = raw;
+
+document.getElementById(
+  "correctedOutput"
+).innerHTML = raw;
 
 document.getElementById(
 "correctedOutput"
 ).innerHTML =
-result.corrected;
+raw;
+
+document.getElementById(
+"rewriteSuggestions"
+).innerHTML =
+
+`
+<div>
+• Professional:
+<br>
+${result.professional}
+</div>
+
+<br>
+
+<div>
+• Friendly:
+<br>
+${result.friendly}
+</div>
+
+<br>
+
+<div>
+• Formal:
+<br>
+${result.formal}
+</div>
+`;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global AI Sentence Corrector — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Space Grotesk',sans-serif;background:linear-gradient(135deg,#020024 0%,#090979 55%,#6a11cb 100%);min-height:100vh;padding:20px;color:white}
+.app{display:grid;grid-template-columns:300px 1fr 265px;gap:16px;max-width:1440px;margin:0 auto}
+.left-panel,.right-panel{background:rgba(8,15,60,.96);border-radius:24px;padding:20px;border:1px solid rgba(255,255,255,.09);height:calc(100vh - 40px);overflow-y:auto;overflow-x:hidden}
+.center{background:rgba(8,15,60,.97);border-radius:24px;padding:18px}
+.logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(90deg,#00dbde,#fc00ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.desc{font-size:12px;line-height:1.75;opacity:.72;margin-bottom:14px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.badge{padding:5px 11px;background:rgba(255,255,255,.09);border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.4px;border:1px solid rgba(255,255,255,.07)}
+.badge.green{background:rgba(0,219,150,.15);border-color:rgba(0,219,150,.3);color:#00db96}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:1.2px;opacity:.55;text-transform:uppercase;margin:14px 0 7px}
+textarea,select{width:100%;background:rgba(255,255,255,.07);color:white;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.09);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;transition:.2s}
+textarea{height:145px;resize:none;line-height:1.75}
+textarea::placeholder{color:rgba(255,255,255,.35)}
+textarea:focus,select:focus{border-color:rgba(0,219,222,.45);background:rgba(255,255,255,.1)}
+select option{background:#090979;color:white}
+.row{display:flex;gap:8px;margin-top:8px}
+.row select{flex:1}
+.btn{width:100%;border:none;padding:12px;margin-top:9px;border-radius:12px;cursor:pointer;font-weight:700;font-size:12.5px;font-family:'Space Grotesk',sans-serif;transition:.2s;letter-spacing:.3px}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.primary{background:linear-gradient(90deg,#00dbde,#fc00ff);color:white}
+.secondary{background:rgba(255,255,255,.07);color:white;border:1px solid rgba(255,255,255,.1)}
+.secondary:hover{background:rgba(255,255,255,.13)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.char-count{font-size:10.5px;opacity:.45;text-align:right;margin-top:5px}
+.status-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;margin-top:10px;font-size:11px;font-weight:600;border:1px solid}
+.status-bar.idle{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);opacity:.6}
+.status-bar.loading{background:rgba(0,219,222,.08);border-color:rgba(0,219,222,.25);color:#00dbde}
+.status-bar.success{background:rgba(0,219,150,.08);border-color:rgba(0,219,150,.25);color:#00db96}
+.status-bar.error{background:rgba(255,80,80,.08);border-color:rgba(255,80,80,.25);color:#ff9090}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.dot.cyan{background:#00dbde;animation:pulse 1s infinite}
+.dot.green{background:#00db96}
+.dot.red{background:#ff6060}
+.dot.gray{background:rgba(255,255,255,.3)}
+.history-box{margin-top:10px;max-height:200px;overflow-y:auto}
+.history-item{background:rgba(255,255,255,.05);padding:11px;border-radius:11px;margin-bottom:7px;font-size:11px;line-height:1.65;border:1px solid rgba(255,255,255,.06)}
+.ht{opacity:.45;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.hv{margin-top:3px;margin-bottom:6px}
+.topbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.top-btn{padding:8px 15px;border-radius:20px;background:rgba(255,255,255,.07);font-size:11px;font-weight:600;cursor:pointer;transition:.2s;border:none;color:white;font-family:'Space Grotesk',sans-serif}
+.top-btn:hover{background:rgba(255,255,255,.14)}
+.top-btn.active{background:linear-gradient(90deg,#00dbde,#fc00ff)}
+.workspace{background:#f3f6fb;border-radius:22px;padding:24px;color:#111;min-height:580px}
+.live-badge{float:right;padding:5px 13px;border-radius:20px;background:#b6f5c4;color:#126b2f;font-size:10.5px;font-weight:700}
+.main-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;margin-bottom:5px;line-height:1.1;color:#0a0a1a}
+.sub-title{font-size:11px;opacity:.5;margin-bottom:20px;line-height:1.65;color:#222}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.card{background:white;border-radius:18px;padding:17px;border:1px solid rgba(0,0,0,.07);min-height:130px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;opacity:.45;margin-bottom:10px;color:#111}
+.output{font-size:17px;line-height:1.75;font-weight:500;color:#111;word-break:break-word}
+.output.placeholder{opacity:.35;font-size:14px;font-weight:400}
+.small-output{font-size:12.5px;line-height:1.85;color:#333;word-break:break-word}
+.small-output.placeholder{opacity:.35;font-size:12px}
+.rewrite-item{margin-bottom:8px;padding:8px 10px;background:#f8f9fc;border-radius:10px;font-size:12px;line-height:1.7;border:1px solid rgba(0,0,0,.06)}
+.rewrite-label{font-size:10px;font-weight:700;letter-spacing:.5px;opacity:.5;text-transform:uppercase;margin-bottom:3px}
+.err-row{background:#fff0f0;border-left:3px solid #ff4444;padding:4px 8px;border-radius:0 6px 6px 0;margin:4px 0;font-size:12px;color:#cc2222;display:block}
+.ok-row{background:#f0fff4;border-left:3px solid #22cc66;padding:4px 8px;border-radius:0 6px 6px 0;margin:4px 0;font-size:12px;color:#116633;display:block}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.action-btn{border:none;padding:11px 16px;border-radius:11px;cursor:pointer;font-weight:700;font-size:11.5px;font-family:'Space Grotesk',sans-serif;background:linear-gradient(90deg,#00dbde,#fc00ff);color:white;transition:.2s}
+.action-btn:hover{transform:translateY(-1px);opacity:.92}
+.action-btn.outline{background:white;color:#111;border:1.5px solid rgba(0,0,0,.12)}
+.metric-card{background:rgba(255,255,255,.06);padding:16px;border-radius:17px;margin-bottom:13px;border:1px solid rgba(255,255,255,.07)}
+.metric-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;opacity:.55;text-transform:uppercase}
+.metric{font-size:42px;font-weight:800;margin-top:6px;font-family:'Syne',sans-serif;background:linear-gradient(90deg,#00dbde,#fc00ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.metric.dim{background:none;-webkit-text-fill-color:rgba(255,255,255,.25)}
+.progress{height:5px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;margin-top:9px}
+.bar{height:100%;background:linear-gradient(90deg,#00dbde,#fc00ff);border-radius:10px;transition:width .8s ease;width:0%}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.score-box{background:rgba(255,255,255,.06);padding:13px;border-radius:13px;font-size:11px;line-height:1.6;border:1px solid rgba(255,255,255,.07)}
+.score-val{font-size:21px;font-weight:700;font-family:'Syne',sans-serif;margin-top:3px}
+.score-val.dim{opacity:.2;font-size:18px}
+.langs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}
+.lang{padding:7px;border-radius:9px;text-align:center;background:rgba(255,255,255,.06);font-size:10.5px;font-weight:600;border:1px solid rgba(255,255,255,.06)}
+.api-status{display:flex;align-items:center;gap:6px;font-size:10px;opacity:.55;margin-top:6px}
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;background:rgba(5,5,20,.95);color:white;border-radius:12px;font-size:12.5px;font-family:'Space Grotesk',sans-serif;z-index:9999;border:1px solid rgba(255,255,255,.12)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+@media(max-width:1150px){.app{grid-template-columns:1fr}.left-panel,.right-panel{height:auto}.grid{grid-template-columns:1fr}.main-title{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="left-panel">
+  <div class="logo">Global AI<br>Sentence Corrector</div>
+  <div class="desc">Powered by Google Gemini AI — deep semantic correction, real understanding, 100+ languages, Telugu &amp; Hindi. 1500 req/day free.</div>
+  <div class="badges">
+    <div class="badge green">✓ Gemini AI</div>
+    <div class="badge green">✓ Deep Correction</div>
+    <div class="badge">100+ Languages</div>
+    <div class="badge">AI Rewrite</div>
+    <div class="badge">Telugu/Hindi</div>
+    <div class="badge">Smart Fallback</div>
+  </div>
+  <div class="sec-title">Input Sentence</div>
+  <textarea id="sourceText" placeholder="Type your sentence here... (Auto-corrects in 1.5 seconds)" oninput="onInput()"></textarea>
+  <div class="char-count" id="charCount">0 characters · 0 words</div>
+  <div id="statusBar" class="status-bar idle">
+    <div class="dot gray" id="statusDot"></div>
+    <span id="statusText">Ready — Start typing to correct</span>
+  </div>
+  <div class="row">
+    <select id="language">
+      <option>English</option><option>Telugu</option><option>Hindi</option>
+      <option>Spanish</option><option>French</option><option>German</option>
+      <option>Tamil</option><option>Japanese</option><option>Arabic</option><option>Portuguese</option>
+    </select>
+    <select id="tone">
+      <option>Professional</option><option>Formal</option><option>Casual</option>
+      <option>Friendly</option><option>Academic</option><option>Business</option>
+    </select>
+  </div>
+  <div class="sec-title">AI Rewrite Mode</div>
+  <select id="rewriteMode">
+    <option>Grammar Fix Only</option><option>Professional Rewrite</option>
+    <option>Humanize AI Text</option><option>Email Style</option>
+    <option>Shorten Sentence</option><option>Expand Sentence</option>
+    <option>Academic Style</option><option>Friendly &amp; Warm</option>
+  </select>
+  <button class="btn primary" id="correctBtn" onclick="correctSentence()">✨ Correct with Gemini AI</button>
+  <button class="btn secondary" onclick="listenOutput()">🔊 Listen Output</button>
+  <button class="btn secondary" onclick="clearWorkspace()">🗑 Clear Workspace</button>
+  <div class="api-status">
+    <div class="dot green" style="width:6px;height:6px;animation:pulse 2s infinite"></div>
+    Gemini 2.0 Flash — Free 1500 req/day
+  </div>
+  <div class="sec-title">Correction History</div>
+  <div class="history-box" id="historyBox"><div style="opacity:.35;font-size:12px;padding:8px 0">No corrections yet...</div></div>
+</div>
+
+<div class="center">
+  <div class="topbar">
+    <div class="top-btn active">Realtime Dashboard</div>
+    <div class="top-btn">Grammar Engine</div>
+    <div class="top-btn">AI Rewrite</div>
+    <div class="top-btn">Humanizer</div>
+    <div class="top-btn">Enterprise</div>
+  </div>
+  <div class="workspace">
+    <div class="live-badge">● LIVE AI</div>
+    <div class="main-title">AI Sentence Corrector</div>
+    <div class="sub-title">Powered by Google Gemini AI — Deep semantic correction · Understands meaning · 100+ languages · Telugu &amp; Hindi · 500+ users/day</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Original Sentence</div>
+        <div class="output placeholder" id="originalOutput">Waiting for input...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Corrected Output</div>
+        <div class="output placeholder" id="correctedOutput">Your corrected sentence will appear here...</div>
+      </div>
+      <div class="card" style="min-height:170px">
+        <div class="card-title">AI Rewrite Suggestions</div>
+        <div class="small-output placeholder" id="rewriteSuggestions">Professional, Friendly &amp; Formal rewrites appear here.</div>
+      </div>
+      <div class="card" style="min-height:170px">
+        <div class="card-title">Grammar Explanation</div>
+        <div class="small-output placeholder" id="grammarExplanation">Detailed grammar explanations appear here.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Errors Detected</div>
+        <div class="small-output placeholder" id="errorsDetected">Error list with fixes appear here.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">SEO / Readability Insights</div>
+        <div class="small-output placeholder" id="seoInsights">Readability and SEO insights appear here.</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="copyOutput()">📋 Copy Corrected</button>
+      <button class="action-btn" onclick="exportTXT()">📄 Export TXT</button>
+      <button class="action-btn" onclick="exportJSON()">📦 Export JSON</button>
+      <button class="action-btn outline" onclick="copyOriginal()">Copy Original</button>
+      <button class="action-btn outline" onclick="clearWorkspace()">🗑 Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="right-panel">
+  <div class="metric-card">
+    <div class="metric-title">Grammar Score</div>
+    <div class="metric dim" id="grammarScore">--</div>
+    <div class="progress"><div class="bar" id="grammarBar"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-title">Readability</div>
+    <div class="metric dim" id="readScore">--</div>
+    <div class="progress"><div class="bar" id="readBar"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-title">Errors Fixed</div>
+    <div class="metric dim" id="errorsFixed">0</div>
+    <div class="progress"><div class="bar" id="fixBar"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-title">Words Analyzed</div>
+    <div class="metric dim" id="wordCount">0</div>
+    <div class="progress"><div class="bar" id="wordBar"></div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-box">Clarity<br><div class="score-val dim" id="clarityScore">--</div></div>
+    <div class="score-box">Fluency<br><div class="score-val dim" id="fluencyScore">--</div></div>
+    <div class="score-box">Human Score<br><div class="score-val dim" id="humanScore">--</div></div>
+    <div class="score-box">Accuracy<br><div class="score-val dim" id="accuracyScore">--</div></div>
+  </div>
+  <div class="sec-title">Supported Languages</div>
+  <div class="langs">
+    <div class="lang">English</div><div class="lang">Telugu</div>
+    <div class="lang">Hindi</div><div class="lang">Spanish</div>
+    <div class="lang">French</div><div class="lang">German</div>
+    <div class="lang">Tamil</div><div class="lang">Japanese</div>
+    <div class="lang">Arabic</div><div class="lang">Russian</div>
+    <div class="lang">Italian</div><div class="lang">+90 more</div>
+  </div>
+  <div class="sec-title" style="margin-top:18px">Session Stats</div>
+  <div class="score-box" style="margin-top:0;font-size:12px;line-height:2">
+    Total Corrections: <b id="totalCorrections">0</b><br>
+    Errors Fixed Total: <b id="totalErrors">0</b><br>
+    Session Started: <b id="sessionTime">--</b>
+  </div>
+</div>
+</div>
+
+# FULL END-TO-END AI SENTENCE CORRECTOR SCRIPT
+
+
+<script>
+
+let latestOutput = "";
+
+async function correctSentence(){
+
+const text =
+document.getElementById(
+"sourceText"
+).value.trim();
+
+if(!text){
+
+alert("Enter sentence");
+return;
+
+}
+
+document.getElementById(
+"originalOutput"
+).innerHTML =
+text;
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"AI correcting...";
+
+try{
+
+const response = await fetch(
+"/api/correct",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body: JSON.stringify({
+text:text
+})
+
+}
+);
+
+const data =
+await response.json();
+
+const raw = data.corrected;
+
+const result = {
+  corrected: raw,
+  professional: raw,
+  friendly: raw,
+  formal: raw
+};  
+
+latestOutput = raw;
+
+document.getElementById(
+  "correctedOutput"
+).innerHTML = raw;
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+raw;
 
 document.getElementById(
 "rewriteSuggestions"
@@ -348,6 +683,55 @@ e=>`• ${e}<br>`
 ).join("")
 :
 "No errors found";
+
+}
+catch(error){
+
+console.log(error);
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"AI correction failed";
+
+}
+
+}
+
+function copyOutput(){
+
+navigator.clipboard.writeText(
+latestOutput
+);
+
+alert("Copied");
+
+}
+
+function clearWorkspace(){
+
+document.getElementById(
+"sourceText"
+).value = "";
+
+document.getElementById(
+"originalOutput"
+).innerHTML =
+"Waiting for input...";
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"Your corrected sentence will appear here...";
+
+}
+
+</script>
+
+
+</body>
+</html>
+
 
 }
 catch(error){
