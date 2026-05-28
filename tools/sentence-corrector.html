@@ -236,11 +236,6 @@ select option{background:#090979;color:white}
 
 <script>
 
-const GROQ_API_KEY = "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";
-
-const GROQ_URL =
-"https://api.groq.com/openai/v1/chat/completions";
-
 let latestOutput = "";
 
 async function correctSentence(){
@@ -265,53 +260,21 @@ text;
 document.getElementById(
 "correctedOutput"
 ).innerHTML =
-"Correcting...";
-
-const prompt = `
-Correct grammar and rewrite professionally.
-
-Sentence:
-"${text}"
-
-Return ONLY valid JSON.
-
-{
-"corrected":"",
-"professional":"",
-"friendly":"",
-"formal":"",
-"grammar_explanation":"",
-"errors":[]
-}
-`;
+"AI correcting...";
 
 try{
 
 const response = await fetch(
-GROQ_URL,
+"/api/correct",
 {
 method:"POST",
 
 headers:{
-"Content-Type":"application/json",
-"Authorization":
-"Bearer " + GROQ_API_KEY
+"Content-Type":"application/json"
 },
 
 body: JSON.stringify({
-
-model:
-"llama-3.3-70b-versatile",
-
-messages:[
-{
-role:"user",
-content:prompt
-}
-],
-
-temperature:0.2
-
+text:text
 })
 
 }
@@ -426,24 +389,10 @@ document.getElementById(
 ).innerHTML =
 "Your corrected sentence will appear here...";
 
-document.getElementById(
-"rewriteSuggestions"
-).innerHTML =
-"Suggestions appear here";
-
-document.getElementById(
-"grammarExplanation"
-).innerHTML =
-"Grammar explanation appears here";
-
-document.getElementById(
-"errorsDetected"
-).innerHTML =
-"Errors appear here";
-
 }
 
 </script>
+
 
 </body>
 </html>
