@@ -1069,7 +1069,7 @@ document.getElementById(
 document.getElementById(
 "wordCount"
 ).innerHTML =
-text.split(" ").length;
+text.split(/\s+/).length;
 
 try{
 
@@ -1098,56 +1098,113 @@ await response.json();
 let corrected =
 text;
 
-data.matches.forEach(match=>{
+/* ========================= */
+/* APPLY FIXES PROPERLY */
+/* ========================= */
 
-if(match.replacements.length){
+const matches =
+data.matches.sort(
+(a,b)=>b.offset-a.offset
+);
+
+matches.forEach(match=>{
+
+if(
+match.replacements &&
+match.replacements.length > 0
+){
+
+const replacement =
+match.replacements[0].value;
 
 corrected =
-corrected.replace(
 
-match.context.text.substr(
-match.context.offset,
-match.context.length
-),
+corrected.substring(
+0,
+match.offset
+)
 
-match.replacements[0].value
++
 
+replacement
+
++
+
+corrected.substring(
+match.offset + match.length
 );
 
 }
 
 });
 
+/* ========================= */
+/* UPDATE UI */
+/* ========================= */
+
 document.getElementById(
 "correctedOutput"
 ).innerHTML =
 corrected;
 
+/* ========================= */
+/* EXPLANATION */
+/* ========================= */
+
+if(data.matches.length > 0){
+
 document.getElementById(
 "grammarExplanation"
 ).innerHTML =
-data.matches.length
-?
-data.matches.map(m=>
 
-`• ${m.message}`
+data.matches.map(match=>`
 
-).join("<br><br>")
-:
+• ${match.message}
+
+`).join("<br><br>");
+
+}
+else{
+
+document.getElementById(
+"grammarExplanation"
+).innerHTML =
+
 "No grammar issues found.";
+
+}
+
+/* ========================= */
+/* REWRITE SUGGESTIONS */
+/* ========================= */
 
 document.getElementById(
 "rewriteSuggestions"
 ).innerHTML =
+
 `
-• ${corrected}<br><br>
+• ${corrected}
+
+<br><br>
 
 • Professional:
-Kindly note that ${corrected}<br><br>
+Kindly note that ${corrected}
+
+<br><br>
 
 • Friendly:
 Hey! ${corrected}
+
+<br><br>
+
+• Formal:
+Please be informed that ${corrected}
+
 `;
+
+/* ========================= */
+/* SAVE HISTORY */
+/* ========================= */
 
 saveHistory(
 text,
@@ -1167,7 +1224,6 @@ document.getElementById(
 }
 
 }
-
 /* ========================================= */
 /* HISTORY SAVE */
 /* ========================================= */
