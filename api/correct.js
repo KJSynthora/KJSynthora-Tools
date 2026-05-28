@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+
   if (req.method !== "POST") {
     return res.status(405).json({
       error: "Method not allowed"
@@ -6,6 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
+
     const { text } = req.body;
 
     const response = await fetch(
@@ -22,31 +24,32 @@ export default async function handler(req, res) {
             {
               role: "system",
               content:
-                "You are an AI grammar corrector. Return corrected professional English only.",
+                "Correct grammar professionally and return corrected sentence only."
             },
             {
               role: "user",
-              content: text,
-            },
+              content: text
+            }
           ],
-          temperature: 0.3,
-        }),
+          temperature: 0.3
+        })
       }
     );
 
     const data = await response.json();
 
-    const corrected =
-      data.choices?.[0]?.message?.content ||
-      "Correction failed";
-
     res.status(200).json({
-      corrected,
+      corrected:
+        data.choices?.[0]?.message?.content ||
+        "No correction available"
     });
+
   } catch (error) {
+
     res.status(500).json({
-      error: "AI correction failed",
-      details: error.message,
+      error: error.message
     });
+
   }
+
 }
