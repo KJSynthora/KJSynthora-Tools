@@ -907,8 +907,11 @@ document.getElementById(
 ).value.trim();
 
 if(!text){
+
 alert("Enter text first");
+
 return;
+
 }
 
 document.getElementById(
@@ -940,29 +943,17 @@ try{
 
 const response = await fetch(
 
-`https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${source}&tl=${target}&q=${encodeURIComponent(text)}`
+`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`
 
 );
 
 const data =
 await response.json();
 
-let translated = "";
-
-if(data.sentences){
-
-translated =
-data.sentences
-.map(s=>s.trans)
+const translated =
+data[0]
+.map(item => item[0])
 .join("");
-
-}
-else{
-
-translated =
-"Translation unavailable";
-
-}
 
 document.getElementById(
 "translatedOutput"
@@ -994,7 +985,6 @@ document.getElementById(
 }
 
 }
-
 
 
 
