@@ -231,221 +231,574 @@ select option{background:#090979;color:white}
 </div>
 </div>
 
+# FULL END-TO-END AI SENTENCE CORRECTOR SCRIPT
+
 <script>
-const GEMINI_KEY = 'AIzaSyCrAzLbwr7YyYPNqrMng2ETXkCAAZ5v6io';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
 
-let historyData = [], liveTimer = null, isProcessing = false;
-let totalCorrections = 0, totalErrorsFixed = 0, lastCorrected = '';
-document.getElementById('sessionTime').textContent = new Date().toLocaleTimeString();
+const GROQ_API_KEY = "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";
 
-function onInput() {
-  const t = document.getElementById('sourceText').value;
-  const w = t.trim() ? t.trim().split(/\s+/).length : 0;
-  document.getElementById('charCount').textContent = t.length + ' characters · ' + w + ' words';
-  clearTimeout(liveTimer);
-  if (t.trim().length > 3) {
-    setStatus('loading', 'Auto-correcting soon...');
-    liveTimer = setTimeout(() => correctSentence(true), 1500);
-  } else {
-    setStatus('idle', 'Ready — Start typing to correct');
-  }
+const GROQ_URL =
+"https://api.groq.com/openai/v1/chat/completions";
+
+let liveTimer = null;
+let isProcessing = false;
+let correctionHistory = [];
+let latestOutput = "";
+
+function updateLivePreview(){
+
+const text =
+document.getElementById(
+"sourceText"
+).value;
+
+document.getElementById(
+"originalOutput"
+).innerHTML =
+text || "Waiting for input...";
+
+document.getElementById(
+"wordCount"
+).innerHTML =
+text.trim()
+? text.trim().split(/\s+/).length
+: 0;
+
+clearTimeout(liveTimer);
+
+if(text.trim().length > 2){
+
+liveTimer = setTimeout(()=>{
+correctSentence();
+},1000);
+
 }
 
-function setStatus(type, msg) {
-  document.getElementById('statusBar').className = 'status-bar ' + type;
-  document.getElementById('statusDot').className = 'dot ' + (type==='loading'?'cyan':type==='success'?'green':type==='error'?'red':'gray');
-  document.getElementById('statusText').textContent = msg;
 }
 
-async function correctSentence() {
-  const text = document.getElementById('sourceText').value.trim();
-  if (!text || isProcessing) return;
-  isProcessing = true;
+async function correctSentence(){
 
-  const lang = document.getElementById('language').value;
-  const tone = document.getElementById('tone').value;
-  const mode = document.getElementById('rewriteMode').value;
-  const words = text.trim().split(/\s+/).length;
-
-  document.getElementById('correctBtn').disabled = true;
-  document.getElementById('originalOutput').textContent = text;
-  document.getElementById('originalOutput').className = 'output';
-  document.getElementById('correctedOutput').innerHTML = '<span style="opacity:.4;font-size:14px">Gemini AI is thinking...</span>';
-  document.getElementById('correctedOutput').className = 'output';
-  setStatus('loading', 'Connecting to Gemini AI...');
-  document.getElementById('wordCount').textContent = words;
-  document.getElementById('wordCount').className = 'metric';
-  document.getElementById('wordBar').style.width = Math.min(words * 5, 100) + '%';
-
-  const prompt = `You are an expert grammar corrector. Fix this sentence completely — correct grammar, word choice, verb tense, missing words, and meaning. Example: "i am go to school with bike" should become "I go to school by bike."
-
-Sentence: "${text}"
-Language: ${lang}
-Tone: ${tone}
-Mode: ${mode}
-
-Return ONLY valid JSON (no markdown, no code blocks):
-{"corrected":"fully corrected sentence","rewrite_professional":"professional version","rewrite_friendly":"friendly version","rewrite_formal":"formal version","grammar_explanation":"specific errors found and how they were fixed","errors_list":["error 1","error 2"],"errors_count":2,"seo_insight":"readability analysis","grammar_score":92,"readability_score":88,"clarity_score":90,"fluency_score":91,"human_score":94,"accuracy_score":93}`;
-
-  try {
-    const res = await fetch(GEMINI_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.2, maxOutputTokens: 1024}
-      })
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API ' + res.status); }
-    const data = await res.json();
-    let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    raw = raw.replace(/```json|```/g,'').trim();
-    const p = JSON.parse(raw);
-    lastCorrected = p.corrected;
-
-    document.getElementById('correctedOutput').textContent = p.corrected;
-    document.getElementById('grammarExplanation').innerHTML = p.grammar_explanation
-      ? `<span class="ok-row">${p.grammar_explanation}</span>`
-      : '<span class="ok-row">No errors found — sentence is perfect!</span>';
-    document.getElementById('grammarExplanation').className = 'small-output';
-
-    const errCount = p.errors_count || 0;
-    document.getElementById('errorsDetected').innerHTML = errCount === 0
-      ? '<span class="ok-row">✓ No errors — sentence is perfect!</span>'
-      : (p.errors_list||[]).slice(0,5).map(e=>`<span class="err-row">✗ ${e}</span>`).join('');
-    document.getElementById('errorsDetected').className = 'small-output';
-
-    document.getElementById('rewriteSuggestions').innerHTML =
-      `<div class="rewrite-item"><div class="rewrite-label">✦ Corrected</div>${p.corrected}</div>` +
-      `<div class="rewrite-item"><div class="rewrite-label">✦ Professional</div>${p.rewrite_professional}</div>` +
-      `<div class="rewrite-item"><div class="rewrite-label">✦ Friendly</div>${p.rewrite_friendly}</div>` +
-      `<div class="rewrite-item"><div class="rewrite-label">✦ Formal</div>${p.rewrite_formal}</div>`;
-    document.getElementById('rewriteSuggestions').className = 'small-output';
-
-    document.getElementById('seoInsights').textContent = p.seo_insight || 'Analysis complete.';
-    document.getElementById('seoInsights').className = 'small-output';
-
-    setMet('grammarScore','grammarBar', p.grammar_score);
-    setMet('readScore','readBar', p.readability_score);
-    document.getElementById('errorsFixed').textContent = errCount;
-    document.getElementById('errorsFixed').className = 'metric';
-    document.getElementById('fixBar').style.width = Math.min(errCount*20,100)+'%';
-    setSc('clarityScore', p.clarity_score);
-    setSc('fluencyScore', p.fluency_score);
-    setSc('humanScore', p.human_score);
-    setSc('accuracyScore', p.accuracy_score);
-
-    totalCorrections++; totalErrorsFixed += errCount;
-    document.getElementById('totalCorrections').textContent = totalCorrections;
-    document.getElementById('totalErrors').textContent = totalErrorsFixed;
-    setStatus('success', 'Gemini AI — ' + errCount + ' error(s) fixed');
-    saveHistory(text, p.corrected, errCount);
-
-  } catch(e) {
-    setStatus('error', e.message.slice(0,70));
-    document.getElementById('correctedOutput').textContent = 'Error: ' + e.message;
-  }
-  isProcessing = false;
-  document.getElementById('correctBtn').disabled = false;
+if(isProcessing){
+return;
 }
 
-function setMet(id, barId, val) {
-  document.getElementById(id).textContent = val+'%';
-  document.getElementById(id).className = 'metric';
-  document.getElementById(barId).style.width = val+'%';
-}
-function setSc(id, val) {
-  document.getElementById(id).textContent = val+'%';
-  document.getElementById(id).className = 'score-val';
+const text =
+document.getElementById(
+"sourceText"
+).value.trim();
+
+if(!text){
+
+alert("Enter sentence");
+return;
+
 }
 
-function saveHistory(orig, corr, n) {
-  historyData.unshift({original:orig, corrected:corr, errors:n, time:new Date().toLocaleTimeString()});
-  if(historyData.length>30) historyData.pop();
-  document.getElementById('historyBox').innerHTML = historyData.map(h=>
-    `<div class="history-item">
-      <div class="ht">Original</div><div class="hv">${h.original.slice(0,80)}</div>
-      <div class="ht">Corrected · ${h.errors} fix(es)</div>
-      <div class="hv" style="color:#00db96">${h.corrected.slice(0,80)}</div>
-      <div style="opacity:.35;font-size:9.5px">${h.time}</div>
-    </div>`).join('');
+isProcessing = true;
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"AI correcting sentence...";
+
+const language =
+document.getElementById(
+"language"
+).value;
+
+const tone =
+document.getElementById(
+"tone"
+).value;
+
+const rewriteMode =
+document.getElementById(
+"rewriteMode"
+).value;
+
+const prompt = `
+
+You are a world-class AI grammar correction engine.
+
+Analyze and correct this sentence.
+
+Language:
+${language}
+
+Tone:
+${tone}
+
+Rewrite Mode:
+${rewriteMode}
+
+Sentence:
+"${text}"
+
+Return ONLY valid JSON.
+
+{
+"corrected":"",
+"professional":"",
+"friendly":"",
+"formal":"",
+"grammar_explanation":"",
+"errors":[
+"",
+""
+],
+"errors_count":0,
+"seo":"",
+"grammar_score":97,
+"readability":94,
+"clarity":96,
+"human":95,
+"accuracy":98
 }
 
-function clearWorkspace() {
-  document.getElementById('sourceText').value = '';
-  document.getElementById('charCount').textContent = '0 characters · 0 words';
-  setStatus('idle','Ready — Start typing to correct');
-  const ph = {
-    originalOutput:['output placeholder','Waiting for input...'],
-    correctedOutput:['output placeholder','Your corrected sentence will appear here...'],
-    rewriteSuggestions:['small-output placeholder','Rewrites appear here.'],
-    grammarExplanation:['small-output placeholder','Grammar explanations appear here.'],
-    errorsDetected:['small-output placeholder','Errors appear here.'],
-    seoInsights:['small-output placeholder','SEO insights appear here.']
-  };
-  Object.entries(ph).forEach(([id,[cls,txt]])=>{
-    document.getElementById(id).className=cls;
-    document.getElementById(id).textContent=txt;
-  });
-  ['grammarScore','readScore'].forEach(id=>{document.getElementById(id).textContent='--';document.getElementById(id).className='metric dim';});
-  ['errorsFixed','wordCount'].forEach(id=>{document.getElementById(id).textContent='0';document.getElementById(id).className='metric dim';});
-  ['grammarBar','readBar','fixBar','wordBar'].forEach(id=>document.getElementById(id).style.width='0%');
-  ['clarityScore','fluencyScore','humanScore','accuracyScore'].forEach(id=>{document.getElementById(id).textContent='--';document.getElementById(id).className='score-val dim';});
-  clearTimeout(liveTimer); lastCorrected='';
+`;
+
+try{
+
+const response = await fetch(
+GROQ_URL,
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+"Authorization":
+"Bearer " + GROQ_API_KEY
+},
+
+body: JSON.stringify({
+
+model:
+"llama-3.3-70b-versatile",
+
+messages:[
+{
+role:"user",
+content: prompt
+}
+],
+
+temperature:0.3
+
+})
+
+}
+);
+
+const data =
+await response.json();
+
+const raw =
+data.choices[0]
+.message.content
+.trim();
+
+const clean =
+raw
+.replace(/```json/g,"")
+.replace(/```/g,"")
+.trim();
+
+const result =
+JSON.parse(clean);
+
+latestOutput =
+result.corrected;
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+result.corrected;
+
+document.getElementById(
+"rewriteSuggestions"
+).innerHTML =
+
+`
+
+<div class="rewrite-card">
+<b>Professional:</b>
+<br>
+${result.professional}
+</div>
+
+<div class="rewrite-card">
+<b>Friendly:</b>
+<br>
+${result.friendly}
+</div>
+
+<div class="rewrite-card">
+<b>Formal:</b>
+<br>
+${result.formal}
+</div>
+
+`;
+
+document.getElementById(
+"grammarExplanation"
+).innerHTML =
+
+`
+• ${result.grammar_explanation}
+`;
+
+document.getElementById(
+"errorsDetected"
+).innerHTML =
+
+result.errors.length
+? result.errors.map(err=>`
+<div class="error-item">
+• ${err}
+</div>
+`).join("")
+: "No errors found";
+
+document.getElementById(
+"seoInsights"
+).innerHTML =
+result.seo;
+
+updateBar(
+"grammarScore",
+"grammarBar",
+result.grammar_score
+);
+
+updateBar(
+"readabilityScore",
+"readabilityBar",
+result.readability
+);
+
+updateMiniMetric(
+"clarityScore",
+result.clarity
+);
+
+updateMiniMetric(
+"humanScore",
+result.human
+);
+
+updateMiniMetric(
+"accuracyScore",
+result.accuracy
+);
+
+saveHistory(
+text,
+result.corrected
+);
+
+}
+catch(error){
+
+console.log(error);
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"AI correction failed";
+
 }
 
-function copyOutput() {
-  if(!lastCorrected) return showToast('Nothing to copy yet');
-  navigator.clipboard.writeText(lastCorrected);
-  showToast('Corrected text copied!');
+isProcessing = false;
+
 }
-function copyOriginal() {
-  const t = document.getElementById('originalOutput').textContent;
-  if(!t||t==='Waiting for input...') return showToast('No original text');
-  navigator.clipboard.writeText(t);
-  showToast('Original text copied!');
+
+function updateBar(
+id,
+barId,
+value
+){
+
+document.getElementById(
+id
+).innerHTML =
+value + "%";
+
+document.getElementById(
+barId
+).style.width =
+value + "%";
+
 }
-function exportTXT() {
-  if(!lastCorrected) return showToast('Nothing to export');
-  const c = 'AI SENTENCE CORRECTOR — KJSynthora\n\nORIGINAL:\n'+document.getElementById('originalOutput').textContent+'\n\nCORRECTED:\n'+lastCorrected+'\n\nExported: '+new Date().toLocaleString();
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([c],{type:'text/plain'}));
-  a.download = 'corrected_'+Date.now()+'.txt'; a.click();
-  showToast('Exported as TXT!');
+
+function updateMiniMetric(
+id,
+value
+){
+
+document.getElementById(
+id
+).innerHTML =
+value + "%";
+
 }
-function exportJSON() {
-  if(!lastCorrected) return showToast('Nothing to export');
-  const d = {tool:'KJSynthora Sentence Corrector',timestamp:new Date().toISOString(),original:document.getElementById('originalOutput').textContent,corrected:lastCorrected};
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
-  a.download = 'corrected_'+Date.now()+'.json'; a.click();
-  showToast('Exported as JSON!');
-}
-function listenOutput() {
-  if(!lastCorrected) return showToast('Nothing to speak yet');
-  const lang = document.getElementById('language').value;
-  const u = new SpeechSynthesisUtterance(lastCorrected);
-  u.lang = lang==='Telugu'?'te-IN':lang==='Hindi'?'hi-IN':lang==='Spanish'?'es-ES':'en-US';
-  u.rate=0.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
-  showToast('Speaking...');
-}
-function showToast(msg) {
-  document.querySelector('.toast')?.remove();
-  const t = document.createElement('div');
-  t.className='toast'; t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2500);
-}
-document.getElementById('sourceText').addEventListener('keydown',e=>{
-  if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();correctSentence();}
+
+function saveHistory(
+original,
+corrected
+){
+
+correctionHistory.unshift({
+
+original,
+corrected,
+time:
+new Date()
+.toLocaleTimeString()
+
 });
-document.querySelectorAll('.top-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.top-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-  });
+
+if(correctionHistory.length > 20){
+
+correctionHistory.pop();
+
+}
+
+document.getElementById(
+"historyBox"
+).innerHTML =
+
+correctionHistory.map(item=>`
+
+<div class="history-card">
+
+<div class="history-title">
+Original
+</div>
+
+<div class="history-text">
+${item.original}
+</div>
+
+<div class="history-title"
+style="margin-top:8px;">
+Corrected
+</div>
+
+<div class="history-text success">
+${item.corrected}
+</div>
+
+<div class="history-time">
+${item.time}
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+function copyOutput(){
+
+if(!latestOutput){
+return;
+}
+
+navigator.clipboard.writeText(
+latestOutput
+);
+
+showToast(
+"Copied successfully"
+);
+
+}
+
+function listenOutput(){
+
+if(!latestOutput){
+return;
+}
+
+const speech =
+new SpeechSynthesisUtterance(
+latestOutput
+);
+
+speech.lang = "en-US";
+
+speechSynthesis.speak(
+speech
+);
+
+}
+
+function exportTXT(){
+
+if(!latestOutput){
+return;
+}
+
+const blob =
+new Blob(
+[latestOutput],
+{
+type:"text/plain"
+}
+);
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"sentence-correction.txt";
+
+a.click();
+
+}
+
+function exportJSON(){
+
+if(!latestOutput){
+return;
+}
+
+const data = {
+
+original:
+document.getElementById(
+"originalOutput"
+).innerText,
+
+corrected:
+latestOutput,
+
+time:
+new Date()
+.toLocaleString()
+
+};
+
+const blob =
+new Blob(
+[
+JSON.stringify(
+data,
+null,
+2
+)
+],
+{
+type:"application/json"
+}
+);
+
+const a =
+document.createElement("a");
+
+a.href =
+URL.createObjectURL(blob);
+
+a.download =
+"sentence-correction.json";
+
+a.click();
+
+}
+
+function clearWorkspace(){
+
+document.getElementById(
+"sourceText"
+).value = "";
+
+document.getElementById(
+"originalOutput"
+).innerHTML =
+"Waiting for input...";
+
+document.getElementById(
+"correctedOutput"
+).innerHTML =
+"Your corrected sentence will appear here...";
+
+document.getElementById(
+"rewriteSuggestions"
+).innerHTML =
+"Suggestions appear here";
+
+document.getElementById(
+"grammarExplanation"
+).innerHTML =
+"Grammar explanation appears here";
+
+document.getElementById(
+"errorsDetected"
+).innerHTML =
+"Errors appear here";
+
+document.getElementById(
+"seoInsights"
+).innerHTML =
+"SEO insights appear here";
+
+}
+
+function showToast(message){
+
+const toast =
+document.createElement("div");
+
+toast.className =
+"toast";
+
+toast.innerHTML =
+message;
+
+document.body.appendChild(
+toast
+);
+
+setTimeout(()=>{
+
+toast.remove();
+
+},2000);
+
+}
+
+function switchDashboard(element){
+
+document.querySelectorAll(
+".top-btn"
+).forEach(btn=>{
+
+btn.classList.remove(
+"active"
+);
+
 });
+
+element.classList.add(
+"active"
+);
+
+}
+
+window.onload = ()=>{
+
+document.getElementById(
+"historyBox"
+).innerHTML =
+"No history yet";
+
+};
+
 </script>
+
 </body>
 </html>
