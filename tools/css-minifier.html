@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Minifier | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07090f;
+    --surface: #0e1118;
+    --surface2: #151820;
+    --border: #1e2230;
+    --accent: #3b82f6;
+    --accent2: #60efff;
+    --error: #f87171;
+    --success: #34d399;
+    --text: #e2e8f0;
+    --text2: #7a8599;
+    --text3: #3d4555;
+    --cyan: #60efff;
+    --blue: #818cf8;
+    --purple: #c084fc;
+    --orange: #fb923c;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(59,130,246,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 100%, rgba(96,239,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,9,15,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 15px; font-weight: 800;
+    color: var(--text); display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--accent); color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .main {
+    flex: 1; padding: 24px;
+    position: relative; z-index: 1;
+    max-width: 1400px; width: 100%; margin: 0 auto;
+  }
+
+  .tool-header { text-align: center; padding: 40px 0 32px; }
+  .tool-header h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 10px;
+  }
+  .tool-header p { color: var(--text2); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Options bar */
+  .options-bar {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.primary:hover { background: #5b96f8; border-color: #5b96f8; color: #fff; }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+
+  .checkbox-wrap {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text2); cursor: pointer; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface2); transition: border-color 0.15s;
+  }
+  .checkbox-wrap:hover { border-color: var(--accent); }
+  .checkbox-wrap input { accent-color: var(--accent); }
+
+  /* Layout */
+  .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 480px; }
+  @media (max-width: 768px) { .editors { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: border-color 0.2s;
+  }
+  .panel:focus-within { border-color: var(--accent); }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text2);
+  }
+
+  .panel-title { font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+
+  .panel-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    background: none; border: 1px solid transparent;
+    color: var(--text3); font-size: 11px;
+    cursor: pointer; padding: 3px 8px; border-radius: 4px;
+    transition: all 0.15s; font-family: 'JetBrains Mono', monospace;
+  }
+  .icon-btn:hover { border-color: var(--border); color: var(--text); }
+
+  .code-area {
+    flex: 1; width: 100%; min-height: 440px;
+    background: transparent; border: none; outline: none;
+    resize: none; font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7; color: var(--text);
+    padding: 16px; tab-size: 2; caret-color: var(--accent2);
+  }
+
+  .output-area {
+    flex: 1; overflow: auto; padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7;
+    word-break: break-all; white-space: pre-wrap;
+    color: var(--cyan);
+  }
+
+  /* Savings bar */
+  .savings-container {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: none;
+  }
+
+  .savings-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text2);
+  }
+
+  .savings-pct {
+    font-size: 28px; font-weight: 800;
+    color: var(--success);
+  }
+
+  .progress-bar {
+    height: 6px; background: var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+    width: 0%;
+  }
+
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 10px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--text); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.blue { color: var(--accent2); }
+
+  /* CSS syntax highlight */
+  .css-hl span.selector { color: var(--blue); }
+  .css-hl span.prop { color: var(--cyan); }
+  .css-hl span.val { color: var(--orange); }
+  .css-hl span.comment { color: var(--text3); font-style: italic; }
+  .css-hl span.brace { color: var(--text2); }
+  .css-hl span.colon { color: var(--text2); }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    color: var(--text); padding: 10px 18px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1); z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  pre { white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">✦</div>
+    KJSynthora
+  </a>
+  <span class="badge">CSS TOOL</span>
+</header>
+
+<main class="main">
+  <div class="tool-header">
+    <h1>CSS Minifier</h1>
+    <p>// Remove whitespace · Strip comments · Optimize selectors</p>
+  </div>
+
+  <div class="options-bar">
+    <button class="btn primary" onclick="minifyCSS()">⚡ Minify CSS</button>
+    <button class="btn" onclick="beautifyCSS()">✦ Beautify</button>
+    <button class="btn" onclick="loadSample()">📄 Sample</button>
+    <button class="btn danger" onclick="clearAll()">✕ Clear</button>
+    <label class="checkbox-wrap">
+      <input type="checkbox" id="removeComments" checked> Strip Comments
+    </label>
+    <label class="checkbox-wrap">
+      <input type="checkbox" id="removeSpaces" checked> Remove Whitespace
+    </label>
+    <label class="checkbox-wrap">
+      <input type="checkbox" id="shortHex" checked> Short Hex Colors
+    </label>
+  </div>
+
+  <div class="editors">
+    <!-- Input -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Input CSS</span>
+        <div class="panel-actions">
+          <button class="icon-btn" onclick="pasteClipboard()">Paste</button>
+          <button class="icon-btn" onclick="copyInput()">Copy</button>
+        </div>
+      </div>
+      <textarea class="code-area" id="inputArea" placeholder="/* Paste your CSS here */&#10;&#10;.button {&#10;  background-color: #3b82f6;&#10;  color: #ffffff;&#10;  padding: 12px 24px;&#10;}" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Output -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Minified Output</span>
+        <div class="panel-actions">
+          <button class="icon-btn" onclick="copyOutput()">Copy</button>
+          <button class="icon-btn" onclick="downloadCSS()">↓ Save</button>
+        </div>
+      </div>
+      <div class="output-area" id="outputArea">
+        <span style="color:var(--text3)">// Minified CSS will appear here...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="savings-container" id="savingsContainer">
+    <div class="savings-header">
+      <span>SIZE REDUCTION</span>
+      <span class="savings-pct" id="savingsPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Original</div>
+        <div class="stat-val" id="origSize">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Minified</div>
+        <div class="stat-val blue" id="minSize">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Saved</div>
+        <div class="stat-val green" id="savedSize">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rules</div>
+        <div class="stat-val" id="rulesCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Selectors</div>
+        <div class="stat-val" id="selectorsCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Properties</div>
+        <div class="stat-val" id="propsCount">-</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let rawOutput = '';
+
+const SAMPLE_CSS = `/* KJSynthora - Main Stylesheet */
+/* Navigation styles */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background-color: #0a0a0f;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+/* Button component */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Card styles */
+.card {
+  background-color: #111118;
+  border: 1px solid #1e2230;
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}`;
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  return (bytes / 1024).toFixed(2) + ' KB';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function minifyCSS() {
+  let css = document.getElementById('inputArea').value;
+  if (!css.trim()) return;
+
+  const removeComments = document.getElementById('removeComments').checked;
+  const removeSpaces = document.getElementById('removeSpaces').checked;
+  const shortHex = document.getElementById('shortHex').checked;
+
+  let minified = css;
+
+  if (removeComments) {
+    minified = minified.replace(/\/\*[\s\S]*?\*\//g, '');
+  }
+
+  if (removeSpaces) {
+    minified = minified
+      .replace(/\s+/g, ' ')
+      .replace(/\s*{\s*/g, '{')
+      .replace(/\s*}\s*/g, '}')
+      .replace(/\s*;\s*/g, ';')
+      .replace(/\s*:\s*/g, ':')
+      .replace(/\s*,\s*/g, ',')
+      .replace(/;\}/g, '}')
+      .trim();
+  }
+
+  if (shortHex) {
+    minified = minified.replace(/#([0-9a-fA-F])\1([0-9a-fA-F])\2([0-9a-fA-F])\3/g, '#$1$2$3');
+  }
+
+  rawOutput = minified;
+  document.getElementById('outputArea').textContent = minified;
+
+  // Stats
+  const origBytes = new Blob([css]).size;
+  const minBytes = new Blob([minified]).size;
+  const saved = origBytes - minBytes;
+  const pct = origBytes > 0 ? Math.round((saved / origBytes) * 100) : 0;
+
+  document.getElementById('origSize').textContent = formatBytes(origBytes);
+  document.getElementById('minSize').textContent = formatBytes(minBytes);
+  document.getElementById('savedSize').textContent = formatBytes(saved);
+  document.getElementById('savingsPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Count rules, selectors, properties
+  const rules = (css.match(/\{[^}]*\}/g) || []).length;
+  const selectors = (css.match(/[^{}]+(?=\s*\{)/g) || []).length;
+  const props = (css.match(/[a-z-]+\s*:/g) || []).length;
+  document.getElementById('rulesCount').textContent = rules;
+  document.getElementById('selectorsCount').textContent = selectors;
+  document.getElementById('propsCount').textContent = props;
+
+  document.getElementById('savingsContainer').style.display = 'block';
+  showToast('⚡ CSS minified — ' + pct + '% smaller!');
+}
+
+function beautifyCSS() {
+  let css = document.getElementById('inputArea').value;
+  if (!css.trim()) return;
+
+  // Remove all minification and re-format
+  let beautified = css
+    .replace(/\s*{\s*/g, ' {\n  ')
+    .replace(/;\s*/g, ';\n  ')
+    .replace(/\s*}\s*/g, '\n}\n\n')
+    .replace(/  \n}/g, '\n}')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  rawOutput = beautified;
+  document.getElementById('outputArea').textContent = beautified;
+  showToast('✦ CSS beautified!');
+}
+
+function loadSample() {
+  document.getElementById('inputArea').value = SAMPLE_CSS;
+  showToast('Sample CSS loaded');
+}
+
+function clearAll() {
+  document.getElementById('inputArea').value = '';
+  document.getElementById('outputArea').innerHTML = '<span style="color:var(--text3)">// Minified CSS will appear here...</span>';
+  document.getElementById('savingsContainer').style.display = 'none';
+  rawOutput = '';
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('inputArea').value = text;
+    showToast('Pasted from clipboard');
+  } catch { showToast('Clipboard access denied'); }
+}
+
+function copyInput() {
+  navigator.clipboard.writeText(document.getElementById('inputArea').value);
+  showToast('Input copied!');
+}
+
+function copyOutput() {
+  if (!rawOutput) return;
+  navigator.clipboard.writeText(rawOutput);
+  showToast('Output copied!');
+}
+
+function downloadCSS() {
+  if (!rawOutput) return;
+  const blob = new Blob([rawOutput], { type: 'text/css' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'minified.css';
+  a.click();
+  showToast('↓ Downloaded!');
+}
+
+// Ctrl+Enter shortcut
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); minifyCSS(); }
+});
+</script>
+</body>
+</html>
