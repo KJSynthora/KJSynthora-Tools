@@ -1,134 +1,445 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>Add Page Numbers</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Page Numbers — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-
 <style>
+  :root {
+    --bg: #05070f;
+    --card: #0b0f1e;
+    --border: rgba(99,179,237,0.12);
+    --accent: #63b3ed;
+    --accent2: #9f7aea;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --success: #68d391;
+    --error: #fc8181;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-background:#020617;
-color:white;
-font-family:Poppins,sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-.container{
-background:#0f172a;
-padding:50px;
-border-radius:24px;
-text-align:center;
-width:700px;
-max-width:95%;
-}
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(48px); }
+  }
 
-h1{
-font-size:42px;
-background:linear-gradient(90deg,#60a5fa,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:20px;
-}
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.18;
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb1 { width: 400px; height: 400px; background: #3b82f6; top: -100px; left: -100px; animation-delay: 0s; }
+  .orb2 { width: 300px; height: 300px; background: #8b5cf6; bottom: -80px; right: -80px; animation-delay: 3s; }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 20px); }
+  }
 
-button{
-padding:14px 24px;
-border:none;
-border-radius:12px;
-background:linear-gradient(90deg,#0ea5e9,#7c3aed);
-color:white;
-cursor:pointer;
-margin-top:20px;
-}
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 56px 52px;
+    width: 580px;
+    max-width: 95vw;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 40px 80px rgba(0,0,0,0.6);
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-a{
-display:inline-block;
-margin-top:30px;
-color:#38bdf8;
-text-decoration:none;
-}
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(99,179,237,0.1);
+    border: 1px solid rgba(99,179,237,0.2);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
 
-#status{
-margin-top:20px;
-}
+  h1 {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #e2e8f0 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 36px;
+    font-family: 'DM Mono', monospace;
+  }
 
+  /* Drop zone */
+  .dropzone {
+    border: 2px dashed rgba(99,179,237,0.2);
+    border-radius: 16px;
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(99,179,237,0.02);
+    margin-bottom: 24px;
+  }
+  .dropzone:hover, .dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(99,179,237,0.06);
+    transform: scale(1.01);
+  }
+  .dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .drop-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+    filter: grayscale(0.4);
+  }
+  .drop-text { font-size: 15px; color: var(--muted); }
+  .drop-text span { color: var(--accent); text-decoration: underline; }
+  .file-name {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    display: none;
+  }
+
+  /* Options row */
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .opt-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+  .opt-group select, .opt-group input[type="number"] {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .opt-group select:focus, .opt-group input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+  .opt-group select option { background: #0b0f1e; }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(59,130,246,0.3);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(59,130,246,0.45); }
+  .btn:active { transform: translateY(0); }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn:hover::after { opacity: 1; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 20px;
+    display: none;
+  }
+  .progress-track {
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.3s ease;
+    position: relative;
+  }
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -4px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(139,92,246,0.8);
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    text-align: right;
+  }
+
+  /* Status */
+  .status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    display: none;
+  }
+  .status.success { background: rgba(104,211,145,0.1); border: 1px solid rgba(104,211,145,0.2); color: var(--success); }
+  .status.error   { background: rgba(252,129,129,0.1); border: 1px solid rgba(252,129,129,0.2); color: var(--error); }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 28px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
 </style>
-
 </head>
-
 <body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 
-<div class="container">
+<div class="card">
+  <div class="badge">PDF Tool</div>
+  <h1>Add Page Numbers</h1>
+  <p class="subtitle">Stamp page numbers onto every page of your PDF</p>
 
-<h1>Add Page Numbers 🔢</h1>
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="pdfFile" accept=".pdf">
+    <span class="drop-icon">📄</span>
+    <div class="drop-text">Drop PDF here or <span>browse file</span></div>
+    <div class="file-name" id="fileName"></div>
+  </div>
 
-<input type="file" id="pdfFile" accept=".pdf">
+  <div class="options">
+    <div class="opt-group">
+      <label>Position</label>
+      <select id="position">
+        <option value="bottom-center">Bottom Center</option>
+        <option value="bottom-right">Bottom Right</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="top-center">Top Center</option>
+        <option value="top-right">Top Right</option>
+      </select>
+    </div>
+    <div class="opt-group">
+      <label>Start From</label>
+      <input type="number" id="startNum" value="1" min="1">
+    </div>
+    <div class="opt-group">
+      <label>Font Size</label>
+      <input type="number" id="fontSize" value="12" min="8" max="24">
+    </div>
+    <div class="opt-group">
+      <label>Format</label>
+      <select id="format">
+        <option value="plain">1, 2, 3</option>
+        <option value="page">Page 1, Page 2</option>
+        <option value="of">1 of N, 2 of N</option>
+      </select>
+    </div>
+  </div>
 
-<br>
+  <button class="btn" id="runBtn" onclick="addPageNumbers()" disabled>
+    ✦ Add Page Numbers
+  </button>
 
-<button onclick="addPageNumbers()">
-Add Page Numbers
-</button>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel">Processing...</div>
+  </div>
+  <div class="status" id="status"></div>
 
-<div id="status"></div>
-
-<a href="../index.html">Return Home</a>
-
+  <a href="../index.html" class="back-link">← Return Home</a>
 </div>
 
 <script>
+const fileInput = document.getElementById('pdfFile');
+const dropzone  = document.getElementById('dropzone');
+const fileName  = document.getElementById('fileName');
+const runBtn    = document.getElementById('runBtn');
 
-async function addPageNumbers(){
-
-const fileInput=document.getElementById('pdfFile');
-const status=document.getElementById('status');
-
-if(fileInput.files.length===0){
-status.innerHTML="Please upload PDF.";
-return;
-}
-
-const file=fileInput.files[0];
-const arrayBuffer=await file.arrayBuffer();
-
-const pdfDoc=await PDFLib.PDFDocument.load(arrayBuffer);
-
-const pages=pdfDoc.getPages();
-
-pages.forEach((page,index)=>{
-
-page.drawText(`${index+1}`,{
-x:300,
-y:20,
-size:12
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) {
+    fileName.textContent = '📎 ' + fileInput.files[0].name;
+    fileName.style.display = 'block';
+    runBtn.disabled = false;
+    dropzone.style.borderColor = 'var(--accent)';
+  }
 });
 
-});
+['dragover','dragenter'].forEach(e => dropzone.addEventListener(e, ev => {
+  ev.preventDefault(); dropzone.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(e => dropzone.addEventListener(e, ev => {
+  dropzone.classList.remove('drag-over');
+}));
 
-const pdfBytes=await pdfDoc.save();
-
-const blob=new Blob([pdfBytes],{type:'application/pdf'});
-
-const link=document.createElement('a');
-
-link.href=URL.createObjectURL(blob);
-
-link.download='page-numbered.pdf';
-
-link.click();
-
-status.innerHTML="Page numbers added successfully ✅";
-
+function setProgress(pct, label) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
 }
 
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  el.style.display = 'block';
+}
+
+async function addPageNumbers() {
+  const file    = fileInput.files[0];
+  if (!file) { showStatus('Please select a PDF file.', 'error'); return; }
+
+  const position  = document.getElementById('position').value;
+  const startNum  = parseInt(document.getElementById('startNum').value) || 1;
+  const fontSize  = parseInt(document.getElementById('fontSize').value) || 12;
+  const format    = document.getElementById('format').value;
+
+  runBtn.disabled = true;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('status').style.display = 'none';
+  setProgress(10, 'Reading file...');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    setProgress(30, 'Parsing PDF...');
+    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+    const pages  = pdfDoc.getPages();
+    const total  = pages.length;
+    setProgress(50, `Stamping ${total} pages...`);
+
+    pages.forEach((page, idx) => {
+      const { width, height } = page.getSize();
+      const num = startNum + idx;
+      let label;
+      if (format === 'plain')   label = `${num}`;
+      else if (format === 'page') label = `Page ${num}`;
+      else                        label = `${num} of ${total + startNum - 1}`;
+
+      const margin = 24;
+      const charW  = fontSize * 0.55;
+      const textW  = label.length * charW;
+      let x, y;
+
+      if (position === 'bottom-center') { x = (width - textW) / 2; y = margin; }
+      else if (position === 'bottom-right') { x = width - textW - margin; y = margin; }
+      else if (position === 'bottom-left')  { x = margin; y = margin; }
+      else if (position === 'top-center')   { x = (width - textW) / 2; y = height - margin - fontSize; }
+      else if (position === 'top-right')    { x = width - textW - margin; y = height - margin - fontSize; }
+      else                                  { x = margin; y = height - margin - fontSize; }
+
+      page.drawText(label, { x, y, size: fontSize, color: PDFLib.rgb(0.3, 0.3, 0.3) });
+    });
+
+    setProgress(85, 'Saving PDF...');
+    const pdfBytes = await pdfDoc.save();
+    setProgress(100, 'Done!');
+
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = file.name.replace('.pdf', '') + '-numbered.pdf';
+    link.click();
+
+    showStatus(`✅ Page numbers added to ${total} pages. Download started!`, 'success');
+  } catch (err) {
+    showStatus('❌ Error: ' + err.message, 'error');
+  } finally {
+    runBtn.disabled = false;
+  }
+}
 </script>
-
 </body>
 </html>
