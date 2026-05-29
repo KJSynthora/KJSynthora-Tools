@@ -1,103 +1,378 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>Remove Page Numbers</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remove Page Numbers — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 <style>
+  :root {
+    --bg: #080510;
+    --card: #100d1c;
+    --border: rgba(167,139,250,0.12);
+    --accent: #a78bfa;
+    --accent2: #f472b6;
+    --text: #e2e8f0;
+    --muted: #6b7280;
+    --success: #6ee7b7;
+    --error: #fca5a5;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-background:#020617;
-color:white;
-font-family:Poppins,sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-.container{
-background:#0f172a;
-padding:50px;
-border-radius:24px;
-text-align:center;
-width:700px;
-max-width:95%;
-}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(139,92,246,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 80% 70%, rgba(244,114,182,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
 
-h1{
-font-size:42px;
-background:linear-gradient(90deg,#60a5fa,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:20px;
-}
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
 
-button{
-padding:14px 24px;
-border:none;
-border-radius:12px;
-background:linear-gradient(90deg,#0ea5e9,#7c3aed);
-color:white;
-cursor:pointer;
-margin-top:20px;
-}
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 56px 52px;
+    width: 580px;
+    max-width: 95vw;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(139,92,246,0.08);
+    animation: slideIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: scale(0.95) translateY(24px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
 
-a{
-display:inline-block;
-margin-top:30px;
-color:#38bdf8;
-text-decoration:none;
-}
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
 
-#status{
-margin-top:20px;
-}
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #f0e6ff 0%, var(--accent) 40%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+    margin-bottom: 32px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Info box */
+  .info-box {
+    background: rgba(167,139,250,0.06);
+    border: 1px solid rgba(167,139,250,0.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: #c4b5fd;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .dropzone {
+    border: 2px dashed rgba(167,139,250,0.2);
+    border-radius: 16px;
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(167,139,250,0.02);
+    margin-bottom: 20px;
+  }
+  .dropzone:hover, .dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(167,139,250,0.06);
+    transform: scale(1.01);
+  }
+  .dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+  .drop-text  { font-size: 15px; color: var(--muted); }
+  .drop-text span { color: var(--accent); text-decoration: underline; }
+  .file-name { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); display: none; }
+
+  /* Margin settings */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .margin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .margin-chip {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+  .margin-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .margin-chip.active { background: rgba(167,139,250,0.12); border-color: var(--accent); color: var(--accent); }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .opt-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+  .opt-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .opt-group input:focus { border-color: var(--accent); }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(124,58,237,0.35);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(124,58,237,0.5); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .progress-wrap { margin-top: 20px; display: none; }
+  .progress-track { background: rgba(255,255,255,0.06); border-radius: 100px; height: 4px; overflow: hidden; }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, #7c3aed, #ec4899);
+    border-radius: 100px; width: 0%; transition: width 0.4s ease;
+  }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 8px; text-align: right; }
+
+  .status { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 13px; font-family: 'DM Mono', monospace; display: none; }
+  .status.success { background: rgba(110,231,183,0.08); border: 1px solid rgba(110,231,183,0.2); color: var(--success); }
+  .status.error   { background: rgba(252,165,165,0.08); border: 1px solid rgba(252,165,165,0.2); color: var(--error); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--muted); text-decoration: none; font-size: 13px; font-family: 'DM Mono', monospace; transition: color 0.2s; }
+  .back-link:hover { color: var(--accent); }
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<div class="card">
+  <div class="badge">PDF Tool</div>
+  <h1>Remove Page Numbers ✕</h1>
+  <p class="subtitle">Erase stamped page numbers from your PDF margins</p>
 
-<h1>Remove Page Numbers ❌</h1>
+  <div class="info-box">
+    ℹ️ This tool removes content from the page number margin zone. Specify which margin bands to clear — only those thin strips are erased, preserving all body content.
+  </div>
 
-<input type="file" id="pdfFile" accept=".pdf">
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="pdfFile" accept=".pdf">
+    <span class="drop-icon">📄</span>
+    <div class="drop-text">Drop PDF here or <span>browse file</span></div>
+    <div class="file-name" id="fileName"></div>
+  </div>
 
-<br>
+  <div class="section-label">Zones to clear</div>
+  <div class="margin-grid">
+    <div class="margin-chip active" data-zone="bottom" onclick="toggleZone(this)">Bottom</div>
+    <div class="margin-chip" data-zone="top" onclick="toggleZone(this)">Top</div>
+    <div class="margin-chip" data-zone="both" onclick="toggleZone(this)">Both</div>
+  </div>
 
-<button onclick="removeNumbers()">
-Remove Page Numbers
-</button>
+  <div class="options">
+    <div class="opt-group">
+      <label>Strip Height (px)</label>
+      <input type="number" id="stripHeight" value="36" min="16" max="80">
+    </div>
+    <div class="opt-group">
+      <label>Strip Width %</label>
+      <input type="number" id="stripWidth" value="100" min="20" max="100">
+    </div>
+  </div>
 
-<div id="status"></div>
+  <button class="btn" id="runBtn" onclick="removePageNumbers()" disabled>
+    ✦ Remove Page Numbers
+  </button>
 
-<a href="../index.html">Return Home</a>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel">Processing...</div>
+  </div>
+  <div class="status" id="status"></div>
 
+  <a href="../index.html" class="back-link">← Return Home</a>
 </div>
 
 <script>
+let activeZone = 'bottom';
+const fileInput = document.getElementById('pdfFile');
+const runBtn    = document.getElementById('runBtn');
+const fileName  = document.getElementById('fileName');
 
-function removeNumbers(){
-
-const fileInput=document.getElementById('pdfFile');
-const status=document.getElementById('status');
-
-if(fileInput.files.length===0){
-status.innerHTML="Please upload PDF.";
-return;
+function toggleZone(el) {
+  document.querySelectorAll('.margin-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeZone = el.dataset.zone;
 }
 
-status.innerHTML="Advanced removal feature coming soon 🚀";
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) {
+    fileName.textContent = '📎 ' + fileInput.files[0].name;
+    fileName.style.display = 'block';
+    runBtn.disabled = false;
+    document.getElementById('dropzone').style.borderColor = 'var(--accent)';
+  }
+});
 
+['dragover','dragenter'].forEach(e => document.getElementById('dropzone').addEventListener(e, ev => {
+  ev.preventDefault(); document.getElementById('dropzone').classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(e => document.getElementById('dropzone').addEventListener(e, () => {
+  document.getElementById('dropzone').classList.remove('drag-over');
+}));
+
+function setProgress(pct, label) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
 }
 
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  el.style.display = 'block';
+}
+
+async function removePageNumbers() {
+  const file = fileInput.files[0];
+  if (!file) { showStatus('Please select a PDF.', 'error'); return; }
+
+  const stripH = parseInt(document.getElementById('stripHeight').value) || 36;
+  const stripWPct = parseInt(document.getElementById('stripWidth').value) || 100;
+
+  runBtn.disabled = true;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('status').style.display = 'none';
+  setProgress(10, 'Reading file...');
+
+  try {
+    const buf    = await file.arrayBuffer();
+    setProgress(30, 'Parsing PDF...');
+    const pdfDoc = await PDFLib.PDFDocument.load(buf);
+    const pages  = pdfDoc.getPages();
+    setProgress(50, `Clearing ${pages.length} pages...`);
+
+    pages.forEach(page => {
+      const { width, height } = page.getSize();
+      const stripW = width * (stripWPct / 100);
+      const xOffset = (width - stripW) / 2;
+      const white = PDFLib.rgb(1, 1, 1);
+
+      if (activeZone === 'bottom' || activeZone === 'both') {
+        page.drawRectangle({ x: xOffset, y: 0, width: stripW, height: stripH, color: white });
+      }
+      if (activeZone === 'top' || activeZone === 'both') {
+        page.drawRectangle({ x: xOffset, y: height - stripH, width: stripW, height: stripH, color: white });
+      }
+    });
+
+    setProgress(85, 'Saving...');
+    const pdfBytes = await pdfDoc.save();
+    setProgress(100, 'Done!');
+
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = file.name.replace('.pdf', '') + '-cleaned.pdf';
+    link.click();
+    showStatus(`✅ Page number zones cleared on ${pages.length} pages. Download started!`, 'success');
+  } catch (err) {
+    showStatus('❌ Error: ' + err.message, 'error');
+  } finally {
+    runBtn.disabled = false;
+  }
+}
 </script>
-
 </body>
 </html>
