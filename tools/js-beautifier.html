@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Beautifier | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #070c0a;
+    --surface: #0d1210;
+    --surface2: #131a17;
+    --border: #1a2420;
+    --accent: #10b981;
+    --accent2: #6ee7b7;
+    --error: #f87171;
+    --text: #d1fae5;
+    --text2: #6b8f7e;
+    --text3: #2d4a3e;
+    --yellow: #fcd34d;
+    --blue: #67e8f9;
+    --purple: #c4b5fd;
+    --red: #fca5a5;
+    --orange: #fb923c;
+    --green: #6ee7b7;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 35% at 0% 50%, rgba(16,185,129,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 100% 20%, rgba(110,231,183,0.04) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,12,10,0.9); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 15px; font-weight: 800;
+    color: var(--text); display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), #34d399);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 2px 8px; border-radius: 20px;
+    border: 1px solid var(--accent); color: var(--accent); letter-spacing: 1px;
+  }
+
+  .main {
+    flex: 1; padding: 24px; position: relative; z-index: 1;
+    max-width: 1400px; width: 100%; margin: 0 auto;
+  }
+
+  .tool-header { text-align: center; padding: 40px 0 32px; }
+  .tool-header h1 {
+    font-size: clamp(28px, 4vw, 48px); font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 10px;
+  }
+  .tool-header p { color: var(--text2); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .toolbar {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .btn.primary:hover { background: #34d399; border-color: #34d399; }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+
+  .select-wrap {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2);
+  }
+
+  select {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 6px 10px; border-radius: 6px; cursor: pointer;
+  }
+
+  .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 500px; }
+  @media (max-width: 768px) { .editors { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    display: flex; flex-direction: column; transition: border-color 0.2s;
+  }
+  .panel:focus-within { border-color: var(--accent); }
+  .panel.error-panel { border-color: var(--error) !important; }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2);
+  }
+
+  .panel-title { font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+  .panel-right { display: flex; align-items: center; gap: 8px; }
+
+  .line-count {
+    font-size: 10px; color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .panel-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    background: none; border: 1px solid transparent;
+    color: var(--text3); font-size: 11px;
+    cursor: pointer; padding: 3px 8px; border-radius: 4px;
+    transition: all 0.15s; font-family: 'JetBrains Mono', monospace;
+  }
+  .icon-btn:hover { border-color: var(--border); color: var(--text); }
+
+  .code-area {
+    flex: 1; width: 100%; min-height: 460px;
+    background: transparent; border: none; outline: none;
+    resize: none; font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7; color: var(--text);
+    padding: 16px; caret-color: var(--accent2);
+  }
+
+  /* JS Syntax highlighting output */
+  .output-code {
+    flex: 1; overflow: auto; padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7;
+  }
+
+  .output-code pre { white-space: pre-wrap; word-break: break-word; }
+
+  /* JS colors */
+  .js-keyword { color: var(--purple); font-weight: 600; }
+  .js-string { color: var(--yellow); }
+  .js-number { color: var(--orange); }
+  .js-comment { color: var(--text3); font-style: italic; }
+  .js-function { color: var(--blue); }
+  .js-operator { color: var(--text2); }
+  .js-const { color: var(--green); }
+  .js-bracket { color: var(--text2); }
+
+  /* Error banner */
+  .error-banner {
+    display: none; margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--error);
+  }
+  .error-banner.show { display: block; }
+
+  /* Analysis */
+  .analysis {
+    display: none; margin-top: 16px;
+    display: none;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .analysis.show { display: grid; }
+
+  .stat-card {
+    padding: 12px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--accent2); }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    color: var(--text); padding: 10px 18px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1); z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">JS</div>
+    KJSynthora
+  </a>
+  <span class="badge">JS TOOL</span>
+</header>
+
+<main class="main">
+  <div class="tool-header">
+    <h1>JS Beautifier</h1>
+    <p>// Beautify · Minify · Analyze · Highlight JavaScript</p>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn primary" onclick="beautifyJS()">✦ Beautify</button>
+    <button class="btn" onclick="minifyJS()">⚡ Minify</button>
+    <button class="btn" onclick="loadSample()">📄 Sample</button>
+    <button class="btn danger" onclick="clearAll()">✕ Clear</button>
+    <div class="select-wrap">
+      Indent:
+      <select id="indentSize">
+        <option value="2">2 spaces</option>
+        <option value="4">4 spaces</option>
+        <option value="1">1 space</option>
+      </select>
+    </div>
+    <div class="select-wrap">
+      Quotes:
+      <select id="quoteStyle">
+        <option value="single">Single '</option>
+        <option value="double">Double "</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="editors">
+    <div class="panel" id="inputPanel">
+      <div class="panel-header">
+        <span class="panel-title">Input JS</span>
+        <div class="panel-right">
+          <span class="line-count" id="lineCount">0 lines</span>
+          <div class="panel-actions">
+            <button class="icon-btn" onclick="pasteClipboard()">Paste</button>
+            <button class="icon-btn" onclick="copyInput()">Copy</button>
+          </div>
+        </div>
+      </div>
+      <textarea class="code-area" id="inputArea"
+        placeholder="// Paste your JavaScript here...&#10;&#10;function helloWorld() {&#10;  console.log('Hello from KJSynthora!')&#10;}"
+        oninput="updateLineCount()" spellcheck="false"></textarea>
+    </div>
+
+    <div class="panel" id="outputPanel">
+      <div class="panel-header">
+        <span class="panel-title">Beautified Output</span>
+        <div class="panel-actions">
+          <button class="icon-btn" onclick="copyOutput()">Copy</button>
+          <button class="icon-btn" onclick="downloadJS()">↓ Save</button>
+        </div>
+      </div>
+      <div class="output-code" id="outputArea">
+        <span style="color:var(--text3)">// Formatted JavaScript will appear here...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="analysis" id="analysis">
+    <div class="stat-card"><div class="stat-label">Functions</div><div class="stat-val" id="sFunctions">0</div></div>
+    <div class="stat-card"><div class="stat-label">Variables</div><div class="stat-val" id="sVars">0</div></div>
+    <div class="stat-card"><div class="stat-label">Lines</div><div class="stat-val" id="sLines">0</div></div>
+    <div class="stat-card"><div class="stat-label">Comments</div><div class="stat-val" id="sComments">0</div></div>
+    <div class="stat-card"><div class="stat-label">Size (orig)</div><div class="stat-val" id="sSize">0 B</div></div>
+    <div class="stat-card"><div class="stat-label">Semicolons</div><div class="stat-val" id="sSemis">0</div></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let rawOutput = '';
+
+const SAMPLE = `// KJSynthora API Client
+const API_BASE = 'https://api.kjsynthora.com/v2';
+
+class ApiClient {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.headers = {'Content-Type': 'application/json', 'X-API-Key': apiKey};
+  }
+
+  async request(method, endpoint, data = null) {
+    const options = {method, headers: this.headers};
+    if (data) options.body = JSON.stringify(data);
+    try {
+      const response = await fetch(API_BASE + endpoint, options);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return await response.json();
+    } catch (error) {
+      console.error('Request failed:', error.message);
+      throw error;
+    }
+  }
+
+  async formatJSON(input) {return this.request('POST', '/json/format', {input});}
+  async minifyCSS(css) {return this.request('POST', '/css/minify', {css});}
+  async beautifyJS(code) {return this.request('POST', '/js/beautify', {code});}
+}
+
+// Initialize & use
+const client = new ApiClient('your-api-key-here');
+const result = await client.formatJSON('{"hello":"world"}');
+console.log('Formatted:', result.output);`;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function updateLineCount() {
+  const lines = document.getElementById('inputArea').value.split('\n').length;
+  document.getElementById('lineCount').textContent = lines + ' lines';
+}
+
+function syntaxHighlightJS(code) {
+  return code
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // Comments (before strings to avoid issues)
+    .replace(/(\/\/[^\n]*)/g, '<span class="js-comment">$1</span>')
+    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="js-comment">$1</span>')
+    // Template literals
+    .replace(/(`[^`]*`)/g, '<span class="js-string">$1</span>')
+    // Strings
+    .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="js-string">$1</span>')
+    // Numbers
+    .replace(/\b(\d+\.?\d*)\b/g, '<span class="js-number">$1</span>')
+    // Keywords
+    .replace(/\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|new|class|extends|import|export|default|async|await|try|catch|finally|throw|typeof|instanceof|in|of|this|super|static|get|set|yield|delete|void|null|undefined|true|false)\b/g,
+      '<span class="js-keyword">$1</span>')
+    // Function names
+    .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g, '<span class="js-function">$1</span>')
+    // Brackets
+    .replace(/([{}()[\]])/g, '<span class="js-bracket">$1</span>');
+}
+
+function simpleBeautify(code, indent) {
+  let result = '';
+  let depth = 0;
+  let inString = false;
+  let stringChar = '';
+  const sp = ' '.repeat(indent);
+
+  for (let i = 0; i < code.length; i++) {
+    const ch = code[i];
+    const prev = code[i-1];
+
+    if (inString) {
+      result += ch;
+      if (ch === stringChar && prev !== '\\') inString = false;
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      inString = true; stringChar = ch; result += ch; continue;
+    }
+
+    if (ch === '{' || ch === '[') {
+      result += ch + '\n' + sp.repeat(depth + 1);
+      depth++;
+    } else if (ch === '}' || ch === ']') {
+      depth = Math.max(0, depth - 1);
+      result = result.trimEnd() + '\n' + sp.repeat(depth) + ch;
+    } else if (ch === ';') {
+      result += ch + '\n' + sp.repeat(depth);
+    } else if (ch === ',') {
+      result += ch + '\n' + sp.repeat(depth);
+    } else if (ch === ':' && code[i+1] !== ':' && code[i-1] !== ':') {
+      result += ch + ' ';
+    } else {
+      if (ch === '\n' || ch === '\r') {
+        if (result.length > 0 && result[result.length-1] !== '\n') {
+          result += '\n' + sp.repeat(depth);
+        }
+      } else {
+        result += ch;
+      }
+    }
+  }
+
+  // Clean up excess blank lines
+  return result.replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function beautifyJS() {
+  const code = document.getElementById('inputArea').value;
+  if (!code.trim()) return;
+
+  const indent = parseInt(document.getElementById('indentSize').value);
+  const quoteStyle = document.getElementById('quoteStyle').value;
+
+  let processed = code;
+
+  // Quote conversion
+  if (quoteStyle === 'single') {
+    processed = processed.replace(/"([^"\\]*)"/g, "'$1'");
+  } else {
+    processed = processed.replace(/'([^'\\]*)'/g, '"$1"');
+  }
+
+  const beautified = simpleBeautify(processed, indent);
+  rawOutput = beautified;
+
+  document.getElementById('outputArea').innerHTML = '<pre>' + syntaxHighlightJS(beautified) + '</pre>';
+  document.getElementById('errorBanner').classList.remove('show');
+  document.getElementById('inputPanel').classList.remove('error-panel');
+
+  // Analysis
+  const funcs = (code.match(/function\s+\w+|=>\s*{|async\s+function/g) || []).length;
+  const vars = (code.match(/\b(const|let|var)\s+\w+/g) || []).length;
+  const lines = beautified.split('\n').length;
+  const comments = (code.match(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g) || []).length;
+  const semis = (code.match(/;/g) || []).length;
+  const size = new Blob([code]).size;
+
+  document.getElementById('sFunctions').textContent = funcs;
+  document.getElementById('sVars').textContent = vars;
+  document.getElementById('sLines').textContent = lines;
+  document.getElementById('sComments').textContent = comments;
+  document.getElementById('sSemis').textContent = semis;
+  document.getElementById('sSize').textContent = size < 1024 ? size + ' B' : (size/1024).toFixed(1) + ' KB';
+  document.getElementById('analysis').classList.add('show');
+
+  showToast('✦ JS beautified!');
+}
+
+function minifyJS() {
+  const code = document.getElementById('inputArea').value;
+  if (!code.trim()) return;
+  const minified = code
+    .replace(/\/\/[^\n]*/g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([=+\-*/<>!&|?:,;{}()[\]])\s*/g, '$1')
+    .trim();
+  rawOutput = minified;
+  document.getElementById('outputArea').innerHTML = '<pre style="word-break:break-all;">' + syntaxHighlightJS(minified) + '</pre>';
+  showToast('⚡ JS minified!');
+}
+
+function loadSample() {
+  document.getElementById('inputArea').value = SAMPLE;
+  updateLineCount();
+  showToast('Sample JS loaded');
+}
+
+function clearAll() {
+  document.getElementById('inputArea').value = '';
+  document.getElementById('outputArea').innerHTML = '<span style="color:var(--text3)">// Formatted JavaScript will appear here...</span>';
+  document.getElementById('errorBanner').classList.remove('show');
+  document.getElementById('analysis').classList.remove('show');
+  document.getElementById('lineCount').textContent = '0 lines';
+  rawOutput = '';
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('inputArea').value = text;
+    updateLineCount();
+    showToast('Pasted from clipboard');
+  } catch { showToast('Clipboard access denied'); }
+}
+
+function copyInput() {
+  navigator.clipboard.writeText(document.getElementById('inputArea').value);
+  showToast('Input copied!');
+}
+
+function copyOutput() {
+  if (!rawOutput) return;
+  navigator.clipboard.writeText(rawOutput);
+  showToast('Output copied!');
+}
+
+function downloadJS() {
+  if (!rawOutput) return;
+  const blob = new Blob([rawOutput], { type: 'text/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'beautified.js';
+  a.click();
+  showToast('↓ Downloaded!');
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); beautifyJS(); }
+});
+</script>
+</body>
+</html>
