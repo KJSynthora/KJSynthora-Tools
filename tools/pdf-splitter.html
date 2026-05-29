@@ -3,117 +3,554 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Splitter</title>
-
+<title>PDF Splitter — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 <style>
+  :root {
+    --bg: #060a0f;
+    --card: #0c1117;
+    --border: rgba(251,146,60,0.12);
+    --accent: #fb923c;
+    --accent2: #facc15;
+    --text: #fef3e2;
+    --muted: #5c6470;
+    --success: #4ade80;
+    --error: #f87171;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-background:#020617;
-font-family:Arial;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
-color:white;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
 
-.container{
-background:#111827;
-padding:40px;
-border-radius:20px;
-text-align:center;
-width:400px;
-box-shadow:0 0 20px rgba(0,0,0,0.5);
-}
+  /* Diagonal lines bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 30px,
+      rgba(251,146,60,0.015) 30px,
+      rgba(251,146,60,0.015) 31px
+    );
+    pointer-events: none;
+  }
 
-input{
-margin-top:20px;
-padding:12px;
-width:90%;
-border:none;
-border-radius:10px;
-}
+  /* Corner glow */
+  .corner-glow {
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(251,146,60,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .corner-glow.tl { top: -200px; left: -200px; }
+  .corner-glow.br { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(250,204,21,0.08) 0%, transparent 70%); }
 
-button{
-margin-top:20px;
-padding:12px 25px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#06b6d4,#7c3aed);
-color:white;
-font-size:16px;
-cursor:pointer;
-}
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 52px 48px;
+    width: 620px;
+    max-width: 95vw;
+    position: relative;
+    z-index: 10;
+    box-shadow:
+      0 0 0 1px rgba(251,146,60,0.04),
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      0 40px 80px rgba(0,0,0,0.7),
+      0 0 60px rgba(251,146,60,0.06);
+    animation: entranceSlide 0.65s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes entranceSlide {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 
-#msg{
-margin-top:20px;
-color:#38bdf8;
-}
+  /* Top bar accent */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    border-radius: 0 0 2px 2px;
+  }
 
-a{
-display:block;
-margin-top:20px;
-color:#38bdf8;
-text-decoration:none;
-}
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(251,146,60,0.1);
+    border: 1px solid rgba(251,146,60,0.2);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 10px;
+    font-family: 'Fira Code', monospace;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  h1 .split-word {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 13px; font-family: 'Fira Code', monospace; }
 
+  /* Page count badge */
+  .page-count {
+    background: rgba(251,146,60,0.08);
+    border: 1px solid rgba(251,146,60,0.15);
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 90px;
+    display: none;
+  }
+  .page-count .num { font-size: 28px; font-weight: 800; color: var(--accent); display: block; }
+  .page-count .lbl { font-size: 10px; font-family: 'Fira Code', monospace; color: var(--muted); }
+
+  .dropzone {
+    border: 2px dashed rgba(251,146,60,0.18);
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    background: rgba(251,146,60,0.02);
+    margin-bottom: 24px;
+  }
+  .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(251,146,60,0.05); transform: scale(1.01); }
+  .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .drop-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .drop-text { font-size: 14px; color: var(--muted); font-family: 'Fira Code', monospace; }
+  .drop-text span { color: var(--accent); }
+  .file-info { margin-top: 10px; font-family: 'Fira Code', monospace; font-size: 11px; color: var(--accent); display: none; }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .mode-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    font-family: 'Outfit', sans-serif;
+  }
+  .mode-tab.active {
+    background: rgba(251,146,60,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(251,146,60,0.2);
+  }
+
+  .mode-panel { display: none; }
+  .mode-panel.active { display: block; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .opt-group label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-family: 'Fira Code', monospace;
+    margin-bottom: 8px;
+  }
+  .opt-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .opt-group input:focus { border-color: var(--accent); }
+
+  .hint { font-size: 11px; color: var(--muted); font-family: 'Fira Code', monospace; margin-top: 6px; margin-bottom: 16px; }
+  .hint b { color: var(--accent2); }
+
+  /* Preview chips */
+  .preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    min-height: 28px;
+  }
+  .chip {
+    background: rgba(251,146,60,0.08);
+    border: 1px solid rgba(251,146,60,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: 'Fira Code', monospace;
+    color: var(--accent);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ea580c, #d97706);
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 24px rgba(234,88,12,0.3);
+    letter-spacing: 0.01em;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(234,88,12,0.5); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Result list */
+  .result-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    display: none;
+  }
+  .result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    animation: fadeIn 0.3s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .result-label { font-size: 12px; font-family: 'Fira Code', monospace; color: var(--success); }
+  .result-dl {
+    background: rgba(74,222,128,0.12);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--success);
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'Fira Code', monospace;
+    transition: background 0.2s;
+  }
+  .result-dl:hover { background: rgba(74,222,128,0.2); }
+
+  .progress-wrap { margin-top: 16px; display: none; }
+  .progress-track { background: rgba(255,255,255,0.05); border-radius: 100px; height: 4px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #ea580c, #facc15); border-radius: 100px; width: 0%; transition: width 0.3s; }
+  .progress-label { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  .status { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 12px; font-family: 'Fira Code', monospace; display: none; }
+  .status.error { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: var(--error); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--muted); text-decoration: none; font-size: 12px; font-family: 'Fira Code', monospace; transition: color 0.2s; }
+  .back-link:hover { color: var(--accent); }
 </style>
 </head>
-
 <body>
+<div class="corner-glow tl"></div>
+<div class="corner-glow br"></div>
 
-<div class="container">
+<div class="card">
+  <div class="header-row">
+    <div>
+      <div class="badge">PDF Tool</div>
+      <h1>PDF <span class="split-word">Splitter</span></h1>
+      <p class="subtitle">Split your PDF into separate files</p>
+    </div>
+    <div class="page-count" id="pageCount">
+      <span class="num" id="pageNum">—</span>
+      <span class="lbl">pages</span>
+    </div>
+  </div>
 
-<h1>PDF Splitter</h1>
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="pdfInput" accept=".pdf">
+    <span class="drop-icon">✂️</span>
+    <div class="drop-text">Drop PDF or <span>browse file</span></div>
+    <div class="file-info" id="fileInfo"></div>
+  </div>
 
-<p>Select PDF file to split</p>
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('each', this)">Every Page</button>
+    <button class="mode-tab" onclick="setMode('range', this)">Page Range</button>
+    <button class="mode-tab" onclick="setMode('chunks', this)">Equal Chunks</button>
+  </div>
 
-<input type="file" id="pdfInput" accept=".pdf">
+  <div class="mode-panel active" id="panel-each">
+    <p class="hint">Each page becomes a separate PDF file.</p>
+  </div>
 
-<br>
+  <div class="mode-panel" id="panel-range">
+    <div class="field-row">
+      <div class="opt-group">
+        <label>From Page</label>
+        <input type="number" id="fromPage" value="1" min="1">
+      </div>
+      <div class="opt-group">
+        <label>To Page</label>
+        <input type="number" id="toPage" value="5" min="1">
+      </div>
+    </div>
+    <p class="hint">Extracts pages <b id="rangeHint">1–5</b> into one PDF.</p>
+  </div>
 
-<button onclick="splitPDF()">Split PDF</button>
+  <div class="mode-panel" id="panel-chunks">
+    <div class="opt-group" style="margin-bottom:8px;">
+      <label>Pages per chunk</label>
+      <input type="number" id="chunkSize" value="5" min="1">
+    </div>
+    <p class="hint">Splits into groups of <b id="chunkHint">5</b> pages each.</p>
+  </div>
 
-<p id="msg"></p>
+  <div class="preview-chips" id="previewChips"></div>
 
-<a href="../index.html">⬅ Back To Home</a>
+  <button class="btn" id="runBtn" onclick="splitPDF()" disabled>✦ Split PDF</button>
 
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+  <div class="result-list" id="resultList"></div>
+
+  <a href="../index.html" class="back-link">← Back To Home</a>
 </div>
 
 <script>
+let currentMode = 'each';
+let totalPages  = 0;
+const fileInput = document.getElementById('pdfInput');
+const runBtn    = document.getElementById('runBtn');
 
-function splitPDF(){
-
-const file=document.getElementById("pdfInput").files[0];
-
-if(!file){
-
-document.getElementById("msg").innerHTML=
-"❌ Select PDF file";
-
-return;
-
+function setMode(mode, el) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + mode).classList.add('active');
+  updatePreview();
 }
 
-document.getElementById("msg").innerHTML=
-"✅ PDF Split Successfully (Demo Version)";
+fileInput.addEventListener('change', async () => {
+  if (!fileInput.files[0]) return;
+  const file = fileInput.files[0];
+  document.getElementById('fileInfo').textContent = '📎 ' + file.name;
+  document.getElementById('fileInfo').style.display = 'block';
+  document.getElementById('dropzone').style.borderColor = 'var(--accent)';
 
-const link=document.createElement("a");
+  // Count pages
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await PDFLib.PDFDocument.load(buf);
+    totalPages = pdf.getPages().length;
+    document.getElementById('pageNum').textContent = totalPages;
+    document.getElementById('pageCount').style.display = 'block';
+    document.getElementById('toPage').value = Math.min(totalPages, 5);
+    runBtn.disabled = false;
+    updatePreview();
+  } catch(e) {
+    totalPages = 0;
+  }
+});
 
-link.href=URL.createObjectURL(file);
+['dragover','dragenter'].forEach(e => document.getElementById('dropzone').addEventListener(e, ev => {
+  ev.preventDefault(); document.getElementById('dropzone').classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(e => document.getElementById('dropzone').addEventListener(e, () => {
+  document.getElementById('dropzone').classList.remove('drag-over');
+}));
 
-link.download="split-"+file.name;
+document.getElementById('fromPage').addEventListener('input', updatePreview);
+document.getElementById('toPage').addEventListener('input', updatePreview);
+document.getElementById('chunkSize').addEventListener('input', updatePreview);
 
-document.body.appendChild(link);
+function updatePreview() {
+  if (!totalPages) return;
+  const chips = document.getElementById('previewChips');
+  chips.innerHTML = '';
 
-link.click();
+  const makeChip = (label) => {
+    const d = document.createElement('div');
+    d.className = 'chip';
+    d.textContent = label;
+    chips.appendChild(d);
+  };
 
-document.body.removeChild(link);
-
+  if (currentMode === 'each') {
+    const show = Math.min(totalPages, 6);
+    for (let i = 1; i <= show; i++) makeChip(`p.${i}.pdf`);
+    if (totalPages > 6) makeChip(`+${totalPages - 6} more`);
+    document.getElementById('rangeHint').textContent = '1–' + totalPages;
+  } else if (currentMode === 'range') {
+    const f = parseInt(document.getElementById('fromPage').value) || 1;
+    const t = parseInt(document.getElementById('toPage').value) || totalPages;
+    document.getElementById('rangeHint').textContent = `${f}–${Math.min(t, totalPages)}`;
+    makeChip(`pages ${f}–${Math.min(t, totalPages)}.pdf`);
+  } else {
+    const sz = parseInt(document.getElementById('chunkSize').value) || 5;
+    document.getElementById('chunkHint').textContent = sz;
+    let chunks = 0;
+    for (let i = 1; i <= totalPages; i += sz) {
+      const end = Math.min(i + sz - 1, totalPages);
+      if (chunks < 5) makeChip(`pp.${i}-${end}.pdf`);
+      chunks++;
+    }
+    if (chunks > 5) makeChip(`+${chunks - 5} more`);
+  }
 }
 
+function setProgress(pct, label) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
+}
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  el.style.display = 'block';
+}
+
+async function splitPDF() {
+  const file = fileInput.files[0];
+  if (!file) { showStatus('Please select a PDF.', 'error'); return; }
+
+  runBtn.disabled = true;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('status').style.display = 'none';
+  document.getElementById('resultList').style.display = 'none';
+  document.getElementById('resultList').innerHTML = '';
+  setProgress(10, 'Reading file...');
+
+  try {
+    const buf    = await file.arrayBuffer();
+    const srcPdf = await PDFLib.PDFDocument.load(buf);
+    const pages  = srcPdf.getPages();
+    const n      = pages.length;
+    const baseName = file.name.replace('.pdf', '');
+    const results  = [];
+
+    if (currentMode === 'each') {
+      for (let i = 0; i < n; i++) {
+        setProgress(10 + Math.round((i / n) * 80), `Processing page ${i + 1} of ${n}...`);
+        const newPdf = await PDFLib.PDFDocument.create();
+        const [copied] = await newPdf.copyPages(srcPdf, [i]);
+        newPdf.addPage(copied);
+        const bytes = await newPdf.save();
+        results.push({ label: `Page ${i + 1}`, bytes, name: `${baseName}-p${i + 1}.pdf` });
+      }
+    } else if (currentMode === 'range') {
+      const f = Math.max(1, parseInt(document.getElementById('fromPage').value) || 1) - 1;
+      const t = Math.min(n, parseInt(document.getElementById('toPage').value) || n) - 1;
+      if (f > t) throw new Error('From page must be ≤ To page');
+      setProgress(40, 'Extracting range...');
+      const newPdf = await PDFLib.PDFDocument.create();
+      const indices = Array.from({ length: t - f + 1 }, (_, i) => f + i);
+      const copied  = await newPdf.copyPages(srcPdf, indices);
+      copied.forEach(p => newPdf.addPage(p));
+      const bytes = await newPdf.save();
+      results.push({ label: `Pages ${f + 1}–${t + 1}`, bytes, name: `${baseName}-pp${f + 1}-${t + 1}.pdf` });
+    } else {
+      const sz = Math.max(1, parseInt(document.getElementById('chunkSize').value) || 5);
+      let chunk = 0;
+      for (let i = 0; i < n; i += sz) {
+        chunk++;
+        const end = Math.min(i + sz, n);
+        setProgress(10 + Math.round((i / n) * 80), `Chunk ${chunk}...`);
+        const newPdf  = await PDFLib.PDFDocument.create();
+        const indices = Array.from({ length: end - i }, (_, j) => i + j);
+        const copied  = await newPdf.copyPages(srcPdf, indices);
+        copied.forEach(p => newPdf.addPage(p));
+        const bytes = await newPdf.save();
+        results.push({ label: `Pages ${i + 1}–${end}`, bytes, name: `${baseName}-chunk${chunk}.pdf` });
+      }
+    }
+
+    setProgress(100, `Done! ${results.length} file${results.length > 1 ? 's' : ''} ready.`);
+
+    // Show result list
+    const list = document.getElementById('resultList');
+    list.style.display = 'flex';
+    results.forEach((r, idx) => {
+      const blob = new Blob([r.bytes], { type: 'application/pdf' });
+      const url  = URL.createObjectURL(blob);
+      const item = document.createElement('div');
+      item.className = 'result-item';
+      item.style.animationDelay = (idx * 0.05) + 's';
+      item.innerHTML = `<span class="result-label">✅ ${r.label}</span><a class="result-dl" href="${url}" download="${r.name}">↓ Download</a>`;
+      list.appendChild(item);
+    });
+
+    // Auto-download if just one file
+    if (results.length === 1) {
+      const blob = new Blob([results[0].bytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = results[0].name;
+      link.click();
+    }
+
+  } catch (err) {
+    showStatus('❌ ' + err.message, 'error');
+    setProgress(0, '');
+  } finally {
+    runBtn.disabled = false;
+  }
+}
 </script>
-
 </body>
 </html>
