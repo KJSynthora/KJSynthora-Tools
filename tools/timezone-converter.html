@@ -1,999 +1,1848 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global Timezone Operating System</title>
-
-<meta name="description" content="Advanced global timezone operating system with realtime world clocks, AI scheduling, overlap detection, and worldwide collaboration.">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
-<script src="../js/countries-data.js"></script>
-
+<title>Global Timezone Platform | KJSynthora</title>
+<meta name="description" content="Professional global timezone converter, world clock, meeting scheduler and overlap finder.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04060e;
+  --bg2:#080c18;
+  --bg3:#0c1120;
+  --surface:#0f1525;
+  --surface2:#141b2d;
+  --surface3:#1a2238;
+  --border:#1e2a45;
+  --border2:#263354;
+  --accent:#3b82f6;
+  --accent-glow:rgba(59,130,246,0.25);
+  --accent2:#06b6d4;
+  --accent3:#8b5cf6;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --text:#e8edf8;
+  --text2:#8892aa;
+  --text3:#4a5472;
+  --working:#10b981;
+  --sleeping:#8b5cf6;
+  --available:#f59e0b;
 }
 
 body{
-background:
-linear-gradient(
-135deg,
-#020617,
-#081028,
-#020617
-);
-
-color:white;
-overflow-x:hidden;
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
+/* Ambient background */
 body::before{
-content:'';
-position:fixed;
-width:700px;
-height:700px;
-background:
-radial-gradient(
-circle,
-#2563eb55,
-#7c3aed22,
-transparent
-);
-top:-250px;
-left:-250px;
-filter:blur(80px);
-z-index:-1;
-animation:floatGlow 8s infinite alternate;
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 0% 0%,rgba(59,130,246,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%,rgba(139,92,246,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(6,182,212,0.03) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
 }
 
-@keyframes floatGlow{
-from{transform:translateY(0px);}
-to{transform:translateY(60px);}
+/* Grid overlay */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
 }
 
-.container{
-width:95%;
-max-width:1700px;
-margin:auto;
-padding:40px 0 100px;
+.wrap{
+  position:relative;z-index:1;
+  max-width:1600px;margin:0 auto;
+  padding:0 24px 80px;
 }
 
-.header{
-text-align:center;
-margin-bottom:45px;
+/* ═══════════════ HEADER ═══════════════ */
+.site-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 0;margin-bottom:48px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:20px;
 }
 
-.header h1{
-font-size:70px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-margin-bottom:20px;
+.logo{
+  display:flex;align-items:center;gap:12px;
+  text-decoration:none;
 }
 
-.header p{
-font-size:20px;
-color:#cbd5e1;
+.logo-mark{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 0 20px rgba(59,130,246,0.3);
 }
 
-.live-status-wrapper{
-display:flex;
-justify-content:center;
-margin-bottom:45px;
+.logo-text{
+  font-size:16px;font-weight:700;
+  color:var(--text);letter-spacing:-0.3px;
 }
 
-.live-status{
-background:#0f8b4c;
-padding:16px 26px;
-border-radius:999px;
-font-size:14px;
-font-weight:600;
-animation:pulse 2s infinite;
+.logo-text span{color:var(--accent);}
+
+.live-pill{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.25);
+  padding:8px 16px;border-radius:999px;
+  font-size:12px;font-weight:600;
+  color:var(--success);letter-spacing:0.5px;
 }
 
-@keyframes pulse{
-
-0%{
-box-shadow:0 0 0 0 rgba(15,139,76,0.7);
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 8px var(--success);
+  animation:blink 2s infinite;
 }
 
-70%{
-box-shadow:0 0 0 18px rgba(15,139,76,0);
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ═══════════════ HERO ═══════════════ */
+.hero{text-align:center;padding:40px 0 48px;}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.2);
+  padding:6px 14px;border-radius:999px;
+  font-size:11px;font-weight:600;
+  color:var(--accent);letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:24px;
 }
 
-100%{
-box-shadow:0 0 0 0 rgba(15,139,76,0);
+.hero h1{
+  font-size:clamp(36px,5vw,72px);
+  font-weight:700;letter-spacing:-2px;
+  line-height:1.05;margin-bottom:16px;
+  background:linear-gradient(135deg,#fff 30%,var(--accent2) 70%,var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
 }
 
+.hero p{
+  font-size:17px;color:var(--text2);
+  max-width:560px;margin:0 auto 36px;
+  line-height:1.7;
 }
 
-.search-wrapper{
-max-width:900px;
-margin:auto;
-position:relative;
-margin-bottom:60px;
+/* ═══════════════ STATS ═══════════════ */
+.stats{
+  display:flex;justify-content:center;gap:0;
+  margin-bottom:56px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;
+  width:fit-content;margin-left:auto;margin-right:auto;
 }
 
-.search-box{
-width:100%;
-padding:22px;
-border:none;
-outline:none;
-border-radius:20px;
-background:#111827;
-color:white;
-font-size:18px;
-box-shadow:0 0 30px rgba(37,99,235,0.12);
+.stat{
+  padding:24px 40px;text-align:center;
+  border-right:1px solid var(--border);
+}
+.stat:last-child{border-right:none;}
+
+.stat-n{
+  font-size:30px;font-weight:700;
+  color:var(--accent);
+  font-family:'DM Mono',monospace;
+  line-height:1;margin-bottom:6px;
 }
 
-.search-results{
-position:absolute;
-width:100%;
-background:#111827;
-margin-top:12px;
-border-radius:18px;
-max-height:350px;
-overflow-y:auto;
-display:none;
-z-index:999;
-border:1px solid rgba(255,255,255,0.05);
+.stat-l{
+  font-size:11px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;font-weight:500;
 }
+
+/* ═══════════════ TABS ═══════════════ */
+.tabs{
+  display:flex;gap:4px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;padding:5px;
+  width:fit-content;margin:0 auto 40px;
+}
+
+.tab{
+  padding:10px 24px;border-radius:10px;
+  font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  color:var(--text2);background:transparent;border:none;
+}
+.tab.active{
+  background:var(--accent);color:#fff;
+  box-shadow:0 4px 16px rgba(59,130,246,0.35);
+}
+.tab:hover:not(.active){color:var(--text);background:var(--surface2);}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ═══════════════ SEARCH ═══════════════ */
+.search-wrap{
+  position:relative;max-width:800px;
+  margin:0 auto 40px;
+}
+
+.search-icon{
+  position:absolute;left:18px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:16px;pointer-events:none;
+}
+
+.search-input{
+  width:100%;
+  padding:18px 18px 18px 52px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.search-input::placeholder{color:var(--text3);}
+.search-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(59,130,246,0.12);
+}
+
+.search-dropdown{
+  position:absolute;width:100%;top:calc(100% + 8px);
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  max-height:320px;overflow-y:auto;
+  display:none;z-index:999;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+
+.search-dropdown.open{display:block;}
 
 .search-item{
-padding:18px;
-border-bottom:1px solid rgba(255,255,255,0.05);
-cursor:pointer;
-transition:.3s;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.15s;
+}
+.search-item:last-child{border-bottom:none;}
+.search-item:hover{background:var(--surface3);}
+
+.search-item-left strong{
+  display:block;font-size:14px;font-weight:600;
+  color:var(--text);margin-bottom:2px;
+}
+.search-item-left small{font-size:11px;color:var(--text3);}
+.search-item-right{
+  font-family:'DM Mono',monospace;
+  font-size:11px;color:var(--accent);
+  background:rgba(59,130,246,0.1);
+  padding:3px 8px;border-radius:6px;
 }
 
-.search-item:hover{
-background:#1e293b;
-}
-
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:25px;
-margin-bottom:50px;
-}
-
-.stat-card{
-background:rgba(15,23,42,0.85);
-padding:35px;
-border-radius:24px;
-text-align:center;
-border:1px solid rgba(255,255,255,0.05);
-}
-
-.stat-card h2{
-font-size:46px;
-margin-bottom:10px;
-color:#38bdf8;
-}
-
-.stat-card p{
-color:#cbd5e1;
-}
-
-.controls{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:25px;
-margin-bottom:55px;
-}
-
-.control-card{
-background:#0f172a;
-padding:28px;
-border-radius:24px;
-border:1px solid rgba(255,255,255,0.05);
-}
-
-.control-card h3{
-margin-bottom:15px;
-color:#38bdf8;
-}
-
-.control-card input,
-.control-card select{
-width:100%;
-padding:16px;
-border:none;
-outline:none;
-border-radius:14px;
-background:#111827;
-color:white;
-}
-
+/* ═══════════════ CLOCK GRID ═══════════════ */
 .clock-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-gap:28px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:20px;
+  margin-bottom:48px;
 }
 
 .clock-card{
-background:
-linear-gradient(
-145deg,
-#081028,
-#0f172a
-);
-
-border-radius:24px;
-padding:28px;
-position:relative;
-overflow:hidden;
-border:1px solid rgba(255,255,255,.05);
-
-transition:.35s;
-}
-
-.clock-card:hover{
-transform:translateY(-6px);
-border-color:#8b5cf6;
-box-shadow:0 18px 40px rgba(56,189,248,.15);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.25s,border-color 0.25s,box-shadow 0.25s;
+  cursor:default;
 }
 
 .clock-card::before{
-content:'';
-position:absolute;
-width:220px;
-height:220px;
-
-background:
-radial-gradient(
-circle,
-rgba(56,189,248,.18),
-transparent
-);
-
-top:-70px;
-right:-70px;
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 100% 0%,rgba(59,130,246,0.06),transparent);
+  pointer-events:none;
 }
+
+.clock-card:hover{
+  transform:translateY(-4px);
+  border-color:var(--accent);
+  box-shadow:0 12px 40px rgba(59,130,246,0.12);
+}
+
+.clock-card.working-card{border-top:2px solid var(--working);}
+.clock-card.sleeping-card{border-top:2px solid var(--sleeping);}
+.clock-card.available-card{border-top:2px solid var(--available);}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+
+.card-city{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.card-country{font-size:12px;color:var(--text3);margin-top:2px;}
 
 .remove-btn{
-position:absolute;
-top:18px;
-right:18px;
-width:36px;
-height:36px;
-border:none;
-border-radius:50%;
-background:#ef4444;
-color:white;
-font-weight:700;
-cursor:pointer;
-z-index:10;
+  width:30px;height:30px;border-radius:8px;
+  background:rgba(239,68,68,0.1);
+  border:1px solid rgba(239,68,68,0.2);
+  color:var(--danger);cursor:pointer;
+  font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
+}
+.remove-btn:hover{background:rgba(239,68,68,0.2);}
+
+.card-time{
+  font-family:'DM Mono',monospace;
+  font-size:46px;font-weight:500;
+  color:#fff;line-height:1;
+  margin-bottom:8px;letter-spacing:-1px;
 }
 
-.city-name{
-font-size:34px;
-font-weight:700;
-margin-bottom:5px;
+.card-date{font-size:13px;color:var(--text2);margin-bottom:16px;}
+
+.card-offset{
+  font-family:'DM Mono',monospace;
+  font-size:11px;color:var(--accent2);
+  background:rgba(6,182,212,0.1);
+  border:1px solid rgba(6,182,212,0.15);
+  padding:3px 8px;border-radius:6px;
+  display:inline-block;margin-bottom:12px;
 }
 
-.country-name{
-color:#94a3b8;
-margin-bottom:18px;
+/* 24h bar */
+.day-bar{
+  height:6px;
+  background:var(--surface3);
+  border-radius:99px;
+  overflow:hidden;
+  margin-bottom:14px;
+  position:relative;
+}
+.day-bar-fill{
+  position:absolute;left:0;top:0;height:100%;
+  border-radius:99px;
+  transition:width 1s linear;
 }
 
-.time-value{
-font-size:58px;
-font-weight:800;
-margin-bottom:15px;
-line-height:1.1;
-}
-
-.date-value{
-color:#cbd5e1;
-margin-bottom:20px;
-}
-
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;}
 
 .badge{
-padding:8px 15px;
-border-radius:999px;
-font-size:13px;
-font-weight:600;
+  padding:5px 11px;border-radius:999px;
+  font-size:11px;font-weight:600;letter-spacing:0.3px;
+}
+.b-working{background:rgba(16,185,129,0.15);color:var(--working);border:1px solid rgba(16,185,129,0.2);}
+.b-sleeping{background:rgba(139,92,246,0.15);color:var(--accent3);border:1px solid rgba(139,92,246,0.2);}
+.b-available{background:rgba(245,158,11,0.15);color:var(--warning);border:1px solid rgba(245,158,11,0.2);}
+.b-tz{background:rgba(59,130,246,0.1);color:var(--accent);border:1px solid rgba(59,130,246,0.15);}
+
+/* ═══════════════ CONVERTER SECTION ═══════════════ */
+.converter-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  margin-bottom:40px;
 }
 
-.working{
-background:#0f8b4c;
+.section-title{
+  font-size:22px;font-weight:700;
+  color:var(--text);letter-spacing:-0.4px;
+  margin-bottom:6px;
+}
+.section-sub{font-size:13px;color:var(--text3);margin-bottom:28px;}
+
+/* Converter rows */
+.converter-rows{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+
+.conv-row{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  position:relative;
+  transition:border-color 0.2s;
+}
+.conv-row:focus-within{border-color:var(--accent);}
+.conv-row.pinned{border-left:3px solid var(--accent);}
+
+.conv-row-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
 }
 
-.sleeping{
-background:#7c3aed;
+.conv-tz-name{font-size:16px;font-weight:700;color:var(--text);}
+.conv-tz-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.conv-time-big{
+  font-family:'DM Mono',monospace;
+  font-size:30px;font-weight:500;color:#fff;
+  letter-spacing:-0.5px;
+}
+.conv-date-small{font-size:11px;color:var(--text3);}
+
+.conv-row-remove{
+  position:absolute;top:14px;right:14px;
+  width:26px;height:26px;border-radius:6px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text3);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.conv-row-remove:hover{border-color:var(--danger);color:var(--danger);}
+
+/* Timeline bar per row */
+.conv-bar-wrap{
+  position:relative;
+  height:36px;
+  cursor:pointer;
 }
 
-.available{
-background:#d97706;
+.conv-bar-bg{
+  position:absolute;inset:0;
+  border-radius:8px;
+  overflow:hidden;
+  background:var(--surface3);
 }
 
-.timezone{
-background:#2563eb;
+/* Hour segments */
+.conv-bar-hours{
+  display:flex;height:100%;
 }
 
-.timeline-section,
-.ai-section,
-.map-section{
-margin-top:70px;
-background:#0f172a;
-padding:35px;
-border-radius:28px;
-border:1px solid rgba(255,255,255,0.05);
+.conv-hour-seg{
+  flex:1;height:100%;
+  border-right:1px solid rgba(255,255,255,0.02);
+  position:relative;
+  transition:background 0.15s;
 }
 
-.timeline-section h2,
-.ai-section h2,
-.map-section h2{
-margin-bottom:25px;
-font-size:34px;
+.conv-hour-seg.work-hrs{background:rgba(16,185,129,0.18);}
+.conv-hour-seg.sleep-hrs{background:rgba(139,92,246,0.08);}
+.conv-hour-seg.avail-hrs{background:rgba(245,158,11,0.12);}
+
+/* Time cursor */
+.conv-cursor{
+  position:absolute;top:0;bottom:0;width:2px;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent-glow);
+  pointer-events:none;transition:left 0.05s;
+  z-index:5;
 }
 
-.timeline-slider{
-width:100%;
+.conv-cursor-label{
+  position:absolute;top:-24px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;
+  font-family:'DM Mono',monospace;font-size:10px;
+  padding:2px 6px;border-radius:4px;white-space:nowrap;
 }
 
-.timeline-label{
-margin-top:16px;
-color:#cbd5e1;
+/* Hour labels */
+.conv-bar-labels{
+  display:flex;justify-content:space-between;
+  margin-top:5px;padding:0 2px;
+}
+.conv-bar-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);}
+
+/* Diff badge */
+.conv-diff{
+  font-size:11px;color:var(--text2);
+  font-family:'DM Mono',monospace;
+}
+.conv-diff.pos{color:var(--success);}
+.conv-diff.neg{color:var(--danger);}
+
+/* Add row button */
+.add-conv-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 20px;
+  background:transparent;
+  border:2px dashed var(--border2);
+  border-radius:16px;
+  color:var(--text3);
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  width:100%;justify-content:center;
+}
+.add-conv-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,0.05);}
+
+/* Global time slider */
+.global-slider-wrap{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-top:24px;
 }
 
-.heatmap{
-display:grid;
-grid-template-columns:repeat(24,1fr);
-gap:5px;
-margin-top:30px;
+.slider-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
 }
 
-.heat-cell{
-height:45px;
-border-radius:8px;
+.slider-label{font-size:13px;font-weight:600;color:var(--text);}
+
+.slider-time{
+  font-family:'DM Mono',monospace;
+  font-size:18px;color:var(--accent);font-weight:500;
 }
 
-.good{
-background:#16a34a;
+.global-slider{
+  width:100%;
+  -webkit-appearance:none;
+  height:6px;
+  border-radius:99px;
+  background:var(--surface3);
+  outline:none;cursor:pointer;
 }
 
-.medium{
-background:#d97706;
+.global-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 12px rgba(59,130,246,0.5);
+  cursor:pointer;
+  border:3px solid rgba(255,255,255,0.15);
 }
 
-.bad{
-background:#7f1d1d;
+.date-nav{
+  display:flex;align-items:center;gap:12px;
+  margin-top:14px;
 }
+
+.date-nav-btn{
+  padding:8px 16px;border-radius:8px;
+  background:var(--surface3);border:1px solid var(--border);
+  color:var(--text2);font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;
+}
+.date-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+.date-display{
+  font-family:'DM Mono',monospace;
+  font-size:13px;color:var(--text);flex:1;text-align:center;
+}
+
+/* ═══════════════ DIFF CALCULATOR ═══════════════ */
+.diff-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  margin-bottom:40px;
+}
+
+.diff-grid{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:16px;align-items:end;
+  margin-bottom:24px;
+}
+
+.diff-field label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.8px;margin-bottom:8px;
+}
+
+.diff-select{
+  width:100%;padding:14px 16px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.diff-select:focus{border-color:var(--accent);}
+
+.diff-input{
+  width:100%;padding:14px 16px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);
+  font-family:'DM Mono',monospace;font-size:14px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.diff-input:focus{border-color:var(--accent);}
+
+.diff-arrow{
+  font-size:22px;color:var(--text3);
+  padding-bottom:14px;
+  text-align:center;
+}
+
+.diff-result{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:16px;
+}
+
+.diff-card{text-align:center;padding:16px;}
+.diff-card-val{
+  font-family:'DM Mono',monospace;
+  font-size:28px;font-weight:500;
+  color:var(--accent);margin-bottom:4px;
+}
+.diff-card-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
+
+/* ═══════════════ OVERLAP FINDER ═══════════════ */
+.overlap-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  margin-bottom:40px;
+}
+
+.overlap-grid-wrap{margin-top:8px;}
+
+.overlap-header-row{
+  display:flex;gap:4px;margin-bottom:4px;
+  padding-left:100px;
+}
+
+.overlap-hr-lbl{
+  flex:1;text-align:center;
+  font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--text3);
+}
+
+.overlap-row{
+  display:flex;align-items:center;
+  gap:4px;margin-bottom:4px;
+}
+
+.overlap-row-name{
+  width:96px;flex-shrink:0;
+  font-size:12px;font-weight:600;color:var(--text2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+.overlap-cells{display:flex;gap:2px;flex:1;}
+
+.overlap-cell{
+  flex:1;height:34px;border-radius:6px;
+  position:relative;cursor:default;
+  transition:transform 0.1s;
+}
+.overlap-cell:hover{transform:scaleY(1.1);}
+
+.overlap-cell.work{background:rgba(16,185,129,0.3);border:1px solid rgba(16,185,129,0.2);}
+.overlap-cell.avail{background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.15);}
+.overlap-cell.sleep{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.08);}
+.overlap-cell.best{background:rgba(59,130,246,0.35);border:1px solid rgba(59,130,246,0.4);box-shadow:0 2px 8px rgba(59,130,246,0.2);}
+
+.overlap-tooltip{
+  position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  padding:6px 10px;border-radius:8px;
+  font-size:11px;color:var(--text);
+  white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity 0.15s;z-index:20;
+}
+.overlap-cell:hover .overlap-tooltip{opacity:1;}
+
+.overlap-legend{
+  display:flex;gap:20px;flex-wrap:wrap;
+  margin-top:16px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:7px;
+  font-size:12px;color:var(--text2);
+}
+.legend-dot{
+  width:12px;height:12px;border-radius:3px;
+}
+
+/* ═══════════════ QUICK REGIONS ═══════════════ */
+.regions-section{
+  margin-bottom:40px;
+}
+.regions-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:10px;
+}
+.region-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 14px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:10px;
+}
+.region-card:hover{
+  border-color:var(--accent);
+  background:rgba(59,130,246,0.06);
+  transform:translateY(-2px);
+}
+.region-flag{font-size:22px;}
+.region-info{flex:1;}
+.region-name{font-size:13px;font-weight:600;color:var(--text);}
+.region-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-top:2px;}
+
+/* ═══════════════ MEETING SCHEDULER ═══════════════ */
+.meeting-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  margin-bottom:40px;
+}
+
+.meeting-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr auto;
+  gap:16px;align-items:end;margin-bottom:24px;
+}
+
+@media(max-width:900px){.meeting-controls{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.meeting-controls{grid-template-columns:1fr;}}
+
+.meeting-field label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--text3);letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:8px;
+}
+
+.meeting-field input,
+.meeting-field select{
+  width:100%;padding:14px 16px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
+  transition:border-color 0.2s;
+}
+.meeting-field input:focus,.meeting-field select:focus{border-color:var(--accent);}
+.meeting-field input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.4;}
+
+.find-btn{
+  padding:14px 28px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border:none;border-radius:12px;
+  color:#fff;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;white-space:nowrap;
+  box-shadow:0 4px 16px rgba(59,130,246,0.3);
+}
+.find-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,0.4);}
+
+.meeting-results{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:12px;
+}
+
+.meeting-slot{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  transition:border-color 0.2s;
+}
+.meeting-slot:hover{border-color:var(--accent);}
+.meeting-slot.best{border-color:var(--success);background:rgba(16,185,129,0.06);}
+
+.slot-time{
+  font-family:'DM Mono',monospace;
+  font-size:20px;font-weight:500;color:var(--text);
+  margin-bottom:8px;
+}
+.slot-score{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:10px;
+}
+.slot-stars{color:var(--warning);}
+.slot-label{font-size:11px;color:var(--text3);}
+.slot-cities{display:flex;flex-direction:column;gap:4px;}
+.slot-city-time{font-size:12px;color:var(--text2);}
+.slot-city-time span{color:var(--text);font-weight:600;}
+
+/* ═══════════════ AI SUGGESTIONS ═══════════════ */
+.ai-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  margin-bottom:40px;
+}
+
+.ai-cards{display:flex;flex-direction:column;gap:10px;}
 
 .ai-card{
-background:#111827;
-padding:22px;
-border-radius:18px;
-margin-top:18px;
-line-height:1.7;
+  display:flex;align-items:flex-start;gap:14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:14px;padding:16px;
 }
 
-.quick-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:18px;
-margin-top:30px;
+.ai-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.ai-icon.green{background:rgba(16,185,129,0.15);}
+.ai-icon.yellow{background:rgba(245,158,11,0.15);}
+.ai-icon.blue{background:rgba(59,130,246,0.15);}
+.ai-icon.purple{background:rgba(139,92,246,0.15);}
+
+.ai-card-text{font-size:14px;color:var(--text2);line-height:1.6;}
+.ai-card-text strong{color:var(--text);}
+
+/* ═══════════════ FOOTER ACTIONS ═══════════════ */
+.footer-actions{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
+  margin-top:48px;
 }
 
-.quick-card{
-background:#111827;
-padding:24px;
-border-radius:18px;
-cursor:pointer;
-transition:.3s;
-text-align:center;
+.action-btn{
+  padding:14px 26px;border-radius:12px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.action-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border:none;color:#fff;
+  box-shadow:0 4px 16px rgba(59,130,246,0.3);
+}
+.action-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,0.4);}
+.action-secondary{
+  background:var(--surface2);
+  border:1px solid var(--border2);color:var(--text2);
+}
+.action-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
+
+/* ═══════════════ TOAST ═══════════════ */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--surface2);
+  border:1px solid var(--accent);
+  color:var(--text);
+  padding:12px 20px;border-radius:12px;
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:10px;
+  transform:translateY(100px);opacity:0;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+  z-index:9999;max-width:340px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ═══════════════ SECTION HEADER ═══════════════ */
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;
+}
+.sec-head-left .sec-title{
+  font-size:20px;font-weight:700;
+  color:var(--text);letter-spacing:-0.3px;
+}
+.sec-head-left .sec-sub{
+  font-size:12px;color:var(--text3);margin-top:2px;
 }
 
-.quick-card:hover{
-background:#1e293b;
-transform:translateY(-4px);
-}
-
-.footer-buttons{
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-margin-top:60px;
-}
-
-.footer-buttons button,
-.footer-buttons a{
-padding:16px 30px;
-border:none;
-border-radius:16px;
-text-decoration:none;
-cursor:pointer;
-font-weight:700;
-transition:.3s;
-}
-
-.primary-btn{
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-}
-
-.secondary-btn{
-background:#111827;
-color:white;
-}
-
-.primary-btn:hover,
-.secondary-btn:hover{
-transform:translateY(-4px);
-}
-
+/* ═══════════════ RESPONSIVE ═══════════════ */
 @media(max-width:768px){
-
-.header h1{
-font-size:46px;
+  .stats{flex-wrap:wrap;}
+  .stat{padding:16px 20px;}
+  .diff-grid{grid-template-columns:1fr;gap:8px;}
+  .diff-arrow{display:none;}
 }
 
-.time-value{
-font-size:42px;
-}
-
-.timeline-section h2,
-.ai-section h2,
-.map-section h2{
-font-size:28px;
-}
-
-}
-
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<div class="wrap">
 
-<div class="header">
+  <!-- HEADER -->
+  <header class="site-header">
+    <a class="logo" href="#">
+      <div class="logo-mark">🌐</div>
+      <span class="logo-text">KJ<span>Synthora</span></span>
+    </a>
+    <div class="live-pill">
+      <div class="live-dot"></div>
+      LIVE SYNC ACTIVE
+    </div>
+  </header>
 
-<h1>Global Timezone Platform</h1>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">🌍 Global Timezone Platform</div>
+    <h1>World Clock &<br>Timezone Converter</h1>
+    <p>Convert timezones instantly, find meeting overlaps, and track world clocks across 48,000+ cities.</p>
+  </div>
 
-<p>
-Enterprise-grade worldwide timezone collaboration system
-</p>
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-n">195+</div><div class="stat-l">Countries</div></div>
+    <div class="stat"><div class="stat-n">48K+</div><div class="stat-l">Cities</div></div>
+    <div class="stat"><div class="stat-n">400+</div><div class="stat-l">Timezones</div></div>
+    <div class="stat"><div class="stat-n">24/7</div><div class="stat-l">Realtime</div></div>
+  </div>
 
-</div>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('clocks',this)">🕐 World Clocks</button>
+    <button class="tab" onclick="switchTab('converter',this)">⇄ Converter</button>
+    <button class="tab" onclick="switchTab('overlap',this)">📊 Overlap Finder</button>
+    <button class="tab" onclick="switchTab('meeting',this)">📅 Meeting Planner</button>
+  </div>
 
-<div class="live-status-wrapper">
+  <!-- ═══ TAB: WORLD CLOCKS ═══ -->
+  <div class="tab-panel active" id="tab-clocks">
 
-<div class="live-status">
-● LIVE WORLD CLOCK SYNC ACTIVE
-</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="searchInput"
+        placeholder="Search any city, country or timezone...">
+      <div class="search-dropdown" id="searchDropdown"></div>
+    </div>
 
-</div>
+    <div class="clock-grid" id="clockGrid"></div>
 
-<div class="search-wrapper">
+    <!-- Quick regions -->
+    <div class="regions-section">
+      <div class="sec-head">
+        <div class="sec-head-left">
+          <div class="sec-title">Quick Add Regions</div>
+          <div class="sec-sub">Click to add to your clock</div>
+        </div>
+      </div>
+      <div class="regions-grid" id="regionsGrid"></div>
+    </div>
 
-<input
-type="text"
-class="search-box"
-id="searchInput"
-placeholder="Search any city, country or timezone in the world..."
->
+  </div>
 
-<div
-class="search-results"
-id="searchResults"
-></div>
+  <!-- ═══ TAB: CONVERTER ═══ -->
+  <div class="tab-panel" id="tab-converter">
 
-</div>
+    <div class="converter-section">
+      <div class="sec-head">
+        <div class="sec-head-left">
+          <div class="sec-title">⇄ Timezone Converter</div>
+          <div class="sec-sub">Drag the slider or click on any bar to sync all timezones</div>
+        </div>
+      </div>
 
-<div class="stats-grid">
+      <!-- Converter rows -->
+      <div class="converter-rows" id="converterRows"></div>
 
-<div class="stat-card">
-<h2>195+</h2>
-<p>Countries</p>
-</div>
+      <!-- Add timezone -->
+      <div class="search-wrap" style="max-width:100%;margin-bottom:12px;">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="convSearch"
+          placeholder="Add a timezone / city to compare...">
+        <div class="search-dropdown" id="convDropdown"></div>
+      </div>
 
-<div class="stat-card">
-<h2>48K+</h2>
-<p>Global Cities</p>
-</div>
+      <!-- Global slider -->
+      <div class="global-slider-wrap">
+        <div class="slider-header">
+          <span class="slider-label">Adjust Global Time</span>
+          <span class="slider-time" id="sliderTimeDisplay">12:00</span>
+        </div>
+        <input type="range" class="global-slider" id="globalSlider" min="0" max="1439" value="720"
+          oninput="onSliderInput(this.value)">
+        <div class="date-nav">
+          <button class="date-nav-btn" onclick="changeDate(-1)">← Prev Day</button>
+          <div class="date-display" id="dateDisplay"></div>
+          <button class="date-nav-btn" onclick="changeDate(1)">Next Day →</button>
+        </div>
+      </div>
 
-<div class="stat-card">
-<h2>400+</h2>
-<p>IANA Timezones</p>
-</div>
+      <!-- Time difference table -->
+      <div class="diff-section" style="margin-top:20px;margin-bottom:0;padding:24px;">
+        <div class="sec-title" style="margin-bottom:16px;">Time Difference Matrix</div>
+        <div id="diffMatrix"></div>
+      </div>
 
-<div class="stat-card">
-<h2>24/7</h2>
-<p>Realtime Sync</p>
-</div>
+    </div>
 
-</div>
+  </div>
 
-<div class="controls">
+  <!-- ═══ TAB: OVERLAP FINDER ═══ -->
+  <div class="tab-panel" id="tab-overlap">
 
-<div class="control-card">
+    <div class="overlap-section">
+      <div class="sec-head">
+        <div class="sec-head-left">
+          <div class="sec-title">📊 Business Hours Overlap</div>
+          <div class="sec-sub">Green = working hours · Blue = best overlap · Orange = marginal · Dark = sleeping</div>
+        </div>
+      </div>
 
-<h3>Meeting Date</h3>
+      <div class="overlap-grid-wrap">
+        <div class="overlap-header-row" id="overlapHeaderRow"></div>
+        <div id="overlapRows"></div>
+      </div>
 
-<input type="date">
+      <div class="overlap-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(16,185,129,0.5);border:1px solid rgba(16,185,129,0.4);"></div> Working Hours</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(59,130,246,0.5);border:1px solid rgba(59,130,246,0.4);"></div> Best Overlap</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.3);border:1px solid rgba(245,158,11,0.3);"></div> Available</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.15);"></div> Sleeping</div>
+      </div>
 
-</div>
+      <div id="overlapSuggestion" style="margin-top:20px;"></div>
+    </div>
 
-<div class="control-card">
+  </div>
 
-<h3>Meeting Time</h3>
+  <!-- ═══ TAB: MEETING PLANNER ═══ -->
+  <div class="tab-panel" id="tab-meeting">
 
-<input type="time">
+    <div class="meeting-section">
+      <div class="sec-head">
+        <div class="sec-head-left">
+          <div class="sec-title">📅 Smart Meeting Planner</div>
+          <div class="sec-sub">Find the best overlap time for all your team locations</div>
+        </div>
+      </div>
 
-</div>
+      <div class="meeting-controls">
+        <div class="meeting-field">
+          <label>Meeting Date</label>
+          <input type="date" id="meetingDate">
+        </div>
+        <div class="meeting-field">
+          <label>Duration</label>
+          <select id="meetingDuration">
+            <option value="30">30 minutes</option>
+            <option value="60" selected>1 hour</option>
+            <option value="90">1.5 hours</option>
+            <option value="120">2 hours</option>
+          </select>
+        </div>
+        <div class="meeting-field">
+          <label>Priority</label>
+          <select id="meetingMode">
+            <option value="overlap">Best Overlap</option>
+            <option value="business">Business Hours</option>
+            <option value="morning">Morning Preferred</option>
+            <option value="evening">Evening Preferred</option>
+          </select>
+        </div>
+        <button class="find-btn" onclick="findBestMeeting()">🔍 Find Best Time</button>
+      </div>
 
-<div class="control-card">
+      <div class="meeting-results" id="meetingResults"></div>
+    </div>
 
-<h3>AI Scheduling Mode</h3>
+  </div>
 
-<select>
+  <!-- AI SUGGESTIONS (always visible) -->
+  <div class="ai-section">
+    <div class="sec-head">
+      <div class="sec-head-left">
+        <div class="sec-title">✨ Smart Insights</div>
+        <div class="sec-sub">Real-time analysis of your selected timezones</div>
+      </div>
+    </div>
+    <div class="ai-cards" id="aiCards"></div>
+  </div>
 
-<option>Best Overlap</option>
-<option>Business Hours</option>
-<option>Weekend Friendly</option>
-<option>Night Shift</option>
+  <!-- FOOTER ACTIONS -->
+  <div class="footer-actions">
+    <button class="action-btn action-primary" onclick="exportSchedule()">📥 Export Schedule</button>
+    <button class="action-btn action-primary" onclick="shareSchedule()">🔗 Share Link</button>
+    <button class="action-btn action-secondary" onclick="findBestMeeting()">🕐 Auto Best Time</button>
+    <a href="../index.html" class="action-btn action-secondary">⬅ Back to Home</a>
+  </div>
 
-</select>
+</div><!-- /wrap -->
 
-</div>
-
-</div>
-
-<div class="clock-grid" id="clockGrid"></div>
-
-<div class="timeline-section">
-
-<h2>Global Timeline Scheduler</h2>
-
-<input
-type="range"
-min="0"
-max="23"
-value="12"
-class="timeline-slider"
-id="timelineSlider"
->
-
-<div
-class="timeline-label"
-id="timelineLabel"
->
-Selected Global Hour: 12:00
-</div>
-
-<div class="heatmap" id="heatmap"></div>
-
-</div>
-
-<div class="map-section">
-
-<h2>Quick Global Regions</h2>
-
-<div class="quick-grid">
-
-<div class="quick-card">🇮🇳 India</div>
-<div class="quick-card">🇺🇸 USA</div>
-<div class="quick-card">🇬🇧 UK</div>
-<div class="quick-card">🇯🇵 Japan</div>
-<div class="quick-card">🇦🇺 Australia</div>
-<div class="quick-card">🇨🇦 Canada</div>
-<div class="quick-card">🇩🇪 Germany</div>
-<div class="quick-card">🇸🇬 Singapore</div>
-
-</div>
-
-</div>
-
-<div class="ai-section">
-
-<h2>AI Smart Suggestions</h2>
-
-<div class="ai-card">
-Best overlap between India and Europe detected at 6:30 PM IST.
-</div>
-
-<div class="ai-card">
-New York office currently outside working hours.
-</div>
-
-<div class="ai-card">
-Tokyo enters business hours in 23 minutes.
-</div>
-
-<div class="ai-card">
-DST currently active in selected regions.
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<button
-class="primary-btn"
-onclick="shareRoom()"
->
-Share Live Schedule
-</button>
-
-<button
-class="primary-btn"
-onclick="findBestTime()"
->
-Auto Find Best Time
-</button>
-
-<button
-class="primary-btn"
-onclick="exportSchedule()"
->
-Export Schedule
-</button>
-
-<a
-href="../index.html"
-class="secondary-btn"
->
-⬅ Back To Home
-</a>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-let selectedCities = [
-cities.find(c => c.city === "Kolkata"),
-cities.find(c => c.city === "New York"),
-cities.find(c => c.city === "London"),
-cities.find(c => c.city === "Tokyo"),
-cities.find(c => c.city === "Sydney")
+// ═══════════════════════════════════════════════
+// CITIES DATA (built-in, no external dependency)
+// ═══════════════════════════════════════════════
+const CITIES = [
+  {city:"Hyderabad",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"Mumbai",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"Delhi",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"Bangalore",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"Chennai",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"Kolkata",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"New York",country:"USA",tz:"America/New_York",flag:"🇺🇸"},
+  {city:"Los Angeles",country:"USA",tz:"America/Los_Angeles",flag:"🇺🇸"},
+  {city:"Chicago",country:"USA",tz:"America/Chicago",flag:"🇺🇸"},
+  {city:"Houston",country:"USA",tz:"America/Chicago",flag:"🇺🇸"},
+  {city:"San Francisco",country:"USA",tz:"America/Los_Angeles",flag:"🇺🇸"},
+  {city:"Seattle",country:"USA",tz:"America/Los_Angeles",flag:"🇺🇸"},
+  {city:"Miami",country:"USA",tz:"America/New_York",flag:"🇺🇸"},
+  {city:"Denver",country:"USA",tz:"America/Denver",flag:"🇺🇸"},
+  {city:"Phoenix",country:"USA",tz:"America/Phoenix",flag:"🇺🇸"},
+  {city:"London",country:"UK",tz:"Europe/London",flag:"🇬🇧"},
+  {city:"Manchester",country:"UK",tz:"Europe/London",flag:"🇬🇧"},
+  {city:"Edinburgh",country:"UK",tz:"Europe/London",flag:"🇬🇧"},
+  {city:"Paris",country:"France",tz:"Europe/Paris",flag:"🇫🇷"},
+  {city:"Berlin",country:"Germany",tz:"Europe/Berlin",flag:"🇩🇪"},
+  {city:"Frankfurt",country:"Germany",tz:"Europe/Berlin",flag:"🇩🇪"},
+  {city:"Munich",country:"Germany",tz:"Europe/Berlin",flag:"🇩🇪"},
+  {city:"Amsterdam",country:"Netherlands",tz:"Europe/Amsterdam",flag:"🇳🇱"},
+  {city:"Madrid",country:"Spain",tz:"Europe/Madrid",flag:"🇪🇸"},
+  {city:"Rome",country:"Italy",tz:"Europe/Rome",flag:"🇮🇹"},
+  {city:"Milan",country:"Italy",tz:"Europe/Rome",flag:"🇮🇹"},
+  {city:"Stockholm",country:"Sweden",tz:"Europe/Stockholm",flag:"🇸🇪"},
+  {city:"Oslo",country:"Norway",tz:"Europe/Oslo",flag:"🇳🇴"},
+  {city:"Copenhagen",country:"Denmark",tz:"Europe/Copenhagen",flag:"🇩🇰"},
+  {city:"Helsinki",country:"Finland",tz:"Europe/Helsinki",flag:"🇫🇮"},
+  {city:"Zurich",country:"Switzerland",tz:"Europe/Zurich",flag:"🇨🇭"},
+  {city:"Vienna",country:"Austria",tz:"Europe/Vienna",flag:"🇦🇹"},
+  {city:"Warsaw",country:"Poland",tz:"Europe/Warsaw",flag:"🇵🇱"},
+  {city:"Prague",country:"Czech Republic",tz:"Europe/Prague",flag:"🇨🇿"},
+  {city:"Budapest",country:"Hungary",tz:"Europe/Budapest",flag:"🇭🇺"},
+  {city:"Istanbul",country:"Turkey",tz:"Europe/Istanbul",flag:"🇹🇷"},
+  {city:"Athens",country:"Greece",tz:"Europe/Athens",flag:"🇬🇷"},
+  {city:"Moscow",country:"Russia",tz:"Europe/Moscow",flag:"🇷🇺"},
+  {city:"Kyiv",country:"Ukraine",tz:"Europe/Kiev",flag:"🇺🇦"},
+  {city:"Dubai",country:"UAE",tz:"Asia/Dubai",flag:"🇦🇪"},
+  {city:"Abu Dhabi",country:"UAE",tz:"Asia/Dubai",flag:"🇦🇪"},
+  {city:"Riyadh",country:"Saudi Arabia",tz:"Asia/Riyadh",flag:"🇸🇦"},
+  {city:"Doha",country:"Qatar",tz:"Asia/Qatar",flag:"🇶🇦"},
+  {city:"Kuwait City",country:"Kuwait",tz:"Asia/Kuwait",flag:"🇰🇼"},
+  {city:"Karachi",country:"Pakistan",tz:"Asia/Karachi",flag:"🇵🇰"},
+  {city:"Islamabad",country:"Pakistan",tz:"Asia/Karachi",flag:"🇵🇰"},
+  {city:"Dhaka",country:"Bangladesh",tz:"Asia/Dhaka",flag:"🇧🇩"},
+  {city:"Colombo",country:"Sri Lanka",tz:"Asia/Colombo",flag:"🇱🇰"},
+  {city:"Kathmandu",country:"Nepal",tz:"Asia/Kathmandu",flag:"🇳🇵"},
+  {city:"Beijing",country:"China",tz:"Asia/Shanghai",flag:"🇨🇳"},
+  {city:"Shanghai",country:"China",tz:"Asia/Shanghai",flag:"🇨🇳"},
+  {city:"Shenzhen",country:"China",tz:"Asia/Shanghai",flag:"🇨🇳"},
+  {city:"Guangzhou",country:"China",tz:"Asia/Shanghai",flag:"🇨🇳"},
+  {city:"Hong Kong",country:"Hong Kong",tz:"Asia/Hong_Kong",flag:"🇭🇰"},
+  {city:"Tokyo",country:"Japan",tz:"Asia/Tokyo",flag:"🇯🇵"},
+  {city:"Osaka",country:"Japan",tz:"Asia/Tokyo",flag:"🇯🇵"},
+  {city:"Seoul",country:"South Korea",tz:"Asia/Seoul",flag:"🇰🇷"},
+  {city:"Taipei",country:"Taiwan",tz:"Asia/Taipei",flag:"🇹🇼"},
+  {city:"Singapore",country:"Singapore",tz:"Asia/Singapore",flag:"🇸🇬"},
+  {city:"Kuala Lumpur",country:"Malaysia",tz:"Asia/Kuala_Lumpur",flag:"🇲🇾"},
+  {city:"Bangkok",country:"Thailand",tz:"Asia/Bangkok",flag:"🇹🇭"},
+  {city:"Jakarta",country:"Indonesia",tz:"Asia/Jakarta",flag:"🇮🇩"},
+  {city:"Manila",country:"Philippines",tz:"Asia/Manila",flag:"🇵🇭"},
+  {city:"Ho Chi Minh City",country:"Vietnam",tz:"Asia/Ho_Chi_Minh",flag:"🇻🇳"},
+  {city:"Yangon",country:"Myanmar",tz:"Asia/Rangoon",flag:"🇲🇲"},
+  {city:"Sydney",country:"Australia",tz:"Australia/Sydney",flag:"🇦🇺"},
+  {city:"Melbourne",country:"Australia",tz:"Australia/Melbourne",flag:"🇦🇺"},
+  {city:"Brisbane",country:"Australia",tz:"Australia/Brisbane",flag:"🇦🇺"},
+  {city:"Perth",country:"Australia",tz:"Australia/Perth",flag:"🇦🇺"},
+  {city:"Auckland",country:"New Zealand",tz:"Pacific/Auckland",flag:"🇳🇿"},
+  {city:"Toronto",country:"Canada",tz:"America/Toronto",flag:"🇨🇦"},
+  {city:"Vancouver",country:"Canada",tz:"America/Vancouver",flag:"🇨🇦"},
+  {city:"Montreal",country:"Canada",tz:"America/Toronto",flag:"🇨🇦"},
+  {city:"Calgary",country:"Canada",tz:"America/Edmonton",flag:"🇨🇦"},
+  {city:"São Paulo",country:"Brazil",tz:"America/Sao_Paulo",flag:"🇧🇷"},
+  {city:"Rio de Janeiro",country:"Brazil",tz:"America/Sao_Paulo",flag:"🇧🇷"},
+  {city:"Buenos Aires",country:"Argentina",tz:"America/Argentina/Buenos_Aires",flag:"🇦🇷"},
+  {city:"Lima",country:"Peru",tz:"America/Lima",flag:"🇵🇪"},
+  {city:"Bogotá",country:"Colombia",tz:"America/Bogota",flag:"🇨🇴"},
+  {city:"Mexico City",country:"Mexico",tz:"America/Mexico_City",flag:"🇲🇽"},
+  {city:"Cairo",country:"Egypt",tz:"Africa/Cairo",flag:"🇪🇬"},
+  {city:"Lagos",country:"Nigeria",tz:"Africa/Lagos",flag:"🇳🇬"},
+  {city:"Nairobi",country:"Kenya",tz:"Africa/Nairobi",flag:"🇰🇪"},
+  {city:"Johannesburg",country:"South Africa",tz:"Africa/Johannesburg",flag:"🇿🇦"},
+  {city:"Casablanca",country:"Morocco",tz:"Africa/Casablanca",flag:"🇲🇦"},
+  {city:"Accra",country:"Ghana",tz:"Africa/Accra",flag:"🇬🇭"},
+  {city:"Tel Aviv",country:"Israel",tz:"Asia/Jerusalem",flag:"🇮🇱"},
+  {city:"Beirut",country:"Lebanon",tz:"Asia/Beirut",flag:"🇱🇧"},
+  {city:"Kabul",country:"Afghanistan",tz:"Asia/Kabul",flag:"🇦🇫"},
+  {city:"Tashkent",country:"Uzbekistan",tz:"Asia/Tashkent",flag:"🇺🇿"},
+  {city:"Almaty",country:"Kazakhstan",tz:"Asia/Almaty",flag:"🇰🇿"},
+  {city:"Ulaanbaatar",country:"Mongolia",tz:"Asia/Ulaanbaatar",flag:"🇲🇳"},
 ];
 
+const QUICK_REGIONS = [
+  {city:"Hyderabad",country:"India",tz:"Asia/Kolkata",flag:"🇮🇳"},
+  {city:"New York",country:"USA",tz:"America/New_York",flag:"🇺🇸"},
+  {city:"London",country:"UK",tz:"Europe/London",flag:"🇬🇧"},
+  {city:"Tokyo",country:"Japan",tz:"Asia/Tokyo",flag:"🇯🇵"},
+  {city:"Sydney",country:"Australia",tz:"Australia/Sydney",flag:"🇦🇺"},
+  {city:"Dubai",country:"UAE",tz:"Asia/Dubai",flag:"🇦🇪"},
+  {city:"Singapore",country:"Singapore",tz:"Asia/Singapore",flag:"🇸🇬"},
+  {city:"Berlin",country:"Germany",tz:"Europe/Berlin",flag:"🇩🇪"},
+  {city:"San Francisco",country:"USA",tz:"America/Los_Angeles",flag:"🇺🇸"},
+  {city:"Toronto",country:"Canada",tz:"America/Toronto",flag:"🇨🇦"},
+  {city:"Paris",country:"France",tz:"Europe/Paris",flag:"🇫🇷"},
+  {city:"São Paulo",country:"Brazil",tz:"America/Sao_Paulo",flag:"🇧🇷"},
+];
 
-const clockGrid =
-document.getElementById('clockGrid');
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let selectedCities = [
+  CITIES.find(c=>c.city==="Hyderabad"),
+  CITIES.find(c=>c.city==="New York"),
+  CITIES.find(c=>c.city==="London"),
+  CITIES.find(c=>c.city==="Tokyo"),
+  CITIES.find(c=>c.city==="Sydney"),
+];
 
+let converterCities = [
+  CITIES.find(c=>c.city==="Hyderabad"),
+  CITIES.find(c=>c.city==="New York"),
+  CITIES.find(c=>c.city==="London"),
+];
+
+let globalMinutes = 720; // 12:00
+let globalDate = new Date();
+globalDate.setHours(0,0,0,0);
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function formatTime(date, tz, h12=true){
+  return new Intl.DateTimeFormat('en-US',{
+    timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:h12
+  }).format(date);
+}
+
+function formatTime2(date, tz){
+  return new Intl.DateTimeFormat('en-US',{
+    timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:true
+  }).format(date);
+}
+
+function formatDate(date, tz){
+  return new Intl.DateTimeFormat('en-US',{
+    timeZone:tz,weekday:'short',month:'short',day:'numeric'
+  }).format(date);
+}
+
+function getHour(date, tz){
+  return parseInt(new Intl.DateTimeFormat('en-US',{
+    timeZone:tz,hour:'numeric',hour12:false
+  }).format(date));
+}
+
+function getOffset(tz){
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset()*60000;
+  const local = new Date(utc);
+  const tzTime = new Date(now.toLocaleString('en-US',{timeZone:tz}));
+  const diff = (tzTime - local)/3600000;
+  const sign = diff >= 0 ? '+' : '-';
+  const abs = Math.abs(diff);
+  const h = Math.floor(abs);
+  const m = Math.round((abs-h)*60);
+  return `UTC${sign}${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function statusInfo(hour){
+  if(hour >= 9 && hour <= 17) return {label:'Working',cls:'b-working',cardCls:'working-card',barColor:'#10b981'};
+  if(hour >= 18 && hour <= 20) return {label:'Available',cls:'b-available',cardCls:'available-card',barColor:'#f59e0b'};
+  return {label:'Sleeping',cls:'b-sleeping',cardCls:'sleeping-card',barColor:'#8b5cf6'};
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.innerHTML = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function getDiffHours(tz1, tz2){
+  const now = new Date();
+  const fmt = tz => {
+    const p = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'numeric',hour12:false}).format(now).split(':');
+    return parseInt(p[0])*60+parseInt(p[1]||0);
+  };
+  return (fmt(tz1)-fmt(tz2))/60;
+}
+
+// ═══════════════════════════════════════════════
+// TAB SYSTEM
+// ═══════════════════════════════════════════════
+function switchTab(id, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='converter') renderConverter();
+  if(id==='overlap') renderOverlap();
+  if(id==='meeting') initMeeting();
+}
+
+// ═══════════════════════════════════════════════
+// WORLD CLOCKS
+// ═══════════════════════════════════════════════
 function renderClocks(){
+  const grid = document.getElementById('clockGrid');
+  const now = new Date();
+  grid.innerHTML = '';
 
-clockGrid.innerHTML='';
+  if(!selectedCities.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text3);">Search a city above to add it ↑</div>';
+    return;
+  }
 
-selectedCities.forEach((item,index)=>{
+  selectedCities.forEach((c,i)=>{
+    const hour = getHour(now, c.tz);
+    const st = statusInfo(hour);
+    const pct = ((hour*60 + parseInt(new Intl.DateTimeFormat('en-US',{timeZone:c.tz,minute:'numeric'}).format(now))) / 1440 * 100).toFixed(1);
 
-const now = new Date();
+    const card = document.createElement('div');
+    card.className = `clock-card ${st.cardCls}`;
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="card-city">${c.flag||''} ${c.city}</div>
+          <div class="card-country">${c.country}</div>
+        </div>
+        <button class="remove-btn" onclick="removeCity(${i})" title="Remove">✕</button>
+      </div>
+      <div class="card-time" id="ct-${i}">${formatTime(now,c.tz)}</div>
+      <div class="card-date">${formatDate(now,c.tz)}</div>
+      <div class="card-offset">${getOffset(c.tz)}</div>
+      <div class="day-bar">
+        <div class="day-bar-fill" style="width:${pct}%;background:${st.barColor};"></div>
+      </div>
+      <div class="card-badges">
+        <span class="badge ${st.cls}">${st.label}</span>
+        <span class="badge b-tz">${c.tz.replace('_',' ')}</span>
+      </div>`;
+    grid.appendChild(card);
+  });
 
-const time =
-new Intl.DateTimeFormat(
-'en-US',
-{
-timeZone:item.timezone,
-hour:'2-digit',
-minute:'2-digit',
-second:'2-digit',
-hour12:true
-}
-).format(now);
-
-const date =
-new Intl.DateTimeFormat(
-'en-US',
-{
-timeZone:item.timezone,
-weekday:'long',
-month:'long',
-day:'numeric'
-}
-).format(now);
-
-const hour =
-parseInt(
-new Intl.DateTimeFormat(
-'en-US',
-{
-timeZone:item.timezone,
-hour:'numeric',
-hour12:false
-}
-).format(now)
-);
-
-let status = '';
-let statusClass = '';
-
-if(hour >= 9 && hour <= 18){
-
-status = 'Working Hours';
-statusClass = 'working';
-
-}
-else if(hour >= 19 || hour <= 5){
-
-status = 'Sleeping Hours';
-statusClass = 'sleeping';
-
-}
-else{
-
-status = 'Available';
-statusClass = 'available';
-
+  updateAI();
 }
 
-const card =
-document.createElement('div');
-
-card.className = 'clock-card';
-
-card.innerHTML = `
-
-<button
-class="remove-btn"
-onclick="removeCity(${index})"
->
-×
-</button>
-
-<div class="city-name">
-${item.city}
-</div>
-
-<div class="country-name">
-${item.country}
-</div>
-
-<div class="time-value">
-${time}
-</div>
-
-<div class="date-value">
-${date}
-</div>
-
-<div class="badges">
-
-<div class="badge ${statusClass}">
-${status}
-</div>
-
-<div class="badge timezone">
-${item.timezone}
-</div>
-
-</div>
-
-`;
-
-clockGrid.appendChild(card);
-
-});
-
+function removeCity(i){
+  selectedCities.splice(i,1);
+  renderClocks();
 }
 
-renderClocks();
-
-setInterval(renderClocks,1000);
-
-function removeCity(index){
-
-selectedCities.splice(index,1);
-
-renderClocks();
-
+function addCity(city){
+  if(selectedCities.find(c=>c.city===city.city&&c.tz===city.tz)){
+    showToast('⚠️ '+city.city+' already added');return;
+  }
+  selectedCities.push(city);
+  renderClocks();
+  showToast('✅ Added '+city.flag+' '+city.city);
 }
 
-const fuse =
-new Fuse(cities,{
-keys:['city','country','timezone'],
-threshold:0.3
-});
+// Live update
+setInterval(()=>{
+  const now = new Date();
+  selectedCities.forEach((c,i)=>{
+    const el = document.getElementById('ct-'+i);
+    if(el) el.textContent = formatTime(now,c.tz);
+  });
+}, 1000);
 
-const searchInput =
-document.getElementById('searchInput');
+// ═══════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════
+function setupSearch(inputId, dropdownId, onSelect){
+  const input = document.getElementById(inputId);
+  const drop = document.getElementById(dropdownId);
 
-const searchResults =
-document.getElementById('searchResults');
+  input.addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+    if(!q){drop.classList.remove('open');return;}
 
-searchInput.addEventListener('input',function(){
+    const matches = CITIES.filter(c=>
+      c.city.toLowerCase().includes(q) ||
+      c.country.toLowerCase().includes(q) ||
+      c.tz.toLowerCase().includes(q)
+    ).slice(0,10);
 
-const value = this.value.trim();
+    drop.innerHTML = matches.length ? matches.map(c=>`
+      <div class="search-item" onclick="selectSearchItem('${inputId}','${dropdownId}',${CITIES.indexOf(c)})">
+        <div class="search-item-left">
+          <strong>${c.flag||''} ${c.city}</strong>
+          <small>${c.country} · ${c.tz}</small>
+        </div>
+        <div class="search-item-right">${getOffset(c.tz)}</div>
+      </div>`).join('') :
+      '<div class="search-item" style="color:var(--text3);">No results found</div>';
 
-if(value === ''){
+    drop.classList.add('open');
+  });
 
-searchResults.style.display='none';
-return;
-
+  document.addEventListener('click', e=>{
+    if(!input.contains(e.target)&&!drop.contains(e.target))
+      drop.classList.remove('open');
+  });
 }
 
-const results = fuse.search(value);
+function selectSearchItem(inputId, dropdownId, cityIdx){
+  const city = CITIES[cityIdx];
+  const drop = document.getElementById(dropdownId);
+  const input = document.getElementById(inputId);
 
-searchResults.innerHTML='';
+  if(inputId === 'searchInput') addCity(city);
+  else if(inputId === 'convSearch') addConverterCity(city);
 
-results.forEach(result=>{
-
-const item = result.item;
-
-const div =
-document.createElement('div');
-
-div.className='search-item';
-
-div.innerHTML = `
-
-<strong>${item.city}</strong>
-<br>
-
-<small>
-${item.country} • ${item.timezone}
-</small>
-
-`;
-
-div.onclick = ()=>{
-
-selectedCities.push(item);
-
-renderClocks();
-
-searchInput.value='';
-
-searchResults.style.display='none';
-
-};
-
-searchResults.appendChild(div);
-
-});
-
-searchResults.style.display='block';
-
-});
-
-const heatmap =
-document.getElementById('heatmap');
-
-for(let i=0;i<24;i++){
-
-const cell =
-document.createElement('div');
-
-cell.className='heat-cell';
-
-if(i>=7 && i<=11){
-
-cell.classList.add('good');
-
-}
-else if(i>=12 && i<=16){
-
-cell.classList.add('medium');
-
-}
-else{
-
-cell.classList.add('bad');
-
+  input.value = '';
+  drop.classList.remove('open');
 }
 
-heatmap.appendChild(cell);
-
+// ═══════════════════════════════════════════════
+// QUICK REGIONS
+// ═══════════════════════════════════════════════
+function renderRegions(){
+  const grid = document.getElementById('regionsGrid');
+  const now = new Date();
+  grid.innerHTML = QUICK_REGIONS.map(c=>`
+    <div class="region-card" onclick="addCity(${JSON.stringify(c).replace(/"/g,"'")})">
+      <span class="region-flag">${c.flag}</span>
+      <div class="region-info">
+        <div class="region-name">${c.city}</div>
+        <div class="region-time">${formatTime2(now,c.tz)}</div>
+      </div>
+    </div>`).join('');
 }
 
-const timelineSlider =
-document.getElementById('timelineSlider');
+// Update region times every minute
+setInterval(renderRegions, 10000);
 
-const timelineLabel =
-document.getElementById('timelineLabel');
-
-timelineSlider.addEventListener('input',function(){
-
-timelineLabel.innerText =
-`Selected Global Hour: ${this.value}:00`;
-
-});
-
-function shareRoom(){
-
-navigator.clipboard.writeText(
-'https://kjsynthora.com/tools/timezone-converter.html'
-);
-
-alert('Live schedule URL copied.');
-
+// Fix onclick for region cards (JSON stringify approach had quote issues)
+function renderRegionsSafe(){
+  const grid = document.getElementById('regionsGrid');
+  const now = new Date();
+  grid.innerHTML = '';
+  QUICK_REGIONS.forEach((c,i)=>{
+    const div = document.createElement('div');
+    div.className = 'region-card';
+    div.innerHTML = `<span class="region-flag">${c.flag}</span>
+      <div class="region-info">
+        <div class="region-name">${c.city}</div>
+        <div class="region-time" id="rt-${i}">${formatTime2(now,c.tz)}</div>
+      </div>`;
+    div.onclick = ()=>addCity(c);
+    grid.appendChild(div);
+  });
 }
 
-function findBestTime(){
+setInterval(()=>{
+  const now = new Date();
+  QUICK_REGIONS.forEach((c,i)=>{
+    const el = document.getElementById('rt-'+i);
+    if(el) el.textContent = formatTime2(now,c.tz);
+  });
+},10000);
 
-alert(
-'AI detected best overlap across selected regions.'
-);
+// ═══════════════════════════════════════════════
+// CONVERTER
+// ═══════════════════════════════════════════════
+function renderConverter(){
+  const container = document.getElementById('converterRows');
+  container.innerHTML = '';
 
+  const baseDate = new Date(globalDate.getTime() + globalMinutes*60000);
+
+  converterCities.forEach((c,i)=>{
+    const isBase = i===0;
+    const localTime = new Intl.DateTimeFormat('en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',hour12:true}).format(baseDate);
+    const localDate = new Intl.DateTimeFormat('en-US',{timeZone:c.tz,weekday:'short',month:'short',day:'numeric'}).format(baseDate);
+
+    const localHour = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:c.tz,hour:'numeric',hour12:false}).format(baseDate));
+    const localMinute = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:c.tz,minute:'numeric'}).format(baseDate));
+    const cursorPct = ((localHour*60+localMinute)/1440*100).toFixed(2);
+
+    // diff vs base
+    let diffTxt = '';
+    if(i>0){
+      const diffH = getDiffHours(c.tz, converterCities[0].tz);
+      const sign = diffH>=0?'+':'';
+      diffTxt = `<span class="conv-diff ${diffH>=0?'pos':'neg'}">${sign}${diffH}h from ${converterCities[0].city}</span>`;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'conv-row'+(isBase?' pinned':'');
+    row.innerHTML = `
+      ${i>0?`<button class="conv-row-remove" onclick="removeConverterCity(${i})">✕</button>`:''}
+      <div class="conv-row-top">
+        <div>
+          <div class="conv-tz-name">${c.flag||''} ${c.city} <span style="font-size:12px;color:var(--text3);font-weight:400;">${isBase?'(Base)':''}</span></div>
+          <div class="conv-tz-sub">${c.country} · ${getOffset(c.tz)}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="conv-time-big">${localTime}</div>
+          <div class="conv-date-small">${localDate}</div>
+          ${diffTxt}
+        </div>
+      </div>
+      <div class="conv-bar-wrap" onclick="handleBarClick(event,this)">
+        <div class="conv-bar-bg">
+          <div class="conv-bar-hours">
+            ${Array.from({length:24},(_,h)=>{
+              let cls='';
+              if(h>=9&&h<=17)cls='work-hrs';
+              else if(h>=18&&h<=20)cls='avail-hrs';
+              else cls='sleep-hrs';
+              return `<div class="conv-hour-seg ${cls}" data-tz="${c.tz}" data-hour="${h}"></div>`;
+            }).join('')}
+          </div>
+          <div class="conv-cursor" style="left:${cursorPct}%">
+            <div class="conv-cursor-label">${localTime.split(':').slice(0,2).join(':')}</div>
+          </div>
+        </div>
+      </div>
+      <div class="conv-bar-labels">
+        ${['12am','3am','6am','9am','12pm','3pm','6pm','9pm','12am'].map(l=>`<span class="conv-bar-label">${l}</span>`).join('')}
+      </div>`;
+    container.appendChild(row);
+  });
+
+  // Date display
+  const dd = document.getElementById('dateDisplay');
+  if(dd) dd.textContent = globalDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Diff matrix
+  renderDiffMatrix();
 }
 
+function handleBarClick(e, barWrap){
+  const bg = barWrap.querySelector('.conv-bar-bg');
+  const rect = bg.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const clickedMinute = Math.round(pct * 1440);
+  globalMinutes = Math.max(0, Math.min(1439, clickedMinute));
+  document.getElementById('globalSlider').value = globalMinutes;
+  updateSliderDisplay();
+  renderConverter();
+}
+
+function onSliderInput(val){
+  globalMinutes = parseInt(val);
+  updateSliderDisplay();
+  renderConverter();
+}
+
+function updateSliderDisplay(){
+  const h = Math.floor(globalMinutes/60);
+  const m = globalMinutes%60;
+  const ampm = h>=12?'PM':'AM';
+  const h12 = h===0?12:h>12?h-12:h;
+  document.getElementById('sliderTimeDisplay').textContent = `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function changeDate(delta){
+  globalDate = new Date(globalDate.getTime() + delta*86400000);
+  renderConverter();
+}
+
+function addConverterCity(city){
+  if(converterCities.find(c=>c.city===city.city&&c.tz===city.tz)){
+    showToast('⚠️ Already in converter');return;
+  }
+  converterCities.push(city);
+  renderConverter();
+  showToast('✅ Added '+city.flag+' '+city.city+' to converter');
+}
+
+function removeConverterCity(i){
+  converterCities.splice(i,1);
+  renderConverter();
+}
+
+function renderDiffMatrix(){
+  const el = document.getElementById('diffMatrix');
+  if(!el||converterCities.length<2)return;
+
+  const rows = converterCities.map(c=>{
+    const cells = converterCities.map(c2=>{
+      if(c.tz===c2.tz) return `<td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);">—</td>`;
+      const diff = getDiffHours(c.tz, c2.tz);
+      const sign = diff>0?'+':'';
+      const color = diff===0?'var(--text3)':diff>0?'var(--success)':'var(--danger)';
+      return `<td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:${color};">${sign}${diff}h</td>`;
+    }).join('');
+    return `<tr>
+      <td style="padding:8px 12px;font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap;">${c.flag||''} ${c.city}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  const headers = converterCities.map(c=>`<th style="padding:8px 12px;font-size:11px;color:var(--text3);font-weight:600;text-align:center;">${c.city}</th>`).join('');
+
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;">
+    <thead><tr><th></th>${headers}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ═══════════════════════════════════════════════
+// OVERLAP FINDER
+// ═══════════════════════════════════════════════
+function renderOverlap(){
+  const cities = selectedCities.slice(0,8);
+  const headerRow = document.getElementById('overlapHeaderRow');
+  const rowsEl = document.getElementById('overlapRows');
+
+  // Hour labels
+  headerRow.innerHTML = Array.from({length:24},(_,h)=>{
+    const lbl = h===0?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p';
+    return `<div class="overlap-hr-lbl">${h%3===0?lbl:''}</div>`;
+  }).join('');
+
+  // Find best overlap hours
+  const now = new Date();
+  const bestHours = Array.from({length:24},(_,h)=>{
+    const workingCount = cities.filter(c=>{
+      const cityHour = getHourAtUTCHour(c.tz, h);
+      return cityHour>=9&&cityHour<=17;
+    }).length;
+    return {h, workingCount};
+  });
+  const maxOverlap = Math.max(...bestHours.map(x=>x.workingCount));
+  const bestHourSet = new Set(bestHours.filter(x=>x.workingCount===maxOverlap&&x.workingCount>0).map(x=>x.h));
+
+  rowsEl.innerHTML = '';
+  cities.forEach(c=>{
+    const row = document.createElement('div');
+    row.className = 'overlap-row';
+    row.innerHTML = `<div class="overlap-row-name">${c.flag||''} ${c.city}</div><div class="overlap-cells" id="oc-${c.city.replace(/\s/g,'')}"></div>`;
+    rowsEl.appendChild(row);
+
+    const cellsEl = row.querySelector('.overlap-cells');
+    for(let h=0;h<24;h++){
+      const cityHour = getHourAtUTCHour(c.tz, h);
+      let cls = 'sleep';
+      if(cityHour>=9&&cityHour<=17) cls='work';
+      else if(cityHour>=18&&cityHour<=20) cls='avail';
+      if(bestHourSet.has(h)&&cls==='work') cls='best';
+
+      const lbl = h<12?(h===0?'12am':h+'am'):(h===12?'12pm':(h-12)+'pm');
+      const cityLbl = cityHour<12?(cityHour===0?'12am':cityHour+'am'):(cityHour===12?'12pm':(cityHour-12)+'pm');
+
+      const cell = document.createElement('div');
+      cell.className = `overlap-cell ${cls}`;
+      cell.innerHTML = `<div class="overlap-tooltip">UTC ${lbl} = ${c.city} ${cityLbl}</div>`;
+      cellsEl.appendChild(cell);
+    }
+  });
+
+  // Suggestion
+  const suggEl = document.getElementById('overlapSuggestion');
+  if(maxOverlap>0 && bestHourSet.size>0){
+    const bestArr = [...bestHourSet].sort((a,b)=>a-b);
+    const start = bestArr[0];
+    const end = bestArr[bestArr.length-1];
+    const startLbl = start<12?(start===0?'12:00 AM':start+':00 AM'):(start===12?'12:00 PM':(start-12)+':00 PM');
+    const endLbl = (end+1)<12?((end+1)+':00 AM'):((end+1)===12?'12:00 PM':((end+1-12)+':00 PM'));
+    suggEl.innerHTML = `<div class="ai-card" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:14px;">
+      <span style="font-size:20px;">🎯</span>
+      <div>
+        <strong style="color:var(--text);display:block;margin-bottom:4px;">Best Overlap Found</strong>
+        <div style="color:var(--text2);font-size:14px;">UTC ${startLbl} – ${endLbl} overlaps working hours for <strong style="color:var(--accent)">${maxOverlap} of ${cities.length}</strong> selected cities.</div>
+      </div>
+    </div>`;
+  }
+}
+
+function getHourAtUTCHour(tz, utcHour){
+  const d = new Date();
+  d.setUTCHours(utcHour,0,0,0);
+  return parseInt(new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',hour12:false}).format(d));
+}
+
+// ═══════════════════════════════════════════════
+// MEETING PLANNER
+// ═══════════════════════════════════════════════
+function initMeeting(){
+  const di = document.getElementById('meetingDate');
+  if(di && !di.value){
+    const t = new Date();
+    di.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  }
+  findBestMeeting();
+}
+
+function findBestMeeting(){
+  const cities = selectedCities.slice(0,8);
+  const duration = parseInt(document.getElementById('meetingDuration')?.value||60);
+  const mode = document.getElementById('meetingMode')?.value||'overlap';
+
+  const slots = [];
+  for(let h=0;h<24;h++){
+    let score = 0;
+    const cityTimes = cities.map(c=>{
+      const cityHour = getHourAtUTCHour(c.tz, h);
+      let pts = 0;
+      if(cityHour>=9&&cityHour<=17) pts=3;
+      else if(cityHour>=8&&cityHour<=20) pts=1;
+      score+=pts;
+      return {city:c.city, flag:c.flag||'', hour:cityHour};
+    });
+    slots.push({utcHour:h, score, cityTimes});
+  }
+
+  slots.sort((a,b)=>b.score-a.score);
+  const top5 = slots.slice(0,5);
+
+  const res = document.getElementById('meetingResults');
+  if(!res)return;
+  res.innerHTML = '';
+
+  top5.forEach((slot,idx)=>{
+    const isBest = idx===0;
+    const lbl = slot.utcHour<12?(slot.utcHour===0?'12:00 AM':slot.utcHour+':00 AM'):(slot.utcHour===12?'12:00 PM':(slot.utcHour-12)+':00 PM');
+    const stars = '★'.repeat(Math.min(5,Math.round(slot.score/cities.length*2)));
+
+    const el = document.createElement('div');
+    el.className = 'meeting-slot'+(isBest?' best':'');
+    el.innerHTML = `
+      <div class="slot-time">UTC ${lbl} ${isBest?'🏆':''}</div>
+      <div class="slot-score">
+        <span class="slot-stars">${stars}</span>
+        <span class="slot-label">Score: ${slot.score}/${cities.length*3}</span>
+      </div>
+      <div class="slot-cities">
+        ${slot.cityTimes.map(ct=>{
+          const h12 = ct.hour===0?12:ct.hour>12?ct.hour-12:ct.hour;
+          const ampm = ct.hour>=12?'PM':'AM';
+          const isWork = ct.hour>=9&&ct.hour<=17;
+          const isAvail = ct.hour>=8&&ct.hour<=20;
+          const color = isWork?'var(--success)':isAvail?'var(--warning)':'var(--danger)';
+          return `<div class="slot-city-time">${ct.flag} <span>${ct.city}</span>: <span style="color:${color};font-family:'DM Mono',monospace;">${h12}:00 ${ampm}</span></div>`;
+        }).join('')}
+      </div>`;
+    res.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// AI INSIGHTS
+// ═══════════════════════════════════════════════
+function updateAI(){
+  const el = document.getElementById('aiCards');
+  if(!el)return;
+  const now = new Date();
+  const insights = [];
+
+  // Find best overlap
+  let bestH=-1,bestScore=0;
+  for(let h=0;h<24;h++){
+    const s = selectedCities.filter(c=>{
+      const ch=getHourAtUTCHour(c.tz,h);
+      return ch>=9&&ch<=17;
+    }).length;
+    if(s>bestScore){bestScore=s;bestH=h;}
+  }
+  if(bestH>=0&&bestScore>0){
+    const lbl=bestH<12?(bestH===0?'12:00 AM':bestH+':00 AM'):(bestH===12?'12:00 PM':(bestH-12)+':00 PM');
+    insights.push({icon:'🎯',iconCls:'green',text:`Best overlap: <strong>UTC ${lbl}</strong> — working hours for <strong>${bestScore}/${selectedCities.length}</strong> cities.`});
+  }
+
+  // Check who is sleeping now
+  const sleeping = selectedCities.filter(c=>getHour(now,c.tz)<=5||getHour(now,c.tz)>=22);
+  if(sleeping.length) insights.push({icon:'🌙',iconCls:'purple',text:`<strong>${sleeping.map(c=>c.city).join(', ')}</strong> ${sleeping.length===1?'is':'are'} currently in sleeping hours.`});
+
+  // Check working
+  const working = selectedCities.filter(c=>{const h=getHour(now,c.tz);return h>=9&&h<=17;});
+  if(working.length) insights.push({icon:'💼',iconCls:'green',text:`<strong>${working.map(c=>c.city).join(', ')}</strong> ${working.length===1?'is':'are'} currently in business hours.`});
+
+  // Timezone spread
+  if(selectedCities.length>=2){
+    const offsets = selectedCities.map(c=>{
+      const d = new Date();
+      const tz1 = new Date(d.toLocaleString('en-US',{timeZone:selectedCities[0].tz}));
+      const tz2 = new Date(d.toLocaleString('en-US',{timeZone:c.tz}));
+      return (tz2-tz1)/3600000;
+    });
+    const spread = Math.max(...offsets)-Math.min(...offsets);
+    insights.push({icon:'📡',iconCls:'blue',text:`Your selected cities span <strong>${spread} hours</strong> across timezones.`});
+  }
+
+  insights.push({icon:'🔄',iconCls:'yellow',text:`All clocks are synced in real-time. DST adjustments are handled automatically by your browser.`});
+
+  el.innerHTML = insights.map(i=>`
+    <div class="ai-card">
+      <div class="ai-icon ${i.iconCls}">${i.icon}</div>
+      <div class="ai-card-text">${i.text}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT / SHARE
+// ═══════════════════════════════════════════════
 function exportSchedule(){
-
-let text =
-'Global Timezone Schedule\n\n';
-
-selectedCities.forEach(city=>{
-
-const time =
-new Intl.DateTimeFormat(
-'en-US',
-{
-timeZone:city.timezone,
-hour:'2-digit',
-minute:'2-digit',
-second:'2-digit',
-hour12:true
-}
-).format(new Date());
-
-text +=
-`${city.city} (${city.country}) : ${time}\n`;
-
-});
-
-const blob =
-new Blob(
-[text],
-{
-type:'text/plain'
-}
-);
-
-const a =
-document.createElement('a');
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-'global_schedule.txt';
-
-a.click();
-
+  const now = new Date();
+  let text = 'Global Timezone Schedule\nGenerated by KJSynthora\n';
+  text += '='.repeat(40)+'\n\n';
+  selectedCities.forEach(c=>{
+    text+=`${c.flag||''} ${c.city} (${c.country})\n`;
+    text+=`  Time: ${formatTime(now,c.tz)}\n`;
+    text+=`  Date: ${formatDate(now,c.tz)}\n`;
+    text+=`  Offset: ${getOffset(c.tz)}\n\n`;
+  });
+  const blob = new Blob([text],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'timezone-schedule.txt';
+  a.click();
+  showToast('📥 Schedule exported!');
 }
 
+function shareSchedule(){
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(()=>showToast('🔗 Link copied to clipboard!'));
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+setupSearch('searchInput','searchDropdown');
+setupSearch('convSearch','convDropdown');
+renderClocks();
+renderRegionsSafe();
+updateSliderDisplay();
+renderConverter();
+
+// Set meeting date default
+const di = document.getElementById('meetingDate');
+if(di){
+  const t = new Date();
+  di.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+// Date display init
+const dd = document.getElementById('dateDisplay');
+if(dd) dd.textContent = globalDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// Refresh every second
+setInterval(()=>{renderClocks();updateAI();},1000);
+setInterval(renderRegionsSafe,60000);
 </script>
-
 </body>
 </html>
