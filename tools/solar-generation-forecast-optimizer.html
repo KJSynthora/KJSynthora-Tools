@@ -1,780 +1,1825 @@
-<!-- ========================================= -->
-<!-- FULLY UPDATED SOLAR FORECAST AI PLATFORM -->
-<!-- FILE: tools/solar-generation-forecast-optimizer.html -->
-<!-- ========================================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Solar Forecast AI</title>
-
+<title>Solar Forecast AI — KJSynthora</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root {
+  --bg:       #020810;
+  --panel:    #060e1f;
+  --panel2:   #081228;
+  --card:     #0a1530;
+  --border:   rgba(56,189,248,0.1);
+  --accent:   #38bdf8;
+  --accent2:  #f59e0b;
+  --accent3:  #4ade80;
+  --accent4:  #c084fc;
+  --red:      #f87171;
+  --text:     #e0f0ff;
+  --muted:    #4a6080;
+  --font:     'Exo 2', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#020810;}
+::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
 
 body{
-background:
-linear-gradient(135deg,#020617 0%,#081c4b 40%,#4c1d95 100%);
-color:#fff;
-padding:30px;
-min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
-.main-grid{
-display:grid;
-grid-template-columns:380px 1fr;
-gap:25px;
-max-width:1600px;
-margin:auto;
+/* ── STARFIELD ── */
+#starfield{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(56,189,248,0.06) 0%, transparent 70%);
 }
 
-.panel{
-background:#101f73;
-border-radius:22px;
-padding:22px;
-box-shadow:0 0 25px rgba(0,0,0,0.3);
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px;
+  background:rgba(6,14,31,0.9);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-size:22px;font-weight:900;letter-spacing:-0.03em;
+  background:linear-gradient(90deg,#38bdf8,#f59e0b,#4ade80);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.live-badge{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12px;color:var(--accent3);
+  background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
+  padding:6px 14px;border-radius:100px;
+}
+.live-dot{width:7px;height:7px;background:var(--accent3);border-radius:50%;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+.header-right{display:flex;align-items:center;gap:14px;}
+#liveTime{font-family:var(--mono);font-size:13px;color:var(--accent);opacity:0.8;}
+.home-btn{
+  padding:8px 18px;border:1px solid var(--border);border-radius:8px;
+  background:rgba(56,189,248,0.06);color:var(--accent);
+  font-family:var(--font);font-size:13px;cursor:pointer;
+  transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+}
+.home-btn:hover{background:rgba(56,189,248,0.14);border-color:var(--accent);}
+
+/* ── LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:0;
+  position:relative;z-index:1;
 }
 
-h1{
-font-size:42px;
-margin-bottom:8px;
-background:linear-gradient(90deg,#38bdf8,#c084fc);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+/* ── SIDEBAR ── */
+.sidebar{
+  background:rgba(6,14,31,0.98);
+  border-right:1px solid var(--border);
+  padding:22px 18px;
+  height:calc(100vh - 62px);
+  overflow-y:auto;
+  position:sticky;
+  top:62px;
 }
 
-.subtitle{
-font-size:14px;
-opacity:.8;
-margin-bottom:20px;
-line-height:1.7;
+/* ── SOLAR ARC ── */
+.solar-arc-wrap{
+  position:relative;
+  margin:0 auto 22px;
+  width:220px;height:130px;
 }
-
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:20px;
+#arcCanvas{width:220px;height:130px;}
+.arc-center-info{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  text-align:center;
 }
-
-.badge{
-background:#1e2b8f;
-padding:8px 12px;
-border-radius:999px;
-font-size:12px;
+.arc-center-info .arc-kw{
+  font-size:28px;font-weight:800;
+  background:linear-gradient(90deg,#f59e0b,#fde68a);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
+.arc-center-info .arc-label{font-size:10px;color:var(--muted);font-family:var(--mono);}
 
-.input-group{
-margin-bottom:14px;
+/* ── SECTION TITLE ── */
+.sec-title{
+  font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--muted);font-family:var(--mono);
+  margin-bottom:10px;margin-top:18px;
+  display:flex;align-items:center;gap:6px;
 }
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(56,189,248,0.08);}
 
-label{
-font-size:13px;
-display:block;
-margin-bottom:6px;
-opacity:.85;
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:11px;color:var(--muted);font-family:var(--mono);}
+.field input,.field select{
+  background:rgba(56,189,248,0.05);
+  border:1px solid rgba(56,189,248,0.12);
+  border-radius:8px;
+  padding:9px 12px;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.2s;
+  width:100%;
 }
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field select option{background:#060e1f;}
 
-input,select{
-width:100%;
-padding:13px;
-border:none;
-border-radius:12px;
-background:#07134d;
-color:#fff;
-font-size:15px;
-outline:none;
+/* ── BUTTONS ── */
+.btn{
+  width:100%;padding:12px;border:none;border-radius:10px;
+  font-family:var(--font);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;margin-top:8px;
+  letter-spacing:0.02em;
 }
-
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
-font-weight:700;
-cursor:pointer;
-transition:.3s;
+.btn-primary{
+  background:linear-gradient(135deg,#0ea5e9,#6d28d9);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(14,165,233,0.25);
 }
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.4);}
+.btn-secondary{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);color:var(--accent);}
+.btn-secondary:hover{background:rgba(56,189,248,0.14);}
+.btn-warn{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;}
+.btn-warn:hover{transform:translateY(-2px);}
 
-.primary-btn{
-background:linear-gradient(90deg,#38bdf8,#d946ef);
-color:#fff;
-margin-top:10px;
+/* ── KPI MINI ── */
+.kpi-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.kpi-mini{
+  background:rgba(56,189,248,0.05);
+  border:1px solid rgba(56,189,248,0.09);
+  border-radius:10px;padding:12px 10px;text-align:center;
 }
+.kpi-mini .val{font-size:20px;font-weight:800;font-family:var(--mono);}
+.kpi-mini .lbl{font-size:10px;color:var(--muted);margin-top:3px;}
+.green{color:var(--accent3);}
+.blue{color:var(--accent);}
+.amber{color:var(--accent2);}
+.purple{color:var(--accent4);}
+.red{color:var(--red);}
 
-.primary-btn:hover{
-transform:translateY(-2px);
+/* ── RECS ── */
+.rec-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:12px;
 }
+.rec-row:last-child{border-bottom:none;}
+.rec-row .rk{color:var(--muted);}
+.rec-row .rv{font-family:var(--mono);font-weight:600;}
 
-.secondary-btn{
-background:#1e2b8f;
-color:#fff;
-margin-top:10px;
+/* ── ENERGY FLOW ── */
+.flow-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;flex-wrap:wrap;margin:12px 0;
 }
-
-.return-btn{
-background:linear-gradient(90deg,#f59e0b,#ec4899);
-color:#fff;
-margin-top:10px;
+.flow-node{
+  background:rgba(56,189,248,0.08);
+  border:1px solid rgba(56,189,248,0.18);
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:12px;font-weight:600;text-align:center;
+  min-width:64px;
 }
+.flow-arrow{color:var(--accent);font-size:16px;opacity:0.6;}
 
-.cards{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-bottom:20px;
+/* ── MAIN ── */
+.main{padding:22px;overflow-y:auto;}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;gap:4px;
+  background:rgba(6,14,31,0.8);
+  border:1px solid var(--border);
+  border-radius:12px;padding:4px;
+  margin-bottom:22px;flex-wrap:wrap;
 }
-
-.card{
-background:#17267f;
-padding:18px;
-border-radius:18px;
-text-align:center;
+.tab{
+  flex:1;min-width:90px;
+  padding:9px 10px;text-align:center;
+  border-radius:8px;cursor:pointer;
+  font-size:12px;font-weight:600;color:var(--muted);
+  border:none;background:none;font-family:var(--font);
+  transition:all 0.2s;white-space:nowrap;
 }
+.tab.active{background:rgba(56,189,248,0.14);color:var(--accent);border:1px solid rgba(56,189,248,0.2);}
+.tab:hover:not(.active){color:var(--text);}
 
-.card h3{
-font-size:13px;
-margin-bottom:10px;
-opacity:.8;
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+.kpi-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;padding:16px 14px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  transition:transform 0.2s;
 }
-
-.card p{
-font-size:32px;
-font-weight:700;
-color:#4ade80;
+.kpi-card:hover{transform:translateY(-3px);}
+.kpi-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
 }
+.kpi-card.k1::before{background:linear-gradient(90deg,#38bdf8,#0ea5e9);}
+.kpi-card.k2::before{background:linear-gradient(90deg,#4ade80,#22c55e);}
+.kpi-card.k3::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.kpi-card.k4::before{background:linear-gradient(90deg,#c084fc,#a855f7);}
+.kpi-card.k5::before{background:linear-gradient(90deg,#f87171,#ef4444);}
+.kpi-card h4{font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--mono);}
+.kpi-card .big{font-size:26px;font-weight:800;}
+.kpi-card .sub{font-size:10px;color:var(--muted);margin-top:4px;}
+.kpi-card .delta{font-size:11px;margin-top:6px;}
+.delta.up{color:var(--accent3);}
+.delta.dn{color:var(--red);}
 
+/* ── CHART BOX ── */
 .chart-box{
-background:#17267f;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:18px;
 }
-
-.two-col{
-display:grid;
-grid-template-columns:1fr 300px;
-gap:20px;
+.chart-box h3{
+  font-size:13px;font-weight:700;margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
 }
+.chart-box h3 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
+/* ── TWO/THREE COLS ── */
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.col3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+
+/* ── INFO BOX ── */
 .info-box{
-background:#17267f;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:16px;padding:18px;margin-bottom:18px;
 }
+.info-box h3{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 
-.info-box h3{
-margin-bottom:15px;
+/* ── METRIC ROW ── */
+.mrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:12px;
 }
+.mrow:last-child{border-bottom:none;}
+.mrow .mk{color:var(--muted);}
+.mrow .mv{font-family:var(--mono);font-weight:600;}
 
-.metric{
-display:flex;
-justify-content:space-between;
-margin-bottom:12px;
-padding-bottom:10px;
-border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.metric span:last-child{
-color:#4ade80;
-font-weight:700;
-}
-
+/* ── ALERT ── */
 .alert{
-background:#3b0f2d;
-padding:15px;
-border-radius:14px;
-margin-bottom:15px;
-color:#fca5a5;
+  border-radius:10px;padding:12px 14px;
+  font-size:12px;margin-bottom:10px;line-height:1.6;
+  font-family:var(--mono);
+}
+.alert-warn{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#fcd34d;}
+.alert-success{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.18);color:var(--accent3);}
+.alert-info{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.18);color:var(--accent);}
+.alert-danger{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.18);color:var(--red);}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:12px;}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;font-family:var(--mono);}
+.prog-track{height:8px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:100px;transition:width 0.6s ease;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{
+  background:rgba(56,189,248,0.08);
+  padding:10px 12px;
+  font-family:var(--mono);font-size:11px;letter-spacing:0.05em;
+  text-align:left;color:var(--accent);
+}
+.tbl td{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  color:var(--text);
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(56,189,248,0.03);}
+
+/* ── PANEL GRID (string level) ── */
+.panel-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+  margin-top:12px;
+}
+.panel-cell{
+  aspect-ratio:1;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;font-family:var(--mono);
+  cursor:pointer;transition:transform 0.15s;
+  border:1px solid rgba(0,0,0,0.2);
+}
+.panel-cell:hover{transform:scale(1.1);}
+.p-good{background:rgba(74,222,128,0.25);color:#4ade80;}
+.p-mid {background:rgba(245,158,11,0.25);color:#fbbf24;}
+.p-low {background:rgba(248,113,113,0.25);color:#f87171;}
+.p-off {background:rgba(100,100,100,0.15);color:#4a6080;}
+
+/* ── GAUGE ── */
+.gauge-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.gauge-wrap{text-align:center;}
+.gauge-wrap canvas{max-width:100%;}
+.gauge-label{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--mono);}
+.gauge-val{font-size:18px;font-weight:800;font-family:var(--mono);}
+
+/* ── ROI TABLE ── */
+.roi-highlight{
+  background:rgba(74,222,128,0.08);
+  border:1px solid rgba(74,222,128,0.18);
+  border-radius:10px;padding:14px;
+  text-align:center;margin-bottom:14px;
+}
+.roi-highlight .big{font-size:32px;font-weight:900;color:var(--accent3);}
+.roi-highlight .sm{font-size:12px;color:var(--muted);}
+
+/* ── LOAD SCHEDULER ── */
+.load-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(56,189,248,0.04);
+  border:1px solid rgba(56,189,248,0.09);
+  border-radius:10px;padding:12px 14px;
+  margin-bottom:8px;font-size:12px;
+}
+.load-item .li-name{font-weight:600;}
+.load-item .li-slot{font-family:var(--mono);color:var(--accent3);font-size:11px;}
+.load-item .li-kw{font-family:var(--mono);color:var(--accent2);}
+.load-badge{
+  padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;font-family:var(--mono);
+}
+.lb-optimal{background:rgba(74,222,128,0.15);color:#4ade80;}
+.lb-avoid  {background:rgba(248,113,113,0.15);color:#f87171;}
+.lb-ok     {background:rgba(245,158,11,0.15);color:#fbbf24;}
+
+/* ── WEATHER ICON ROW ── */
+.wx-row{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:8px;margin-top:12px;
+}
+.wx-day{
+  background:rgba(56,189,248,0.05);
+  border:1px solid rgba(56,189,248,0.1);
+  border-radius:10px;padding:10px 6px;
+  text-align:center;font-size:11px;
+}
+.wx-day .wicon{font-size:22px;display:block;margin-bottom:4px;}
+.wx-day .wday{color:var(--muted);font-size:10px;font-family:var(--mono);}
+.wx-day .wtemp{font-weight:700;color:var(--accent2);}
+.wx-day .wkwh{font-size:10px;color:var(--accent3);}
+
+/* ── ANIMATED COUNTER ── */
+.anim-num{transition:all 0.5s ease;}
+
+/* ── CARBON CARD ── */
+.carbon-equiv{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;}
+.ceq{
+  background:rgba(74,222,128,0.06);
+  border:1px solid rgba(74,222,128,0.12);
+  border-radius:12px;padding:14px;text-align:center;
+}
+.ceq .cicon{font-size:28px;display:block;margin-bottom:6px;}
+.ceq .cval{font-size:18px;font-weight:800;color:var(--accent3);font-family:var(--mono);}
+.ceq .clbl{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* ── TARIFF SLAB ── */
+.slab-bar{
+  display:flex;height:24px;border-radius:8px;overflow:hidden;
+  margin:12px 0;
+}
+.slab-seg{
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;font-family:var(--mono);
 }
 
-.success{
-background:#063f36;
-color:#6ee7b7;
+/* ── STREET LIGHT / INFRA ── */
+.infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.infra-card{
+  background:rgba(56,189,248,0.05);
+  border:1px solid rgba(56,189,248,0.1);
+  border-radius:12px;padding:14px;
+  text-align:center;
+}
+.infra-card .ic-icon{font-size:30px;display:block;margin-bottom:8px;}
+.infra-card .ic-title{font-size:12px;font-weight:700;}
+.infra-card .ic-val{font-size:20px;font-weight:800;color:var(--accent);font-family:var(--mono);}
+.infra-card .ic-sub{font-size:10px;color:var(--muted);}
+
+/* ── PRINT ── */
+@media print{
+  .header,.tabs,.sidebar,.btn{display:none!important;}
+  .main{padding:0;}
+  .tab-panel{display:block!important;}
 }
 
-.progress{
-height:18px;
-background:#091650;
-border-radius:999px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progress-fill{
-height:100%;
-background:linear-gradient(90deg,#22c55e,#06b6d4);
-width:85%;
-}
-
-.energy-flow{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:15px;
-font-size:24px;
-margin-top:15px;
-flex-wrap:wrap;
-}
-
-.flow-box{
-background:#17267f;
-padding:18px;
-border-radius:16px;
-font-size:15px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-table th{
-background:#3749ff;
-padding:12px;
-font-size:13px;
-}
-
-table td{
-padding:12px;
-text-align:center;
-border-bottom:1px solid rgba(255,255,255,0.08);
-font-size:13px;
-}
-
-.footer-note{
-opacity:.7;
-font-size:12px;
-margin-top:15px;
-line-height:1.7;
-}
-
+/* ── RESPONSIVE ── */
 @media(max-width:1100px){
-
-.main-grid{
-grid-template-columns:1fr;
+  .layout{grid-template-columns:1fr;}
+  .sidebar{height:auto;position:static;}
+  .kpi-row{grid-template-columns:repeat(3,1fr);}
 }
-
-.cards{
-grid-template-columns:repeat(2,1fr);
+@media(max-width:700px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .col2,.col3{grid-template-columns:1fr;}
+  .gauge-row{grid-template-columns:1fr 1fr;}
+  .carbon-equiv{grid-template-columns:repeat(2,1fr);}
 }
-
-.two-col{
-grid-template-columns:1fr;
-}
-
-}
-
-@media(max-width:650px){
-
-.cards{
-grid-template-columns:1fr;
-}
-
-}
-
 </style>
 </head>
 <body>
-
-<div class="main-grid">
-
-<!-- LEFT -->
-<div class="panel">
-
-<h1>Solar Forecast AI</h1>
-
-<div class="subtitle">
-Enterprise-grade AI solar monitoring platform with live telemetry,
-battery intelligence, smart farming optimization,
-EV charging analytics and real-time grid export monitoring.
-</div>
-
-<div class="badges">
-<div class="badge">☀ Live Solar</div>
-<div class="badge">🔋 Battery AI</div>
-<div class="badge">⚡ Grid Analytics</div>
-<div class="badge">🚗 EV Ready</div>
-<div class="badge">🌾 Farming AI</div>
-<div class="badge">🛰 IoT Telemetry</div>
-</div>
-
-<div class="input-group">
-<label>Solar Capacity (kW)</label>
-<input type="number" id="capacity" value="5">
-</div>
-
-<div class="input-group">
-<label>Battery Capacity (kWh)</label>
-<input type="number" id="battery" value="10">
-</div>
-
-<div class="input-group">
-<label>Panels Count</label>
-<input type="number" id="panels" value="12">
-</div>
-
-<div class="input-group">
-<label>Electricity Price (₹)</label>
-<input type="number" id="price" value="8">
-</div>
-
-<div class="input-group">
-<label>Weather</label>
-<select id="weather">
-<option>Sunny</option>
-<option>Cloudy</option>
-<option>Rainy</option>
-<option>Storm</option>
-</select>
-</div>
-
-<div class="input-group">
-<label>Appliance</label>
-<select id="appliance">
-<option>Air Conditioner</option>
-<option>EV Charging</option>
-<option>Water Pump</option>
-<option>Washing Machine</option>
-<option>Industrial Load</option>
-</select>
-</div>
-
-<button class="primary-btn" onclick="generateForecast()">
-🚀 Generate Forecast
-</button>
-
-<button class="secondary-btn" onclick="window.print()">
-🖨 Print Report
-</button>
-
-<button class="return-btn" onclick="goHome()">
-🏠 Return Home
-</button>
-
-<div class="info-box" style="margin-top:20px;">
-
-<h3>🌞 AI Recommendations</h3>
-
-<div class="metric">
-<span>Best Generation Window</span>
-<span>11AM - 2PM</span>
-</div>
-
-<div class="metric">
-<span>EV Charging Slot</span>
-<span>12PM - 1PM</span>
-</div>
-
-<div class="metric">
-<span>Battery Backup</span>
-<span>8.5 hrs</span>
-</div>
-
-<div class="metric">
-<span>Carbon Savings</span>
-<span>1.8 Tons</span>
-</div>
-
-</div>
-
-<div class="energy-flow">
-
-<div class="flow-box">
-☀ Solar
-</div>
-
-➡
-
-<div class="flow-box">
-🔋 Battery
-</div>
-
-➡
-
-<div class="flow-box">
-🏠 Home
-</div>
-
-➡
-
-<div class="flow-box">
-⚡ Grid
-</div>
-
-</div>
-
-<p class="footer-note">
-⚠ Forecast values are AI-generated estimations based on weather,
-solar efficiency, battery telemetry and grid analytics.
-Actual values vary based on real hardware conditions.
-</p>
-
-</div>
-
-<!-- RIGHT -->
-<div class="panel">
-
-<div class="cards">
-
-<div class="card">
-<h3>Current Power</h3>
-<p id="currentPower">5.0kW</p>
-</div>
-
-<div class="card">
-<h3>Battery</h3>
-<p id="batteryPercent">100%</p>
-</div>
-
-<div class="card">
-<h3>Today's Output</h3>
-<p id="output">27.5kWh</p>
-</div>
-
-<div class="card">
-<h3>Monthly Savings</h3>
-<p id="savings">₹6,600</p>
-</div>
-
-</div>
-
-<div class="two-col">
-
-<div>
-
-<div class="chart-box">
-<h3>📈 Live Solar Forecast</h3>
-<canvas id="solarChart"></canvas>
-</div>
-
-<div class="chart-box">
-<h3>🔋 Battery Charging Status</h3>
-
-<div class="progress">
-<div class="progress-fill" id="batteryBar"></div>
-</div>
-
-<p style="margin-top:12px;">
-Estimated Charge Time:
-<span id="chargeTime">2.0 hrs</span>
-</p>
-
-</div>
-
-<div class="chart-box">
-<h3>⚡ Grid Export / Import Monitor</h3>
-
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Units</th>
-<th>Value</th>
-</tr>
-</thead>
-
-<tbody>
-
-<tr>
-<td>Exported</td>
-<td id="exportUnits">18</td>
-<td id="exportValue">₹144</td>
-</tr>
-
-<tr>
-<td>Imported</td>
-<td id="importUnits">6</td>
-<td id="importValue">₹48</td>
-</tr>
-
-<tr>
-<td>Net Savings</td>
-<td>-</td>
-<td id="netSavings">₹96</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-<div class="chart-box">
-<h3>🌾 Farming AI Advisor</h3>
-
-<div class="alert success">
-✅ Best irrigation time:
-11AM → 2PM
-</div>
-
-<div class="metric">
-<span>Soil Moisture</span>
-<span>62%</span>
-</div>
-
-<div class="metric">
-<span>Pump Runtime</span>
-<span>3 hrs</span>
-</div>
-
-<div class="metric">
-<span>Water Tank Level</span>
-<span>74%</span>
-</div>
-
-</div>
-
-</div>
-
-<div>
-
-<div class="info-box">
-
-<h3>🌦 Weather Analytics</h3>
-
-<div class="metric">
-<span>Temperature</span>
-<span>35°C</span>
-</div>
-
-<div class="metric">
-<span>UV Index</span>
-<span>5.9</span>
-</div>
-
-<div class="metric">
-<span>Cloud Cover</span>
-<span>0%</span>
-</div>
-
-<div class="metric">
-<span>Wind Speed</span>
-<span>10km/h</span>
-</div>
-
-</div>
-
-<div class="info-box">
-
-<h3>🧠 AI Diagnostics</h3>
-
-<div class="metric">
-<span>Panel Efficiency</span>
-<span>92%</span>
-</div>
-
-<div class="metric">
-<span>Soiling Loss</span>
-<span>4%</span>
-</div>
-
-<div class="metric">
-<span>Thermal Loss</span>
-<span>2%</span>
-</div>
-
-<div class="metric">
-<span>Battery Health</span>
-<span>96%</span>
-</div>
-
-</div>
-
-<div class="info-box">
-
-<h3>🚗 EV Charging AI</h3>
-
-<div class="alert">
-⚠ Fast charging avoided during low solar generation.
-</div>
-
-<div class="metric">
-<span>Recommended Slot</span>
-<span>12PM</span>
-</div>
-
-<div class="metric">
-<span>Charging Mode</span>
-<span>Eco</span>
-</div>
-
-<div class="metric">
-<span>Battery Ready</span>
-<span>88%</span>
-</div>
-
-</div>
-
-<div class="info-box">
-
-<h3>🏭 Industrial Energy Insights</h3>
-
-<div class="metric">
-<span>Peak Demand</span>
-<span>4.8kW</span>
-</div>
-
-<div class="metric">
-<span>Grid Dependency</span>
-<span>18%</span>
-</div>
-
-<div class="metric">
-<span>Carbon Offset</span>
-<span>84 Trees</span>
-</div>
-
-<div class="metric">
-<span>System Risk</span>
-<span style="color:#4ade80;">LOW</span>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
+<canvas id="starfield" style="position:fixed;inset:0;pointer-events:none;z-index:0;"></canvas>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">☀ Solar Forecast AI</div>
+  <div class="live-badge"><span class="live-dot"></span>LIVE MONITORING</div>
+  <div class="header-right">
+    <span id="liveTime">--:--:--</span>
+    <a href="../index.html" class="home-btn">🏠 Home</a>
+    <button class="home-btn" onclick="exportCSV()">⬇ CSV</button>
+    <button class="home-btn" onclick="window.print()">🖨 Print</button>
+  </div>
+</header>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <!-- Arc visualizer -->
+  <div class="solar-arc-wrap">
+    <canvas id="arcCanvas"></canvas>
+    <div class="arc-center-info">
+      <div class="arc-kw" id="arcKw">5.0 kW</div>
+      <div class="arc-label">LIVE OUTPUT</div>
+    </div>
+  </div>
+
+  <div class="sec-title">⚙ System Parameters</div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Capacity (kW)</label>
+      <input type="number" id="capacity" value="5" min="0.5" max="500" step="0.5">
+    </div>
+    <div class="field">
+      <label>Panels</label>
+      <input type="number" id="panels" value="12" min="1">
+    </div>
+    <div class="field">
+      <label>Battery (kWh)</label>
+      <input type="number" id="battery" value="10" min="0">
+    </div>
+    <div class="field">
+      <label>Inverter (kW)</label>
+      <input type="number" id="inverter" value="5" min="0.5">
+    </div>
+    <div class="field">
+      <label>Tilt (°)</label>
+      <input type="number" id="tilt" value="22" min="0" max="90">
+    </div>
+    <div class="field">
+      <label>Azimuth (°)</label>
+      <input type="number" id="azimuth" value="180" min="0" max="360">
+    </div>
+    <div class="field">
+      <label>₹ Tariff/kWh</label>
+      <input type="number" id="price" value="8" min="1">
+    </div>
+    <div class="field">
+      <label>Export Rate ₹</label>
+      <input type="number" id="exportRate" value="4" min="0">
+    </div>
+    <div class="field full">
+      <label>Panel Type</label>
+      <select id="panelType">
+        <option value="0.22">Monocrystalline (22%)</option>
+        <option value="0.19">Polycrystalline (19%)</option>
+        <option value="0.24">HJT Premium (24%)</option>
+        <option value="0.21">PERC (21%)</option>
+        <option value="0.12">Thin Film (12%)</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label>Weather Condition</label>
+      <select id="weather">
+        <option value="1.0">☀ Sunny Clear</option>
+        <option value="0.85">🌤 Partly Cloudy</option>
+        <option value="0.65">☁ Overcast</option>
+        <option value="0.40">🌧 Rainy</option>
+        <option value="0.20">⛈ Storm</option>
+        <option value="0.75">🌫 Hazy/Dusty</option>
+        <option value="0.90">🌬 Windy Clear</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label>Installation Type</label>
+      <select id="installType">
+        <option>Rooftop Residential</option>
+        <option>Rooftop Commercial</option>
+        <option>Ground Mount Utility</option>
+        <option>Floating (Floatovoltaic)</option>
+        <option>Agri-Solar (Agrivoltaic)</option>
+        <option>Building Integrated (BIPV)</option>
+        <option>Carport / Canopy</option>
+        <option>Street / Public Infra</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>System Cost (₹L)</label>
+      <input type="number" id="systemCost" value="3" min="0.1" step="0.1">
+    </div>
+    <div class="field">
+      <label>Monthly Load (kWh)</label>
+      <input type="number" id="monthlyLoad" value="300" min="10">
+    </div>
+    <div class="field full">
+      <label>Latitude (°)</label>
+      <input type="number" id="lat" value="17.38" step="0.01">
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="generateForecast()">⚡ Run AI Forecast</button>
+  <button class="btn btn-secondary" onclick="detectLocation()">📍 Auto-Detect Location</button>
+
+  <!-- Mini KPIs -->
+  <div class="sec-title">📊 Live Stats</div>
+  <div class="kpi-mini-grid">
+    <div class="kpi-mini"><div class="val green" id="sk1">27.5</div><div class="lbl">kWh Today</div></div>
+    <div class="kpi-mini"><div class="val blue"  id="sk2">100%</div><div class="lbl">Battery</div></div>
+    <div class="kpi-mini"><div class="val amber" id="sk3">₹6,600</div><div class="lbl">Monthly</div></div>
+    <div class="kpi-mini"><div class="val purple" id="sk4">92%</div><div class="lbl">Efficiency</div></div>
+  </div>
+
+  <!-- AI Recs -->
+  <div class="sec-title">🧠 AI Recommendations</div>
+  <div id="aiRecs">
+    <div class="rec-row"><span class="rk">Best Window</span><span class="rv blue">11AM–2PM</span></div>
+    <div class="rec-row"><span class="rk">EV Slot</span><span class="rv green">12PM–1PM</span></div>
+    <div class="rec-row"><span class="rk">Battery Backup</span><span class="rv amber">8.5 hrs</span></div>
+    <div class="rec-row"><span class="rk">Carbon Saved</span><span class="rv green">1.8 T/yr</span></div>
+    <div class="rec-row"><span class="rk">Optimal Tilt</span><span class="rv blue">22°</span></div>
+    <div class="rec-row"><span class="rk">Cleaning Due</span><span class="rv amber">In 12 days</span></div>
+    <div class="rec-row"><span class="rk">Grid Export</span><span class="rv green">18 kWh</span></div>
+    <div class="rec-row"><span class="rk">Payback Period</span><span class="rv purple">4.2 yrs</span></div>
+  </div>
+
+  <!-- Energy Flow -->
+  <div class="sec-title">⚡ Energy Flow</div>
+  <div class="flow-row">
+    <div class="flow-node">☀<br><small>Solar</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">🔄<br><small>Inverter</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">🔋<br><small>Battery</small></div>
+  </div>
+  <div class="flow-row">
+    <div class="flow-node">🏠<br><small>Home</small></div>
+    <span class="flow-arrow">↔</span>
+    <div class="flow-node">⚡<br><small>Grid</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">🚗<br><small>EV</small></div>
+  </div>
+  <div class="flow-row">
+    <div class="flow-node">🌾<br><small>Farm</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">💧<br><small>Pump</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">🏭<br><small>Indus</small></div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview',this)">📊 Overview</button>
+    <button class="tab" onclick="showTab('generation',this)">☀ Generation</button>
+    <button class="tab" onclick="showTab('battery',this)">🔋 Battery</button>
+    <button class="tab" onclick="showTab('grid',this)">⚡ Grid</button>
+    <button class="tab" onclick="showTab('ev',this)">🚗 EV</button>
+    <button class="tab" onclick="showTab('farm',this)">🌾 Agri</button>
+    <button class="tab" onclick="showTab('carbon',this)">🌿 Carbon</button>
+    <button class="tab" onclick="showTab('roi',this)">💰 ROI</button>
+    <button class="tab" onclick="showTab('diagnostics',this)">🔬 Diagnostics</button>
+    <button class="tab" onclick="showTab('loads',this)">🏭 Loads</button>
+    <button class="tab" onclick="showTab('infra',this)">🏙 Infra</button>
+    <button class="tab" onclick="showTab('weather',this)">🌦 Weather</button>
+  </div>
+
+  <!-- ══════════════ OVERVIEW TAB ══════════════ -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="kpi-row">
+      <div class="kpi-card k1">
+        <h4>CURRENT OUTPUT</h4>
+        <div class="big blue" id="kpi1">5.0 kW</div>
+        <div class="sub">Real-time generation</div>
+        <div class="delta up" id="kpi1d">▲ +0.3 vs yesterday</div>
+      </div>
+      <div class="kpi-card k2">
+        <h4>TODAY'S YIELD</h4>
+        <div class="big green" id="kpi2">27.5 kWh</div>
+        <div class="sub">Total generated</div>
+        <div class="delta up" id="kpi2d">▲ 95% of forecast</div>
+      </div>
+      <div class="kpi-card k3">
+        <h4>BATTERY SOC</h4>
+        <div class="big amber" id="kpi3">100%</div>
+        <div class="sub">State of charge</div>
+        <div class="delta up">▲ Fully charged</div>
+      </div>
+      <div class="kpi-card k4">
+        <h4>MONTHLY SAVINGS</h4>
+        <div class="big purple" id="kpi4">₹6,600</div>
+        <div class="sub">vs grid-only</div>
+        <div class="delta up" id="kpi4d">▲ ₹480 vs last month</div>
+      </div>
+      <div class="kpi-card k5">
+        <h4>CO₂ OFFSET</h4>
+        <div class="big green" id="kpi5">1.8 T</div>
+        <div class="sub">Annual carbon saved</div>
+        <div class="delta up">▲ 84 trees equiv</div>
+      </div>
+    </div>
+
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#38bdf8;"></span>Live Solar Generation (Today)</h3>
+        <canvas id="liveChart" height="140"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#f59e0b;"></span>7-Day Generation Forecast</h3>
+        <canvas id="weekChart" height="140"></canvas>
+      </div>
+    </div>
+
+    <div class="col3">
+      <div class="info-box">
+        <h3>🌡 Real-Time Conditions</h3>
+        <div class="mrow"><span class="mk">Temperature</span><span class="mv amber" id="ov_temp">35°C</span></div>
+        <div class="mrow"><span class="mk">Irradiance</span><span class="mv blue" id="ov_irr">850 W/m²</span></div>
+        <div class="mrow"><span class="mk">UV Index</span><span class="mv red" id="ov_uv">9.2</span></div>
+        <div class="mrow"><span class="mk">Cloud Cover</span><span class="mv" id="ov_cloud">0%</span></div>
+        <div class="mrow"><span class="mk">Wind Speed</span><span class="mv" id="ov_wind">12 km/h</span></div>
+        <div class="mrow"><span class="mk">Humidity</span><span class="mv" id="ov_humid">48%</span></div>
+      </div>
+      <div class="info-box">
+        <h3>⚡ Inverter Status</h3>
+        <div class="mrow"><span class="mk">AC Output</span><span class="mv green" id="ov_ac">4.85 kW</span></div>
+        <div class="mrow"><span class="mk">DC Input</span><span class="mv blue" id="ov_dc">5.12 kW</span></div>
+        <div class="mrow"><span class="mk">Conversion Eff.</span><span class="mv green" id="ov_eff">96.3%</span></div>
+        <div class="mrow"><span class="mk">Inverter Temp</span><span class="mv amber">42°C</span></div>
+        <div class="mrow"><span class="mk">Grid Freq</span><span class="mv">50.02 Hz</span></div>
+        <div class="mrow"><span class="mk">Grid Voltage</span><span class="mv">231 V</span></div>
+      </div>
+      <div class="info-box">
+        <h3>📅 Performance Summary</h3>
+        <div class="mrow"><span class="mk">Capacity Factor</span><span class="mv blue" id="ov_cf">22.9%</span></div>
+        <div class="mrow"><span class="mk">Performance Ratio</span><span class="mv green" id="ov_pr">84%</span></div>
+        <div class="mrow"><span class="mk">Specific Yield</span><span class="mv" id="ov_sy">5.5 kWh/kWp</span></div>
+        <div class="mrow"><span class="mk">Self-Consumption</span><span class="mv green">78%</span></div>
+        <div class="mrow"><span class="mk">Grid Feed-in</span><span class="mv amber">22%</span></div>
+        <div class="mrow"><span class="mk">System Uptime</span><span class="mv green">99.7%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ GENERATION TAB ══════════════ -->
+  <div class="tab-panel" id="tab-generation">
+    <div class="chart-box">
+      <h3><span class="dot" style="background:#f59e0b;"></span>Hourly Generation Profile + Irradiance</h3>
+      <canvas id="genChart" height="120"></canvas>
+    </div>
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#4ade80;"></span>Monthly Generation (12 Months)</h3>
+        <canvas id="monthChart" height="160"></canvas>
+      </div>
+      <div class="info-box">
+        <h3>🔆 Irradiance & Tilt Optimizer</h3>
+        <div class="alert alert-info">Current tilt: <b id="tiltDisplay">22°</b> | Azimuth: <b id="azmDisplay">180° (South)</b></div>
+        <div class="mrow"><span class="mk">Optimal Tilt (Lat-based)</span><span class="mv blue" id="optTilt">17°</span></div>
+        <div class="mrow"><span class="mk">Gain from Optimal Tilt</span><span class="mv green" id="tiltGain">+2.1%</span></div>
+        <div class="mrow"><span class="mk">Irradiance Now</span><span class="mv amber">850 W/m²</span></div>
+        <div class="mrow"><span class="mk">Peak Sun Hours</span><span class="mv blue" id="psh">5.5 hrs</span></div>
+        <div class="mrow"><span class="mk">GHI Annual</span><span class="mv">1,825 kWh/m²</span></div>
+        <div class="mrow"><span class="mk">DNI</span><span class="mv">1,640 kWh/m²</span></div>
+        <div class="mrow"><span class="mk">Shading Loss</span><span class="mv red">3.2%</span></div>
+        <div class="mrow"><span class="mk">Dust/Soiling Loss</span><span class="mv amber" id="soilLoss">4.0%</span></div>
+      </div>
+    </div>
+    <div class="col2">
+      <div class="info-box">
+        <h3>📐 Panel Performance Details</h3>
+        <div class="mrow"><span class="mk">Panel Type</span><span class="mv blue" id="ptype">Monocrystalline</span></div>
+        <div class="mrow"><span class="mk">Panel Efficiency</span><span class="mv green" id="peff">22%</span></div>
+        <div class="mrow"><span class="mk">Temperature Coeff</span><span class="mv">-0.35%/°C</span></div>
+        <div class="mrow"><span class="mk">Thermal Derating</span><span class="mv red" id="thermalDerate">-4.2%</span></div>
+        <div class="mrow"><span class="mk">Panel Area (total)</span><span class="mv" id="panelArea">26.4 m²</span></div>
+        <div class="mrow"><span class="mk">Wp per panel</span><span class="mv" id="wpp">416 Wp</span></div>
+        <div class="mrow"><span class="mk">Degradation/yr</span><span class="mv">0.5%</span></div>
+        <div class="mrow"><span class="mk">Year 25 Output</span><span class="mv amber" id="yr25">87.5%</span></div>
+      </div>
+      <div class="info-box">
+        <h3>🌊 Floatovoltaic / Agrivoltaic Bonus</h3>
+        <div class="alert alert-success" id="floatAlert">✅ Standard rooftop install — No additional cooling bonus</div>
+        <div class="mrow"><span class="mk">Cooling Effect</span><span class="mv" id="floatCool">+0%</span></div>
+        <div class="mrow"><span class="mk">Evaporation Saved</span><span class="mv" id="floatEvap">N/A</span></div>
+        <div class="mrow"><span class="mk">Agri Shade Benefit</span><span class="mv" id="agriBenefit">N/A</span></div>
+        <div class="mrow"><span class="mk">BIPV Integration</span><span class="mv" id="bipvNote">N/A</span></div>
+        <div class="mrow"><span class="mk">Land Dual-Use</span><span class="mv" id="landDual">No</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ BATTERY TAB ══════════════ -->
+  <div class="tab-panel" id="tab-battery">
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#4ade80;"></span>Battery State of Charge (24hr)</h3>
+        <canvas id="batChart" height="160"></canvas>
+      </div>
+      <div class="info-box" style="margin-bottom:0;">
+        <h3>🔋 Battery Intelligence</h3>
+        <div class="prog-wrap">
+          <div class="prog-label"><span>State of Charge</span><span class="green" id="socLabel">100%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="socBar" style="width:100%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div></div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-label"><span>Battery Health (SoH)</span><span class="blue" id="sohLabel">96%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="sohBar" style="width:96%;background:linear-gradient(90deg,#38bdf8,#0ea5e9);"></div></div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-label"><span>Charge Rate</span><span class="amber" id="cRateLabel">0.5C</span></div>
+          <div class="prog-track"><div class="prog-fill" id="cRateBar" style="width:50%;background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div></div>
+        </div>
+        <div class="mrow"><span class="mk">Battery Type</span><span class="mv blue">Li-Ion (LFP)</span></div>
+        <div class="mrow"><span class="mk">Usable Capacity</span><span class="mv" id="usableCap">9.0 kWh</span></div>
+        <div class="mrow"><span class="mk">Charge Time</span><span class="mv amber" id="chargeT">2.0 hrs</span></div>
+        <div class="mrow"><span class="mk">Backup Duration</span><span class="mv green" id="backupHrs">8.5 hrs</span></div>
+        <div class="mrow"><span class="mk">Cycle Count</span><span class="mv">412</span></div>
+        <div class="mrow"><span class="mk">DoD (Depth of Disc.)</span><span class="mv">90%</span></div>
+        <div class="mrow"><span class="mk">Round-trip Efficiency</span><span class="mv green">95.2%</span></div>
+        <div class="mrow"><span class="mk">Temperature</span><span class="mv amber">28°C</span></div>
+        <div class="mrow"><span class="mk">Estimated Life Left</span><span class="mv green" id="batLife">9.3 yrs</span></div>
+      </div>
+    </div>
+    <div class="col3">
+      <div class="info-box">
+        <h3>🔄 Charge Strategy</h3>
+        <div class="alert alert-success">✅ Peak Solar Charging: ON<br>OFF-peak grid top-up: Standby</div>
+        <div class="mrow"><span class="mk">Today Charged</span><span class="mv green" id="todayCh">8.4 kWh</span></div>
+        <div class="mrow"><span class="mk">Today Discharged</span><span class="mv amber">1.6 kWh</span></div>
+        <div class="mrow"><span class="mk">Grid Top-up Used</span><span class="mv">0 kWh</span></div>
+        <div class="mrow"><span class="mk">Optimal Charge Start</span><span class="mv blue">9 AM</span></div>
+        <div class="mrow"><span class="mk">Optimal Discharge</span><span class="mv amber">6 PM–10 PM</span></div>
+      </div>
+      <div class="info-box">
+        <h3>🌙 Backup & Nighttime</h3>
+        <div class="mrow"><span class="mk">Nighttime Load</span><span class="mv">1.05 kW avg</span></div>
+        <div class="mrow"><span class="mk">Backup hrs available</span><span class="mv green" id="nightBackup">8.5 hrs</span></div>
+        <div class="mrow"><span class="mk">Morning SOC estimate</span><span class="mv blue">22%</span></div>
+        <div class="mrow"><span class="mk">Outage Protection</span><span class="mv green">✅ Active</span></div>
+        <div class="mrow"><span class="mk">UPS Mode</span><span class="mv green">Enabled</span></div>
+      </div>
+      <div class="info-box">
+        <h3>💡 Battery Alerts</h3>
+        <div class="alert alert-success">✅ Cell balance: Normal</div>
+        <div class="alert alert-info">ℹ Scheduled maintenance: 90 days</div>
+        <div class="mrow"><span class="mk">BMS Status</span><span class="mv green">Healthy</span></div>
+        <div class="mrow"><span class="mk">Over-voltage</span><span class="mv green">None</span></div>
+        <div class="mrow"><span class="mk">Thermal runaway risk</span><span class="mv green">LOW</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ GRID TAB ══════════════ -->
+  <div class="tab-panel" id="tab-grid">
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#c084fc;"></span>Grid Export / Import (kWh/hr)</h3>
+        <canvas id="gridChart" height="160"></canvas>
+      </div>
+      <div class="info-box" style="margin-bottom:0;">
+        <h3>⚡ Net Metering Summary</h3>
+        <div class="mrow"><span class="mk">Units Exported</span><span class="mv green" id="g_exp">18 kWh</span></div>
+        <div class="mrow"><span class="mk">Units Imported</span><span class="mv red" id="g_imp">6 kWh</span></div>
+        <div class="mrow"><span class="mk">Net Units</span><span class="mv blue" id="g_net">+12 kWh</span></div>
+        <div class="mrow"><span class="mk">Export Revenue</span><span class="mv green" id="g_exprev">₹72</span></div>
+        <div class="mrow"><span class="mk">Import Cost</span><span class="mv red" id="g_impcost">₹48</span></div>
+        <div class="mrow"><span class="mk">Net Grid Bill</span><span class="mv blue" id="g_netbill">₹-24 (Credit)</span></div>
+        <div class="mrow"><span class="mk">Monthly Net Savings</span><span class="mv green" id="g_monthly">₹2,160</span></div>
+        <div class="mrow"><span class="mk">Annual Export Revenue</span><span class="mv green" id="g_annual">₹25,920</span></div>
+      </div>
+    </div>
+    <div class="col2">
+      <div class="info-box">
+        <h3>📊 Tariff Slab Analysis</h3>
+        <div class="alert alert-info">Consumption tier classification based on DISCOM slabs</div>
+        <div class="slab-bar" id="slabBar">
+          <div class="slab-seg" style="width:33%;background:#22c55e;">0–100</div>
+          <div class="slab-seg" style="width:33%;background:#f59e0b;">100–200</div>
+          <div class="slab-seg" style="width:34%;background:#ef4444;">200+</div>
+        </div>
+        <div class="mrow"><span class="mk">Slab 1 (0–100 units)</span><span class="mv green">₹3.50/unit</span></div>
+        <div class="mrow"><span class="mk">Slab 2 (101–200 units)</span><span class="mv amber">₹5.50/unit</span></div>
+        <div class="mrow"><span class="mk">Slab 3 (201+ units)</span><span class="mv red">₹8.00/unit</span></div>
+        <div class="mrow"><span class="mk">Current Slab</span><span class="mv blue" id="currSlab">Slab 1</span></div>
+        <div class="mrow"><span class="mk">Solar brings you to</span><span class="mv green">Slab 1 savings</span></div>
+        <div class="mrow"><span class="mk">Slab Savings</span><span class="mv green" id="slabSavings">₹1,350/mo</span></div>
+      </div>
+      <div class="info-box">
+        <h3>🔌 Grid Stability & Frequency</h3>
+        <div class="mrow"><span class="mk">Grid Frequency</span><span class="mv green">50.02 Hz</span></div>
+        <div class="mrow"><span class="mk">Voltage THD</span><span class="mv green">1.8%</span></div>
+        <div class="mrow"><span class="mk">Power Factor</span><span class="mv blue">0.98</span></div>
+        <div class="mrow"><span class="mk">Anti-island Protection</span><span class="mv green">✅ Active</span></div>
+        <div class="mrow"><span class="mk">Zero Export Mode</span><span class="mv">Off</span></div>
+        <div class="mrow"><span class="mk">Grid Dependency</span><span class="mv blue" id="gridDep">18%</span></div>
+        <div class="mrow"><span class="mk">Self-Sufficiency</span><span class="mv green" id="selfSuff">82%</span></div>
+      </div>
+    </div>
+    <div class="info-box">
+      <h3>📋 Hourly Grid Export / Import Log</h3>
+      <table class="tbl" id="gridTable">
+        <thead><tr><th>Hour</th><th>Generated</th><th>Consumed</th><th>Exported</th><th>Imported</th><th>Net ₹</th></tr></thead>
+        <tbody id="gridTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════ EV TAB ══════════════ -->
+  <div class="tab-panel" id="tab-ev">
+    <div class="col2">
+      <div class="info-box">
+        <h3>🚗 EV Charging Intelligence</h3>
+        <div class="alert alert-success">✅ Optimal solar charging window: 11AM – 2PM</div>
+        <div class="mrow"><span class="mk">Recommended Mode</span><span class="mv green">🌿 ECO Solar Mode</span></div>
+        <div class="mrow"><span class="mk">EV Charger Power</span><span class="mv blue">3.3 kW (AC)</span></div>
+        <div class="mrow"><span class="mk">Time to Full (EV)</span><span class="mv amber">7.5 hrs</span></div>
+        <div class="mrow"><span class="mk">Solar-only Charge</span><span class="mv green" id="evSolar">16.5 kWh</span></div>
+        <div class="mrow"><span class="mk">Grid Top-up needed</span><span class="mv red">8.5 kWh</span></div>
+        <div class="mrow"><span class="mk">EV Charging Cost (solar)</span><span class="mv green">₹0</span></div>
+        <div class="mrow"><span class="mk">EV Charging Cost (grid)</span><span class="mv red">₹68</span></div>
+        <div class="mrow"><span class="mk">Daily EV km range</span><span class="mv blue">82 km</span></div>
+        <div class="mrow"><span class="mk">V2H Capability</span><span class="mv amber">Optional</span></div>
+        <div class="mrow"><span class="mk">V2G Capability</span><span class="mv amber">Optional</span></div>
+      </div>
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#38bdf8;"></span>EV Charging Schedule vs Solar Surplus</h3>
+        <canvas id="evChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="col3">
+      <div class="info-box">
+        <h3>⚡ Charging Slots AI</h3>
+        <div class="alert alert-success">✅ Slot 1: 11AM–1PM (Peak Solar)</div>
+        <div class="alert alert-warn">⚠ Slot 2: 3PM–4PM (Moderate)</div>
+        <div class="alert alert-danger">❌ Avoid: 6PM–10PM (Grid peak tariff)</div>
+      </div>
+      <div class="info-box">
+        <h3>🔌 Charger Types</h3>
+        <div class="mrow"><span class="mk">Level 1 (3.3kW)</span><span class="mv green">✅ Compatible</span></div>
+        <div class="mrow"><span class="mk">Level 2 (7.4kW)</span><span class="mv amber">Needs upgrade</span></div>
+        <div class="mrow"><span class="mk">DC Fast (50kW)</span><span class="mv red">Oversized for roof</span></div>
+        <div class="mrow"><span class="mk">Bidirectional</span><span class="mv blue">V2H Ready</span></div>
+      </div>
+      <div class="info-box">
+        <h3>📊 Monthly EV Savings</h3>
+        <div class="mrow"><span class="mk">Fuel saved (₹)</span><span class="mv green">₹2,400/mo</span></div>
+        <div class="mrow"><span class="mk">Grid charge cost</span><span class="mv red">₹680/mo</span></div>
+        <div class="mrow"><span class="mk">Solar charge saving</span><span class="mv green">₹1,720/mo</span></div>
+        <div class="mrow"><span class="mk">Annual EV savings</span><span class="mv green">₹20,640</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ AGRI TAB ══════════════ -->
+  <div class="tab-panel" id="tab-farm">
+    <div class="col2">
+      <div class="info-box">
+        <h3>🌾 Agri-Solar (Agrivoltaic) AI Advisor</h3>
+        <div class="alert alert-success">✅ Best irrigation window: 11AM → 2PM (Peak Solar)</div>
+        <div class="mrow"><span class="mk">Soil Moisture</span><span class="mv blue">62%</span></div>
+        <div class="mrow"><span class="mk">Water Pump Power</span><span class="mv">1.5 kW</span></div>
+        <div class="mrow"><span class="mk">Pump Solar Runtime</span><span class="mv green">3 hrs/day</span></div>
+        <div class="mrow"><span class="mk">Water Pumped/day</span><span class="mv blue">18,000 L</span></div>
+        <div class="mrow"><span class="mk">Water Tank Level</span><span class="mv amber">74%</span></div>
+        <div class="mrow"><span class="mk">Irrigation Cost (solar)</span><span class="mv green">₹0/day</span></div>
+        <div class="mrow"><span class="mk">Irrigation Cost (grid)</span><span class="mv red">₹36/day</span></div>
+        <div class="mrow"><span class="mk">Annual Irrigation savings</span><span class="mv green">₹13,140</span></div>
+        <div class="mrow"><span class="mk">Drip vs Flood recommendation</span><span class="mv green">🌿 Drip (efficient)</span></div>
+      </div>
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#4ade80;"></span>Crop Water Need vs Solar Pump Output</h3>
+        <canvas id="farmChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="col3">
+      <div class="info-box">
+        <h3>🌱 Crop-Specific AI</h3>
+        <div class="mrow"><span class="mk">Recommended Crop</span><span class="mv green">Tomato, Chilli</span></div>
+        <div class="mrow"><span class="mk">Shade Tolerance</span><span class="mv blue">Moderate (30%)</span></div>
+        <div class="mrow"><span class="mk">Panel Height Req</span><span class="mv">2.5m clearance</span></div>
+        <div class="mrow"><span class="mk">Dual Land Use ROI</span><span class="mv green">+28% income</span></div>
+      </div>
+      <div class="info-box">
+        <h3>💧 Solar Water Heater</h3>
+        <div class="mrow"><span class="mk">SWH Capacity</span><span class="mv blue">200L/day</span></div>
+        <div class="mrow"><span class="mk">Energy Saved</span><span class="mv green">2.1 kWh/day</span></div>
+        <div class="mrow"><span class="mk">Annual Fuel Saving</span><span class="mv green">₹6,132</span></div>
+        <div class="mrow"><span class="mk">LPG Cylinders Saved</span><span class="mv green">4.2/yr</span></div>
+      </div>
+      <div class="info-box">
+        <h3>🌧 Rainwater Harvesting AI</h3>
+        <div class="mrow"><span class="mk">Panel Runoff Area</span><span class="mv">26.4 m²</span></div>
+        <div class="mrow"><span class="mk">Annual Rainfall</span><span class="mv blue">850 mm</span></div>
+        <div class="mrow"><span class="mk">Harvestable Water</span><span class="mv green">18,480 L/yr</span></div>
+        <div class="mrow"><span class="mk">Tank Size Rec</span><span class="mv">5,000 L</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CARBON TAB ══════════════ -->
+  <div class="tab-panel" id="tab-carbon">
+    <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+      <div class="kpi-card k2">
+        <h4>CO₂ OFFSET/yr</h4>
+        <div class="big green" id="c_co2">1.80 T</div>
+        <div class="sub">Tonnes CO₂e saved</div>
+      </div>
+      <div class="kpi-card k3">
+        <h4>TREES EQUIVALENT</h4>
+        <div class="big amber" id="c_trees">84</div>
+        <div class="sub">Trees planted equiv</div>
+      </div>
+      <div class="kpi-card k1">
+        <h4>CAR KMS AVOIDED</h4>
+        <div class="big blue" id="c_km">9,000 km</div>
+        <div class="sub">Petrol car equivalent</div>
+      </div>
+      <div class="kpi-card k4">
+        <h4>CARBON CREDITS</h4>
+        <div class="big purple" id="c_credits">₹1,800</div>
+        <div class="sub">@ ₹1,000/tonne</div>
+      </div>
+    </div>
+
+    <div class="carbon-equiv">
+      <div class="ceq"><span class="cicon">🌳</span><div class="cval" id="ce_trees">84</div><div class="clbl">Trees planted</div></div>
+      <div class="ceq"><span class="cicon">✈</span><div class="cval" id="ce_flights">0.3</div><div class="clbl">Flights avoided</div></div>
+      <div class="ceq"><span class="cicon">🚗</span><div class="cval" id="ce_km">9,000 km</div><div class="clbl">Car km offset</div></div>
+      <div class="ceq"><span class="cicon">🏠</span><div class="cval" id="ce_homes">0.6</div><div class="clbl">Homes powered</div></div>
+    </div>
+
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#4ade80;"></span>Annual CO₂ Savings (Monthly)</h3>
+        <canvas id="carbonChart" height="180"></canvas>
+      </div>
+      <div class="info-box">
+        <h3>📋 Carbon Lifecycle Analysis</h3>
+        <div class="mrow"><span class="mk">Mfg Carbon (panels)</span><span class="mv red">0.85 T CO₂</span></div>
+        <div class="mrow"><span class="mk">Payback (carbon)</span><span class="mv amber">0.47 yrs</span></div>
+        <div class="mrow"><span class="mk">25yr Net Carbon Saved</span><span class="mv green" id="c_25yr">44 T</span></div>
+        <div class="mrow"><span class="mk">Grid Emission Factor</span><span class="mv">0.82 kgCO₂/kWh</span></div>
+        <div class="mrow"><span class="mk">Renewable % generated</span><span class="mv green">100%</span></div>
+        <div class="mrow"><span class="mk">SDG 7 Compliance</span><span class="mv green">✅ Affordable Clean Energy</span></div>
+        <div class="mrow"><span class="mk">SDG 13 Compliance</span><span class="mv green">✅ Climate Action</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ROI TAB ══════════════ -->
+  <div class="tab-panel" id="tab-roi">
+    <div class="roi-highlight">
+      <div class="sm">Estimated Payback Period</div>
+      <div class="big" id="roi_payback">4.2 years</div>
+      <div class="sm">System cost recovered through savings & export revenue</div>
+    </div>
+
+    <div class="col3">
+      <div class="info-box">
+        <h3>💰 Investment Summary</h3>
+        <div class="mrow"><span class="mk">System Cost</span><span class="mv red" id="roi_cost">₹3,00,000</span></div>
+        <div class="mrow"><span class="mk">Subsidy (PM-KUSUM 30%)</span><span class="mv green" id="roi_subsidy">₹90,000</span></div>
+        <div class="mrow"><span class="mk">Net Investment</span><span class="mv amber" id="roi_net">₹2,10,000</span></div>
+        <div class="mrow"><span class="mk">Annual Savings</span><span class="mv green" id="roi_annual">₹79,200</span></div>
+        <div class="mrow"><span class="mk">Simple Payback</span><span class="mv blue" id="roi_simple">4.2 yrs</span></div>
+        <div class="mrow"><span class="mk">IRR</span><span class="mv green" id="roi_irr">19.4%</span></div>
+        <div class="mrow"><span class="mk">NPV (25yr @ 8%)</span><span class="mv green" id="roi_npv">₹5,48,000</span></div>
+      </div>
+      <div class="info-box">
+        <h3>📈 Revenue Streams</h3>
+        <div class="mrow"><span class="mk">Bill Savings</span><span class="mv green" id="roi_bill">₹6,600/mo</span></div>
+        <div class="mrow"><span class="mk">Grid Export Revenue</span><span class="mv blue" id="roi_export">₹2,160/mo</span></div>
+        <div class="mrow"><span class="mk">Carbon Credits</span><span class="mv purple">₹150/mo</span></div>
+        <div class="mrow"><span class="mk">EV Fuel Savings</span><span class="mv amber">₹1,720/mo</span></div>
+        <div class="mrow"><span class="mk">Water Heating</span><span class="mv green">₹511/mo</span></div>
+        <div class="mrow"><span class="mk">TOTAL Monthly</span><span class="mv green" id="roi_total">₹11,141/mo</span></div>
+      </div>
+      <div class="info-box">
+        <h3>📅 25-Year Projection</h3>
+        <div class="mrow"><span class="mk">Year 5 Cumulative</span><span class="mv green" id="roi_y5">₹5.6L</span></div>
+        <div class="mrow"><span class="mk">Year 10 Cumulative</span><span class="mv green" id="roi_y10">₹11.2L</span></div>
+        <div class="mrow"><span class="mk">Year 15 Cumulative</span><span class="mv green" id="roi_y15">₹16.5L</span></div>
+        <div class="mrow"><span class="mk">Year 25 Cumulative</span><span class="mv green" id="roi_y25">₹26.8L</span></div>
+        <div class="mrow"><span class="mk">Degradation Factored</span><span class="mv blue">✅ Yes (0.5%/yr)</span></div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3><span class="dot" style="background:#4ade80;"></span>Cumulative Cash Flow (25 Years)</h3>
+      <canvas id="roiChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════ DIAGNOSTICS TAB ══════════════ -->
+  <div class="tab-panel" id="tab-diagnostics">
+    <div class="col2">
+      <div>
+        <div class="info-box">
+          <h3>🔬 AI Diagnostics Panel</h3>
+          <div class="mrow"><span class="mk">Panel Efficiency</span><span class="mv green" id="d_eff">92%</span></div>
+          <div class="mrow"><span class="mk">Soiling Loss</span><span class="mv amber" id="d_soil">4.0%</span></div>
+          <div class="mrow"><span class="mk">Thermal Loss</span><span class="mv red">2.1%</span></div>
+          <div class="mrow"><span class="mk">Shading Loss</span><span class="mv red">3.2%</span></div>
+          <div class="mrow"><span class="mk">Mismatch Loss</span><span class="mv amber">1.5%</span></div>
+          <div class="mrow"><span class="mk">Wiring Loss</span><span class="mv amber">1.8%</span></div>
+          <div class="mrow"><span class="mk">Inverter Efficiency</span><span class="mv green">96.3%</span></div>
+          <div class="mrow"><span class="mk">Transformer Loss</span><span class="mv">0.5%</span></div>
+          <div class="mrow"><span class="mk">System Overall Eff.</span><span class="mv green">84%</span></div>
+          <div class="mrow"><span class="mk">Next Cleaning Due</span><span class="mv amber" id="d_clean">In 12 days</span></div>
+          <div class="mrow"><span class="mk">Cleaning Gain</span><span class="mv green">+4% output</span></div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-wrap">
+            <canvas id="g1" width="100" height="60"></canvas>
+            <div class="gauge-val blue">96%</div>
+            <div class="gauge-label">Inverter Eff</div>
+          </div>
+          <div class="gauge-wrap">
+            <canvas id="g2" width="100" height="60"></canvas>
+            <div class="gauge-val green">84%</div>
+            <div class="gauge-label">System PR</div>
+          </div>
+          <div class="gauge-wrap">
+            <canvas id="g3" width="100" height="60"></canvas>
+            <div class="gauge-val amber">92%</div>
+            <div class="gauge-label">Panel Eff</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box">
+        <h3>⚡ String-Level Panel Health</h3>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--mono);">Click a panel to see details. Green=OK, Yellow=Low, Red=Fault, Grey=Off</p>
+        <div class="panel-grid" id="panelGrid"></div>
+        <div class="alert alert-info" id="panelDetail" style="margin-top:12px;">Click a panel to see its output data.</div>
+      </div>
+    </div>
+    <div class="col3">
+      <div class="info-box">
+        <h3>🚨 Active Faults</h3>
+        <div class="alert alert-success">✅ No critical faults detected</div>
+        <div class="alert alert-warn">⚠ Panel #7: Soiling detected (minor)</div>
+        <div class="alert alert-warn">⚠ String 2: 3% mismatch</div>
+      </div>
+      <div class="info-box">
+        <h3>📅 Maintenance Schedule</h3>
+        <div class="mrow"><span class="mk">Panel Cleaning</span><span class="mv amber">Due in 12 days</span></div>
+        <div class="mrow"><span class="mk">Inverter Service</span><span class="mv green">Due in 6 months</span></div>
+        <div class="mrow"><span class="mk">Battery Inspection</span><span class="mv green">Due in 3 months</span></div>
+        <div class="mrow"><span class="mk">Wiring Check</span><span class="mv green">Due in 1 year</span></div>
+        <div class="mrow"><span class="mk">MC4 Connector Check</span><span class="mv amber">Due in 2 months</span></div>
+      </div>
+      <div class="info-box">
+        <h3>📡 IoT Telemetry</h3>
+        <div class="mrow"><span class="mk">Data Refresh Rate</span><span class="mv green">Every 60s</span></div>
+        <div class="mrow"><span class="mk">Modbus/RS485</span><span class="mv green">✅ Connected</span></div>
+        <div class="mrow"><span class="mk">Cloud Sync</span><span class="mv green">✅ Active</span></div>
+        <div class="mrow"><span class="mk">SMS Alerts</span><span class="mv green">Enabled</span></div>
+        <div class="mrow"><span class="mk">Last Data Point</span><span class="mv blue" id="iotTime">12:04:33</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ LOADS TAB ══════════════ -->
+  <div class="tab-panel" id="tab-loads">
+    <div class="col2">
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#f59e0b;"></span>Load Profile vs Solar Generation</h3>
+        <canvas id="loadChart" height="180"></canvas>
+      </div>
+      <div class="info-box" style="margin-bottom:0;">
+        <h3>🏭 Smart Load Scheduling AI</h3>
+        <div id="loadList"></div>
+      </div>
+    </div>
+    <div class="col2">
+      <div class="info-box">
+        <h3>📊 Demand Forecasting</h3>
+        <div class="mrow"><span class="mk">Today Peak Demand</span><span class="mv red">4.8 kW (2PM)</span></div>
+        <div class="mrow"><span class="mk">Tonight Peak</span><span class="mv amber">2.1 kW (8PM)</span></div>
+        <div class="mrow"><span class="mk">Tomorrow Forecast</span><span class="mv blue">28.2 kWh</span></div>
+        <div class="mrow"><span class="mk">Weekly Avg Load</span><span class="mv">10 kWh/day</span></div>
+        <div class="mrow"><span class="mk">Demand Response Active</span><span class="mv green">✅ Yes</span></div>
+        <div class="mrow"><span class="mk">Peak Shaving</span><span class="mv green">✅ Enabled</span></div>
+      </div>
+      <div class="info-box">
+        <h3>⚡ Industrial Energy Insights</h3>
+        <div class="mrow"><span class="mk">Motor Load</span><span class="mv amber">2.2 kW</span></div>
+        <div class="mrow"><span class="mk">Compressor</span><span class="mv red">1.8 kW</span></div>
+        <div class="mrow"><span class="mk">Lighting (LED)</span><span class="mv green">0.3 kW</span></div>
+        <div class="mrow"><span class="mk">HVAC</span><span class="mv amber">1.5 kW</span></div>
+        <div class="mrow"><span class="mk">Peak Demand Charge</span><span class="mv red">₹480/mo saved</span></div>
+        <div class="mrow"><span class="mk">Power Quality</span><span class="mv green">Good (PF 0.98)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ INFRA TAB ══════════════ -->
+  <div class="tab-panel" id="tab-infra">
+    <div class="sec-title" style="font-size:13px;color:var(--text);margin-bottom:16px;">🏙 Solar Infrastructure & Public Sector Applications</div>
+    <div class="infra-grid">
+      <div class="infra-card">
+        <span class="ic-icon">🏠</span>
+        <div class="ic-title">Residential</div>
+        <div class="ic-val" id="inf_res">5 kW</div>
+        <div class="ic-sub">Rooftop install</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Monthly bill offset</span><span class="mv green">95%</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">🏢</span>
+        <div class="ic-title">Commercial</div>
+        <div class="ic-val">50–500 kW</div>
+        <div class="ic-sub">MSME / Mall / Office</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Demand charge saving</span><span class="mv green">₹40k/mo</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">🏭</span>
+        <div class="ic-title">Industrial</div>
+        <div class="ic-val">1–10 MW</div>
+        <div class="ic-sub">Captive generation</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Grid dependency</span><span class="mv green">↓ 60%</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">🛣</span>
+        <div class="ic-title">Street Lighting</div>
+        <div class="ic-val">40 W/light</div>
+        <div class="ic-sub">Solar LED streetlights</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Battery backup</span><span class="mv green">12 hrs</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">🚌</span>
+        <div class="ic-title">EV Bus Depot</div>
+        <div class="ic-val">200 kW</div>
+        <div class="ic-sub">Fleet charging solar</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Buses charged/day</span><span class="mv green">8 buses</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">🏥</span>
+        <div class="ic-title">Hospital / School</div>
+        <div class="ic-val">25 kW</div>
+        <div class="ic-sub">Critical load backup</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Uptime guarantee</span><span class="mv green">99.9%</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">💧</span>
+        <div class="ic-title">Water Treatment</div>
+        <div class="ic-val">15 kW</div>
+        <div class="ic-sub">Solar-powered WTP</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Daily water treated</span><span class="mv green">50,000 L</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">📡</span>
+        <div class="ic-title">Telecom Tower</div>
+        <div class="ic-val">3 kW</div>
+        <div class="ic-sub">Off-grid solar BTS</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Diesel replaced</span><span class="mv green">1,200 L/yr</span></div>
+      </div>
+      <div class="infra-card">
+        <span class="ic-icon">⛽</span>
+        <div class="ic-title">EV Charging Station</div>
+        <div class="ic-val">7.4 kW AC</div>
+        <div class="ic-sub">Public solar EV station</div>
+        <div class="mrow" style="margin-top:8px;"><span class="mk">Revenue/day</span><span class="mv green">₹480</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;" class="col2">
+      <div class="info-box">
+        <h3>🛰 SCADA / Remote Monitoring</h3>
+        <div class="mrow"><span class="mk">Remote Access</span><span class="mv green">✅ Web + Mobile</span></div>
+        <div class="mrow"><span class="mk">Data Logging</span><span class="mv green">Every 5 min</span></div>
+        <div class="mrow"><span class="mk">Alarm System</span><span class="mv green">SMS + Email</span></div>
+        <div class="mrow"><span class="mk">AI Fault Detection</span><span class="mv green">Real-time ML</span></div>
+        <div class="mrow"><span class="mk">OTA Firmware Updates</span><span class="mv green">✅ Enabled</span></div>
+        <div class="mrow"><span class="mk">Data Retention</span><span class="mv">5 Years</span></div>
+      </div>
+      <div class="info-box">
+        <h3>🏛 Govt Schemes & Subsidies</h3>
+        <div class="mrow"><span class="mk">PM Surya Ghar (Residential)</span><span class="mv green">Up to ₹78,000</span></div>
+        <div class="mrow"><span class="mk">PM-KUSUM (Farm)</span><span class="mv green">60% subsidy</span></div>
+        <div class="mrow"><span class="mk">MNRE CAPEX Scheme</span><span class="mv green">30% subsidy</span></div>
+        <div class="mrow"><span class="mk">Accelerated Depreciation</span><span class="mv blue">40% Year 1</span></div>
+        <div class="mrow"><span class="mk">Net Metering Available</span><span class="mv green">✅ All states</span></div>
+        <div class="mrow"><span class="mk">ISTS Waiver (Utility)</span><span class="mv green">✅ Till 2025</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ WEATHER TAB ══════════════ -->
+  <div class="tab-panel" id="tab-weather">
+    <div class="col2">
+      <div class="info-box">
+        <h3>🌦 Current Weather Analytics</h3>
+        <div class="mrow"><span class="mk">Temperature</span><span class="mv amber" id="w_temp">35°C</span></div>
+        <div class="mrow"><span class="mk">Feels Like</span><span class="mv">38°C</span></div>
+        <div class="mrow"><span class="mk">GHI (Global Horiz. Irr.)</span><span class="mv amber" id="w_ghi">850 W/m²</span></div>
+        <div class="mrow"><span class="mk">DNI (Direct Normal Irr.)</span><span class="mv">780 W/m²</span></div>
+        <div class="mrow"><span class="mk">Diffuse Irradiance</span><span class="mv">120 W/m²</span></div>
+        <div class="mrow"><span class="mk">UV Index</span><span class="mv red">9.2 (Very High)</span></div>
+        <div class="mrow"><span class="mk">Cloud Cover</span><span class="mv green">0% (Clear)</span></div>
+        <div class="mrow"><span class="mk">Wind Speed</span><span class="mv">12 km/h NE</span></div>
+        <div class="mrow"><span class="mk">Wind Cooling Benefit</span><span class="mv green">+1.2% output</span></div>
+        <div class="mrow"><span class="mk">Humidity</span><span class="mv">48%</span></div>
+        <div class="mrow"><span class="mk">Dew Point</span><span class="mv">22°C</span></div>
+        <div class="mrow"><span class="mk">Dust/AQI Level</span><span class="mv amber">72 (Moderate)</span></div>
+      </div>
+      <div class="chart-box">
+        <h3><span class="dot" style="background:#f59e0b;"></span>Irradiance Forecast (Today)</h3>
+        <canvas id="wxChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="info-box">
+      <h3>📅 7-Day Weather & Generation Forecast</h3>
+      <div class="wx-row" id="wxRow"></div>
+    </div>
+    <div class="info-box" style="margin-top:18px;">
+      <h3>🌍 Location & Solar Resource</h3>
+      <div class="col3">
+        <div>
+          <div class="mrow"><span class="mk">Latitude</span><span class="mv blue" id="w_lat">17.38°N</span></div>
+          <div class="mrow"><span class="mk">Longitude</span><span class="mv blue">78.49°E</span></div>
+          <div class="mrow"><span class="mk">Timezone</span><span class="mv">IST UTC+5:30</span></div>
+          <div class="mrow"><span class="mk">Sunrise</span><span class="mv amber">6:02 AM</span></div>
+          <div class="mrow"><span class="mk">Sunset</span><span class="mv amber">6:48 PM</span></div>
+          <div class="mrow"><span class="mk">Day Length</span><span class="mv">12h 46m</span></div>
+        </div>
+        <div>
+          <div class="mrow"><span class="mk">Annual GHI</span><span class="mv amber">1,825 kWh/m²</span></div>
+          <div class="mrow"><span class="mk">Peak Sun Hours</span><span class="mv blue" id="w_psh">5.5 hrs</span></div>
+          <div class="mrow"><span class="mk">Solar Zone (India)</span><span class="mv green">Zone 5 (Excellent)</span></div>
+          <div class="mrow"><span class="mk">Annual Clear Days</span><span class="mv">280 days</span></div>
+          <div class="mrow"><span class="mk">Monsoon Impact</span><span class="mv amber">Jun–Sep (−30%)</span></div>
+          <div class="mrow"><span class="mk">Best Month</span><span class="mv green">April (6.1 PSH)</span></div>
+        </div>
+        <div>
+          <div class="mrow"><span class="mk">Cyclone Risk</span><span class="mv green">Low</span></div>
+          <div class="mrow"><span class="mk">Hailstorm Risk</span><span class="mv green">Low</span></div>
+          <div class="mrow"><span class="mk">Dust Storm Risk</span><span class="mv amber">Moderate</span></div>
+          <div class="mrow"><span class="mk">Snow Load Risk</span><span class="mv green">None</span></div>
+          <div class="mrow"><span class="mk">Flood Risk</span><span class="mv amber">Low</span></div>
+          <div class="mrow"><span class="mk">Wind Load (design)</span><span class="mv">150 km/h</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
 
 <script>
+// ── STARFIELD ──
+const sc = document.getElementById('starfield');
+const sx = sc.getContext('2d');
+sc.width = window.innerWidth; sc.height = window.innerHeight;
+const stars = Array.from({length:150},()=>({
+  x:Math.random()*sc.width, y:Math.random()*sc.height,
+  r:Math.random()*1.5, o:Math.random()
+}));
+function drawStars(){
+  sx.clearRect(0,0,sc.width,sc.height);
+  stars.forEach(s=>{
+    sx.beginPath(); sx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sx.fillStyle=`rgba(56,189,248,${s.o * 0.4})`; sx.fill();
+    s.o += (Math.random()-0.5)*0.02;
+    s.o = Math.max(0.1,Math.min(1,s.o));
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
 
-const ctx = document.getElementById('solarChart');
+// ── LIVE CLOCK ──
+function updateClock(){
+  const now = new Date();
+  document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-IN');
+  document.getElementById('iotTime').textContent  = now.toLocaleTimeString('en-IN');
+}
+setInterval(updateClock,1000); updateClock();
 
-new Chart(ctx,{
-type:'line',
-data:{
-labels:[
-'6AM','8AM','10AM','12PM',
-'2PM','4PM','6PM','8PM'
-],
-datasets:[{
-label:'Solar Output',
-data:[1,2,4,6,7,6,4,2],
-borderColor:'#38bdf8',
-backgroundColor:'rgba(56,189,248,0.15)',
-fill:true,
-tension:.4
-}]
-},
-options:{
-responsive:true,
-plugins:{
-legend:{
-labels:{
-color:'#fff'
+// ── SOLAR ARC ──
+function drawArc(pct){
+  const canvas = document.getElementById('arcCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 220, H = 130;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H-10, r=100;
+
+  // BG arc
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0,false);
+  ctx.strokeStyle='rgba(56,189,248,0.1)'; ctx.lineWidth=14; ctx.lineCap='round'; ctx.stroke();
+
+  // Glow
+  const end = Math.PI - (Math.PI * pct);
+  const grd = ctx.createLinearGradient(cx-r,cy,cx+r,cy);
+  grd.addColorStop(0,'#f59e0b'); grd.addColorStop(1,'#fde68a');
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,end,false);
+  ctx.strokeStyle=grd; ctx.lineWidth=12; ctx.stroke();
+
+  // Sun dot
+  const angle = Math.PI + (Math.PI * pct);
+  const sx2 = cx + r*Math.cos(angle), sy2 = cy + r*Math.sin(angle);
+  ctx.beginPath(); ctx.arc(sx2,sy2,8,0,Math.PI*2);
+  ctx.fillStyle='#fde68a';
+  ctx.shadowColor='#f59e0b'; ctx.shadowBlur=20; ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Hour ticks
+  for(let i=0;i<=12;i++){
+    const a = Math.PI + (i/12)*Math.PI;
+    const ir=r-18, or=r-6;
+    ctx.beginPath();
+    ctx.moveTo(cx+ir*Math.cos(a), cy+ir*Math.sin(a));
+    ctx.lineTo(cx+or*Math.cos(a), cy+or*Math.sin(a));
+    ctx.strokeStyle='rgba(56,189,248,0.15)'; ctx.lineWidth=1; ctx.stroke();
+  }
 }
+
+// ── LIVE SIMULATION TICK ──
+let simHour = 0;
+const hourlyGen = [0,0,0.2,0.5,1.2,2.2,3.5,4.8,5.8,6.2,6.8,7.0,6.8,6.2,5.5,4.5,3.2,2.0,1.0,0.3,0.1,0,0,0];
+let liveChartInstance, weekChartInstance, genChartInstance, monthChartInstance,
+    batChartInstance, gridChartInstance, evChartInstance, carbonChartInstance,
+    roiChartInstance, loadChartInstance, farmChartInstance, wxChartInstance;
+
+function getHourlyGen(cap, mult){
+  return hourlyGen.map(v => +(v*(cap/7)*mult).toFixed(2));
 }
-},
-scales:{
-x:{
-ticks:{color:'#fff'}
-},
-y:{
-ticks:{color:'#fff'}
+
+function mkChart(id,type,labels,datasets,opts={}){
+  const ctx2 = document.getElementById(id);
+  if(!ctx2) return null;
+  return new Chart(ctx2,{
+    type, data:{labels,datasets},
+    options:{
+      responsive:true, animation:{duration:800},
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},
+      scales: type==='pie'||type==='doughnut' ? {} : {
+        x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},
+        y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}}
+      },
+      ...opts
+    }
+  });
 }
+
+const HOURS = ['6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WX_DAYS = [
+  {d:'Mon',i:'☀',t:'35°',k:'28'},
+  {d:'Tue',i:'🌤',t:'33°',k:'24'},
+  {d:'Wed',i:'☁',t:'30°',k:'18'},
+  {d:'Thu',i:'🌧',t:'27°',k:'11'},
+  {d:'Fri',i:'🌦',t:'29°',k:'16'},
+  {d:'Sat',i:'☀',t:'36°',k:'29'},
+  {d:'Sun',i:'☀',t:'37°',k:'31'},
+];
+
+const LOADS_DATA = [
+  {name:'Air Conditioner',kw:1.5,slot:'11AM–2PM',badge:'lb-optimal',bl:'OPTIMAL'},
+  {name:'EV Charging',kw:3.3,slot:'12PM–1PM',badge:'lb-optimal',bl:'OPTIMAL'},
+  {name:'Washing Machine',kw:0.8,slot:'10AM–11AM',badge:'lb-ok',bl:'OK'},
+  {name:'Water Pump',kw:1.5,slot:'11AM–1PM',badge:'lb-optimal',bl:'OPTIMAL'},
+  {name:'Water Heater',kw:2.0,slot:'6PM–8PM',badge:'lb-avoid',bl:'AVOID'},
+  {name:'Dishwasher',kw:1.2,slot:'1PM–2PM',badge:'lb-ok',bl:'OK'},
+  {name:'Refrigerator',kw:0.15,slot:'Always ON',badge:'lb-ok',bl:'OK'},
+  {name:'Industrial Motor',kw:2.2,slot:'9AM–4PM',badge:'lb-optimal',bl:'OPTIMAL'},
+];
+
+function buildLoadList(){
+  const el = document.getElementById('loadList');
+  if(!el) return;
+  el.innerHTML = LOADS_DATA.map(l=>`
+    <div class="load-item">
+      <div>
+        <div class="li-name">${l.name}</div>
+        <div class="li-slot">${l.slot}</div>
+      </div>
+      <div class="li-kw">${l.kw} kW</div>
+      <span class="load-badge ${l.badge}">${l.bl}</span>
+    </div>
+  `).join('');
 }
+
+function buildWxRow(){
+  const el = document.getElementById('wxRow');
+  if(!el) return;
+  el.innerHTML = WX_DAYS.map(w=>`
+    <div class="wx-day">
+      <span class="wicon">${w.i}</span>
+      <div class="wday">${w.d}</div>
+      <div class="wtemp">${w.t}</div>
+      <div class="wkwh">${w.k} kWh</div>
+    </div>
+  `).join('');
 }
-});
+
+function buildPanelGrid(){
+  const el = document.getElementById('panelGrid');
+  if(!el) return;
+  const states = ['p-good','p-good','p-good','p-good','p-good','p-good',
+                  'p-good','p-mid','p-good','p-good','p-low','p-good'];
+  const outputs = [416,415,416,414,416,415,416,380,413,416,312,415];
+  el.innerHTML = states.map((s,i)=>`
+    <div class="panel-cell ${s}" onclick="showPanel(${i},${outputs[i]},'${s}')">P${i+1}</div>
+  `).join('');
+}
+
+function showPanel(i,w,state){
+  const status = state==='p-good'?'Normal':state==='p-mid'?'Low (check soiling)':'Fault / Major loss';
+  document.getElementById('panelDetail').textContent =
+    `Panel P${i+1}: ${w} W output — Status: ${status}`;
+}
+
+function buildGridTable(cap,mult,price){
+  const tb = document.getElementById('gridTbody');
+  if(!tb) return;
+  const hGen = getHourlyGen(cap,mult);
+  const load = [0.3,0.4,0.5,0.8,1.2,1.5,1.8,2.0,2.2,2.0,1.8,1.5,1.2,0.8,0.5,0.4,0.3,0.3];
+  const rows = HOURS.map((h,i)=>{
+    const g = hGen[i]||0, c = load[i]||0.5;
+    const exp = Math.max(0,g-c), imp = Math.max(0,c-g);
+    const net = (exp*price - imp*price).toFixed(0);
+    return `<tr>
+      <td>${h}:00</td>
+      <td>${g.toFixed(1)} kW</td>
+      <td>${c.toFixed(1)} kW</td>
+      <td style="color:#4ade80;">${exp.toFixed(1)} kW</td>
+      <td style="color:#f87171;">${imp.toFixed(1)} kW</td>
+      <td style="color:${net>=0?'#4ade80':'#f87171'};">₹${net}</td>
+    </tr>`;
+  });
+  tb.innerHTML = rows.join('');
+}
+
+function initCharts(cap,mult,price){
+  const hg = getHourlyGen(cap,mult);
+  const hrLabels = ['6AM','7AM','8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM','8PM'];
+  const load = [0.3,0.4,0.5,0.8,1.2,1.5,1.8,2.0,2.2,2.0,1.8,1.5,1.2,0.8,0.5];
+
+  if(liveChartInstance) liveChartInstance.destroy();
+  liveChartInstance = mkChart('liveChart','line',hrLabels,[
+    {label:'Solar kW',data:hg,borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,0.1)',fill:true,tension:0.4,pointRadius:3},
+    {label:'Load kW',data:load,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.05)',fill:true,tension:0.4,borderDash:[5,3],pointRadius:2}
+  ]);
+
+  const weekData = [cap*5.5*mult*0.9,cap*5.5*mult*0.7,cap*5.5*mult,cap*5.5*mult*0.95,cap*5.5*mult*1.05,cap*5.5*mult*0.6,cap*5.5*mult].map(v=>+v.toFixed(1));
+  if(weekChartInstance) weekChartInstance.destroy();
+  weekChartInstance = mkChart('weekChart','bar',DAYS,[
+    {label:'kWh',data:weekData,backgroundColor:'rgba(245,158,11,0.3)',borderColor:'#f59e0b',borderWidth:2,borderRadius:6}
+  ]);
+
+  if(genChartInstance) genChartInstance.destroy();
+  genChartInstance = mkChart('genChart','line',hrLabels,[
+    {label:'Solar Gen (kW)',data:hg,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.12)',fill:true,tension:0.4},
+    {label:'Irradiance (W/m² /10)',data:hg.map(v=>+(v*1.2).toFixed(1)),borderColor:'#fde68a',tension:0.4,borderDash:[4,3],fill:false}
+  ]);
+
+  const monthMults = [0.85,0.90,1.05,1.10,1.00,0.65,0.55,0.60,0.75,0.95,0.88,0.82];
+  const monthData = monthMults.map(m=>+(cap*5.5*30*m*mult).toFixed(0));
+  if(monthChartInstance) monthChartInstance.destroy();
+  monthChartInstance = mkChart('monthChart','bar',MONTHS,[
+    {label:'kWh/month',data:monthData,backgroundColor:monthMults.map(m=>m>0.9?'rgba(74,222,128,0.4)':m>0.7?'rgba(245,158,11,0.4)':'rgba(248,113,113,0.4)'),borderRadius:5}
+  ]);
+
+  // Battery SOC
+  const socData = [30,45,60,75,88,95,100,100,98,95,90,88,85,80,75,70,60,50,40,30,22,18,15,12];
+  if(batChartInstance) batChartInstance.destroy();
+  batChartInstance = mkChart('batChart','line',
+    Array.from({length:24},(_,i)=>`${i}:00`),[
+    {label:'SOC %',data:socData,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.1)',fill:true,tension:0.4}
+  ]);
+
+  // Grid
+  const expData = hg.map((v,i)=>Math.max(0,+(v-load[i]).toFixed(1)));
+  const impData = hg.map((v,i)=>Math.max(0,+(load[i]-v).toFixed(1)));
+  if(gridChartInstance) gridChartInstance.destroy();
+  gridChartInstance = mkChart('gridChart','bar',hrLabels,[
+    {label:'Exported kW',data:expData,backgroundColor:'rgba(74,222,128,0.4)',borderRadius:4},
+    {label:'Imported kW',data:impData,backgroundColor:'rgba(248,113,113,0.4)',borderRadius:4}
+  ]);
+
+  // EV
+  const surplus = hg.map((v,i)=>Math.max(0,+(v-1.0).toFixed(1)));
+  if(evChartInstance) evChartInstance.destroy();
+  evChartInstance = mkChart('evChart','line',hrLabels,[
+    {label:'Solar Surplus kW',data:surplus,borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,0.1)',fill:true,tension:0.4},
+    {label:'EV Demand kW',data:hrLabels.map((_,i)=>i>=5&&i<=8?3.3:0),borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',fill:true,tension:0,borderDash:[5,3]}
+  ]);
+
+  // Carbon
+  if(carbonChartInstance) carbonChartInstance.destroy();
+  carbonChartInstance = mkChart('carbonChart','bar',MONTHS,[
+    {label:'CO₂ Saved (kg)',data:monthData.map(m=>+(m*0.82).toFixed(0)),backgroundColor:'rgba(74,222,128,0.3)',borderColor:'#4ade80',borderWidth:2,borderRadius:5}
+  ]);
+
+  // ROI
+  const roiCum = [];
+  const costL  = parseFloat(document.getElementById('systemCost').value)*100000;
+  const subCut = costL*0.3;
+  const netCost= costL-subCut;
+  let cum = -netCost;
+  const annSaving = cap*5.5*365*price*mult;
+  for(let y=1;y<=25;y++){
+    cum += annSaving * Math.pow(0.995,y);
+    roiCum.push(+cum.toFixed(0));
+  }
+  if(roiChartInstance) roiChartInstance.destroy();
+  roiChartInstance = mkChart('roiChart','line',
+    Array.from({length:25},(_,i)=>i+1),[
+    {label:'Cumulative ₹',data:roiCum,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.08)',fill:true,tension:0.3,pointRadius:2}
+  ]);
+
+  // Load vs solar
+  if(loadChartInstance) loadChartInstance.destroy();
+  loadChartInstance = mkChart('loadChart','line',hrLabels,[
+    {label:'Solar Gen (kW)',data:hg,borderColor:'#38bdf8',fill:false,tension:0.4},
+    {label:'Load (kW)',data:load,borderColor:'#f87171',fill:false,tension:0.3,borderDash:[4,3]}
+  ]);
+
+  // Farm
+  const waterNeed = [0,0,0,1.2,1.5,2.0,2.2,1.8,1.5,1.2,0.8,0.5,0,0,0];
+  const pumpOut   = hg.map(v=>Math.min(v*0.3,2.2));
+  if(farmChartInstance) farmChartInstance.destroy();
+  farmChartInstance = mkChart('farmChart','line',hrLabels,[
+    {label:'Water Need (m³/hr)',data:waterNeed,borderColor:'#38bdf8',fill:false,tension:0.4},
+    {label:'Pump Capacity (kW)',data:pumpOut,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.1)',fill:true,tension:0.4}
+  ]);
+
+  // Weather / irradiance
+  const irrData = hg.map(v=>Math.round(v*130));
+  if(wxChartInstance) wxChartInstance.destroy();
+  wxChartInstance = mkChart('wxChart','line',hrLabels,[
+    {label:'Irradiance (W/m²)',data:irrData,borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.1)',fill:true,tension:0.4}
+  ]);
+}
 
 function generateForecast(){
+  const cap    = parseFloat(document.getElementById('capacity').value)||5;
+  const batCap = parseFloat(document.getElementById('battery').value)||10;
+  const panels = parseInt(document.getElementById('panels').value)||12;
+  const price  = parseFloat(document.getElementById('price').value)||8;
+  const expR   = parseFloat(document.getElementById('exportRate').value)||4;
+  const tilt   = parseFloat(document.getElementById('tilt').value)||22;
+  const azm    = parseFloat(document.getElementById('azimuth').value)||180;
+  const cost   = parseFloat(document.getElementById('systemCost').value)||3;
+  const mLoad  = parseFloat(document.getElementById('monthlyLoad').value)||300;
+  const lat    = parseFloat(document.getElementById('lat').value)||17.38;
+  const eff    = parseFloat(document.getElementById('panelType').value)||0.22;
+  const mult   = parseFloat(document.getElementById('weather').value)||1.0;
+  const itype  = document.getElementById('installType').value;
 
-const capacity =
-parseFloat(document.getElementById('capacity').value) || 5;
+  const psh    = 5.5 * (1 - Math.abs(lat - 17)/40);
+  const output = +(cap * psh * mult).toFixed(1);
+  const monthly= +(output*30).toFixed(0);
+  const savings= +(monthly * price).toFixed(0);
+  const batPct = Math.min(100,Math.round((output/batCap)*100));
+  const expUnits = Math.round(output*0.65);
+  const impUnits = Math.round(output*0.22);
+  const co2Saved = +(output*365*0.82/1000).toFixed(2);
+  const trees   = Math.round(co2Saved*46.7);
+  const annSave = +(monthly*price + expUnits*30*expR)*1;
+  const netInv  = cost*100000*0.7;
+  const payback = +(netInv/annSave).toFixed(1);
+  const irr     = +((annSave/netInv*100 - 2)).toFixed(1);
+  const optTilt = +(lat*0.9).toFixed(0);
+  const tiltGain= +(Math.abs(optTilt-tilt)*0.3).toFixed(1);
 
-const battery =
-parseFloat(document.getElementById('battery').value) || 10;
+  // Update KPI cards
+  document.getElementById('kpi1').textContent = cap.toFixed(1)+' kW';
+  document.getElementById('kpi2').textContent = output+' kWh';
+  document.getElementById('kpi3').textContent = batPct+'%';
+  document.getElementById('kpi4').textContent = '₹'+savings.toLocaleString('en-IN');
+  document.getElementById('kpi5').textContent = co2Saved+' T';
+  document.getElementById('arcKw').textContent = cap.toFixed(1)+' kW';
+  drawArc(mult * 0.9);
 
-const price =
-parseFloat(document.getElementById('price').value) || 8;
+  // Sidebar KPI
+  document.getElementById('sk1').textContent = output;
+  document.getElementById('sk2').textContent = batPct+'%';
+  document.getElementById('sk3').textContent = '₹'+savings.toLocaleString('en-IN');
+  document.getElementById('sk4').textContent = Math.round(eff*100*mult)+'%';
 
-const weather =
-document.getElementById('weather').value;
+  // Battery panel
+  document.getElementById('socLabel').textContent = batPct+'%';
+  document.getElementById('socBar').style.width = batPct+'%';
+  document.getElementById('usableCap').textContent = (batCap*0.9).toFixed(1)+' kWh';
+  document.getElementById('chargeT').textContent   = (batCap/cap).toFixed(1)+' hrs';
+  document.getElementById('backupHrs').textContent = (batCap*0.9/1.05).toFixed(1)+' hrs';
+  document.getElementById('nightBackup').textContent = (batCap*0.9/1.05).toFixed(1)+' hrs';
+  document.getElementById('batLife').textContent   = (15 - parseInt(document.getElementById('battery').value)/20).toFixed(1)+' yrs';
+  document.getElementById('todayCh').textContent   = (output*0.3).toFixed(1)+' kWh';
 
-let multiplier = 1;
+  // Grid panel
+  document.getElementById('g_exp').textContent = expUnits+' kWh';
+  document.getElementById('g_imp').textContent = impUnits+' kWh';
+  document.getElementById('g_net').textContent = (expUnits>impUnits?'+':'')+(expUnits-impUnits)+' kWh';
+  document.getElementById('g_exprev').textContent = '₹'+(expUnits*expR).toLocaleString('en-IN');
+  document.getElementById('g_impcost').textContent= '₹'+(impUnits*price).toLocaleString('en-IN');
+  document.getElementById('g_netbill').textContent= '₹'+(expUnits*expR-impUnits*price)>0?'Credit ₹'+(expUnits*expR-impUnits*price):'₹'+(expUnits*expR-impUnits*price);
+  document.getElementById('g_monthly').textContent= '₹'+(expUnits*30*expR).toLocaleString('en-IN');
+  document.getElementById('g_annual').textContent = '₹'+(expUnits*365*expR).toLocaleString('en-IN');
+  document.getElementById('gridDep').textContent  = Math.round(100-mult*82)+'%';
+  document.getElementById('selfSuff').textContent = Math.round(mult*82)+'%';
+  document.getElementById('slabSavings').textContent = '₹'+(monthly*2).toLocaleString('en-IN');
 
-if(weather === 'Cloudy') multiplier = .7;
-if(weather === 'Rainy') multiplier = .4;
-if(weather === 'Storm') multiplier = .25;
+  // Carbon
+  document.getElementById('c_co2').textContent    = co2Saved+' T';
+  document.getElementById('c_trees').textContent  = trees;
+  document.getElementById('c_km').textContent     = Math.round(co2Saved*5000)+' km';
+  document.getElementById('c_credits').textContent= '₹'+(co2Saved*1000).toLocaleString('en-IN');
+  document.getElementById('ce_trees').textContent = trees;
+  document.getElementById('ce_flights').textContent= (co2Saved/6).toFixed(1);
+  document.getElementById('ce_km').textContent    = Math.round(co2Saved*5000)+' km';
+  document.getElementById('ce_homes').textContent = (co2Saved/3).toFixed(1);
+  document.getElementById('c_25yr').textContent   = Math.round(co2Saved*24)+' T';
 
-const output =
-(capacity * 5.5 * multiplier).toFixed(1);
+  // ROI
+  document.getElementById('roi_payback').textContent = payback+' years';
+  document.getElementById('roi_simple').textContent  = payback+' yrs';
+  document.getElementById('roi_cost').textContent    = '₹'+(cost*100000).toLocaleString('en-IN');
+  document.getElementById('roi_subsidy').textContent = '₹'+(cost*30000).toLocaleString('en-IN');
+  document.getElementById('roi_net').textContent     = '₹'+(cost*70000).toLocaleString('en-IN');
+  document.getElementById('roi_annual').textContent  = '₹'+annSave.toLocaleString('en-IN');
+  document.getElementById('roi_irr').textContent     = irr+'%';
+  document.getElementById('roi_npv').textContent     = '₹'+(annSave*10).toLocaleString('en-IN');
+  document.getElementById('roi_bill').textContent    = '₹'+savings.toLocaleString('en-IN')+'/mo';
+  document.getElementById('roi_export').textContent  = '₹'+(expUnits*30*expR).toLocaleString('en-IN')+'/mo';
+  document.getElementById('roi_total').textContent   = '₹'+(savings+expUnits*30*expR).toLocaleString('en-IN')+'/mo';
+  document.getElementById('roi_y5').textContent  = '₹'+(annSave*4.5/100000).toFixed(1)+'L';
+  document.getElementById('roi_y10').textContent = '₹'+(annSave*9/100000).toFixed(1)+'L';
+  document.getElementById('roi_y15').textContent = '₹'+(annSave*13/100000).toFixed(1)+'L';
+  document.getElementById('roi_y25').textContent = '₹'+(annSave*20/100000).toFixed(1)+'L';
 
-const savings =
-Math.round(output * 30 * price);
+  // Generation tab
+  document.getElementById('optTilt').textContent    = optTilt+'°';
+  document.getElementById('tiltGain').textContent   = '+'+tiltGain+'%';
+  document.getElementById('tiltDisplay').textContent= tilt+'°';
+  document.getElementById('azmDisplay').textContent = azm+'° ('+(azm===180?'South':azm<180?'SE':'SW')+')';
+  document.getElementById('psh').textContent        = psh.toFixed(1)+' hrs';
+  document.getElementById('peff').textContent       = Math.round(eff*100)+'%';
+  document.getElementById('panelArea').textContent  = (panels*2.2).toFixed(1)+' m²';
+  document.getElementById('wpp').textContent        = Math.round(cap*1000/panels)+' Wp';
+  document.getElementById('thermalDerate').textContent = '-'+(mult<0.8?2:4).toFixed(1)+'%';
 
-const batteryPercent =
-Math.min(100,Math.round((output / battery) * 100));
+  // Install type bonus
+  const floatAlert = document.getElementById('floatAlert');
+  if(itype.includes('Float')){
+    floatAlert.textContent='✅ Floatovoltaic: Water cooling gives +5–10% efficiency gain';
+    floatAlert.className='alert alert-success';
+    document.getElementById('floatCool').textContent='+8%';
+    document.getElementById('floatEvap').textContent='15% reduced';
+    document.getElementById('landDual').textContent='Water Body';
+  } else if(itype.includes('Agri')){
+    floatAlert.textContent='✅ Agrivoltaic: Shade-tolerant crops grow under panels';
+    floatAlert.className='alert alert-success';
+    document.getElementById('agriBenefit').textContent='30% shade crop shelter';
+    document.getElementById('landDual').textContent='Yes — Farm';
+  } else if(itype.includes('BIPV')){
+    floatAlert.textContent='✅ BIPV: Building fabric generates power — no extra land needed';
+    floatAlert.className='alert alert-success';
+    document.getElementById('bipvNote').textContent='Replaces cladding/glass';
+    document.getElementById('landDual').textContent='Yes — Building skin';
+  } else {
+    floatAlert.textContent='Standard '+itype+' install';
+    floatAlert.className='alert alert-info';
+    document.getElementById('floatCool').textContent='+0%';
+    document.getElementById('floatEvap').textContent='N/A';
+    document.getElementById('agriBenefit').textContent='N/A';
+    document.getElementById('bipvNote').textContent='N/A';
+    document.getElementById('landDual').textContent='No';
+  }
 
-document.getElementById('currentPower').innerHTML =
-capacity.toFixed(1) + 'kW';
+  // EV
+  document.getElementById('evSolar').textContent = (cap*psh*mult*0.6).toFixed(1)+' kWh';
 
-document.getElementById('batteryPercent').innerHTML =
-batteryPercent + '%';
+  // Diagnostics
+  document.getElementById('d_eff').textContent  = Math.round(eff*100*mult)+'%';
+  document.getElementById('d_soil').textContent = (4*mult).toFixed(1)+'%';
+  document.getElementById('ov_ac').textContent  = (cap*0.97*mult).toFixed(2)+' kW';
+  document.getElementById('ov_dc').textContent  = (cap*1.02*mult).toFixed(2)+' kW';
+  document.getElementById('ov_eff').textContent = (96+Math.random()).toFixed(1)+'%';
+  document.getElementById('ov_cf').textContent  = (cap*psh*mult/(cap*24)*100).toFixed(1)+'%';
+  document.getElementById('ov_pr').textContent  = Math.round(mult*84)+'%';
+  document.getElementById('ov_sy').textContent  = psh.toFixed(1)+' kWh/kWp';
+  document.getElementById('ov_irr').textContent = Math.round(850*mult)+' W/m²';
+  document.getElementById('w_psh').textContent  = psh.toFixed(1)+' hrs';
+  document.getElementById('w_lat').textContent  = lat+'°N';
+  document.getElementById('inf_res').textContent= cap+' kW';
 
-document.getElementById('output').innerHTML =
-output + 'kWh';
+  // Sidebar recs
+  const recs = [
+    ['Best Window', mult>0.7?'11AM–2PM':'2PM–4PM', 'blue'],
+    ['EV Slot', mult>0.7?'12PM–1PM':'3PM–4PM', 'green'],
+    ['Battery Backup', (batCap*0.9/1.05).toFixed(1)+' hrs', 'amber'],
+    ['Carbon Saved', co2Saved+' T/yr', 'green'],
+    ['Optimal Tilt', optTilt+'°', 'blue'],
+    ['Payback', payback+' yrs', 'purple'],
+    ['Grid Export', expUnits+' kWh/day', 'green'],
+    ['Cleaning Due', 'In '+(mult>0.8?12:5)+' days', 'amber'],
+  ];
+  document.getElementById('aiRecs').innerHTML = recs.map(r=>
+    `<div class="rec-row"><span class="rk">${r[0]}</span><span class="rv ${r[2]}">${r[1]}</span></div>`
+  ).join('');
 
-document.getElementById('savings').innerHTML =
-'₹' + savings.toLocaleString('en-IN');
-
-document.getElementById('batteryBar').style.width =
-batteryPercent + '%';
-
-document.getElementById('chargeTime').innerHTML =
-( battery / capacity ).toFixed(1) + ' hrs';
-
-const exportUnits =
-Math.round(output * .65);
-
-const importUnits =
-Math.round(output * .22);
-
-document.getElementById('exportUnits').innerHTML =
-exportUnits;
-
-document.getElementById('importUnits').innerHTML =
-importUnits;
-
-document.getElementById('exportValue').innerHTML =
-'₹' + (exportUnits * price).toLocaleString('en-IN');
-
-document.getElementById('importValue').innerHTML =
-'₹' + (importUnits * price).toLocaleString('en-IN');
-
-document.getElementById('netSavings').innerHTML =
-'₹' + ((exportUnits-importUnits)*price)
-.toLocaleString('en-IN');
-
+  buildGridTable(cap,mult,price);
+  initCharts(cap,mult,price);
+  buildLoadList();
+  buildWxRow();
+  buildPanelGrid();
+  drawArc(mult * (new Date().getHours()/14));
 }
 
-function goHome(){
-
-window.location.href = "../index.html";
-
+// TABS
+function showTab(id, el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
 }
 
+// LOCATION
+function detectLocation(){
+  if(!navigator.geolocation){alert('Geolocation not supported');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('lat').value = pos.coords.latitude.toFixed(2);
+    generateForecast();
+  });
+}
+
+// CSV EXPORT
+function exportCSV(){
+  const cap=document.getElementById('capacity').value;
+  const mult=document.getElementById('weather').value;
+  const hg=getHourlyGen(parseFloat(cap),parseFloat(mult));
+  const rows=[['Hour','Solar kW','Est kWh'],...HOURS.map((h,i)=>[h+':00',hg[i],hg[i]*1])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='solar_data.csv';a.click();
+}
+
+function getHourlyGen(cap,mult){
+  return hourlyGen.slice(6,21).map(v=>+(v*(cap/7)*mult).toFixed(2));
+}
+
+// LIVE TICKER (simulated live output fluctuation)
+setInterval(()=>{
+  const cap=parseFloat(document.getElementById('capacity').value)||5;
+  const mult=parseFloat(document.getElementById('weather').value)||1.0;
+  const h=new Date().getHours();
+  const base=hourlyGen[h]*(cap/7)*mult;
+  const live=(base*(0.97+Math.random()*0.06)).toFixed(2);
+  document.getElementById('arcKw').textContent=live+' kW';
+  document.getElementById('kpi1').textContent=live+' kW';
+  drawArc(parseFloat(live)/cap);
+},5000);
+
+// INIT
 generateForecast();
-
 </script>
-
 </body>
 </html>
