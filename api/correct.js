@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  // CORS headers - required for browser requests
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -8,18 +9,38 @@ export default async function handler(req, res) {
 
   try {
     const { text, language, tone, rewriteMode } = req.body;
+
     if (!text) return res.status(400).json({ error: "No text provided" });
 
-    const systemPrompt = `You are a grammar correction AI. The user sends a sentence. You MUST respond with ONLY a valid JSON object. No explanation, no markdown, no code fences. Just raw JSON.
+    const systemPrompt = `You are an expert grammar correction AI. Correct the user's sentence and respond with ONLY a valid JSON object — no markdown, no code fences, no extra text before or after. Just raw JSON.
 
-Example output:
-{"corrected":"I go to school by bike.","professional":"I commute to school by bicycle.","friendly":"I ride my bike to school!","formal":"I travel to school by bicycle.","errors":["Missing article","Wrong preposition"],"grammar_explanation":"Use 'by bike' not 'with bike' for transport.","seo_insight":"Clear and readable sentence.","grammar_score":72,"readability_score":85,"clarity":80,"fluency":78,"human_score":90,"accuracy":88}
+Required JSON format:
+{
+  "corrected": "the corrected sentence",
+  "professional": "professional rewrite",
+  "friendly": "friendly rewrite",
+  "formal": "formal rewrite",
+  "errors": ["error description 1", "error description 2"],
+  "grammar_explanation": "brief explanation of corrections made",
+  "seo_insight": "readability and clarity insight",
+  "grammar_score": 85,
+  "readability_score": 80,
+  "clarity": 82,
+  "fluency": 78,
+  "human_score": 90,
+  "accuracy": 88
+}
 
-Language: ${language || "English"}
-Tone: ${tone || "Professional"}
-Mode: ${rewriteMode || "Grammar Fix Only"}`;
+Rules:
+- Language: ${language || "English"}
+- Tone: ${tone || "Professional"}
+- Mode: ${rewriteMode || "Grammar Fix Only"}
+- If the sentence has no errors, still return all fields with the original sentence as "corrected"
+- errors array must be empty [] if no errors found
+- All score fields must be numbers between 0-100
+- ONLY return the JSON object, nothing else`;
 
-    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,47 +50,47 @@ Mode: ${rewriteMode || "Grammar Fix Only"}`;
         model: "llama3-70b-8192",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Correct this: ${text}` }
+          { role: "user", content: text }
         ],
         temperature: 0.1,
         max_tokens: 800,
       }),
     });
 
-    if (!groqRes.ok) {
-      const errText = await groqRes.text();
-      console.error("Groq error:", errText);
+    if (!groqResponse.ok) {
+      const errText = await groqResponse.text();
+      console.error("Groq API error status:", groqResponse.status, errText);
       return res.status(500).json({ error: "Groq API failed", detail: errText });
     }
 
-    const groqData = await groqRes.json();
-    console.log("Groq raw response:", JSON.stringify(groqData));
+    const groqData = await groqResponse.json();
+    console.log("Groq full response:", JSON.stringify(groqData));
 
-    const raw = groqData.choices?.[0]?.message?.content || "";
-    console.log("Raw content:", raw);
+    const rawContent = groqData.choices?.[0]?.message?.content || "";
+    console.log("Raw content from Groq:", rawContent);
 
-    // Try to extract JSON from anywhere in the response
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    // Try to extract a JSON object from the response
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
         const parsed = JSON.parse(jsonMatch[0]);
-        console.log("Parsed OK:", parsed.corrected);
+        console.log("Successfully parsed JSON, corrected:", parsed.corrected);
         return res.status(200).json(parsed);
-      } catch (e) {
-        console.error("JSON parse failed:", e.message);
+      } catch (parseErr) {
+        console.error("JSON parse error:", parseErr.message);
       }
     }
 
-    // Final fallback: return raw text as corrected
-    console.log("Using fallback, raw:", raw);
+    // Fallback: return raw content as corrected
+    console.log("Using fallback response");
     return res.status(200).json({
-      corrected: raw || "Could not correct sentence",
-      professional: raw,
-      friendly: raw,
-      formal: raw,
+      corrected: rawContent || "Could not correct sentence",
+      professional: rawContent,
+      friendly: rawContent,
+      formal: rawContent,
       errors: [],
       grammar_explanation: "Correction applied.",
-      seo_insight: "Sentence processed.",
+      seo_insight: "Sentence processed successfully.",
       grammar_score: 75,
       readability_score: 75,
       clarity: 75,
@@ -79,7 +100,7 @@ Mode: ${rewriteMode || "Grammar Fix Only"}`;
     });
 
   } catch (error) {
-    console.error("Handler error:", error);
+    console.error("Handler error:", error.message);
     return res.status(500).json({ error: error.message });
   }
 }
