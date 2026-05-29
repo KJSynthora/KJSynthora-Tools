@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS headers - required for browser requests
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -9,7 +8,6 @@ export default async function handler(req, res) {
 
   try {
     const { text, language, tone, rewriteMode } = req.body;
-
     if (!text) return res.status(400).json({ error: "No text provided" });
 
     const systemPrompt = `You are an expert grammar correction AI. Correct the user's sentence and respond with ONLY a valid JSON object — no markdown, no code fences, no extra text before or after. Just raw JSON.
@@ -35,8 +33,7 @@ Rules:
 - Language: ${language || "English"}
 - Tone: ${tone || "Professional"}
 - Mode: ${rewriteMode || "Grammar Fix Only"}
-- If the sentence has no errors, still return all fields with the original sentence as "corrected"
-- errors array must be empty [] if no errors found
+- If sentence has no errors, return original as "corrected" with empty errors array []
 - All score fields must be numbers between 0-100
 - ONLY return the JSON object, nothing else`;
 
@@ -47,7 +44,7 @@ Rules:
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama3-70b-8192",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: text }
@@ -59,35 +56,30 @@ Rules:
 
     if (!groqResponse.ok) {
       const errText = await groqResponse.text();
-      console.error("Groq API error status:", groqResponse.status, errText);
+      console.error("Groq API error:", groqResponse.status, errText);
       return res.status(500).json({ error: "Groq API failed", detail: errText });
     }
 
     const groqData = await groqResponse.json();
-    console.log("Groq full response:", JSON.stringify(groqData));
-
     const rawContent = groqData.choices?.[0]?.message?.content || "";
-    console.log("Raw content from Groq:", rawContent);
+    console.log("Groq raw content:", rawContent);
 
-    // Try to extract a JSON object from the response
     const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
         const parsed = JSON.parse(jsonMatch[0]);
-        console.log("Successfully parsed JSON, corrected:", parsed.corrected);
         return res.status(200).json(parsed);
-      } catch (parseErr) {
-        console.error("JSON parse error:", parseErr.message);
+      } catch (e) {
+        console.error("JSON parse error:", e.message);
       }
     }
 
-    // Fallback: return raw content as corrected
-    console.log("Using fallback response");
+    // Fallback
     return res.status(200).json({
-      corrected: rawContent || "Could not correct sentence",
-      professional: rawContent,
-      friendly: rawContent,
-      formal: rawContent,
+      corrected: rawContent || text,
+      professional: rawContent || text,
+      friendly: rawContent || text,
+      formal: rawContent || text,
       errors: [],
       grammar_explanation: "Correction applied.",
       seo_insight: "Sentence processed successfully.",
