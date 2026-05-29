@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Viewer | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0a07;
+    --surface: #141209;
+    --surface2: #1a180f;
+    --border: #28240e;
+    --accent: #f59e0b;
+    --accent2: #fcd34d;
+    --error: #f87171;
+    --success: #34d399;
+    --text: #fef3c7;
+    --text2: #92834a;
+    --text3: #3d3520;
+    --orange: #fb923c;
+    --blue: #67e8f9;
+    --green: #6ee7b7;
+    --red: #fca5a5;
+    --purple: #c4b5fd;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 35% at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 10% 100%, rgba(252,211,77,0.03) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(12,10,7,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 15px; font-weight: 800;
+    color: var(--text); display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #000;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 2px 8px; border-radius: 20px;
+    border: 1px solid var(--accent); color: var(--accent); letter-spacing: 1px;
+  }
+
+  .main { flex: 1; padding: 24px; position: relative; z-index: 1; }
+
+  .tool-header { text-align: center; padding: 40px 0 32px; }
+  .tool-header h1 {
+    font-size: clamp(28px, 4vw, 48px); font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 10px;
+  }
+  .tool-header p { color: var(--text2); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Main layout: editor top, preview bottom (or side by side) */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+    min-height: 600px;
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .preview-section { grid-column: 1; }
+  }
+
+  /* Toolbar */
+  .toolbar {
+    grid-column: 1 / -1;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn.active { border-color: var(--accent); color: var(--accent); }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+
+  /* Viewport selector */
+  .viewport-btns { display: flex; gap: 4px; margin-left: auto; }
+  .vp-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 6px 12px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text2); cursor: pointer; transition: all 0.15s;
+  }
+  .vp-btn:hover, .vp-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.08); }
+
+  /* Editor panel */
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    display: flex; flex-direction: column; transition: border-color 0.2s;
+  }
+  .panel:focus-within { border-color: var(--accent); }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2);
+  }
+  .panel-title { font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+  .panel-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    background: none; border: 1px solid transparent;
+    color: var(--text3); font-size: 11px;
+    cursor: pointer; padding: 3px 8px; border-radius: 4px;
+    transition: all 0.15s; font-family: 'JetBrains Mono', monospace;
+  }
+  .icon-btn:hover { border-color: var(--border); color: var(--text); }
+
+  .code-area {
+    flex: 1; width: 100%; min-height: 520px;
+    background: transparent; border: none; outline: none;
+    resize: none; font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7; color: var(--text);
+    padding: 16px; caret-color: var(--accent2);
+  }
+
+  /* Preview panel */
+  .preview-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  .preview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2);
+    flex-shrink: 0;
+  }
+
+  .preview-title { font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+
+  /* Browser chrome simulation */
+  .browser-chrome {
+    background: #1a1814;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .browser-dots { display: flex; gap: 5px; }
+  .browser-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .browser-dot.red { background: #ff5f57; }
+  .browser-dot.yellow { background: #febc2e; }
+  .browser-dot.green { background: #28c840; }
+
+  .browser-url {
+    flex: 1; background: #0c0a07;
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text2);
+  }
+
+  .preview-wrapper {
+    flex: 1; overflow: auto; position: relative;
+    display: flex; justify-content: center;
+    background: #fff;
+    min-height: 440px;
+  }
+
+  iframe {
+    width: 100%; height: 100%;
+    border: none;
+    min-height: 440px;
+    transition: width 0.3s ease;
+  }
+
+  iframe.mobile { width: 390px; max-width: 100%; }
+  iframe.tablet { width: 768px; max-width: 100%; }
+  iframe.desktop { width: 100%; }
+
+  /* Auto-preview toggle */
+  .auto-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 2px 8px; border-radius: 20px;
+    border: 1px solid var(--success); color: var(--success);
+  }
+
+  .char-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); }
+
+  /* Tag highlight */
+  .html-tag { color: #f87171; }
+  .html-attr { color: #fcd34d; }
+  .html-val { color: #6ee7b7; }
+  .html-comment { color: #3d3520; font-style: italic; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    color: var(--text); padding: 10px 18px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1); z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">⟨⟩</div>
+    KJSynthora
+  </a>
+  <span class="badge">HTML TOOL</span>
+</header>
+
+<main class="main">
+  <div class="tool-header">
+    <h1>HTML Viewer</h1>
+    <p>// Live preview · Multi-viewport · Instant render</p>
+  </div>
+
+  <div class="layout">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="btn primary" onclick="renderPreview()">▶ Render</button>
+      <button class="btn" onclick="toggleAutoRender()" id="autoBtn">⟳ Auto OFF</button>
+      <button class="btn" onclick="loadSample()">📄 Sample</button>
+      <button class="btn" onclick="formatHTML()">✦ Format</button>
+      <button class="btn danger" onclick="clearAll()">✕ Clear</button>
+      <button class="btn" onclick="openInTab()">↗ New Tab</button>
+      <button class="btn" onclick="downloadHTML()">↓ Save</button>
+      <div class="viewport-btns">
+        <button class="vp-btn active" onclick="setViewport('desktop', this)">🖥 Desktop</button>
+        <button class="vp-btn" onclick="setViewport('tablet', this)">⬛ Tablet</button>
+        <button class="vp-btn" onclick="setViewport('mobile', this)">📱 Mobile</button>
+      </div>
+    </div>
+
+    <!-- Code Editor -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">HTML Editor</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="char-count" id="charCount">0 chars</span>
+          <div class="panel-actions">
+            <button class="icon-btn" onclick="pasteClipboard()">Paste</button>
+            <button class="icon-btn" onclick="copyCode()">Copy</button>
+          </div>
+        </div>
+      </div>
+      <textarea class="code-area" id="codeArea"
+        placeholder="<!-- Write or paste your HTML here -->&#10;&#10;<!DOCTYPE html>&#10;<html>&#10;  <head>&#10;    <title>My Page</title>&#10;  </head>&#10;  <body>&#10;    <h1>Hello World!</h1>&#10;  </body>&#10;</html>"
+        oninput="onCodeChange()" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <span class="preview-title">Live Preview</span>
+        <span class="auto-badge" id="autoStatus">MANUAL</span>
+      </div>
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+        </div>
+        <div class="browser-url" id="urlBar">about:blank</div>
+      </div>
+      <div class="preview-wrapper" id="previewWrapper">
+        <iframe id="previewFrame" class="desktop" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let autoRender = false;
+let autoTimer = null;
+let currentViewport = 'desktop';
+
+const SAMPLE_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KJSynthora Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0a0a0f 0%, #111118 100%);
+    min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; color: #e8e8f0;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 48px 40px;
+    text-align: center; max-width: 480px; width: 90%;
+    backdrop-filter: blur(12px);
+  }
+  .icon { font-size: 48px; margin-bottom: 20px; }
+  h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+  p { color: #888; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+  .btn {
+    display: inline-block; padding: 12px 28px;
+    background: linear-gradient(135deg, #7c6cfc, #00e5c3);
+    border-radius: 50px; color: #fff; font-weight: 700;
+    font-size: 14px; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer; border: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,108,252,0.4); }
+  .tags { display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .tag {
+    padding: 4px 12px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-size: 12px; color: #aaa;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🚀</div>
+  <h1>KJSynthora Tools</h1>
+  <p>Preview your HTML instantly. Edit the code on the left and watch your design come to life in real-time.</p>
+  <button class="btn" onclick="this.textContent='Clicked! ✓'">Try Me</button>
+  <div class="tags">
+    <span class="tag">HTML5</span>
+    <span class="tag">CSS3</span>
+    <span class="tag">JavaScript</span>
+    <span class="tag">Live Preview</span>
+  </div>
+</div>
+</body>
+</html>`;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function renderPreview() {
+  const code = document.getElementById('codeArea').value;
+  const frame = document.getElementById('previewFrame');
+  const urlBar = document.getElementById('urlBar');
+
+  frame.srcdoc = code;
+  urlBar.textContent = 'preview://' + (code.match(/<title>(.*?)<\/title>/i)?.[1] || 'untitled') + '.html';
+  showToast('▶ Preview rendered');
+}
+
+function toggleAutoRender() {
+  autoRender = !autoRender;
+  const btn = document.getElementById('autoBtn');
+  const status = document.getElementById('autoStatus');
+  if (autoRender) {
+    btn.textContent = '⟳ Auto ON';
+    btn.classList.add('active');
+    status.textContent = 'AUTO';
+    status.style.borderColor = 'var(--accent)';
+    status.style.color = 'var(--accent)';
+    renderPreview();
+  } else {
+    btn.textContent = '⟳ Auto OFF';
+    btn.classList.remove('active');
+    status.textContent = 'MANUAL';
+    status.style.borderColor = 'var(--success)';
+    status.style.color = 'var(--success)';
+  }
+}
+
+function onCodeChange() {
+  const code = document.getElementById('codeArea').value;
+  document.getElementById('charCount').textContent = code.length.toLocaleString() + ' chars';
+  if (autoRender) {
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(renderPreview, 600);
+  }
+}
+
+function setViewport(vp, btn) {
+  document.querySelectorAll('.vp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentViewport = vp;
+  const frame = document.getElementById('previewFrame');
+  frame.className = vp;
+}
+
+function formatHTML() {
+  let html = document.getElementById('codeArea').value;
+  if (!html.trim()) return;
+
+  let indent = 0;
+  const indentStr = '  ';
+  const lines = html
+    .replace(/>\s*</g, '>\n<')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
+
+  let result = '';
+  for (const line of lines) {
+    if (line.startsWith('</') || line.startsWith('</')) {
+      indent = Math.max(0, indent - 1);
+    }
+    result += indentStr.repeat(indent) + line + '\n';
+    if (line.startsWith('<') && !line.startsWith('</') && !line.startsWith('<!') && !line.endsWith('/>') && !line.includes('</')) {
+      indent++;
+    }
+  }
+
+  document.getElementById('codeArea').value = result.trim();
+  onCodeChange();
+  showToast('✦ HTML formatted!');
+}
+
+function loadSample() {
+  document.getElementById('codeArea').value = SAMPLE_HTML;
+  onCodeChange();
+  renderPreview();
+  showToast('Sample loaded & rendered!');
+}
+
+function clearAll() {
+  document.getElementById('codeArea').value = '';
+  document.getElementById('previewFrame').srcdoc = '';
+  document.getElementById('charCount').textContent = '0 chars';
+  document.getElementById('urlBar').textContent = 'about:blank';
+}
+
+function openInTab() {
+  const code = document.getElementById('codeArea').value;
+  if (!code.trim()) return;
+  const blob = new Blob([code], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  showToast('↗ Opened in new tab');
+}
+
+function downloadHTML() {
+  const code = document.getElementById('codeArea').value;
+  if (!code.trim()) return;
+  const blob = new Blob([code], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  showToast('↓ Downloaded!');
+}
+
+async function pasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('codeArea').value = text;
+    onCodeChange();
+    showToast('Pasted from clipboard');
+  } catch { showToast('Clipboard access denied'); }
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(document.getElementById('codeArea').value);
+  showToast('Code copied!');
+}
+
+// Ctrl+Enter → Render
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); renderPreview(); }
+});
+
+// Tab key in editor
+document.getElementById('codeArea').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = start + 2;
+  }
+});
+</script>
+</body>
+</html>
