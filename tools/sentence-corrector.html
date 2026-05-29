@@ -89,7 +89,7 @@ select option{background:#090979;color:white}
 
 <div class="left-panel">
   <div class="logo">Global AI<br>Sentence Corrector</div>
-  <div class="desc">Powered by Groq AI (Llama 3) — deep semantic correction, real understanding, 100+ languages, Telugu &amp; Hindi. Free API.</div>
+  <div class="desc">Powered by Groq AI (Llama 3.3) — deep semantic correction, real understanding, 100+ languages, Telugu &amp; Hindi. Free API.</div>
   <div class="badges">
     <div class="badge green">✓ Groq AI</div>
     <div class="badge green">✓ Deep Correction</div>
@@ -128,7 +128,7 @@ select option{background:#090979;color:white}
   <button class="btn secondary" onclick="clearWorkspace()">🗑 Clear Workspace</button>
   <div class="api-status">
     <div class="dot green" style="width:6px;height:6px;animation:pulse 2s infinite"></div>
-    Groq Llama 3 70B — Free API
+    Groq Llama 3.3 70B — Free API
   </div>
   <div class="sec-title">Correction History</div>
   <div class="history-box" id="historyBox"><div style="opacity:.35;font-size:12px;padding:8px 0">No corrections yet...</div></div>
@@ -145,7 +145,7 @@ select option{background:#090979;color:white}
   <div class="workspace">
     <div class="live-badge">● LIVE AI</div>
     <div class="main-title">AI Sentence Corrector</div>
-    <div class="sub-title">Powered by Groq AI (Llama 3 70B) — Deep semantic correction · Understands meaning · 100+ languages · Telugu &amp; Hindi</div>
+    <div class="sub-title">Powered by Groq AI (Llama 3.3 70B) — Deep semantic correction · Understands meaning · 100+ languages · Telugu &amp; Hindi</div>
     <div class="grid">
       <div class="card">
         <div class="card-title">Original Sentence</div>
@@ -228,11 +228,16 @@ select option{background:#090979;color:white}
 </div>
 
 <script>
+// =====================================================
+// IMPORTANT: This points to your Vercel API backend
+// GitHub Pages cannot run server-side code — Vercel does
+// =====================================================
+const API_URL = "/api/correct";
+
 let latestOutput = "";
 let totalCorrections = 0;
 let totalErrorsFixed = 0;
 
-// Set session start time
 document.getElementById("sessionTime").textContent = new Date().toLocaleTimeString();
 
 function setStatus(type, text) {
@@ -262,16 +267,15 @@ function updateMetric(id, barId, value, suffix) {
 
 function addToHistory(original, corrected) {
   const box = document.getElementById("historyBox");
-  const existing = box.querySelector("[style*='opacity:.35']");
-  if (existing) existing.remove();
+  const placeholder = box.querySelector("[style*='opacity:.35']");
+  if (placeholder) placeholder.remove();
   const item = document.createElement("div");
   item.className = "history-item";
   item.innerHTML = `
     <div class="ht">Original</div>
     <div class="hv">${original}</div>
     <div class="ht">Corrected</div>
-    <div class="hv" style="color:#00db96">${corrected}</div>
-  `;
+    <div class="hv" style="color:#00db96">${corrected}</div>`;
   box.insertBefore(item, box.firstChild);
 }
 
@@ -283,67 +287,46 @@ async function correctSentence() {
 
   if (!text) { alert("Please enter a sentence first"); return; }
 
-  // Update UI - loading state
+  ["originalOutput","correctedOutput","rewriteSuggestions","grammarExplanation","errorsDetected","seoInsights"]
+    .forEach(id => document.getElementById(id).classList.remove("placeholder"));
+
   document.getElementById("originalOutput").textContent = text;
   document.getElementById("correctedOutput").textContent = "⏳ AI is correcting...";
   document.getElementById("rewriteSuggestions").textContent = "Generating rewrites...";
   document.getElementById("grammarExplanation").textContent = "Analyzing grammar...";
   document.getElementById("errorsDetected").textContent = "Detecting errors...";
   document.getElementById("seoInsights").textContent = "Analyzing readability...";
-
-  // Remove placeholder class
-  ["originalOutput","correctedOutput","rewriteSuggestions","grammarExplanation","errorsDetected","seoInsights"]
-    .forEach(id => document.getElementById(id).classList.remove("placeholder"));
-
   document.getElementById("correctBtn").disabled = true;
   setStatus("loading", "Groq AI is processing...");
 
   try {
-    const response = await fetch("/api/correct", {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, language, tone, rewriteMode })
     });
 
-    // Read raw text first for debugging
     const rawText = await response.text();
     console.log("API raw response:", rawText);
 
-    if (!response.ok) {
-      throw new Error("API error " + response.status + ": " + rawText);
-    }
+    if (!response.ok) throw new Error("API error " + response.status + ": " + rawText);
 
     let data;
     try {
       data = JSON.parse(rawText);
     } catch(e) {
-      console.error("JSON parse failed:", e.message, "Raw:", rawText);
-      // Try extracting JSON from raw text
       const match = rawText.match(/\{[\s\S]*\}/);
-      if (match) {
-        data = JSON.parse(match[0]);
-      } else {
-        // Use raw text as corrected output directly
-        data = { corrected: rawText };
-      }
+      data = match ? JSON.parse(match[0]) : { corrected: rawText };
     }
 
-    console.log("Parsed data:", data);
-
-    // Extract corrected text - try multiple field names
-    const corrected = data.corrected || data.result || data.output || data.correction || text;
+    const corrected = data.corrected || data.result || data.output || text;
     latestOutput = corrected;
 
-    // Update outputs
     document.getElementById("correctedOutput").textContent = corrected;
-
     document.getElementById("rewriteSuggestions").innerHTML =
-      `<div>• <b>Professional:</b><br>${data.professional || corrected}</div>
-       <br>
-       <div>• <b>Friendly:</b><br>${data.friendly || corrected}</div>
-       <br>
+      `<div>• <b>Professional:</b><br>${data.professional || corrected}</div><br>
+       <div>• <b>Friendly:</b><br>${data.friendly || corrected}</div><br>
        <div>• <b>Formal:</b><br>${data.formal || corrected}</div>`;
-
     document.getElementById("grammarExplanation").innerHTML =
       "• " + (data.grammar_explanation || "Grammar checked and corrected successfully.");
 
@@ -351,55 +334,30 @@ async function correctSentence() {
     document.getElementById("errorsDetected").innerHTML = errors.length
       ? errors.map(e => `<span style="display:block;background:#fff0f0;border-left:3px solid #ff4444;padding:4px 8px;border-radius:0 6px 6px 0;margin:4px 0;font-size:12px;color:#cc2222">• ${e}</span>`).join("")
       : '<span style="color:#22cc66">✅ No errors found</span>';
+    document.getElementById("seoInsights").textContent = data.seo_insight || "Sentence is clear and readable.";
 
-    document.getElementById("seoInsights").textContent =
-      data.seo_insight || "Sentence is clear and readable.";
-
-    // Update metrics
-    if (data.grammar_score) {
-      updateMetric("grammarScore", "grammarBar", data.grammar_score, "%");
-    }
-    if (data.readability_score) {
-      updateMetric("readScore", "readBar", data.readability_score, "%");
-    }
-    if (errors.length > 0) {
+    if (data.grammar_score)    updateMetric("grammarScore", "grammarBar", data.grammar_score, "%");
+    if (data.readability_score) updateMetric("readScore", "readBar", data.readability_score, "%");
+    if (errors.length) {
       updateMetric("errorsFixed", "fixBar", errors.length, "");
       totalErrorsFixed += errors.length;
       document.getElementById("totalErrors").textContent = totalErrorsFixed;
     }
-
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     updateMetric("wordCount", "wordBar", words, "");
+    if (data.clarity)     { document.getElementById("clarityScore").textContent = data.clarity;     document.getElementById("clarityScore").classList.remove("dim"); }
+    if (data.fluency)     { document.getElementById("fluencyScore").textContent = data.fluency;     document.getElementById("fluencyScore").classList.remove("dim"); }
+    if (data.human_score) { document.getElementById("humanScore").textContent = data.human_score;   document.getElementById("humanScore").classList.remove("dim"); }
+    if (data.accuracy)    { document.getElementById("accuracyScore").textContent = data.accuracy;   document.getElementById("accuracyScore").classList.remove("dim"); }
 
-    if (data.clarity) {
-      document.getElementById("clarityScore").textContent = data.clarity;
-      document.getElementById("clarityScore").classList.remove("dim");
-    }
-    if (data.fluency) {
-      document.getElementById("fluencyScore").textContent = data.fluency;
-      document.getElementById("fluencyScore").classList.remove("dim");
-    }
-    if (data.human_score) {
-      document.getElementById("humanScore").textContent = data.human_score;
-      document.getElementById("humanScore").classList.remove("dim");
-    }
-    if (data.accuracy) {
-      document.getElementById("accuracyScore").textContent = data.accuracy;
-      document.getElementById("accuracyScore").classList.remove("dim");
-    }
-
-    // Session stats
     totalCorrections++;
     document.getElementById("totalCorrections").textContent = totalCorrections;
-
-    // History
     addToHistory(text, corrected);
-
     setStatus("success", "✓ Correction complete!");
     showToast("✨ Sentence corrected!");
 
   } catch (error) {
-    console.error("Correction error:", error);
+    console.error("Error:", error);
     document.getElementById("correctedOutput").textContent = "❌ Error: " + error.message;
     setStatus("error", "Error: " + error.message);
     showToast("❌ Failed: " + error.message);
@@ -412,37 +370,36 @@ function onInput() {
   const text = document.getElementById("sourceText").value;
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   document.getElementById("charCount").textContent = `${text.length} characters · ${words} words`;
-  setStatus("idle", "Ready — Click Correct to process");
 }
 
 function copyOutput() {
   if (!latestOutput) { showToast("No output to copy"); return; }
   navigator.clipboard.writeText(latestOutput);
-  showToast("✓ Copied to clipboard!");
+  showToast("✓ Copied!");
 }
 
 function copyOriginal() {
-  const original = document.getElementById("originalOutput").textContent;
-  if (!original || original === "Waiting for input...") { showToast("No original text"); return; }
-  navigator.clipboard.writeText(original);
+  const t = document.getElementById("originalOutput").textContent;
+  if (!t || t === "Waiting for input...") { showToast("No original text"); return; }
+  navigator.clipboard.writeText(t);
   showToast("✓ Original copied!");
 }
 
 function clearWorkspace() {
   document.getElementById("sourceText").value = "";
   document.getElementById("charCount").textContent = "0 characters · 0 words";
-  document.getElementById("originalOutput").innerHTML = "Waiting for input...";
-  document.getElementById("originalOutput").className = "output placeholder";
-  document.getElementById("correctedOutput").innerHTML = "Your corrected sentence will appear here...";
-  document.getElementById("correctedOutput").className = "output placeholder";
-  document.getElementById("rewriteSuggestions").innerHTML = "Professional, Friendly &amp; Formal rewrites appear here.";
-  document.getElementById("rewriteSuggestions").className = "small-output placeholder";
-  document.getElementById("grammarExplanation").innerHTML = "Detailed grammar explanations appear here.";
-  document.getElementById("grammarExplanation").className = "small-output placeholder";
-  document.getElementById("errorsDetected").innerHTML = "Error list with fixes appear here.";
-  document.getElementById("errorsDetected").className = "small-output placeholder";
-  document.getElementById("seoInsights").innerHTML = "Readability and SEO insights appear here.";
-  document.getElementById("seoInsights").className = "small-output placeholder";
+  ["originalOutput","correctedOutput"].forEach(id => {
+    document.getElementById(id).className = "output placeholder";
+  });
+  ["rewriteSuggestions","grammarExplanation","errorsDetected","seoInsights"].forEach(id => {
+    document.getElementById(id).className = "small-output placeholder";
+  });
+  document.getElementById("originalOutput").textContent = "Waiting for input...";
+  document.getElementById("correctedOutput").textContent = "Your corrected sentence will appear here...";
+  document.getElementById("rewriteSuggestions").textContent = "Professional, Friendly & Formal rewrites appear here.";
+  document.getElementById("grammarExplanation").textContent = "Detailed grammar explanations appear here.";
+  document.getElementById("errorsDetected").textContent = "Error list with fixes appear here.";
+  document.getElementById("seoInsights").textContent = "Readability and SEO insights appear here.";
   latestOutput = "";
   setStatus("idle", "Ready — Start typing to correct");
   showToast("🗑 Workspace cleared");
@@ -459,25 +416,22 @@ function listenOutput() {
 
 function exportTXT() {
   if (!latestOutput) { showToast("No output to export"); return; }
-  const blob = new Blob([latestOutput], { type: "text/plain" });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([latestOutput], { type: "text/plain" }));
   a.download = "correction.txt";
   a.click();
-  showToast("📄 Exported as TXT");
+  showToast("📄 Exported TXT");
 }
 
 function exportJSON() {
   if (!latestOutput) { showToast("No output to export"); return; }
   const original = document.getElementById("originalOutput").textContent;
-  const blob = new Blob([JSON.stringify({ original, corrected: latestOutput }, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ original, corrected: latestOutput }, null, 2)], { type: "application/json" }));
   a.download = "correction.json";
   a.click();
-  showToast("📦 Exported as JSON");
+  showToast("📦 Exported JSON");
 }
 </script>
-
 </body>
 </html>
