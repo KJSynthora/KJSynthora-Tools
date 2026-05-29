@@ -1,103 +1,427 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>PowerPoint to PDF</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerPoint to PDF — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
-
+:root{
+  --bg:#04040a;--surface:#0d0d1a;--surface2:#13132a;
+  --border:rgba(255,160,60,0.18);--accent:#ff9a3c;--accent2:#e040fb;
+  --green:#00ffaa;--text:#fff3e0;--muted:#7a6a5a;--danger:#ff4d6d;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-background:#020617;
-color:white;
-font-family:Poppins,sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
+  background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+  position:relative;overflow-x:hidden;
 }
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,154,60,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,154,60,0.03) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;width:650px;height:650px;
+  background:radial-gradient(circle,rgba(255,154,60,0.09) 0%,transparent 70%);
+  top:-150px;right:-150px;pointer-events:none;z-index:0;
+  animation:blob 9s ease-in-out infinite alternate;
+}
+@keyframes blob{from{transform:translate(0,0) scale(1);}to{transform:translate(-120px,80px) scale(1.2);}}
 
-.container{
-background:#0f172a;
-padding:50px;
-border-radius:24px;
-text-align:center;
-width:700px;
-max-width:95%;
+.card{
+  position:relative;z-index:1;width:100%;max-width:680px;
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:48px 44px 40px;
+  box-shadow:0 0 0 1px rgba(255,154,60,0.07),0 32px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.04);
 }
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,154,60,0.10);border:1px solid rgba(255,154,60,0.28);
+  border-radius:999px;padding:5px 14px;font-size:11px;font-weight:500;
+  color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px;
+}
+.badge .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;
+  animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
 
 h1{
-font-size:42px;
-background:linear-gradient(90deg,#60a5fa,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:20px;
+  font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1.1;margin-bottom:8px;
+  background:linear-gradient(135deg,#ffb347 0%,#e040fb 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
+.subtitle{color:var(--muted);font-size:14px;margin-bottom:28px;}
 
-button{
-padding:14px 24px;
-border:none;
-border-radius:12px;
-background:linear-gradient(90deg,#0ea5e9,#7c3aed);
-color:white;
-cursor:pointer;
-margin-top:20px;
+.steps{display:flex;gap:0;margin-bottom:24px;}
+.step{flex:1;text-align:center;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:1px;background:var(--border);}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 6px;font-family:'Syne',sans-serif;position:relative;z-index:1;}
+.step-label{font-size:10px;color:var(--muted);letter-spacing:0.05em;}
+
+.note{
+  background:rgba(255,154,60,0.05);border:1px solid rgba(255,154,60,0.18);
+  border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:12px;
+  color:var(--muted);line-height:1.6;
 }
+.note strong{color:var(--accent);}
 
-a{
-display:inline-block;
-margin-top:30px;
-color:#38bdf8;
-text-decoration:none;
+.dropzone{
+  border:2px dashed rgba(255,154,60,0.28);border-radius:16px;padding:38px 24px;
+  text-align:center;cursor:pointer;transition:all 0.25s ease;
+  position:relative;background:rgba(255,154,60,0.03);margin-bottom:20px;
 }
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:rgba(255,154,60,0.07);transform:translateY(-2px);}
+.dropzone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.drop-icon{font-size:38px;margin-bottom:10px;display:block;}
+.drop-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.drop-sub{font-size:12px;color:var(--muted);}
 
-#status{
-margin-top:20px;
+.file-chosen{
+  display:none;align-items:center;gap:12px;
+  background:rgba(0,255,170,0.05);border:1px solid rgba(0,255,170,0.18);
+  border-radius:10px;padding:12px 16px;margin-bottom:16px;
 }
+.file-chosen .file-icon{font-size:22px;}
+.file-chosen .file-name{font-size:13px;font-weight:500;color:var(--green);flex:1;
+  text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-chosen .file-meta{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;}
+.file-chosen.show{display:flex;}
 
+.slide-info{
+  display:none;background:rgba(255,154,60,0.06);border:1px solid rgba(255,154,60,0.2);
+  border-radius:10px;padding:10px 16px;margin-bottom:16px;
+  font-size:13px;color:var(--accent);text-align:center;
+}
+.slide-info.show{display:block;}
+
+.progress-wrap{display:none;margin-bottom:16px;}
+.progress-wrap.show{display:block;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
+.progress-bar-bg{background:var(--surface2);border-radius:999px;height:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  width:0%;transition:width 0.4s ease;box-shadow:0 0 12px rgba(255,154,60,0.4);}
+
+.btn{
+  width:100%;padding:16px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#e65c00 0%,var(--accent2) 100%);
+  color:white;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;
+  cursor:pointer;transition:all 0.25s ease;position:relative;overflow:hidden;letter-spacing:0.03em;
+}
+.btn::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);opacity:0;transition:opacity 0.2s;}
+.btn:hover::before{opacity:1;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(255,154,60,0.35);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+.result{display:none;margin-top:16px;padding:16px 20px;border-radius:14px;
+  background:rgba(0,255,170,0.06);border:1px solid rgba(0,255,170,0.25);text-align:center;}
+.result.show{display:block;}
+.result.error{background:rgba(255,77,109,0.06);border-color:rgba(255,77,109,0.25);}
+.result-icon{font-size:26px;margin-bottom:5px;}
+.result-text{font-size:13px;color:var(--green);font-weight:500;}
+.result.error .result-text{color:var(--danger);}
+
+.trust{display:flex;justify-content:center;gap:20px;margin-top:28px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.trust-item span:first-child{font-size:13px;}
+
+.back{display:inline-flex;align-items:center;gap:6px;margin-top:24px;
+  color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;}
+.back:hover{color:var(--accent);}
 </style>
-
 </head>
-
 <body>
+<div class="card">
+  <div class="badge"><span class="dot"></span> 100% Free · No Signup · No Upload</div>
+  <h1>PowerPoint to PDF</h1>
+  <p class="subtitle">Convert your PPTX slides into a clean, branded PDF — entirely in your browser.</p>
 
-<div class="container">
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-label">Upload PPTX</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-label">Extract Slides</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-label">Download PDF</div></div>
+  </div>
 
-<h1>PowerPoint to PDF 📽️</h1>
+  <div class="note">
+    <strong>ℹ️ How it works:</strong> Your PPTX file is read locally — slide text, titles, and bullet points are extracted and rendered into a clean styled PDF. No data ever leaves your device.
+  </div>
 
-<input type="file" id="pptFile" accept=".ppt,.pptx">
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="pptFile" accept=".pptx" onchange="fileSelected(this)">
+    <span class="drop-icon">📽️</span>
+    <div class="drop-title">Drop your PPTX file here</div>
+    <div class="drop-sub">or click to browse &nbsp;·&nbsp; .pptx format</div>
+  </div>
 
-<br>
+  <div class="file-chosen" id="fileChosen">
+    <span class="file-icon">🎞️</span>
+    <span class="file-name" id="fileName">—</span>
+    <span class="file-meta" id="fileMeta">—</span>
+  </div>
 
-<button onclick="convertPPT()">
-Convert PPT to PDF
-</button>
+  <div class="slide-info" id="slideInfo">🎯 <span id="slideCount">0</span> slides detected and ready</div>
 
-<div id="status"></div>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressStep">Reading file...</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
 
-<a href="../index.html">Return Home</a>
+  <button class="btn" id="convertBtn" onclick="convertPPTtoPDF()">⚡ Convert PPT to PDF</button>
 
+  <div class="result" id="result">
+    <div class="result-icon" id="resultIcon">✅</div>
+    <div class="result-text" id="resultText"></div>
+  </div>
+
+  <div class="trust">
+    <div class="trust-item"><span>🔒</span><span>Files never leave your device</span></div>
+    <div class="trust-item"><span>⚡</span><span>Instant browser conversion</span></div>
+    <div class="trust-item"><span>🆓</span><span>Always free</span></div>
+  </div>
+
+  <a class="back" href="../index.html">← Return Home</a>
 </div>
 
 <script>
+const dropzone = document.getElementById('dropzone');
+dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.classList.add('dragover');});
+dropzone.addEventListener('dragleave',()=>dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop',e=>{
+  e.preventDefault();dropzone.classList.remove('dragover');
+  if(e.dataTransfer.files.length) fileSelected(null,e.dataTransfer.files[0]);
+});
 
-function convertPPT(){
+let parsedSlides=[];
 
-const fileInput=document.getElementById('pptFile');
-const status=document.getElementById('status');
+async function fileSelected(input,dropped){
+  const file=dropped||(input&&input.files[0]);
+  if(!file) return;
+  window._pptFile=file;
+  document.getElementById('fileName').textContent=file.name;
+  document.getElementById('fileMeta').textContent=(file.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('fileChosen').classList.add('show');
+  document.getElementById('result').classList.remove('show','error');
+  document.getElementById('slideInfo').classList.remove('show');
+  parsedSlides=[];
 
-if(fileInput.files.length===0){
-status.innerHTML="Please select PowerPoint file.";
-return;
+  try{
+    const ab=await file.arrayBuffer();
+    const zip=await JSZip.loadAsync(ab);
+    const slideFiles=Object.keys(zip.files)
+      .filter(f=>/^ppt\/slides\/slide\d+\.xml$/.test(f))
+      .sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+
+    document.getElementById('slideCount').textContent=slideFiles.length;
+    document.getElementById('slideInfo').classList.add('show');
+
+    parsedSlides=[];
+    for(const sf of slideFiles){
+      const xml=await zip.files[sf].async('text');
+      parsedSlides.push(parseSlideXML(xml,parsedSlides.length+1));
+    }
+  } catch(e){ console.warn('pre-parse:',e); }
 }
 
-status.innerHTML="Conversion feature coming soon 🚀";
+function parseSlideXML(xml,slideNum){
+  const doc=new DOMParser().parseFromString(xml,'text/xml');
+  const NS_A='http://schemas.openxmlformats.org/drawingml/2006/main';
+  const NS_P='http://schemas.openxmlformats.org/presentationml/2006/main';
 
+  // Collect all text per shape, preserving paragraph structure
+  const shapes=[];
+  const spList=doc.getElementsByTagNameNS(NS_P,'sp');
+
+  for(const sp of spList){
+    const ph=sp.getElementsByTagNameNS(NS_P,'ph')[0];
+    const phType=ph?ph.getAttribute('type'):'';
+    const isTitle=phType==='title'||phType==='ctrTitle';
+    const isBody=phType==='body'||phType==='subTitle'||phType===''||!ph;
+
+    const paras=sp.getElementsByTagNameNS(NS_A,'p');
+    const paraTexts=[];
+    for(const para of paras){
+      const runs=para.getElementsByTagNameNS(NS_A,'r');
+      let line='';
+      for(const r of runs) line+=r.getElementsByTagNameNS(NS_A,'t')[0]?.textContent||'';
+      if(line.trim()) paraTexts.push(line.trim());
+    }
+    if(paraTexts.length) shapes.push({isTitle,isBody,lines:paraTexts});
+  }
+
+  // Find title
+  let title=`Slide ${slideNum}`;
+  const titleShape=shapes.find(s=>s.isTitle);
+  if(titleShape&&titleShape.lines.length) title=titleShape.lines.join(' ');
+
+  // Collect body bullets (exclude title shape content)
+  const bullets=[];
+  for(const s of shapes){
+    if(s===titleShape) continue;
+    for(const l of s.lines) bullets.push(l);
+  }
+
+  return {title,bullets};
 }
 
+function setProgress(pct,step){
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressStep').textContent=step;
+}
+
+async function convertPPTtoPDF(){
+  const file=window._pptFile;
+  const result=document.getElementById('result');
+  result.classList.remove('show','error');
+
+  if(!file){
+    result.classList.add('show','error');
+    document.getElementById('resultIcon').textContent='⚠️';
+    document.getElementById('resultText').textContent='Please select a PPTX file first.';
+    return;
+  }
+
+  const btn=document.getElementById('convertBtn');
+  btn.disabled=true;btn.textContent='⏳ Converting...';
+  document.getElementById('progressWrap').classList.add('show');
+  setProgress(5,'Reading PPTX file...');
+
+  try{
+    if(!parsedSlides.length){
+      const ab=await file.arrayBuffer();
+      const zip=await JSZip.loadAsync(ab);
+      const slideFiles=Object.keys(zip.files)
+        .filter(f=>/^ppt\/slides\/slide\d+\.xml$/.test(f))
+        .sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+      setProgress(20,'Parsing slides...');
+      for(const sf of slideFiles){
+        const xml=await zip.files[sf].async('text');
+        parsedSlides.push(parseSlideXML(xml,parsedSlides.length+1));
+      }
+    }
+
+    setProgress(40,'Building PDF...');
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    const W=297,H=210;
+    const total=parsedSlides.length;
+
+    for(let i=0;i<total;i++){
+      const slide=parsedSlides[i];
+      const pct=Math.round(40+(i/total)*52);
+      setProgress(pct,`Rendering slide ${i+1} of ${total}...`);
+      if(i>0) doc.addPage('a4','landscape');
+
+      // Dark background
+      doc.setFillColor(13,13,26);
+      doc.rect(0,0,W,H,'F');
+
+      // Top bar gradient simulation
+      doc.setFillColor(20,18,40);
+      doc.rect(0,0,W,32,'F');
+
+      // Orange accent left stripe
+      doc.setFillColor(230,92,0);
+      doc.rect(0,0,4,H,'F');
+
+      // Slide number badge
+      doc.setFillColor(224,64,251);
+      doc.roundedRect(W-30,6,24,16,4,4,'F');
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(255,255,255);
+      doc.text(`${i+1} / ${total}`,W-18,16.5,{align:'center'});
+
+      // Brand
+      doc.setFontSize(8);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(120,100,80);
+      doc.text('kjsynthora.com',12,19);
+
+      // Title
+      const titleStr=slide.title.length>70?slide.title.substring(0,68)+'…':slide.title;
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(20);
+      doc.setTextColor(255,185,100);
+      doc.text(titleStr,W/2,52,{align:'center',maxWidth:W-40});
+
+      // Divider line
+      doc.setDrawColor(255,154,60);
+      doc.setLineWidth(0.6);
+      doc.line(20,58,W-20,58);
+
+      // Bullets
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(11);
+      let y=70;
+      const lineH=9;
+      const maxY=H-12;
+      const bulletW=W-55;
+
+      for(const bullet of slide.bullets){
+        if(y>maxY) break;
+        const clean=bullet.trim();
+        if(!clean) continue;
+
+        // Bullet dot
+        doc.setFillColor(255,154,60);
+        doc.circle(18,y-2,1.5,'F');
+
+        // Text with wrap
+        doc.setTextColor(235,220,200);
+        const lines=doc.splitTextToSize(clean,bulletW);
+        for(let li=0;li<lines.length;li++){
+          if(y>maxY) break;
+          doc.text(lines[li],24,y);
+          y+=lineH;
+        }
+        y+=2; // spacing between bullets
+      }
+
+      if(!slide.bullets.length){
+        doc.setTextColor(50,45,60);
+        doc.setFont('helvetica','italic');
+        doc.setFontSize(12);
+        doc.text('[ No text content on this slide ]',W/2,H/2,{align:'center'});
+      }
+
+      // Bottom border
+      doc.setDrawColor(40,35,60);
+      doc.setLineWidth(0.3);
+      doc.line(0,H-8,W,H-8);
+    }
+
+    setProgress(95,'Saving your PDF...');
+    const outName=file.name.replace(/\.pptx?$/i,'')+'_converted.pdf';
+    doc.save(outName);
+    setProgress(100,'Done!');
+
+    result.classList.add('show');
+    document.getElementById('resultIcon').textContent='✅';
+    document.getElementById('resultText').textContent=`"${outName}" downloaded! — ${total} slides converted`;
+  } catch(err){
+    result.classList.add('show','error');
+    document.getElementById('resultIcon').textContent='❌';
+    document.getElementById('resultText').textContent='Error: '+err.message;
+    console.error(err);
+  }
+
+  btn.disabled=false;btn.textContent='⚡ Convert PPT to PDF';
+}
 </script>
-
 </body>
 </html>
