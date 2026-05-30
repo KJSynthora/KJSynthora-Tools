@@ -1,1134 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KJSynthora QR Cloud Platform</title>
-
-<meta
-name="description"
-content="Enterprise-grade global QR platform with WiFi QR, UPI QR, dynamic QR analytics, realtime downloads and advanced styling."
-/>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet"
-/>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+<meta name="description" content="Enterprise-grade global QR platform with WiFi QR, UPI QR, dynamic QR analytics, realtime downloads and advanced styling.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04040a;--surface:#0d0d1a;--s2:#111827;--s3:#1a1f30;
+  --border:rgba(99,102,241,0.18);--accent:#818cf8;--accent2:#7c5cfc;
+  --cyan:#38bdf8;--green:#22c55e;--text:#e2e8f0;--muted:#4a5568;--danger:#f87171;
 }
-
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-
-background:
-linear-gradient(
-135deg,
-#020617,
-#081028,
-#020617
-);
-
-color:white;
-overflow-x:hidden;
-
+  background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+  min-height:100vh;overflow-x:hidden;
 }
-
 body::before{
-
-content:'';
-
-position:fixed;
-
-width:700px;
-height:700px;
-
-background:
-radial-gradient(
-circle,
-#2563eb44,
-#8b5cf622,
-transparent
-);
-
-top:-250px;
-left:-250px;
-
-filter:blur(90px);
-
-z-index:-1;
-
-animation:glow 8s infinite alternate;
-
+  content:'';position:fixed;width:800px;height:800px;
+  background:radial-gradient(circle,rgba(99,102,241,0.1) 0%,rgba(124,92,252,0.05) 50%,transparent 70%);
+  top:-300px;left:-300px;filter:blur(60px);z-index:0;pointer-events:none;
+  animation:glow 10s infinite alternate;
 }
-
-@keyframes glow{
-
-from{
-transform:translateY(0px);
+body::after{
+  content:'';position:fixed;width:600px;height:600px;
+  background:radial-gradient(circle,rgba(56,189,248,0.07) 0%,transparent 70%);
+  bottom:-200px;right:-200px;filter:blur(60px);z-index:0;pointer-events:none;
 }
+@keyframes glow{from{transform:translate(0,0);}to{transform:translate(80px,60px);}}
 
-to{
-transform:translateY(80px);
-}
+.container{width:95%;max-width:1600px;margin:auto;padding:36px 0 80px;position:relative;z-index:1;}
 
-}
-
-.container{
-
-width:95%;
-max-width:1800px;
-
-margin:auto;
-
-padding:40px 0 100px;
-
-}
-
-.header{
-
-text-align:center;
-margin-bottom:40px;
-
-}
-
+/* HEADER */
+.header{text-align:center;margin-bottom:36px;}
 .header h1{
-
-font-size:62px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
+  font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1.1;
+  background:linear-gradient(90deg,#818cf8,#38bdf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-
-.header p{
-
-margin-top:15px;
-color:#cbd5e1;
-font-size:18px;
-
+.header p{margin-top:12px;color:var(--muted);font-size:16px;}
+.live-badge{
+  display:inline-flex;align-items:center;gap:8px;margin-top:16px;
+  padding:10px 20px;border-radius:999px;background:rgba(34,197,94,0.12);
+  border:1px solid rgba(34,197,94,0.3);font-size:12px;font-weight:700;color:var(--green);
+  letter-spacing:0.06em;
 }
+.live-badge .dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
-.live-status{
-
-display:inline-block;
-
-margin-top:18px;
-
-padding:12px 22px;
-
-border-radius:999px;
-
-background:#16a34a;
-
-font-size:13px;
-font-weight:700;
-
-}
-
+/* GRID */
 .main-grid{
-
-display:grid;
-
-grid-template-columns:
-1.2fr 1fr 0.8fr;
-
-gap:25px;
-
+  display:grid;grid-template-columns:1.3fr 1fr 0.85fr;gap:22px;align-items:start;
 }
+@media(max-width:1200px){.main-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:760px){.main-grid{grid-template-columns:1fr;}}
 
 .panel{
-
-background:#0f172a;
-
-padding:28px;
-
-border-radius:28px;
-
-border:1px solid rgba(255,255,255,.05);
-
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:26px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);
 }
-
 .section-title{
-
-font-size:28px;
-margin-bottom:25px;
-
+  font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:22px;
+  color:var(--text);
 }
 
-.mode-tabs{
-
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-
-margin-bottom:25px;
-
-}
-
+/* TABS */
+.mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
 .mode-btn{
-
-padding:12px 18px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
+  padding:9px 16px;border:1px solid var(--border);border-radius:10px;
+  background:var(--s2);color:var(--muted);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;
 }
-
+.mode-btn:hover{color:var(--text);border-color:var(--accent);}
 .mode-btn.active{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
+  background:linear-gradient(135deg,var(--accent2),#4f46e5);
+  color:white;border-color:transparent;
 }
+.section{display:none;animation:fadeIn 0.2s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
 
-.section{
-
-display:none;
-
+/* INPUTS */
+.input-box,.select-box{
+  width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+  background:var(--s2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;
+  margin-top:10px;outline:none;transition:border-color 0.2s;
 }
+.input-box:focus,.select-box:focus{border-color:var(--accent);}
+.select-box option{background:var(--s2);}
 
-.section.active{
-
-display:block;
-
+/* COLOR ROW */
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.color-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;}
+.color-field-inner{
+  display:flex;align-items:center;gap:8px;
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;
 }
-
-.input-box,
-.select-box{
-
-width:100%;
-
-padding:16px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-margin-top:14px;
-
+.color-field-inner input[type=color]{
+  width:28px;height:28px;border:none;background:none;padding:0;cursor:pointer;border-radius:4px;
 }
+.color-field-inner span{font-size:12px;color:var(--muted);font-family:monospace;}
 
-.color-grid{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:15px;
-
-margin-top:20px;
-
+/* DOT STYLE SELECTOR */
+.dot-styles{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.dot-btn{
+  padding:6px 12px;border:1px solid var(--border);border-radius:8px;
+  background:var(--s2);color:var(--muted);font-size:11px;cursor:pointer;transition:all 0.2s;
 }
+.dot-btn:hover,.dot-btn.active{background:rgba(129,140,248,0.15);border-color:var(--accent);color:var(--accent);}
 
+/* BUTTONS */
 .action-btn{
-
-width:100%;
-
-padding:16px;
-
-border:none;
-
-border-radius:14px;
-
-margin-top:18px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
+  width:100%;padding:13px;border:none;border-radius:12px;margin-top:12px;
+  background:linear-gradient(135deg,var(--accent2) 0%,#4f46e5 100%);
+  color:white;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;letter-spacing:0.02em;
 }
+.action-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 60%);opacity:0;transition:0.2s;}
+.action-btn:hover::before{opacity:1;}
+.action-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,92,252,0.4);}
+.action-btn.secondary{background:var(--s2);border:1px solid var(--border);color:var(--muted);}
+.action-btn.secondary:hover{color:var(--text);box-shadow:none;border-color:var(--accent);}
 
-.action-btn:hover{
-
-transform:translateY(-3px);
-
-}
-
-#qrPreview{
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-min-height:500px;
-
-background:#111827;
-
-border-radius:24px;
-
-padding:30px;
-
-}
-
-.analytics-box{
-
-background:#111827;
-
-padding:18px;
-
-border-radius:18px;
-
-margin-bottom:18px;
-
-line-height:2;
-
-}
-
-.download-grid{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:15px;
-
-margin-top:25px;
-
-}
-
+/* DOWNLOAD GRID */
+.download-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
 .download-btn{
-
-padding:14px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
+  padding:11px 8px;border:1px solid var(--border);border-radius:10px;
+  background:var(--s2);color:var(--muted);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;text-align:center;
 }
+.download-btn:hover{background:rgba(56,189,248,0.08);border-color:var(--cyan);color:var(--cyan);}
 
-.footer-buttons{
-
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-
-margin-top:45px;
-
+/* QR PREVIEW */
+#qrPreview{
+  display:flex;align-items:center;justify-content:center;
+  min-height:380px;background:var(--s2);border-radius:20px;
+  border:1px solid var(--border);position:relative;overflow:hidden;padding:24px;
 }
+.qr-placeholder{text-align:center;color:var(--muted);}
+.qr-placeholder .icon{font-size:52px;margin-bottom:12px;opacity:0.4;}
+.qr-placeholder p{font-size:13px;}
 
+/* ANALYTICS */
+.stat-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:14px;
+  padding:14px 16px;margin-bottom:12px;
+}
+.stat-card-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;}
+.stat-row strong{color:var(--text);}
+.stat-label{color:var(--muted);}
+.status-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:4px;animation:pulse 2s ease-in-out infinite;}
+
+/* FOOTER */
+.footer-buttons{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:36px;}
 .footer-buttons a{
-
-padding:16px 28px;
-
-border-radius:14px;
-
-text-decoration:none;
-
-font-weight:700;
-
+  padding:13px 26px;border-radius:12px;text-decoration:none;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:14px;transition:all 0.2s;
 }
+.primary-link{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;}
+.secondary-link{background:var(--s2);border:1px solid var(--border);color:var(--muted);}
+.primary-link:hover,.secondary-link:hover{transform:translateY(-2px);}
 
-.primary-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--s2);border:1px solid var(--green);color:var(--green);
+  padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;
+  z-index:999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;
 }
+.toast.show{opacity:1;transform:translateY(0);}
 
-.secondary-btn{
-
-background:#111827;
-color:white;
-
+/* QR count badge */
+.qr-count{
+  position:absolute;top:12px;right:12px;
+  background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);
+  color:var(--green);font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;
 }
-
-@media(max-width:1300px){
-
-.main-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
 
-<div class="header">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>KJSynthora QR Cloud Platform</h1>
+    <p>Enterprise-grade worldwide QR operating system</p>
+    <div class="live-badge"><span class="dot"></span> REALTIME QR ENGINE ACTIVE</div>
+  </div>
 
-<h1>KJSynthora QR Cloud Platform</h1>
+  <div class="main-grid">
 
-<p>
-Enterprise-grade worldwide QR operating system
-</p>
+    <!-- LEFT: CONTROLS -->
+    <div class="panel">
+      <div class="section-title">QR Generator Controls</div>
 
-<div class="live-status">
-● REALTIME QR ENGINE ACTIVE
+      <div class="mode-tabs">
+        <button class="mode-btn active" data-tab="urlSection" data-label="URL">URL</button>
+        <button class="mode-btn" data-tab="wifiSection" data-label="WiFi">WiFi</button>
+        <button class="mode-btn" data-tab="upiSection" data-label="UPI">UPI</button>
+        <button class="mode-btn" data-tab="contactSection" data-label="vCard">vCard</button>
+        <button class="mode-btn" data-tab="smsSection" data-label="SMS">SMS</button>
+        <button class="mode-btn" data-tab="textSection" data-label="Text">Text</button>
+      </div>
+
+      <div id="urlSection" class="section active">
+        <input type="url" id="urlInput" class="input-box" placeholder="https://kjsynthora.com">
+      </div>
+      <div id="wifiSection" class="section">
+        <input type="text" id="wifiSSID" class="input-box" placeholder="WiFi Network Name (SSID)">
+        <input type="password" id="wifiPassword" class="input-box" placeholder="WiFi Password">
+        <select id="wifiSecurity" class="select-box">
+          <option value="WPA">WPA / WPA2</option>
+          <option value="WEP">WEP</option>
+          <option value="nopass">Open Network</option>
+        </select>
+      </div>
+      <div id="upiSection" class="section">
+        <input type="text" id="upiId" class="input-box" placeholder="UPI ID (e.g. name@upi)">
+        <input type="text" id="upiName" class="input-box" placeholder="Merchant / Receiver Name">
+        <input type="number" id="upiAmount" class="input-box" placeholder="Amount (optional)">
+      </div>
+      <div id="contactSection" class="section">
+        <input type="text" id="contactName" class="input-box" placeholder="Full Name">
+        <input type="tel" id="contactPhone" class="input-box" placeholder="Phone Number">
+        <input type="email" id="contactEmail" class="input-box" placeholder="Email Address">
+        <input type="text" id="contactOrg" class="input-box" placeholder="Organization (optional)">
+      </div>
+      <div id="smsSection" class="section">
+        <input type="tel" id="smsPhone" class="input-box" placeholder="Phone Number">
+        <input type="text" id="smsMessage" class="input-box" placeholder="SMS Message">
+      </div>
+      <div id="textSection" class="section">
+        <textarea id="textInput" class="input-box" placeholder="Enter any text..." rows="4" style="resize:vertical;"></textarea>
+      </div>
+
+      <!-- COLOR ROW -->
+      <div class="color-row">
+        <div class="color-field">
+          <label>Foreground</label>
+          <div class="color-field-inner">
+            <input type="color" id="foregroundColor" value="#000000" oninput="updateColorLabel('fg',this.value)">
+            <span id="fgLabel">#000000</span>
+          </div>
+        </div>
+        <div class="color-field">
+          <label>Background</label>
+          <div class="color-field-inner">
+            <input type="color" id="backgroundColor" value="#ffffff" oninput="updateColorLabel('bg',this.value)">
+            <span id="bgLabel">#ffffff</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOT STYLE -->
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Dot Style</div>
+        <div class="dot-styles" id="dotStyles">
+          <div class="dot-btn active" data-style="rounded" onclick="setDotStyle(this)">Rounded</div>
+          <div class="dot-btn" data-style="dots" onclick="setDotStyle(this)">Dots</div>
+          <div class="dot-btn" data-style="classy" onclick="setDotStyle(this)">Classy</div>
+          <div class="dot-btn" data-style="square" onclick="setDotStyle(this)">Square</div>
+          <div class="dot-btn" data-style="extra-rounded" onclick="setDotStyle(this)">Extra Round</div>
+        </div>
+      </div>
+
+      <!-- LOGO -->
+      <input type="url" id="logoURL" class="input-box" placeholder="Logo Image URL (optional)">
+
+      <button class="action-btn" onclick="generateQR()">⚡ Generate QR Code</button>
+      <button class="action-btn secondary" onclick="clearQR()">✕ Clear QR</button>
+
+      <div class="download-grid">
+        <button class="download-btn" onclick="downloadPNG()">⬇ PNG</button>
+        <button class="download-btn" onclick="downloadSVG()">⬇ SVG</button>
+        <button class="download-btn" onclick="downloadPDF()">⬇ PDF</button>
+        <button class="download-btn" onclick="copyQRData()">⎘ Copy Data</button>
+      </div>
+    </div>
+
+    <!-- CENTER: PREVIEW -->
+    <div class="panel">
+      <div class="section-title">Live QR Preview</div>
+      <div id="qrPreview">
+        <div class="qr-placeholder">
+          <div class="icon">⬛</div>
+          <p>Fill in the details and<br>click Generate</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: ANALYTICS -->
+    <div class="panel">
+      <div class="section-title">Realtime Analytics</div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Session Stats</div>
+        <div class="stat-row"><span class="stat-label">QRs Generated</span><strong id="qrGenCount">0</strong></div>
+        <div style="margin-top:8px;" class="stat-row"><span class="stat-label">Total Scans</span><strong id="scanCount">0</strong></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Live Status</div>
+        <div class="stat-row"><span class="stat-label">Engine</span><strong><span class="status-dot"></span>ACTIVE</strong></div>
+        <div style="margin-top:8px;" class="stat-row"><span class="stat-label">QR Type</span><strong id="currentType">URL</strong></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Capabilities</div>
+        <div class="stat-row" style="margin-bottom:6px;"><span class="stat-label">Error Correction</span><strong>H (30%)</strong></div>
+        <div class="stat-row" style="margin-bottom:6px;"><span class="stat-label">Vector Export</span><strong>SVG + PDF</strong></div>
+        <div class="stat-row" style="margin-bottom:6px;"><span class="stat-label">CDN Sync</span><strong style="color:var(--cyan);">Realtime</strong></div>
+        <div class="stat-row"><span class="stat-label">Formats</span><strong>PNG / SVG / PDF</strong></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Coverage</div>
+        <div class="stat-row" style="margin-bottom:6px;"><span class="stat-label">Countries</span><strong>Global</strong></div>
+        <div class="stat-row"><span class="stat-label">Devices</span><strong>All Platforms</strong></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-buttons">
+    <a href="../index.html" class="primary-link">← Return Home</a>
+    <a href="../index.html" class="secondary-link">More Tools</a>
+  </div>
 </div>
 
-</div>
-
-<div class="main-grid">
-
-<!-- LEFT PANEL -->
-
-<div class="panel">
-
-<div class="section-title">
-QR Generator Controls
-</div>
-
-<div class="mode-tabs">
-
-<button
-class="mode-btn active"
-data-tab="urlSection"
->
-URL
-</button>
-
-<button
-class="mode-btn"
-data-tab="wifiSection"
->
-WiFi
-</button>
-
-<button
-class="mode-btn"
-data-tab="upiSection"
->
-UPI
-</button>
-
-<button
-class="mode-btn"
-data-tab="contactSection"
->
-vCard
-</button>
-
-<button
-class="mode-btn"
-data-tab="smsSection"
->
-SMS
-</button>
-
-</div>
-
-<!-- URL -->
-
-<div
-id="urlSection"
-class="section active"
->
-
-<input
-type="text"
-id="urlInput"
-class="input-box"
-placeholder="Enter URL"
-/>
-
-</div>
-
-<!-- WIFI -->
-
-<div
-id="wifiSection"
-class="section"
->
-
-<input
-type="text"
-id="wifiSSID"
-class="input-box"
-placeholder="WiFi Name"
-/>
-
-<input
-type="password"
-id="wifiPassword"
-class="input-box"
-placeholder="WiFi Password"
-/>
-
-<select
-id="wifiSecurity"
-class="select-box"
->
-
-<option value="WPA">
-WPA/WPA2
-</option>
-
-<option value="WEP">
-WEP
-</option>
-
-<option value="nopass">
-Open Network
-</option>
-
-</select>
-
-</div>
-
-<!-- UPI -->
-
-<div
-id="upiSection"
-class="section"
->
-
-<input
-type="text"
-id="upiId"
-class="input-box"
-placeholder="UPI ID"
-/>
-
-<input
-type="text"
-id="upiName"
-class="input-box"
-placeholder="Name"
-/>
-
-<input
-type="number"
-id="upiAmount"
-class="input-box"
-placeholder="Amount"
-/>
-
-</div>
-
-<!-- VCARD -->
-
-<div
-id="contactSection"
-class="section"
->
-
-<input
-type="text"
-id="contactName"
-class="input-box"
-placeholder="Full Name"
-/>
-
-<input
-type="text"
-id="contactPhone"
-class="input-box"
-placeholder="Phone"
-/>
-
-<input
-type="email"
-id="contactEmail"
-class="input-box"
-placeholder="Email"
-/>
-
-</div>
-
-<!-- SMS -->
-
-<div
-id="smsSection"
-class="section"
->
-
-<input
-type="text"
-id="smsPhone"
-class="input-box"
-placeholder="Phone Number"
-/>
-
-<input
-type="text"
-id="smsMessage"
-class="input-box"
-placeholder="SMS Message"
-/>
-
-</div>
-
-<div class="color-grid">
-
-<div>
-
-<label>
-Foreground Color
-</label>
-
-<input
-type="color"
-id="foregroundColor"
-class="input-box"
-value="#000000"
-/>
-
-</div>
-
-<div>
-
-<label>
-Background Color
-</label>
-
-<input
-type="color"
-id="backgroundColor"
-class="input-box"
-value="#ffffff"
-/>
-
-</div>
-
-</div>
-
-<input
-type="text"
-id="logoURL"
-class="input-box"
-placeholder="Logo Image URL (optional)"
-/>
-
-<button
-class="action-btn"
-onclick="generateQR()"
->
-Generate Enterprise QR
-</button>
-
-<button
-class="action-btn"
-onclick="clearQR()"
->
-Clear QR
-</button>
-
-<div class="download-grid">
-
-<button
-class="download-btn"
-onclick="downloadPNG()"
->
-Download PNG
-</button>
-
-<button
-class="download-btn"
-onclick="downloadSVG()"
->
-Download SVG
-</button>
-
-<button
-class="download-btn"
-onclick="downloadPDF()"
->
-Download PDF
-</button>
-
-<button
-class="download-btn"
-onclick="copyQRData()"
->
-Copy Data
-</button>
-
-</div>
-
-</div>
-
-<!-- CENTER -->
-
-<div class="panel">
-
-<div class="section-title">
-Live QR Preview
-</div>
-
-<div id="qrPreview"></div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="panel">
-
-<div class="section-title">
-Realtime Analytics
-</div>
-
-<div class="analytics-box">
-
-Total Scans:
-<strong id="scanCount">
-0
-</strong>
-
-<br>
-
-Countries:
-<strong>
-Global
-</strong>
-
-<br>
-
-Devices:
-<strong>
-Android / iOS / Desktop
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Live Status:
-<strong style="color:#22c55e">
-ACTIVE
-</strong>
-
-<br>
-
-QR Type:
-<strong id="currentType">
-URL
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Dynamic Redirect:
-<strong>
-Enabled
-</strong>
-
-<br>
-
-CDN Edge Sync:
-<strong>
-Realtime
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Error Correction:
-<strong>
-30%
-</strong>
-
-<br>
-
-Vector Export:
-<strong>
-SVG / PDF
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<a
-href="../index.html"
-class="primary-btn"
->
-← Return Home
-</a>
-
-<a
-href="../index.html"
-class="secondary-btn"
->
-More Tools
-</a>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
+let qrCode=null;
+let dotStyle='rounded';
+let qrGenCount=0;
+let scanCount=0;
 
-let qrCode;
-
-let scanCount = 0;
-
-// ==========================
-// TAB ENGINE
-// ==========================
-
-const modeButtons =
-document.querySelectorAll('.mode-btn');
-
-const sections =
-document.querySelectorAll('.section');
-
-modeButtons.forEach(btn => {
-
-btn.addEventListener('click', () => {
-
-modeButtons.forEach(b =>
-b.classList.remove('active')
-);
-
-btn.classList.add('active');
-
-sections.forEach(section =>
-section.classList.remove('active')
-);
-
-document
-.getElementById(
-btn.dataset.tab
-)
-.classList.add('active');
-
-document
-.getElementById('currentType')
-.innerText =
-btn.innerText;
-
+// TABS
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    document.getElementById('currentType').textContent=btn.dataset.label;
+  });
 });
 
-});
+function setDotStyle(el){
+  document.querySelectorAll('.dot-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  dotStyle=el.dataset.style;
+}
 
-// ==========================
-// QR GENERATOR
-// ==========================
+function updateColorLabel(which,val){
+  if(which==='fg') document.getElementById('fgLabel').textContent=val;
+  else document.getElementById('bgLabel').textContent=val;
+}
+
+function getQRData(){
+  const tab=document.querySelector('.section.active').id;
+  if(tab==='urlSection') return document.getElementById('urlInput').value.trim()||'https://kjsynthora.com';
+  if(tab==='wifiSection'){
+    const s=document.getElementById('wifiSSID').value;
+    const p=document.getElementById('wifiPassword').value;
+    const t=document.getElementById('wifiSecurity').value;
+    return `WIFI:T:${t};S:${s};P:${p};;`;
+  }
+  if(tab==='upiSection'){
+    const id=document.getElementById('upiId').value;
+    const name=document.getElementById('upiName').value;
+    const amt=document.getElementById('upiAmount').value;
+    return `upi://pay?pa=${id}&pn=${encodeURIComponent(name)}${amt?'&am='+amt:''}`;
+  }
+  if(tab==='contactSection'){
+    const n=document.getElementById('contactName').value;
+    const ph=document.getElementById('contactPhone').value;
+    const em=document.getElementById('contactEmail').value;
+    const org=document.getElementById('contactOrg').value;
+    return `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${ph}\nEMAIL:${em}${org?'\nORG:'+org:''}\nEND:VCARD`;
+  }
+  if(tab==='smsSection'){
+    return `SMSTO:${document.getElementById('smsPhone').value}:${document.getElementById('smsMessage').value}`;
+  }
+  if(tab==='textSection') return document.getElementById('textInput').value.trim()||'KJSynthora';
+  return 'https://kjsynthora.com';
+}
 
 function generateQR(){
+  const data=getQRData();
+  const fg=document.getElementById('foregroundColor').value;
+  const bg=document.getElementById('backgroundColor').value;
+  const logo=document.getElementById('logoURL').value.trim();
 
-const activeTab =
-document.querySelector('.section.active').id;
+  document.getElementById('qrPreview').innerHTML='';
 
-let qrData = '';
+  qrCode=new QRCodeStyling({
+    width:300,height:300,type:'svg',data,
+    image:logo||undefined,
+    dotsOptions:{color:fg,type:dotStyle},
+    backgroundOptions:{color:bg},
+    imageOptions:{crossOrigin:'anonymous',margin:6,imageSize:0.35},
+    cornersSquareOptions:{type:'extra-rounded',color:fg},
+    cornersDotOptions:{color:fg},
+    qrOptions:{errorCorrectionLevel:'H'},
+  });
 
-if(activeTab === 'urlSection'){
+  qrCode.append(document.getElementById('qrPreview'));
 
-qrData =
-document.getElementById('urlInput').value;
+  // Add scan counter badge
+  const badge=document.createElement('div');
+  badge.className='qr-count';
+  badge.textContent='✓ Generated';
+  document.getElementById('qrPreview').appendChild(badge);
 
+  qrGenCount++;
+  scanCount+=Math.floor(Math.random()*8+2);
+  document.getElementById('qrGenCount').textContent=qrGenCount;
+  document.getElementById('scanCount').textContent=scanCount;
+  localStorage.setItem('lastQR',data);
+  showToast('✅ QR Code generated!');
 }
 
-if(activeTab === 'wifiSection'){
-
-const ssid =
-document.getElementById('wifiSSID').value;
-
-const pass =
-document.getElementById('wifiPassword').value;
-
-const sec =
-document.getElementById('wifiSecurity').value;
-
-qrData =
-`WIFI:T:${sec};S:${ssid};P:${pass};;`;
-
+function clearQR(){
+  document.getElementById('qrPreview').innerHTML=`
+    <div class="qr-placeholder">
+      <div class="icon">⬛</div>
+      <p>Fill in the details and<br>click Generate</p>
+    </div>`;
+  qrCode=null;
+  showToast('QR cleared');
 }
-
-if(activeTab === 'upiSection'){
-
-const upi =
-document.getElementById('upiId').value;
-
-const name =
-document.getElementById('upiName').value;
-
-const amount =
-document.getElementById('upiAmount').value;
-
-qrData =
-`upi://pay?pa=${upi}&pn=${name}&am=${amount}`;
-
-}
-
-if(activeTab === 'contactSection'){
-
-const name =
-document.getElementById('contactName').value;
-
-const phone =
-document.getElementById('contactPhone').value;
-
-const email =
-document.getElementById('contactEmail').value;
-
-qrData =
-`BEGIN:VCARD
-VERSION:3.0
-FN:${name}
-TEL:${phone}
-EMAIL:${email}
-END:VCARD`;
-
-}
-
-if(activeTab === 'smsSection'){
-
-const phone =
-document.getElementById('smsPhone').value;
-
-const message =
-document.getElementById('smsMessage').value;
-
-qrData =
-`SMSTO:${phone}:${message}`;
-
-}
-
-const foreground =
-document.getElementById('foregroundColor').value;
-
-const background =
-document.getElementById('backgroundColor').value;
-
-const logo =
-document.getElementById('logoURL').value;
-
-document.getElementById('qrPreview').innerHTML='';
-
-qrCode = new QRCodeStyling({
-
-width:320,
-height:320,
-
-type:"svg",
-
-data:qrData,
-
-image:logo || undefined,
-
-dotsOptions:{
-
-color:foreground,
-type:"rounded"
-
-},
-
-backgroundOptions:{
-
-color:background
-
-},
-
-imageOptions:{
-
-crossOrigin:"anonymous",
-margin:5
-
-},
-
-cornersSquareOptions:{
-
-type:"extra-rounded"
-
-},
-
-qrOptions:{
-
-errorCorrectionLevel:"H"
-
-}
-
-});
-
-qrCode.append(
-document.getElementById('qrPreview')
-);
-
-scanCount +=
-Math.floor(Math.random()*5);
-
-document
-.getElementById('scanCount')
-.innerText =
-scanCount;
-
-localStorage.setItem(
-'lastQR',
-qrData
-);
-
-}
-
-// ==========================
-// DOWNLOADS
-// ==========================
 
 function downloadPNG(){
-
-if(qrCode){
-
-qrCode.download({
-name:"KJSynthora-QR",
-extension:"png"
-});
-
-}
-
+  if(!qrCode){showToast('⚠️ Generate a QR first');return;}
+  qrCode.download({name:'KJSynthora-QR',extension:'png'});
+  showToast('⬇ PNG downloading...');
 }
 
 function downloadSVG(){
-
-if(qrCode){
-
-qrCode.download({
-name:"KJSynthora-QR",
-extension:"svg"
-});
-
-}
-
+  if(!qrCode){showToast('⚠️ Generate a QR first');return;}
+  qrCode.download({name:'KJSynthora-QR',extension:'svg'});
+  showToast('⬇ SVG downloading...');
 }
 
 async function downloadPDF(){
+  if(!qrCode){showToast('⚠️ Generate a QR first');return;}
+  try{
+    // Convert SVG -> Canvas -> PDF
+    const svgEl=document.querySelector('#qrPreview svg');
+    if(!svgEl){showToast('⚠️ Generate QR first');return;}
 
-const { jsPDF } =
-window.jspdf;
+    const svgData=new XMLSerializer().serializeToString(svgEl);
+    const svgBlob=new Blob([svgData],{type:'image/svg+xml;charset=utf-8'});
+    const url=URL.createObjectURL(svgBlob);
 
-const pdf =
-new jsPDF();
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      canvas.width=600;canvas.height=600;
+      const ctx=canvas.getContext('2d');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,600,600);
+      ctx.drawImage(img,0,0,600,600);
 
-const canvas =
-document
-.querySelector('#qrPreview canvas');
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({unit:'mm',format:'a4'});
 
-if(canvas){
+      // Add styled PDF header
+      pdf.setFillColor(13,13,26);
+      pdf.rect(0,0,210,297,'F');
+      pdf.setFont('helvetica','bold');
+      pdf.setFontSize(20);
+      pdf.setTextColor(129,140,248);
+      pdf.text('KJSynthora QR Code',105,20,{align:'center'});
 
-const img =
-canvas.toDataURL('image/png');
+      const imgData=canvas.toDataURL('image/png');
+      pdf.addImage(imgData,'PNG',55,35,100,100);
 
-pdf.addImage(
-img,
-'PNG',
-40,
-40,
-120,
-120
-);
+      pdf.setFontSize(9);
+      pdf.setTextColor(100,110,130);
+      pdf.text('kjsynthora.com',105,148,{align:'center'});
 
-pdf.save('KJSynthora-QR.pdf');
+      const data=localStorage.getItem('lastQR')||'';
+      if(data){
+        pdf.setFontSize(8);
+        pdf.setTextColor(80,90,110);
+        const lines=pdf.splitTextToSize('Data: '+data,180);
+        pdf.text(lines,15,158);
+      }
 
-}
-
+      pdf.save('KJSynthora-QR.pdf');
+      URL.revokeObjectURL(url);
+      showToast('⬇ PDF downloaded!');
+    };
+    img.src=url;
+  }catch(e){showToast('❌ PDF error: '+e.message);}
 }
 
 function copyQRData(){
-
-navigator.clipboard.writeText(
-localStorage.getItem('lastQR') || ''
-);
-
-alert('QR data copied');
-
+  const data=localStorage.getItem('lastQR')||getQRData();
+  navigator.clipboard.writeText(data).then(()=>showToast('⎘ QR data copied!'));
 }
 
-// ==========================
-// AUTO LOAD LAST QR
-// ==========================
-
-window.onload = () => {
-
-const lastQR =
-localStorage.getItem('lastQR');
-
-if(lastQR){
-
-document
-.getElementById('urlInput')
-.value = lastQR;
-
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+window.onload=()=>{
+  const last=localStorage.getItem('lastQR');
+  if(last) document.getElementById('urlInput').value=last;
 };
-
 </script>
-
 </body>
 </html>
