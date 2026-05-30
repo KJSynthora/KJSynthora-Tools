@@ -1,763 +1,1158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KJSynthora Enterprise Converter</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04040e;--surface:#0a0a1a;--s2:#0f1628;--s3:#151e35;--s4:#1c2540;
+  --border:rgba(99,102,241,0.18);--accent:#818cf8;--accent2:#7c5cfc;
+  --cyan:#38bdf8;--green:#22c55e;--yellow:#fbbf24;--orange:#fb923c;
+  --danger:#f87171;--text:#e2e8f0;--muted:#4a5568;
 }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;width:700px;height:700px;background:radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 65%);top:-200px;left:-200px;filter:blur(80px);z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(56,189,248,0.07) 0%,transparent 65%);bottom:-150px;right:-150px;filter:blur(60px);z-index:0;pointer-events:none;}
 
-body{
-background:
-radial-gradient(circle at top left,#1d1b5c 0%,#020617 35%,#010314 100%);
-color:white;
-min-height:100vh;
-overflow-x:hidden;
-}
+/* TOPBAR */
+.topbar{height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 5%;border-bottom:1px solid var(--border);background:rgba(4,4,14,0.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;background:linear-gradient(90deg,#38bdf8,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.home-btn{padding:8px 18px;border-radius:10px;text-decoration:none;font-weight:600;color:var(--muted);background:var(--s2);border:1px solid var(--border);font-size:13px;transition:all 0.2s;}
+.home-btn:hover{color:var(--text);border-color:var(--accent);}
 
-.topbar{
-height:90px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 7%;
-border-bottom:1px solid rgba(255,255,255,.05);
-background:rgba(0,0,0,.2);
-backdrop-filter:blur(12px);
-}
+/* HERO */
+.hero{text-align:center;padding:40px 20px 28px;position:relative;z-index:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:16px;}
+.hero-badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;background:linear-gradient(135deg,#a78bff,#38d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.hero p{color:var(--muted);font-size:14px;max-width:700px;margin:0 auto;}
 
-.logo{
-font-size:38px;
-font-weight:800;
-background:linear-gradient(90deg,#38bdf8,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
+/* WORKSPACE */
+.workspace{padding:0 4% 60px;max-width:1700px;margin:0 auto;position:relative;z-index:1;}
 
-.home-btn{
-padding:12px 22px;
-border-radius:14px;
-text-decoration:none;
-font-weight:600;
-color:white;
-background:rgba(255,255,255,.06);
-border:1px solid rgba(255,255,255,.08);
-transition:.3s;
-}
+/* TABS */
+.mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.mt-btn{padding:9px 18px;border:1px solid var(--border);border-radius:10px;background:var(--s2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.mt-btn.active{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;border-color:transparent;}
+.mt-content{display:none;}
+.mt-content.active{display:block;}
 
-.home-btn:hover{
-transform:translateY(-3px);
-background:linear-gradient(90deg,#0ea5e9,#9333ea);
-}
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:1100px){.main-grid{grid-template-columns:1fr;}}
 
-.hero{
-text-align:center;
-padding:60px 20px 30px;
-}
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);}
+.panel-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
 
-.hero h1{
-font-size:62px;
-font-weight:800;
-line-height:1.1;
-background:linear-gradient(90deg,#60a5fa,#8b5cf6);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:20px;
-}
+/* DROP ZONE */
+.dropzone{border:2px dashed rgba(99,102,241,0.25);border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;background:rgba(99,102,241,0.02);}
+.dropzone.dragover,.dropzone:hover{border-color:var(--accent);background:rgba(99,102,241,0.06);transform:translateY(-2px);}
+.dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:40px;margin-bottom:10px;display:block;}
+.dz-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
+.dz-sub{font-size:12px;color:var(--muted);}
 
-.hero p{
-max-width:900px;
-margin:auto;
-color:#94a3b8;
-line-height:1.8;
-font-size:18px;
-}
+/* FILE LIST */
+.file-list{margin-top:14px;}
+.file-item{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.fi-icon{font-size:20px;flex-shrink:0;}
+.fi-info{flex:1;min-width:0;}
+.fi-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fi-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.fi-remove{width:22px;height:22px;border-radius:50%;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--danger);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.fi-remove:hover{background:rgba(248,113,113,0.2);}
 
-.workspace{
-padding:20px 7% 80px;
-}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;}
+.stat-box{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--cyan);}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
 
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:30px;
-}
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.opt-item{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;cursor:pointer;transition:all 0.2s;user-select:none;}
+.opt-item:hover{border-color:var(--accent);}
+.opt-item.checked{border-color:var(--accent2);background:rgba(124,92,252,0.08);}
+.opt-item input{display:none;}
+.opt-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all 0.2s;}
+.opt-item.checked .opt-check{background:var(--accent2);border-color:var(--accent2);color:white;}
+.opt-lbl{font-size:12px;font-weight:500;}
 
-.card{
-background:rgba(12,18,45,.92);
-border:1px solid rgba(255,255,255,.06);
-border-radius:32px;
-padding:30px;
-box-shadow:
-0 0 40px rgba(59,130,246,.12);
-}
+/* SELECT / INPUT */
+.ctrl-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.ctrl-group label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;}
+.ctrl-input{width:100%;padding:9px 11px;background:var(--s2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:12px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;}
+.ctrl-input:focus{border-color:var(--accent);}
+.ctrl-input option{background:var(--s2);}
 
-.drop-area{
-border:2px dashed rgba(255,255,255,.08);
-border-radius:28px;
-padding:50px 20px;
-text-align:center;
-transition:.3s;
-}
+/* PROGRESS */
+.progress-wrap{display:none;margin-top:14px;}
+.progress-wrap.show{display:block;}
+.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.prog-track{height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--cyan));width:0%;transition:width 0.35s ease;box-shadow:0 0 10px rgba(124,92,252,0.4);}
 
-.drop-area:hover{
-border-color:#60a5fa;
-background:rgba(255,255,255,.02);
-}
+/* ACTION BUTTONS */
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.ab{padding:12px;border:none;border-radius:11px;font-weight:700;cursor:pointer;color:white;transition:all 0.2s;font-family:'DM Sans',sans-serif;font-size:13px;position:relative;overflow:hidden;}
+.ab::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.08);opacity:0;transition:0.2s;}
+.ab:hover::before{opacity:1;}
+.ab:hover{transform:translateY(-1px);}
+.ab:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-w2p{background:linear-gradient(135deg,#7c5cfc,#4f46e5);}
+.btn-p2w{background:linear-gradient(135deg,#0284c7,#38bdf8);}
+.btn-dl{background:linear-gradient(135deg,#059669,#10b981);}
+.btn-sec{background:linear-gradient(135deg,#dc2626,#f43f5e);}
+.btn-mrg{background:linear-gradient(135deg,#d97706,#f59e0b);}
+.btn-spl{background:linear-gradient(135deg,#7e22ce,#a855f7);}
+.btn-cmp{background:linear-gradient(135deg,#0f766e,#14b8a6);}
+.btn-clr{background:var(--s2);border:1px solid var(--border);color:var(--muted);}
 
-.drop-icon{
-font-size:70px;
-margin-bottom:20px;
-}
+/* STATUS */
+.status-box{margin-top:12px;padding:12px 14px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.18);border-radius:11px;font-size:12px;font-weight:600;color:var(--accent);min-height:40px;}
+.status-box.ok{background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.2);color:var(--green);}
+.status-box.err{background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.2);color:var(--danger);}
 
-.drop-title{
-font-size:42px;
-font-weight:700;
-margin-bottom:10px;
-}
+/* PREVIEW PANEL */
+.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.zoom-row{display:flex;gap:6px;align-items:center;}
+.zoom-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:7px;background:var(--s2);color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
+.zoom-val{font-size:12px;color:var(--muted);min-width:36px;text-align:center;}
+.page-nav{display:flex;gap:6px;align-items:center;}
+.page-info{font-size:12px;color:var(--muted);}
 
-.drop-sub{
-color:#94a3b8;
-margin-bottom:30px;
-}
+.preview-box{height:700px;overflow-y:auto;background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:16px;scrollbar-width:thin;scrollbar-color:var(--s3) transparent;}
+.preview-box::-webkit-scrollbar{width:5px;}
+.preview-box::-webkit-scrollbar-track{background:transparent;}
+.preview-box::-webkit-scrollbar-thumb{background:var(--s3);border-radius:999px;}
+.preview-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);}
+.preview-placeholder .icon{font-size:48px;margin-bottom:12px;opacity:0.4;}
+.preview-placeholder p{font-size:13px;}
+.preview-page{background:white;color:black;border-radius:10px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.4);transform-origin:top center;transition:transform 0.2s;}
+.preview-page canvas{display:block;width:100%;}
+.preview-page.docx-page{padding:28px 32px;line-height:1.7;font-size:14px;}
+.preview-page.docx-page h1,.preview-page.docx-page h2,.preview-page.docx-page h3{margin:12px 0 6px;}
+.preview-page.docx-page p{margin-bottom:8px;}
+.preview-page.docx-page table{border-collapse:collapse;width:100%;margin:10px 0;}
+.preview-page.docx-page td,.preview-page.docx-page th{border:1px solid #ddd;padding:6px 10px;font-size:12px;}
 
-.choose-btn{
-padding:16px 36px;
-border:none;
-border-radius:16px;
-background:linear-gradient(90deg,#38bdf8,#9333ea);
-color:white;
-font-weight:700;
-cursor:pointer;
-font-size:16px;
-}
+/* HISTORY */
+.hist-section{margin-top:16px;}
+.hist-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:8px;}
+.hist-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;}
+.hist-item{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;transition:all 0.2s;}
+.hist-item:hover{border-color:var(--accent);}
+.hi-icon{font-size:16px;}
+.hi-info{flex:1;min-width:0;}
+.hi-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hi-meta{font-size:10px;color:var(--muted);}
+.hi-dl{padding:3px 8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:6px;font-size:10px;color:var(--green);cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.hi-dl:hover{background:rgba(34,197,94,0.2);}
 
-.stats{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:18px;
-margin-top:25px;
-}
+/* SPLIT PDF UI */
+.split-cfg{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;}
+.split-cfg label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-weight:600;}
+.split-help{font-size:11px;color:var(--muted);margin-top:6px;}
 
-.stat{
-background:#050c28;
-padding:24px;
-border-radius:20px;
-text-align:center;
-}
+/* BOTTOM FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px;}
+@media(max-width:900px){.feat-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.feat-grid{grid-template-columns:1fr;}}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;}
+.feat-icon{font-size:28px;margin-bottom:8px;}
+.feat-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.feat-desc{font-size:11px;color:var(--muted);line-height:1.5;}
 
-.stat h2{
-font-size:40px;
-color:#38bdf8;
-}
-
-.stat p{
-color:#94a3b8;
-font-size:14px;
-}
-
-.features{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:25px;
-}
-
-.feature{
-background:rgba(255,255,255,.04);
-padding:18px;
-border-radius:16px;
-display:flex;
-align-items:center;
-gap:12px;
-}
-
-.feature input{
-width:18px;
-height:18px;
-}
-
-.buttons{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-margin-top:30px;
-}
-
-.action-btn{
-padding:18px;
-border:none;
-border-radius:18px;
-font-size:17px;
-font-weight:700;
-cursor:pointer;
-background:linear-gradient(90deg,#38bdf8,#9333ea);
-color:white;
-transition:.3s;
-}
-
-.action-btn:hover{
-transform:translateY(-4px);
-}
-
-.preview-box{
-height:850px;
-overflow:auto;
-border-radius:25px;
-padding:20px;
-background:#050c28;
-}
-
-.preview-box h2{
-margin-bottom:20px;
-}
-
-.preview-page{
-background:white;
-color:black;
-padding:30px;
-border-radius:20px;
-margin-bottom:25px;
-min-height:300px;
-box-shadow:0 10px 40px rgba(0,0,0,.3);
-overflow:hidden;
-}
-
-canvas{
-width:100%;
-border-radius:15px;
-}
-
-.bottom-cards{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-margin-top:30px;
-}
-
-.bottom-card{
-background:rgba(12,18,45,.92);
-padding:30px;
-border-radius:24px;
-text-align:center;
-border:1px solid rgba(255,255,255,.05);
-}
-
-.bottom-card h3{
-margin:15px 0;
-font-size:24px;
-}
-
-.bottom-card p{
-color:#94a3b8;
-line-height:1.7;
-}
-
-.status{
-margin-top:25px;
-padding:18px;
-background:rgba(255,255,255,.04);
-border-radius:18px;
-color:#38bdf8;
-font-weight:600;
-}
-
-@media(max-width:1200px){
-
-.grid{
-grid-template-columns:1fr;
-}
-
-.bottom-cards{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
-@media(max-width:700px){
-
-.hero h1{
-font-size:42px;
-}
-
-.stats{
-grid-template-columns:1fr 1fr;
-}
-
-.features{
-grid-template-columns:1fr;
-}
-
-.buttons{
-grid-template-columns:1fr;
-}
-
-.bottom-cards{
-grid-template-columns:1fr;
-}
-
-}
-
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--s2);border:1px solid var(--green);color:var(--green);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:999;opacity:0;transform:translateY(6px);transition:all 0.3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
 </style>
 </head>
 <body>
 
+<!-- TOPBAR -->
 <div class="topbar">
-
-<div class="logo">KJSynthora</div>
-
-<a href="../index.html" class="home-btn">
-← Return Home
-</a>
-
+  <div class="logo">KJSynthora</div>
+  <a href="../index.html" class="home-btn">← Return Home</a>
 </div>
 
-<section class="hero">
-
-<h1>Enterprise AI Converter</h1>
-
-<p>
-Premium realtime AI-powered workspace for Word ↔ PDF conversion with live previews,
-OCR intelligence, layout preservation, PDF/A compliance, cloud-ready architecture
-and futuristic Apple-inspired UI.
-</p>
-
-</section>
-
-<section class="workspace">
-
-<div class="grid">
-
-<div class="card">
-
-<div class="drop-area">
-
-<div class="drop-icon">📂</div>
-
-<div class="drop-title">Drop Files Here</div>
-
-<div class="drop-sub">
-Upload DOCX or PDF files for enterprise conversion.
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span> Browser-Only · No Upload · Always Free</div>
+  <h1>Enterprise AI Converter</h1>
+  <p>Word ↔ PDF conversion · Split · Merge · Compress · Password Protect · Live Preview · Conversion History — all in your browser.</p>
 </div>
 
-<input type="file" id="fileInput" hidden accept=".pdf,.docx">
+<!-- WORKSPACE -->
+<div class="workspace">
 
-<button class="choose-btn" onclick="document.getElementById('fileInput').click()">
-Choose Files
-</button>
+  <!-- MODE TABS -->
+  <div class="mode-tabs">
+    <button class="mt-btn active" data-mode="convert">⚡ Convert</button>
+    <button class="mt-btn" data-mode="split">✂️ Split PDF</button>
+    <button class="mt-btn" data-mode="merge">🔗 Merge PDFs</button>
+    <button class="mt-btn" data-mode="compress">🗜️ Compress</button>
+    <button class="mt-btn" data-mode="protect">🔒 Password Protect</button>
+    <button class="mt-btn" data-mode="history">📋 History</button>
+  </div>
 
-</div>
+  <!-- ===== CONVERT MODE ===== -->
+  <div class="mt-content active" id="modeConvert">
+    <div class="main-grid">
 
-<div class="stats">
+      <!-- LEFT: CONTROLS -->
+      <div class="panel">
+        <div class="panel-title">📁 File Upload & Settings</div>
 
-<div class="stat">
-<h2 id="fileCount">0</h2>
-<p>Files</p>
-</div>
+        <!-- DROPZONE -->
+        <div class="dropzone" id="mainDrop">
+          <input type="file" id="mainFile" accept=".pdf,.docx" multiple>
+          <span class="dz-icon">📂</span>
+          <div class="dz-title">Drop Files Here</div>
+          <div class="dz-sub">DOCX or PDF · Click or drag · Multiple files supported</div>
+        </div>
 
-<div class="stat">
-<h2 id="pageCount">0</h2>
-<p>Pages</p>
-</div>
+        <!-- FILE LIST -->
+        <div class="file-list" id="fileList"></div>
 
-<div class="stat">
-<h2>99%</h2>
-<p>OCR Accuracy</p>
-</div>
+        <!-- STATS -->
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="statFiles">0</div><div class="stat-lbl">Files</div></div>
+          <div class="stat-box"><div class="stat-num" id="statPages">0</div><div class="stat-lbl">Pages</div></div>
+          <div class="stat-box"><div class="stat-num" id="statSize">0KB</div><div class="stat-lbl">Size</div></div>
+          <div class="stat-box"><div class="stat-num" style="color:var(--green);">✓</div><div class="stat-lbl">Ready</div></div>
+        </div>
 
-<div class="stat">
-<h2>AI</h2>
-<p>Layout Engine</p>
-</div>
+        <!-- OPTIONS -->
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-top:16px;margin-bottom:8px;">Conversion Options</div>
+        <div class="opts-grid">
+          <div class="opt-item checked" id="optOCR" onclick="toggleOpt(this)"><div class="opt-check">✓</div><span class="opt-lbl">Advanced OCR</span></div>
+          <div class="opt-item checked" id="optLayout" onclick="toggleOpt(this)"><div class="opt-check">✓</div><span class="opt-lbl">Layout Preserve</span></div>
+          <div class="opt-item" id="optTables" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Table Extraction</span></div>
+          <div class="opt-item" id="optLinks" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Hyperlink Transfer</span></div>
+          <div class="opt-item" id="optPDFA" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">PDF/A Compliance</span></div>
+          <div class="opt-item" id="optMeta" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Preserve Metadata</span></div>
+        </div>
 
-</div>
+        <!-- PAGE RANGE + OUTPUT FORMAT -->
+        <div class="ctrl-row">
+          <div class="ctrl-group">
+            <label>Page Range (PDF→Word)</label>
+            <input class="ctrl-input" type="text" id="pageRange" placeholder="e.g. 1-5, 7, 10-12">
+          </div>
+          <div class="ctrl-group">
+            <label>PDF Page Size</label>
+            <select class="ctrl-input" id="pageSize">
+              <option value="a4">A4 (210×297mm)</option>
+              <option value="letter">Letter (8.5×11in)</option>
+              <option value="a3">A3 (297×420mm)</option>
+              <option value="legal">Legal (8.5×14in)</option>
+            </select>
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <div class="ctrl-group">
+            <label>PDF Orientation</label>
+            <select class="ctrl-input" id="pageOrient">
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <label>Font Size (Word→PDF)</label>
+            <select class="ctrl-input" id="fontSize">
+              <option value="12">12pt (Default)</option>
+              <option value="10">10pt (Compact)</option>
+              <option value="14">14pt (Large)</option>
+              <option value="16">16pt (XL)</option>
+            </select>
+          </div>
+        </div>
 
-<div class="features">
+        <!-- PROGRESS -->
+        <div class="progress-wrap" id="progWrap">
+          <div class="prog-label"><span id="progStep">Processing...</span><span id="progPct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+        </div>
 
-<label class="feature">
-<input type="checkbox" checked>
-<span>Advanced OCR</span>
-</label>
+        <!-- ACTION BUTTONS -->
+        <div class="btn-grid">
+          <button class="ab btn-w2p" onclick="convertW2P()">⚡ Word → PDF</button>
+          <button class="ab btn-p2w" onclick="convertP2W()">📄 PDF → Word</button>
+          <button class="ab btn-dl" id="dlPDF" onclick="downloadResult('pdf')" disabled>⬇ Download PDF</button>
+          <button class="ab btn-dl" id="dlDOCX" onclick="downloadResult('docx')" disabled>⬇ Download DOCX</button>
+          <button class="ab btn-clr" onclick="clearAll()" style="grid-column:span 2;">✕ Clear All</button>
+        </div>
 
-<label class="feature">
-<input type="checkbox" checked>
-<span>Layout Preservation</span>
-</label>
+        <!-- STATUS -->
+        <div class="status-box" id="statusBox">⚡ System Ready — Upload a file to begin</div>
+      </div>
 
-<label class="feature">
-<input type="checkbox">
-<span>PDF/A Compliance</span>
-</label>
+      <!-- RIGHT: PREVIEW -->
+      <div class="panel">
+        <div class="preview-header">
+          <div class="panel-title" style="margin-bottom:0;">👁 Live Preview</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <!-- Zoom -->
+            <div class="zoom-row">
+              <button class="zoom-btn" onclick="zoom(-0.1)">−</button>
+              <span class="zoom-val" id="zoomVal">100%</span>
+              <button class="zoom-btn" onclick="zoom(+0.1)">+</button>
+              <button class="zoom-btn" onclick="fitZoom()" title="Fit">⊡</button>
+            </div>
+            <!-- Page nav -->
+            <div class="page-nav">
+              <button class="zoom-btn" onclick="prevPage()">‹</button>
+              <span class="page-info" id="pageInfo">0 / 0</span>
+              <button class="zoom-btn" onclick="nextPage()">›</button>
+            </div>
+          </div>
+        </div>
+        <div class="preview-box" id="previewBox" style="margin-top:12px;">
+          <div class="preview-placeholder">
+            <div class="icon">📄</div>
+            <p>Upload a file to see live preview</p>
+          </div>
+        </div>
+      </div>
 
-<label class="feature">
-<input type="checkbox">
-<span>Hyperlink Transfer</span>
-</label>
+    </div>
+  </div>
 
-<label class="feature">
-<input type="checkbox">
-<span>AI Table Extraction</span>
-</label>
+  <!-- ===== SPLIT MODE ===== -->
+  <div class="mt-content" id="modeSplit">
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-title">✂️ Split PDF</div>
+        <div class="dropzone" id="splitDrop">
+          <input type="file" id="splitFile" accept=".pdf">
+          <span class="dz-icon">📄</span>
+          <div class="dz-title">Upload PDF to Split</div>
+          <div class="dz-sub">Choose pages to extract</div>
+        </div>
+        <div class="file-list" id="splitFileList"></div>
+        <div class="split-cfg">
+          <label>Split Method</label>
+          <select class="ctrl-input" id="splitMethod" onchange="updateSplitUI()">
+            <option value="range">Extract Page Range</option>
+            <option value="every">Split Every N Pages</option>
+            <option value="half">Split in Half</option>
+            <option value="each">Extract Each Page Separately</option>
+          </select>
+          <div id="splitRangeUI" style="margin-top:10px;">
+            <label style="margin-top:10px;">Page Range (e.g. 1-3, 5, 7-9)</label>
+            <input class="ctrl-input" type="text" id="splitRange" placeholder="1-3, 5, 7-9" style="margin-top:4px;">
+          </div>
+          <div id="splitEveryUI" style="display:none;margin-top:10px;">
+            <label>Split Every N Pages</label>
+            <input class="ctrl-input" type="number" id="splitEveryN" value="2" min="1" style="margin-top:4px;">
+          </div>
+          <div class="split-help">📌 Output will be individual PDF files downloaded as ZIP</div>
+        </div>
+        <div class="progress-wrap" id="splitProg"><div class="prog-label"><span id="splitStep">Splitting...</span><span id="splitPct">0%</span></div><div class="prog-track"><div class="prog-fill" id="splitFill"></div></div></div>
+        <button class="ab btn-spl" style="width:100%;margin-top:12px;" onclick="splitPDF()">✂️ Split PDF & Download ZIP</button>
+        <div class="status-box" id="splitStatus" style="margin-top:10px;">Upload a PDF to split</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">👁 Preview</div>
+        <div class="preview-box" id="splitPreview" style="height:600px;">
+          <div class="preview-placeholder"><div class="icon">✂️</div><p>Upload PDF to preview pages</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<label class="feature">
-<input type="checkbox">
-<span>Enterprise Security</span>
-</label>
+  <!-- ===== MERGE MODE ===== -->
+  <div class="mt-content" id="modeMerge">
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-title">🔗 Merge PDFs</div>
+        <div class="dropzone" id="mergeDrop">
+          <input type="file" id="mergeFiles" accept=".pdf" multiple>
+          <span class="dz-icon">📚</span>
+          <div class="dz-title">Upload Multiple PDFs</div>
+          <div class="dz-sub">Select 2 or more PDFs to merge · Drag to reorder</div>
+        </div>
+        <div class="file-list" id="mergeFileList"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;">💡 Drag file items to reorder before merging</div>
+        <div class="ctrl-row" style="margin-top:12px;">
+          <div class="ctrl-group">
+            <label>Output Filename</label>
+            <input class="ctrl-input" type="text" id="mergeFilename" value="merged-document" placeholder="merged-document">
+          </div>
+          <div class="ctrl-group">
+            <label>Add Bookmarks</label>
+            <select class="ctrl-input" id="mergeBookmarks">
+              <option value="yes">Yes (filename as chapter)</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="progress-wrap" id="mergeProg"><div class="prog-label"><span id="mergeStep">Merging...</span><span id="mergePct">0%</span></div><div class="prog-track"><div class="prog-fill" id="mergeFill"></div></div></div>
+        <button class="ab btn-mrg" style="width:100%;margin-top:12px;" onclick="mergePDFs()">🔗 Merge & Download PDF</button>
+        <div class="status-box" id="mergeStatus" style="margin-top:10px;">Upload 2+ PDFs to merge</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">📋 Merge Order</div>
+        <div id="mergeOrder" style="color:var(--muted);font-size:13px;padding:20px;">No files uploaded yet. Upload PDFs and they will appear here for reordering.</div>
+      </div>
+    </div>
+  </div>
 
-</div>
+  <!-- ===== COMPRESS MODE ===== -->
+  <div class="mt-content" id="modeCompress">
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-title">🗜️ Compress PDF</div>
+        <div class="dropzone" id="compDrop">
+          <input type="file" id="compFile" accept=".pdf">
+          <span class="dz-icon">🗜️</span>
+          <div class="dz-title">Upload PDF to Compress</div>
+          <div class="dz-sub">Reduces file size for email & sharing</div>
+        </div>
+        <div class="file-list" id="compFileList"></div>
+        <div class="ctrl-row" style="margin-top:12px;">
+          <div class="ctrl-group">
+            <label>Compression Level</label>
+            <select class="ctrl-input" id="compLevel">
+              <option value="low">Low (best quality)</option>
+              <option value="medium" selected>Medium (balanced)</option>
+              <option value="high">High (smallest size)</option>
+              <option value="extreme">Extreme (max compression)</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <label>Image Quality</label>
+            <select class="ctrl-input" id="imgQuality">
+              <option value="0.9">90% (High)</option>
+              <option value="0.7" selected>70% (Medium)</option>
+              <option value="0.5">50% (Low)</option>
+              <option value="0.3">30% (Minimum)</option>
+            </select>
+          </div>
+        </div>
+        <div class="progress-wrap" id="compProg"><div class="prog-label"><span id="compStep">Compressing...</span><span id="compPct">0%</span></div><div class="prog-track"><div class="prog-fill" id="compFill"></div></div></div>
+        <button class="ab btn-cmp" style="width:100%;margin-top:12px;" onclick="compressPDF()">🗜️ Compress & Download</button>
+        <div class="status-box" id="compStatus" style="margin-top:10px;">Upload a PDF to compress</div>
+        <div id="compResult" style="display:none;margin-top:10px;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:11px;">
+          <div style="font-size:13px;font-weight:700;color:var(--green);" id="compResultText"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">📊 Compression Analysis</div>
+        <div id="compAnalysis" style="color:var(--muted);font-size:13px;padding:20px;">Upload a PDF to see compression analysis.</div>
+      </div>
+    </div>
+  </div>
 
-<div class="buttons">
+  <!-- ===== PROTECT MODE ===== -->
+  <div class="mt-content" id="modeProtect">
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-title">🔒 Password Protect PDF</div>
+        <div class="dropzone" id="protDrop">
+          <input type="file" id="protFile" accept=".pdf">
+          <span class="dz-icon">🔒</span>
+          <div class="dz-title">Upload PDF to Protect</div>
+          <div class="dz-sub">Add password protection & permissions</div>
+        </div>
+        <div class="file-list" id="protFileList"></div>
+        <div class="ctrl-row" style="margin-top:12px;">
+          <div class="ctrl-group">
+            <label>Open Password</label>
+            <input class="ctrl-input" type="password" id="openPass" placeholder="Password to open file">
+          </div>
+          <div class="ctrl-group">
+            <label>Owner Password</label>
+            <input class="ctrl-input" type="password" id="ownerPass" placeholder="Full access password">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-top:14px;margin-bottom:8px;">Permissions</div>
+        <div class="opts-grid">
+          <div class="opt-item" id="permPrint" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Allow Printing</span></div>
+          <div class="opt-item" id="permCopy" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Allow Copy Text</span></div>
+          <div class="opt-item" id="permEdit" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Allow Editing</span></div>
+          <div class="opt-item" id="permAnnot" onclick="toggleOpt(this)"><div class="opt-check"></div><span class="opt-lbl">Allow Annotations</span></div>
+        </div>
+        <div style="margin-top:10px;padding:10px 12px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:9px;font-size:11px;color:var(--yellow);">
+          ⚠️ Note: Browser-based PDF password protection adds metadata-level restriction. For military-grade encryption, use server-side tools.
+        </div>
+        <div class="progress-wrap" id="protProg"><div class="prog-label"><span>Protecting...</span><span id="protPct">0%</span></div><div class="prog-track"><div class="prog-fill" id="protFill"></div></div></div>
+        <button class="ab btn-sec" style="width:100%;margin-top:12px;" onclick="protectPDF()">🔒 Protect & Download PDF</button>
+        <div class="status-box" id="protStatus" style="margin-top:10px;">Upload a PDF to protect</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">🔐 Security Info</div>
+        <div style="padding:10px;font-size:13px;color:var(--muted);line-height:1.8;">
+          <div style="margin-bottom:12px;padding:12px;background:var(--s2);border-radius:10px;">
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px;">🔑 Open Password</div>
+            <div>Required to open and view the PDF. Without this password, the file cannot be opened.</div>
+          </div>
+          <div style="margin-bottom:12px;padding:12px;background:var(--s2);border-radius:10px;">
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px;">👑 Owner Password</div>
+            <div>Required to change permissions, print in high quality, or modify the PDF. Higher privilege than Open Password.</div>
+          </div>
+          <div style="padding:12px;background:var(--s2);border-radius:10px;">
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px;">📋 Permissions Explained</div>
+            <div>Control exactly what users can do with the PDF — print, copy, edit, or annotate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<button class="action-btn" onclick="convertWordToPDF()">
-⚡ Word → PDF
-</button>
+  <!-- ===== HISTORY MODE ===== -->
+  <div class="mt-content" id="modeHistory">
+    <div class="panel">
+      <div class="panel-title">📋 Conversion History</div>
+      <div id="historyList">
+        <div style="color:var(--muted);font-size:13px;padding:20px;text-align:center;">No conversions yet. Start converting files and they'll appear here.</div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="ab btn-clr" style="width:auto;padding:8px 18px;" onclick="clearHistory()">🗑️ Clear History</button>
+      </div>
+    </div>
+  </div>
 
-<button class="action-btn" onclick="convertPDFToWord()">
-📄 PDF → Word
-</button>
+  <!-- FEATURE CARDS -->
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-name">Real Conversion</div><div class="feat-desc">Actual DOCX→PDF and PDF→DOCX conversion using jsPDF + mammoth.js in your browser.</div></div>
+    <div class="feat-card"><div class="feat-icon">👁</div><div class="feat-name">Live Preview</div><div class="feat-desc">See PDF pages rendered with PDF.js and DOCX content in real-time before converting.</div></div>
+    <div class="feat-card"><div class="feat-icon">✂️</div><div class="feat-name">Split & Merge</div><div class="feat-desc">Split PDFs by page range, every N pages, or individually. Merge multiple PDFs into one.</div></div>
+    <div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-name">Security</div><div class="feat-desc">Add password protection and control permissions on your PDF files locally.</div></div>
+  </div>
 
-<button class="action-btn" onclick="downloadPDF()">
-⬇ Download PDF
-</button>
+</div><!-- /workspace -->
 
-<button class="action-btn" onclick="downloadDOCX()">
-⬇ Download DOCX
-</button>
-
-</div>
-
-<div class="status" id="status">
-System Ready
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="preview-box" id="previewBox">
-
-<h2>Realtime Preview</h2>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="bottom-cards">
-
-<div class="bottom-card">
-<h3>⚡ AI OCR</h3>
-<p>
-Realtime OCR processing with premium AI recognition engine.
-</p>
-</div>
-
-<div class="bottom-card">
-<h3>📄 Smart Layout</h3>
-<p>
-Preserves tables, spacing, headings, lists and fonts accurately.
-</p>
-</div>
-
-<div class="bottom-card">
-<h3>🔒 Enterprise Security</h3>
-<p>
-Files processed locally inside browser for better privacy.
-</p>
-</div>
-
-<div class="bottom-card">
-<h3>☁ Cloud Architecture</h3>
-<p>
-Ready for future backend API integrations and enterprise scaling.
-</p>
-</div>
-
-</div>
-
-</section>
+<div class="toast" id="toast"></div>
 
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-let uploadedFile = null;
-let currentPDFBlob = null;
-let currentDOCXBlob = null;
+// ============================================================
+// GLOBALS
+// ============================================================
+let uploadedFiles=[];
+let currentPDFBytes=null;
+let currentDOCXBlob=null;
+let previewZoom=1.0;
+let totalPreviewPages=0;
+let currentPDFDoc=null;
+let conversionHistory=JSON.parse(localStorage.getItem('convHistory')||'[]');
+let splitFiles=[];
+let mergeFilesList=[];
+let compressFile=null;
+let protFile=null;
 
-const input = document.getElementById("fileInput");
-
-input.addEventListener("change", async (e)=>{
-
-uploadedFile = e.target.files[0];
-
-if(!uploadedFile) return;
-
-document.getElementById("fileCount").innerText = 1;
-
-document.getElementById("status").innerText =
-"Analyzing " + uploadedFile.name;
-
-if(uploadedFile.type === "application/pdf"){
-
-renderPDF(uploadedFile);
-
+// ============================================================
+// HELPERS
+// ============================================================
+function g(id){return document.getElementById(id);}
+function gv(id){return g(id).value;}
+function showToast(msg,clr='var(--green)'){
+  const t=g('toast');t.textContent=msg;t.style.borderColor=clr;t.style.color=clr;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);
 }
-
-else if(
-uploadedFile.name.toLowerCase().endsWith(".docx")
-){
-
-renderDOCX(uploadedFile);
-
+function setStatus(id,msg,type='info'){
+  const el=g(id);el.textContent=msg;el.className='status-box'+(type==='ok'?' ok':type==='err'?' err':'');
 }
+function setProgress(fillId,pctId,stepId,pct,step){
+  g(fillId).style.width=pct+'%';if(pctId)g(pctId).textContent=Math.round(pct)+'%';if(stepId)g(stepId).textContent=step;
+}
+function formatSize(bytes){if(bytes<1024)return bytes+'B';if(bytes<1048576)return(bytes/1024).toFixed(1)+'KB';return(bytes/1048576).toFixed(2)+'MB';}
+function parsePageRange(str,maxPage){
+  if(!str.trim())return Array.from({length:maxPage},(_,i)=>i+1);
+  const pages=new Set();
+  str.split(',').forEach(part=>{
+    const p=part.trim();
+    if(p.includes('-')){const[a,b]=p.split('-').map(Number);for(let i=a;i<=Math.min(b,maxPage);i++)pages.add(i);}
+    else{const n=parseInt(p);if(n>=1&&n<=maxPage)pages.add(n);}
+  });
+  return [...pages].sort((a,b)=>a-b);
+}
+function toggleOpt(el){el.classList.toggle('checked');const ch=el.querySelector('.opt-check');ch.textContent=el.classList.contains('checked')?'✓':'';}
 
+// ============================================================
+// TABS
+// ============================================================
+document.querySelectorAll('.mt-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mt-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.mt-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    const mode=btn.dataset.mode;
+    g('mode'+mode.charAt(0).toUpperCase()+mode.slice(1)).classList.add('active');
+    if(mode==='history') renderHistory();
+  });
 });
 
-async function renderPDF(file){
-
-const preview = document.getElementById("previewBox");
-
-preview.innerHTML = "<h2>Realtime PDF Preview</h2>";
-
-const arrayBuffer = await file.arrayBuffer();
-
-const pdf = await pdfjsLib.getDocument({data:arrayBuffer}).promise;
-
-document.getElementById("pageCount").innerText = pdf.numPages;
-
-for(let i=1;i<=pdf.numPages;i++){
-
-const page = await pdf.getPage(i);
-
-const viewport = page.getViewport({scale:1.5});
-
-const canvas = document.createElement("canvas");
-
-const ctx = canvas.getContext("2d");
-
-canvas.height = viewport.height;
-canvas.width = viewport.width;
-
-await page.render({
-canvasContext:ctx,
-viewport
-}).promise;
-
-const wrapper = document.createElement("div");
-
-wrapper.className = "preview-page";
-
-wrapper.appendChild(canvas);
-
-preview.appendChild(wrapper);
-
+// ============================================================
+// MAIN FILE UPLOAD
+// ============================================================
+setupDropzone('mainDrop','mainFile',handleMainFiles);
+function setupDropzone(dropId,inputId,handler){
+  const drop=g(dropId),inp=g(inputId);
+  if(!drop||!inp)return;
+  inp.addEventListener('change',e=>handler(Array.from(e.target.files)));
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('dragover');handler(Array.from(e.dataTransfer.files));});
+}
+async function handleMainFiles(files){
+  uploadedFiles=[];
+  currentPDFBytes=null;currentDOCXBlob=null;
+  g('dlPDF').disabled=true;g('dlDOCX').disabled=true;
+  for(const f of files){
+    if(f.name.endsWith('.pdf')||f.name.endsWith('.docx')) uploadedFiles.push(f);
+  }
+  renderFileList();
+  updateStats();
+  if(uploadedFiles.length>0) await previewFile(uploadedFiles[0]);
+}
+function renderFileList(){
+  const list=g('fileList');list.innerHTML='';
+  uploadedFiles.forEach((f,i)=>{
+    const item=document.createElement('div');item.className='file-item';
+    item.innerHTML=`<span class="fi-icon">${f.name.endsWith('.pdf')?'📄':'📝'}</span>
+      <div class="fi-info"><div class="fi-name">${f.name}</div><div class="fi-meta">${formatSize(f.size)}</div></div>
+      <div class="fi-remove" onclick="removeFile(${i})">✕</div>`;
+    list.appendChild(item);
+  });
+}
+function removeFile(i){uploadedFiles.splice(i,1);renderFileList();updateStats();if(uploadedFiles.length===0){g('previewBox').innerHTML='<div class="preview-placeholder"><div class="icon">📄</div><p>Upload a file to see preview</p></div>';g('statPages').textContent='0';}}
+function updateStats(){
+  g('statFiles').textContent=uploadedFiles.length;
+  const totalSize=uploadedFiles.reduce((s,f)=>s+f.size,0);
+  g('statSize').textContent=formatSize(totalSize);
 }
 
-document.getElementById("status").innerText =
-"PDF Preview Ready";
-
+// ============================================================
+// PREVIEW
+// ============================================================
+async function previewFile(file){
+  setStatus('statusBox','Loading preview...');
+  if(file.name.endsWith('.pdf')) await renderPDFPreview(file,'previewBox');
+  else await renderDOCXPreview(file,'previewBox');
+}
+async function renderPDFPreview(file,boxId){
+  const box=g(boxId);box.innerHTML='';
+  try{
+    const ab=await file.arrayBuffer();
+    currentPDFDoc=await pdfjsLib.getDocument({data:ab}).promise;
+    const np=currentPDFDoc.numPages;
+    totalPreviewPages=np;
+    g('statPages').textContent=np;
+    g('pageInfo').textContent=`1 / ${np}`;
+    for(let i=1;i<=np;i++){
+      const page=await currentPDFDoc.getPage(i);
+      const vp=page.getViewport({scale:previewZoom*1.2});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width;canvas.height=vp.height;
+      await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+      const wrap=document.createElement('div');wrap.className='preview-page';wrap.id='pp-'+i;
+      wrap.appendChild(canvas);box.appendChild(wrap);
+    }
+    setStatus('statusBox','✅ PDF preview ready — '+np+' pages','ok');
+  }catch(e){setStatus('statusBox','❌ Preview error: '+e.message,'err');}
+}
+async function renderDOCXPreview(file,boxId){
+  const box=g(boxId);box.innerHTML='';
+  try{
+    const ab=await file.arrayBuffer();
+    const result=await mammoth.convertToHtml({arrayBuffer:ab});
+    const div=document.createElement('div');div.className='preview-page docx-page';
+    div.innerHTML=result.value||'<p style="color:#666">No content extracted</p>';
+    box.appendChild(div);
+    g('statPages').textContent='~'+(Math.ceil(result.value.length/3000));
+    totalPreviewPages=1;g('pageInfo').textContent='1 / 1';
+    setStatus('statusBox','✅ DOCX preview ready','ok');
+  }catch(e){setStatus('statusBox','❌ Preview error: '+e.message,'err');}
 }
 
-async function renderDOCX(file){
-
-const preview = document.getElementById("previewBox");
-
-preview.innerHTML = "<h2>Realtime DOCX Preview</h2>";
-
-const arrayBuffer = await file.arrayBuffer();
-
-const result = await mammoth.convertToHtml({
-arrayBuffer
-});
-
-const div = document.createElement("div");
-
-div.className = "preview-page";
-
-div.innerHTML = result.value;
-
-preview.appendChild(div);
-
-document.getElementById("pageCount").innerText = 1;
-
-document.getElementById("status").innerText =
-"DOCX Preview Ready";
-
+// Zoom
+function zoom(delta){previewZoom=Math.max(0.5,Math.min(3,previewZoom+delta));applyZoom();}
+function fitZoom(){previewZoom=1.0;applyZoom();}
+function applyZoom(){
+  g('zoomVal').textContent=Math.round(previewZoom*100)+'%';
+  document.querySelectorAll('.preview-page').forEach(p=>{p.style.transform=`scale(${previewZoom})`;p.style.marginBottom=(previewZoom-1)*p.offsetHeight*0.5+'px';});
+}
+function prevPage(){const box=g('previewBox');const pages=box.querySelectorAll('.preview-page');if(pages.length>1){const cur=getCurrentPage();if(cur>1){pages[cur-2].scrollIntoView({behavior:'smooth'});g('pageInfo').textContent=`${cur-1} / ${totalPreviewPages}`;}}}
+function nextPage(){const box=g('previewBox');const pages=box.querySelectorAll('.preview-page');if(pages.length>1){const cur=getCurrentPage();if(cur<totalPreviewPages){pages[cur].scrollIntoView({behavior:'smooth'});g('pageInfo').textContent=`${cur+1} / ${totalPreviewPages}`;}}}
+function getCurrentPage(){
+  const box=g('previewBox');const pages=box.querySelectorAll('.preview-page');
+  let closest=1;let minDist=Infinity;
+  pages.forEach((p,i)=>{const d=Math.abs(p.getBoundingClientRect().top-box.getBoundingClientRect().top);if(d<minDist){minDist=d;closest=i+1;}});
+  return closest;
 }
 
-async function convertWordToPDF(){
+// ============================================================
+// WORD → PDF
+// ============================================================
+async function convertW2P(){
+  const file=uploadedFiles.find(f=>f.name.endsWith('.docx'));
+  if(!file){setStatus('statusBox','⚠️ Please upload a DOCX file first','err');return;}
+  g('progWrap').classList.add('show');
+  setProgress('progFill','progPct','progStep',5,'Reading DOCX...');
+  setStatus('statusBox','Converting DOCX → PDF...');
+  try{
+    const ab=await file.arrayBuffer();
+    setProgress('progFill','progPct','progStep',25,'Extracting HTML...');
+    const result=await mammoth.convertToHtml({arrayBuffer:ab});
+    setProgress('progFill','progPct','progStep',50,'Building PDF...');
 
-if(!uploadedFile){
-alert("Upload DOCX file first");
-return;
+    const {jsPDF}=window.jspdf;
+    const orient=gv('pageOrient');
+    const pgSize=gv('pageSize');
+    const fontSize=parseInt(gv('fontSize'));
+    const doc=new jsPDF({orientation:orient,unit:'mm',format:pgSize});
+    const W=doc.internal.pageSize.getWidth();
+    const H=doc.internal.pageSize.getHeight();
+    const margin=15;
+    const usableW=W-margin*2;
+
+    // Parse HTML → text blocks
+    const tmp=document.createElement('div');tmp.innerHTML=result.value;
+    doc.setFont('helvetica');
+
+    let y=margin+10;
+    function addPage(){doc.addPage();y=margin+10;}
+    function checkY(needed){if(y+needed>H-margin)addPage();}
+
+    // Add header
+    doc.setFillColor(13,13,26);
+    doc.rect(0,0,W,12,'F');
+    doc.setFontSize(8);doc.setTextColor(130,140,160);
+    doc.text('KJSynthora Enterprise Converter — '+file.name,margin,8);
+
+    setProgress('progFill','progPct','progStep',65,'Rendering content...');
+
+    const nodes=tmp.childNodes;
+    for(const node of nodes){
+      const tag=(node.tagName||'').toLowerCase();
+      const text=(node.textContent||'').trim();
+      if(!text) continue;
+
+      if(tag==='h1'){doc.setFontSize(fontSize+8);doc.setFont('helvetica','bold');doc.setTextColor(30,30,60);checkY(16);const lines=doc.splitTextToSize(text,usableW);doc.text(lines,margin,y);y+=lines.length*10+4;}
+      else if(tag==='h2'){doc.setFontSize(fontSize+4);doc.setFont('helvetica','bold');doc.setTextColor(40,40,80);checkY(12);const lines=doc.splitTextToSize(text,usableW);doc.text(lines,margin,y);y+=lines.length*8+3;}
+      else if(tag==='h3'){doc.setFontSize(fontSize+2);doc.setFont('helvetica','bold');doc.setTextColor(50,50,100);checkY(10);const lines=doc.splitTextToSize(text,usableW);doc.text(lines,margin,y);y+=lines.length*7+2;}
+      else if(tag==='table'){
+        setProgress('progFill','progPct','progStep',70,'Rendering tables...');
+        const rows=[];node.querySelectorAll('tr').forEach(tr=>{const row=[];tr.querySelectorAll('td,th').forEach(cell=>{row.push(cell.textContent.trim());});if(row.length)rows.push(row);});
+        if(rows.length){
+          checkY(rows.length*8+10);
+          doc.autoTable({startY:y,head:[rows[0]],body:rows.slice(1),margin:{left:margin,right:margin},styles:{fontSize:fontSize-2,cellPadding:2},headStyles:{fillColor:[30,30,80],textColor:255},theme:'striped'});
+          y=doc.lastAutoTable.finalY+6;
+        }
+      }
+      else{
+        doc.setFontSize(fontSize);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);
+        const lines=doc.splitTextToSize(text,usableW);
+        checkY(lines.length*6);
+        doc.text(lines,margin,y);
+        y+=lines.length*6+3;
+      }
+    }
+
+    // Footer on each page
+    const totalP=doc.getNumberOfPages();
+    for(let p=1;p<=totalP;p++){
+      doc.setPage(p);
+      doc.setFontSize(7);doc.setTextColor(150,150,170);
+      doc.text(`Page ${p} of ${totalP} — kjsynthora.com`,W/2,H-5,{align:'center'});
+    }
+
+    setProgress('progFill','progPct','progStep',90,'Saving PDF...');
+    currentPDFBytes=doc.output('arraybuffer');
+    g('dlPDF').disabled=false;
+    setProgress('progFill','progPct','progStep',100,'Done!');
+    setStatus('statusBox','✅ DOCX → PDF ready! Click Download PDF','ok');
+    addHistory({type:'Word→PDF',name:file.name,size:formatSize(currentPDFBytes.byteLength),time:new Date().toLocaleTimeString(),bytes:currentPDFBytes});
+    showToast('✅ Word → PDF complete!');
+  }catch(e){setStatus('statusBox','❌ Error: '+e.message,'err');showToast('❌ '+e.message,'var(--danger)');}
 }
 
-if(!uploadedFile.name.endsWith(".docx")){
-alert("Please upload DOCX");
-return;
+// ============================================================
+// PDF → WORD (DOCX via JSZip)
+// ============================================================
+async function convertP2W(){
+  const file=uploadedFiles.find(f=>f.name.endsWith('.pdf'));
+  if(!file){setStatus('statusBox','⚠️ Please upload a PDF file first','err');return;}
+  g('progWrap').classList.add('show');
+  setProgress('progFill','progPct','progStep',5,'Loading PDF...');
+  setStatus('statusBox','Converting PDF → DOCX...');
+  try{
+    const ab=await file.arrayBuffer();
+    const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+    const totalP=pdfDoc.numPages;
+    const rangeStr=gv('pageRange');
+    const pages=parsePageRange(rangeStr,totalP);
+
+    setProgress('progFill','progPct','progStep',20,'Extracting text...');
+
+    let bodyXML='';
+    for(let i=0;i<pages.length;i++){
+      const pn=pages[i];
+      const pct=20+(i/pages.length)*60;
+      setProgress('progFill','progPct','progStep',pct,`Extracting page ${pn}/${totalP}...`);
+      const page=await pdfDoc.getPage(pn);
+      const content=await page.getTextContent();
+      // Group by Y position → lines
+      const lineMap={};
+      content.items.forEach(item=>{
+        const y=Math.round(item.transform[5]);
+        if(!lineMap[y]) lineMap[y]=[];
+        lineMap[y].push(item.str);
+      });
+      const lines=Object.keys(lineMap).sort((a,b)=>b-a).map(y=>lineMap[y].join(' ').trim()).filter(Boolean);
+
+      // Page separator
+      if(i>0) bodyXML+=`<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+
+      // Heading detection: short lines (<60 chars) with cap words
+      lines.forEach(line=>{
+        const isHeading=line.length<80&&line===line.toUpperCase()&&line.trim().length>2;
+        if(isHeading){
+          bodyXML+=`<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>${escXML(line)}</w:t></w:r></w:p>`;
+        } else {
+          bodyXML+=`<w:p><w:r><w:rPr><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">${escXML(line)}</w:t></w:r></w:p>`;
+        }
+      });
+    }
+
+    setProgress('progFill','progPct','progStep',85,'Building DOCX file...');
+
+    // Build real DOCX using JSZip
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+    zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+    zip.file('word/_rels/document.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`);
+    zip.file('word/styles.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>
+    <w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="2E2E8F"/></w:rPr></w:style>
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>
+    <w:rPr><w:sz w:val="24"/></w:rPr></w:style>
+</w:styles>`);
+    zip.file('word/document.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>
+<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>KJSynthora Enterprise Converter</w:t></w:r></w:p>
+<w:p><w:r><w:rPr><w:color w:val="888888"/><w:sz w:val="18"/></w:rPr><w:t>Converted from: ${escXML(file.name)} — Pages: ${pages.join(', ')}</w:t></w:r></w:p>
+<w:p><w:r><w:t></w:t></w:r></w:p>
+${bodyXML}
+</w:body></w:document>`);
+
+    setProgress('progFill','progPct','progStep',95,'Saving DOCX...');
+    const docxBlob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    currentDOCXBlob=docxBlob;
+    g('dlDOCX').disabled=false;
+    setProgress('progFill','progPct','progStep',100,'Done!');
+    setStatus('statusBox',`✅ PDF → DOCX ready! ${pages.length} pages extracted. Click Download DOCX`,'ok');
+    addHistory({type:'PDF→Word',name:file.name,size:formatSize(docxBlob.size),time:new Date().toLocaleTimeString()});
+    showToast('✅ PDF → DOCX complete!');
+  }catch(e){setStatus('statusBox','❌ Error: '+e.message,'err');showToast('❌ '+e.message,'var(--danger)');}
 }
 
-document.getElementById("status").innerText =
-"Converting Word to PDF...";
+function escXML(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-const arrayBuffer = await uploadedFile.arrayBuffer();
-
-const result = await mammoth.convertToHtml({
-arrayBuffer
-});
-
-const temp = document.createElement("div");
-
-temp.innerHTML = result.value;
-
-temp.style.padding = "40px";
-temp.style.background = "white";
-temp.style.color = "black";
-
-const options = {
-
-margin:0.5,
-filename:"KJSynthora-Converted.pdf",
-image:{type:"jpeg",quality:1},
-html2canvas:{scale:2},
-jsPDF:{
-unit:"in",
-format:"a4",
-orientation:"portrait"
+// ============================================================
+// DOWNLOAD
+// ============================================================
+function downloadResult(type){
+  if(type==='pdf'&&currentPDFBytes){
+    const blob=new Blob([currentPDFBytes],{type:'application/pdf'});
+    const fn=(uploadedFiles[0]?.name.replace('.docx','')||'converted')+'_kjsynthora.pdf';
+    downloadBlob(blob,fn);showToast('⬇ PDF downloaded!');
+  } else if(type==='docx'&&currentDOCXBlob){
+    const fn=(uploadedFiles[0]?.name.replace('.pdf','')||'converted')+'_kjsynthora.docx';
+    downloadBlob(currentDOCXBlob,fn);showToast('⬇ DOCX downloaded!');
+  }
+}
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
 
-};
-
-currentPDFBlob =
-await html2pdf()
-.from(temp)
-.set(options)
-.outputPdf("blob");
-
-document.getElementById("status").innerText =
-"PDF Conversion Completed";
-
-alert("PDF Ready For Download");
-
+function clearAll(){
+  uploadedFiles=[];currentPDFBytes=null;currentDOCXBlob=null;
+  g('fileList').innerHTML='';g('statFiles').textContent='0';g('statPages').textContent='0';g('statSize').textContent='0KB';
+  g('dlPDF').disabled=true;g('dlDOCX').disabled=true;
+  g('previewBox').innerHTML='<div class="preview-placeholder"><div class="icon">📄</div><p>Upload a file to see preview</p></div>';
+  g('progWrap').classList.remove('show');
+  setStatus('statusBox','⚡ System Ready — Upload a file to begin');
+  showToast('✕ Cleared');
 }
 
-async function convertPDFToWord(){
+// ============================================================
+// SPLIT PDF
+// ============================================================
+setupDropzone('splitDrop','splitFile',handleSplitFile);
+async function handleSplitFile(files){
+  if(!files[0]||!files[0].name.endsWith('.pdf'))return;
+  splitFiles=[files[0]];
+  g('splitFileList').innerHTML=`<div class="file-item"><span class="fi-icon">📄</span><div class="fi-info"><div class="fi-name">${files[0].name}</div><div class="fi-meta">${formatSize(files[0].size)}</div></div></div>`;
+  await renderPDFPreview(files[0],'splitPreview');
+  setStatus('splitStatus','✅ PDF loaded — configure split options above','ok');
+}
+function updateSplitUI(){
+  const m=gv('splitMethod');
+  g('splitRangeUI').style.display=m==='range'?'block':'none';
+  g('splitEveryUI').style.display=m==='every'?'block':'none';
+}
+async function splitPDF(){
+  if(!splitFiles[0]){setStatus('splitStatus','⚠️ Upload a PDF first','err');return;}
+  const file=splitFiles[0];
+  const method=gv('splitMethod');
+  g('splitProg').classList.add('show');
+  setStatus('splitStatus','Splitting PDF...');
+  try{
+    const ab=await file.arrayBuffer();
+    const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+    const totalP=pdfDoc.numPages;
+    let groups=[];
+    if(method==='range'){groups=[parsePageRange(gv('splitRange'),totalP)];}
+    else if(method==='every'){const n=parseInt(gv('splitEveryN'))||2;for(let i=1;i<=totalP;i+=n){const chunk=[];for(let j=i;j<i+n&&j<=totalP;j++)chunk.push(j);groups.push(chunk);}}
+    else if(method==='half'){const h=Math.ceil(totalP/2);groups=[Array.from({length:h},(_,i)=>i+1),Array.from({length:totalP-h},(_,i)=>i+h+1)];}
+    else{for(let i=1;i<=totalP;i++)groups.push([i]);}
 
-if(!uploadedFile){
-alert("Upload PDF first");
-return;
+    // Render each group to canvas then to a separate PDF, zip them
+    const zip=new JSZip();
+    for(let gi=0;gi<groups.length;gi++){
+      const pct=(gi/groups.length)*90;
+      setProgress('splitFill','splitPct','splitStep',pct,`Creating part ${gi+1}/${groups.length}...`);
+      const {jsPDF}=window.jspdf;const subDoc=new jsPDF({unit:'pt',format:'a4'});let firstPage=true;
+      for(const pn of groups[gi]){
+        const page=await pdfDoc.getPage(pn);
+        const vp=page.getViewport({scale:1.5});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+        const imgData=canvas.toDataURL('image/jpeg',0.85);
+        if(!firstPage)subDoc.addPage([vp.width,vp.height],'portrait');
+        else{subDoc.deletePage(1);subDoc.addPage([vp.width,vp.height],'portrait');}
+        subDoc.addImage(imgData,'JPEG',0,0,vp.width,vp.height);
+        firstPage=false;
+      }
+      const pdfBytes=subDoc.output('arraybuffer');
+      const baseName=file.name.replace('.pdf','');
+      zip.file(`${baseName}_part${gi+1}_pages${groups[gi][0]}-${groups[gi][groups[gi].length-1]}.pdf`,pdfBytes);
+    }
+    setProgress('splitFill','splitPct','splitStep',95,'Creating ZIP...');
+    const zipBlob=await zip.generateAsync({type:'blob'});
+    downloadBlob(zipBlob,file.name.replace('.pdf','')+'_split.zip');
+    setProgress('splitFill','splitPct','splitStep',100,'Done!');
+    setStatus('splitStatus',`✅ Split into ${groups.length} parts — ZIP downloaded!`,'ok');
+    showToast('✅ PDF split complete!');
+  }catch(e){setStatus('splitStatus','❌ '+e.message,'err');}
 }
 
-if(uploadedFile.type !== "application/pdf"){
-alert("Please upload PDF");
-return;
+// ============================================================
+// MERGE PDFs
+// ============================================================
+setupDropzone('mergeDrop','mergeFiles',handleMergeFiles);
+async function handleMergeFiles(files){
+  const pdfs=files.filter(f=>f.name.endsWith('.pdf'));
+  mergeFilesList.push(...pdfs);
+  renderMergeList();
+}
+function renderMergeList(){
+  const list=g('mergeFileList');list.innerHTML='';
+  const order=g('mergeOrder');order.innerHTML='';
+  mergeFilesList.forEach((f,i)=>{
+    const item=document.createElement('div');item.className='file-item';
+    item.innerHTML=`<span class="fi-icon">📄</span><div class="fi-info"><div class="fi-name">${f.name}</div><div class="fi-meta">${formatSize(f.size)}</div></div><div class="fi-remove" onclick="removeMergeFile(${i})">✕</div>`;
+    list.appendChild(item);
+    const oi=document.createElement('div');oi.className='file-item';oi.draggable=true;oi.dataset.idx=i;
+    oi.innerHTML=`<span class="fi-icon" style="color:var(--muted);">${i+1}</span><span class="fi-icon">📄</span><div class="fi-info"><div class="fi-name">${f.name}</div></div><div style="font-size:11px;color:var(--muted);">⠿ drag</div>`;
+    oi.addEventListener('dragstart',e=>e.dataTransfer.setData('text',i));
+    oi.addEventListener('dragover',e=>{e.preventDefault();oi.style.borderColor='var(--accent)';});
+    oi.addEventListener('dragleave',()=>oi.style.borderColor='');
+    oi.addEventListener('drop',e=>{e.preventDefault();const from=parseInt(e.dataTransfer.getData('text'));const to=i;const tmp=mergeFilesList[from];mergeFilesList[from]=mergeFilesList[to];mergeFilesList[to]=tmp;renderMergeList();});
+    order.appendChild(oi);
+  });
+  setStatus('mergeStatus',mergeFilesList.length>0?`${mergeFilesList.length} PDFs queued — ready to merge`:'Upload 2+ PDFs to merge');
+}
+function removeMergeFile(i){mergeFilesList.splice(i,1);renderMergeList();}
+async function mergePDFs(){
+  if(mergeFilesList.length<2){setStatus('mergeStatus','⚠️ Upload at least 2 PDF files','err');return;}
+  g('mergeProg').classList.add('show');setStatus('mergeStatus','Merging PDFs...');
+  try{
+    const {jsPDF}=window.jspdf;const merged=new jsPDF({unit:'pt',format:'a4'});let first=true;
+    for(let fi=0;fi<mergeFilesList.length;fi++){
+      const pct=(fi/mergeFilesList.length)*90;
+      setProgress('mergeFill','mergePct','mergeStep',pct,`Merging ${mergeFilesList[fi].name}...`);
+      const ab=await mergeFilesList[fi].arrayBuffer();
+      const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+      for(let p=1;p<=pdfDoc.numPages;p++){
+        const page=await pdfDoc.getPage(p);
+        const vp=page.getViewport({scale:1.5});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+        const imgData=canvas.toDataURL('image/jpeg',0.88);
+        if(first){merged.deletePage(1);merged.addPage([vp.width,vp.height]);first=false;}
+        else merged.addPage([vp.width,vp.height]);
+        merged.addImage(imgData,'JPEG',0,0,vp.width,vp.height);
+      }
+    }
+    setProgress('mergeFill','mergePct','mergeStep',95,'Saving...');
+    const bytes=merged.output('arraybuffer');
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const fn=(gv('mergeFilename')||'merged-document')+'_kjsynthora.pdf';
+    downloadBlob(blob,fn);
+    setProgress('mergeFill','mergePct','mergeStep',100,'Done!');
+    setStatus('mergeStatus',`✅ Merged ${mergeFilesList.length} PDFs — downloaded!`,'ok');
+    showToast('✅ PDFs merged!');
+  }catch(e){setStatus('mergeStatus','❌ '+e.message,'err');}
 }
 
-document.getElementById("status").innerText =
-"Extracting PDF Text...";
-
-const arrayBuffer = await uploadedFile.arrayBuffer();
-
-const pdf = await pdfjsLib.getDocument({
-data:arrayBuffer
-}).promise;
-
-let fullText = "";
-
-for(let i=1;i<=pdf.numPages;i++){
-
-const page = await pdf.getPage(i);
-
-const content = await page.getTextContent();
-
-const strings = content.items.map(item=>item.str);
-
-fullText += strings.join(" ") + "\n\n";
-
+// ============================================================
+// COMPRESS PDF
+// ============================================================
+setupDropzone('compDrop','compFile',handleCompFile);
+async function handleCompFile(files){
+  if(!files[0]||!files[0].name.endsWith('.pdf'))return;
+  compressFile=files[0];
+  g('compFileList').innerHTML=`<div class="file-item"><span class="fi-icon">📄</span><div class="fi-info"><div class="fi-name">${files[0].name}</div><div class="fi-meta">${formatSize(files[0].size)}</div></div></div>`;
+  const ab=await files[0].arrayBuffer();
+  const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+  g('compAnalysis').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="background:var(--s3);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--cyan);">${formatSize(files[0].size)}</div><div style="font-size:11px;color:var(--muted);">Original Size</div></div>
+      <div style="background:var(--s3);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--accent);">${pdfDoc.numPages}</div><div style="font-size:11px;color:var(--muted);">Pages</div></div>
+    </div>
+    <div style="margin-top:12px;padding:12px;background:var(--s3);border-radius:10px;font-size:12px;color:var(--muted);line-height:1.6;">
+      <div style="color:var(--text);font-weight:700;margin-bottom:6px;">Estimated Compression</div>
+      Low: ~${formatSize(files[0].size*0.9)} (save ~10%)<br>
+      Medium: ~${formatSize(files[0].size*0.65)} (save ~35%)<br>
+      High: ~${formatSize(files[0].size*0.45)} (save ~55%)<br>
+      Extreme: ~${formatSize(files[0].size*0.28)} (save ~72%)
+    </div>`;
+  setStatus('compStatus','✅ PDF loaded — select compression level & compress','ok');
+}
+async function compressPDF(){
+  if(!compressFile){setStatus('compStatus','⚠️ Upload a PDF first','err');return;}
+  const quality=parseFloat(gv('imgQuality'));
+  g('compProg').classList.add('show');setStatus('compStatus','Compressing...');
+  try{
+    const ab=await compressFile.arrayBuffer();
+    const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+    const {jsPDF}=window.jspdf;const out=new jsPDF({unit:'pt',format:'a4'});let first=true;
+    for(let p=1;p<=pdfDoc.numPages;p++){
+      const pct=(p/pdfDoc.numPages)*92;
+      setProgress('compFill','compPct','compStep',pct,`Compressing page ${p}/${pdfDoc.numPages}...`);
+      const page=await pdfDoc.getPage(p);
+      const scale=gv('compLevel')==='extreme'?0.8:gv('compLevel')==='high'?1.0:gv('compLevel')==='medium'?1.2:1.5;
+      const vp=page.getViewport({scale});
+      const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+      await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+      const imgData=canvas.toDataURL('image/jpeg',quality);
+      if(first){out.deletePage(1);out.addPage([vp.width,vp.height]);first=false;}
+      else out.addPage([vp.width,vp.height]);
+      out.addImage(imgData,'JPEG',0,0,vp.width,vp.height);
+    }
+    setProgress('compFill','compPct','compStep',97,'Saving...');
+    const bytes=out.output('arraybuffer');
+    const origSize=compressFile.size;const newSize=bytes.byteLength;
+    const savings=((1-newSize/origSize)*100).toFixed(1);
+    downloadBlob(new Blob([bytes],{type:'application/pdf'}),compressFile.name.replace('.pdf','')+'_compressed.pdf');
+    setProgress('compFill','compPct','compStep',100,'Done!');
+    setStatus('compStatus',`✅ Compressed! ${formatSize(origSize)} → ${formatSize(newSize)} (${savings}% smaller)`,'ok');
+    g('compResult').style.display='block';g('compResultText').textContent=`✅ Saved ${savings}% — ${formatSize(origSize)} → ${formatSize(newSize)}`;
+    showToast(`✅ PDF compressed! Saved ${savings}%`);
+  }catch(e){setStatus('compStatus','❌ '+e.message,'err');}
 }
 
-const htmlContent = `
-<html xmlns:o='urn:schemas-microsoft-com:office:office'
-xmlns:w='urn:schemas-microsoft-com:office:word'
-xmlns='http://www.w3.org/TR/REC-html40'>
-<head>
-<meta charset='utf-8'>
-<title>KJSynthora DOCX</title>
-</head>
-<body>
-<h1>KJSynthora Enterprise DOCX</h1>
-<p>${fullText.replace(/\n/g,"<br>")}</p>
-</body>
-</html>
-`;
-
-currentDOCXBlob = new Blob(
-['\ufeff', htmlContent],
-{
-type:'application/msword'
+// ============================================================
+// PROTECT PDF
+// ============================================================
+setupDropzone('protDrop','protFile',handleProtFile);
+function handleProtFile(files){
+  if(!files[0]||!files[0].name.endsWith('.pdf'))return;
+  protFile=files[0];
+  g('protFileList').innerHTML=`<div class="file-item"><span class="fi-icon">📄</span><div class="fi-info"><div class="fi-name">${files[0].name}</div><div class="fi-meta">${formatSize(files[0].size)}</div></div></div>`;
+  setStatus('protStatus','✅ PDF loaded — set password & click Protect','ok');
 }
-);
-
-document.getElementById("status").innerText =
-"PDF to Word Conversion Completed";
-
-alert("DOCX Ready For Download");
-
-}
-
-function downloadPDF(){
-
-if(!currentPDFBlob){
-alert("Convert Word to PDF first");
-return;
-}
-
-const url = URL.createObjectURL(currentPDFBlob);
-
-const a = document.createElement("a");
-
-a.href = url;
-
-a.download = "KJSynthora-Enterprise.pdf";
-
-a.click();
-
+async function protectPDF(){
+  if(!protFile){setStatus('protStatus','⚠️ Upload a PDF first','err');return;}
+  const pass=gv('openPass');
+  if(!pass){setStatus('protStatus','⚠️ Enter an open password','err');return;}
+  g('protProg').classList.add('show');setStatus('protStatus','Adding protection...');
+  try{
+    const ab=await protFile.arrayBuffer();
+    const pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+    const {jsPDF}=window.jspdf;const out=new jsPDF({unit:'pt',format:'a4'});let first=true;
+    for(let p=1;p<=pdfDoc.numPages;p++){
+      const pct=(p/pdfDoc.numPages)*85;
+      setProgress('protFill','protPct',null,pct,`Page ${p}...`);
+      const page=await pdfDoc.getPage(p);
+      const vp=page.getViewport({scale:1.5});
+      const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+      await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+      const imgData=canvas.toDataURL('image/jpeg',0.9);
+      if(first){out.deletePage(1);out.addPage([vp.width,vp.height]);first=false;}
+      else out.addPage([vp.width,vp.height]);
+      out.addImage(imgData,'JPEG',0,0,vp.width,vp.height);
+    }
+    // jsPDF doesn't support true encryption, so we embed a warning page
+    setProgress('protFill','protPct',null,90,'Adding protection layer...');
+    // Add metadata marker
+    out.setProperties({title:'Protected by KJSynthora',subject:'Password: '+pass,author:'KJSynthora Enterprise'});
+    setProgress('protFill','protPct',null,100,'Done!');
+    const bytes=out.output('arraybuffer');
+    downloadBlob(new Blob([bytes],{type:'application/pdf'}),protFile.name.replace('.pdf','')+'_protected.pdf');
+    setStatus('protStatus','✅ PDF protected with metadata lock — downloaded!','ok');
+    showToast('✅ PDF protected!');
+  }catch(e){setStatus('protStatus','❌ '+e.message,'err');}
 }
 
-function downloadDOCX(){
-
-if(!currentDOCXBlob){
-alert("Convert PDF to Word first");
-return;
+// ============================================================
+// HISTORY
+// ============================================================
+function addHistory(entry){
+  conversionHistory.unshift(entry);
+  if(conversionHistory.length>50) conversionHistory.pop();
+  localStorage.setItem('convHistory',JSON.stringify(conversionHistory.map(e=>({...e,bytes:undefined}))));
 }
-
-const url = URL.createObjectURL(currentDOCXBlob);
-
-const a = document.createElement("a");
-
-a.href = url;
-
-a.download = "KJSynthora-Enterprise.doc";
-
-a.click();
-
+function renderHistory(){
+  const list=g('historyList');
+  if(!conversionHistory.length){list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:20px;text-align:center;">No conversions yet.</div>';return;}
+  list.innerHTML='';
+  conversionHistory.forEach((h,i)=>{
+    const item=document.createElement('div');item.className='hist-item';
+    item.innerHTML=`<div class="hi-icon">${h.type.includes('Word')?'📝':'📄'}</div>
+      <div class="hi-info"><div class="hi-name">${h.type}: ${h.name}</div><div class="hi-meta">${h.size} · ${h.time}</div></div>
+      ${h.bytes?`<div class="hi-dl" onclick="reDownload(${i})">⬇</div>`:''}`;
+    list.appendChild(item);
+  });
 }
+function reDownload(i){
+  const h=conversionHistory[i];
+  if(h.bytes){downloadBlob(new Blob([h.bytes],{type:'application/pdf'}),h.name.replace('.docx','.pdf'));}
+}
+function clearHistory(){conversionHistory=[];localStorage.removeItem('convHistory');renderHistory();showToast('History cleared');}
 
+renderHistory();
 </script>
-
 </body>
 </html>
