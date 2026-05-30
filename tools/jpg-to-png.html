@@ -1,982 +1,1186 @@
-<!-- =========================================================
-KJSYNTHORA AI IMAGE STUDIO OS
-Advanced AI JPG ⇄ PNG Converter
-Full Working Version
-========================================================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>KJSynthora AI Image Studio</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#020509;--panel:#070d18;--card:#0c1525;
+  --border:rgba(37,197,255,0.1);--accent:#25c5ff;--accent2:#8c52ff;
+  --accent3:#16c55b;--accent4:#f6ad55;--red:#ff4d4d;
+  --text:#e2e8f0;--muted:#4a6080;--mono:'JetBrains Mono',monospace;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#1a3050;border-radius:10px;}
 
-body{
-background:#020b2c;
-color:white;
-min-height:100vh;
-padding:20px;
-overflow-x:hidden;
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 50% 40% at 5% 5%,rgba(37,197,255,0.05),transparent 60%),
+             radial-gradient(ellipse 40% 50% at 95% 90%,rgba(140,82,255,0.04),transparent 60%);}
+
+.app{display:grid;grid-template-columns:270px 1fr 260px;height:100vh;position:relative;z-index:1;}
+
+/* ── LEFT PANEL ── */
+.left-panel{
+  background:rgba(7,13,24,0.98);border-right:1px solid var(--border);
+  overflow-y:auto;padding:0;display:flex;flex-direction:column;
 }
+.logo-area{padding:16px;border-bottom:1px solid var(--border);}
+.logo{font-size:13px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+.live-dot{display:inline-block;width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:blink 1.5s infinite;margin-right:4px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
 
-.main{
-max-width:1700px;
-margin:auto;
+.lp-body{padding:14px;flex:1;}
+
+/* UPLOAD */
+.drop-zone{
+  border:2px dashed rgba(37,197,255,0.25);border-radius:12px;
+  padding:20px 14px;text-align:center;cursor:pointer;
+  transition:all 0.2s;background:rgba(37,197,255,0.02);
+  margin-bottom:14px;
 }
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(37,197,255,0.06);}
+.drop-zone.has-file{border-color:var(--accent3);background:rgba(22,197,91,0.05);}
+.dz-icon{font-size:32px;margin-bottom:6px;display:block;}
+.dz-text{font-size:12px;color:var(--muted);}
+.dz-text span{color:var(--accent);}
+.dz-file-name{font-size:11px;color:var(--accent3);font-family:var(--mono);margin-top:4px;}
+input[type=file]{display:none;}
 
-.header{
-text-align:center;
-margin-bottom:25px;
-}
+/* SECTION */
+.sec{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-family:var(--mono);margin-bottom:6px;margin-top:12px;display:flex;align-items:center;gap:6px;}
+.sec::after{content:'';flex:1;height:1px;background:rgba(37,197,255,0.08);}
 
-.header h1{
-font-size:48px;
-font-weight:800;
-background:linear-gradient(90deg,#25c5ff,#8c52ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
+/* CONTROLS */
+.ctrl{margin-bottom:8px;}
+.ctrl label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.ctrl input,.ctrl select{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;}
+.ctrl input:focus,.ctrl select:focus{border-color:var(--accent);}
+.ctrl select option{background:#07131f;}
+.ctrl input[type=range]{padding:4px 0;accent-color:var(--accent);}
+.range-val{float:right;font-size:11px;font-family:var(--mono);color:var(--accent);}
 
-.header p{
-color:#9eb2ff;
-margin-top:10px;
-}
+/* TOGGLE GROUPS */
+.toggle-group{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;}
+.tgl{padding:7px 8px;border-radius:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;display:flex;align-items:center;gap:5px;}
+.tgl input[type=checkbox]{accent-color:var(--accent);margin:0;}
+.tgl.active{background:rgba(37,197,255,0.1);border-color:rgba(37,197,255,0.3);color:var(--accent);}
 
-.workspace{
-display:grid;
-grid-template-columns:320px 1fr 320px;
-gap:20px;
-}
+/* BUTTONS */
+.act-btn{width:100%;padding:10px 14px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:6px;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+.act-btn.primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.2);}
+.act-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.35);}
+.act-btn.green{background:rgba(22,197,91,0.15);border:1px solid rgba(22,197,91,0.3);color:var(--accent3);}
+.act-btn.green:hover{background:rgba(22,197,91,0.25);}
+.act-btn.amber{background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);color:var(--accent4);}
+.act-btn.red{background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.2);color:var(--red);}
+.act-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;}
 
-.panel{
-background:#08153d;
-border-radius:20px;
-padding:20px;
-border:1px solid rgba(255,255,255,0.05);
-}
+/* PROGRESS */
+.prog-wrap{margin:10px 0;}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);margin-bottom:4px;}
+.prog-track{height:6px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:0%;transition:width 0.3s ease;}
+.log-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;font-size:11px;font-family:var(--mono);color:var(--muted);min-height:50px;line-height:1.8;max-height:80px;overflow-y:auto;}
 
-.panel-title{
-font-size:20px;
-font-weight:700;
-margin-bottom:20px;
-}
+/* ── CENTER ── */
+.center-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
 
-.upload-box{
-border:2px dashed #25c5ff;
-border-radius:18px;
-padding:35px 20px;
-text-align:center;
-cursor:pointer;
-transition:0.3s;
-}
+/* TABS */
+.tabs{display:flex;gap:3px;padding:10px 14px;background:rgba(7,13,24,0.98);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0;}
+.tab{padding:7px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);border:none;background:none;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.tab.active{background:rgba(37,197,255,0.12);color:var(--accent);border:1px solid rgba(37,197,255,0.2);}
+.tab:hover:not(.active){color:var(--text);}
 
-.upload-box:hover{
-background:#102154;
-}
+.tab-area{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.tab-panel{display:none;flex:1;overflow-y:auto;padding:16px;}
+.tab-panel.active{display:flex;flex-direction:column;}
 
-.upload-box input{
-display:none;
-}
+/* BEFORE/AFTER SLIDER */
+.ba-container{flex:1;border-radius:12px;overflow:hidden;position:relative;background:#000;min-height:400px;cursor:ew-resize;user-select:none;}
+.ba-container img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
+#imgAfter{clip-path:inset(0 50% 0 0);}
+.ba-slider{position:absolute;top:0;width:3px;height:100%;background:#fff;left:50%;cursor:ew-resize;z-index:20;box-shadow:0 0 10px rgba(255,255,255,0.5);}
+.ba-slider::before{content:'⟺';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:28px;text-align:center;}
+.ba-labels{display:flex;justify-content:space-between;padding:6px 10px;font-size:10px;font-family:var(--mono);color:var(--muted);}
+.ba-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:10px;}
+.ba-empty-icon{font-size:48px;opacity:0.3;}
 
-.upload-box h3{
-margin-bottom:8px;
-}
+/* TOOL GRID */
+.tool-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.tool-card:hover{border-color:var(--accent);background:rgba(37,197,255,0.06);transform:translateY(-2px);}
+.tool-card.active{border-color:var(--accent);background:rgba(37,197,255,0.1);}
+.tc-icon{font-size:22px;display:block;margin-bottom:4px;}
+.tc-label{font-size:10px;font-weight:600;color:var(--muted);}
 
-.control-group{
-margin-top:18px;
-}
+/* COMPRESS TAB */
+.compress-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.cstat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.cstat .v{font-size:22px;font-weight:800;font-family:var(--mono);}
+.cstat .l{font-size:10px;color:var(--muted);margin-top:3px;}
+.compare-strip{display:flex;gap:10px;align-items:center;margin-top:12px;}
+.cs-side{flex:1;text-align:center;}
+.cs-side img{width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid var(--border);}
+.cs-label{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;}
+.cs-size{font-size:13px;font-weight:700;font-family:var(--mono);}
 
-.control-group label{
-display:block;
-margin-bottom:8px;
-font-size:14px;
-color:#c3d3ff;
-}
+/* RESIZE TAB */
+.resize-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.rp-btn{padding:8px 6px;border-radius:8px;background:var(--card);border:1px solid var(--border);font-size:10px;cursor:pointer;text-align:center;transition:all 0.2s;font-family:var(--mono);}
+.rp-btn:hover{border-color:var(--accent);color:var(--accent);}
+.rp-btn .rp-name{font-weight:700;font-size:11px;color:var(--text);}
+.rp-btn .rp-size{color:var(--muted);font-size:9px;}
+.resize-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:12px;border:1px dashed var(--border);min-height:300px;position:relative;}
+#resizeCanvas{border-radius:8px;max-width:100%;max-height:100%;}
 
-.control-group input,
-.control-group select{
-width:100%;
-padding:13px;
-border:none;
-border-radius:12px;
-background:#132453;
-color:white;
-}
+/* METADATA TAB */
+.meta-table{width:100%;border-collapse:collapse;}
+.meta-table th{background:rgba(37,197,255,0.08);padding:9px 12px;font-size:11px;font-family:var(--mono);color:var(--accent);text-align:left;}
+.meta-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;font-family:var(--mono);}
+.meta-table tr:hover td{background:rgba(37,197,255,0.03);}
+.meta-k{color:var(--muted);}
+.meta-v{color:var(--text);}
 
-.range-output{
-margin-top:8px;
-font-size:13px;
-color:#25c5ff;
-}
+/* BACKGROUND TAB */
+.bg-canvas-wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:300px;}
+.bg-side{background:var(--card);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.bg-side label{font-size:10px;color:var(--muted);padding:6px;font-family:var(--mono);}
+#bgCanvas{max-width:100%;max-height:100%;border-radius:8px;}
+.checker{background-image:linear-gradient(45deg,#333 25%,transparent 25%),linear-gradient(-45deg,#333 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#333 75%),linear-gradient(-45deg,transparent 75%,#333 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0px;}
 
-.tabs{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-padding:15px;
-border-bottom:1px solid rgba(255,255,255,0.06);
-}
+/* BATCH TAB */
+.batch-drop{border:2px dashed rgba(37,197,255,0.2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px;}
+.batch-drop:hover{border-color:var(--accent);background:rgba(37,197,255,0.04);}
+.batch-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;}
+.batch-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;}
+.bi-thumb{width:40px;height:28px;object-fit:cover;border-radius:4px;background:#111;}
+.bi-name{flex:1;font-size:11px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bi-size{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+.bi-status{font-size:11px;white-space:nowrap;}
+.bi-prog{height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:4px;overflow:hidden;}
+.bi-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width 0.4s;}
 
-.tab{
-padding:10px 15px;
-border-radius:12px;
-background:#132453;
-cursor:pointer;
-font-size:13px;
-font-weight:600;
-transition:0.3s;
-}
+/* ENHANCE TAB */
+.enhance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.enhance-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.enhance-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.enhance-card.applied{border-color:var(--accent3);background:rgba(22,197,91,0.06);}
+.ec-icon{font-size:28px;margin-bottom:6px;display:block;}
+.ec-title{font-size:12px;font-weight:700;}
+.ec-desc{font-size:10px;color:var(--muted);margin-top:3px;}
 
-.tab.active{
-background:linear-gradient(90deg,#25c5ff,#8c52ff);
-}
+/* SOCIAL TAB */
+.social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.social-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.social-card:hover{border-color:var(--accent);background:rgba(37,197,255,0.06);}
+.sc-platform{font-size:20px;display:block;margin-bottom:4px;}
+.sc-name{font-size:11px;font-weight:700;}
+.sc-size{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.social-preview{flex:1;background:var(--card);border-radius:10px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;min-height:200px;position:relative;overflow:hidden;}
+#socialCanvas{border-radius:6px;}
 
-.preview-area{
-padding:20px;
-}
+/* ── RIGHT PANEL ── */
+.right-panel{background:rgba(7,13,24,0.98);border-left:1px solid var(--border);overflow-y:auto;padding:14px;}
+.rp-title{font-size:11px;font-weight:700;letter-spacing:0.05em;margin-bottom:8px;color:var(--text);}
 
-.tab-panel{
-display:none;
-}
+/* STATS */
+.stat-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;}
+.stat-row:last-child{border-bottom:none;}
+.sk{color:var(--muted);}
+.sv{font-family:var(--mono);font-weight:600;}
+.sv.green{color:var(--accent3);}
+.sv.blue{color:var(--accent);}
+.sv.red{color:var(--red);}
+.sv.amber{color:var(--accent4);}
 
-.tab-panel.active{
-display:block;
-}
+/* IMAGE PREVIEW THUMB */
+.thumb-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;min-height:120px;display:flex;align-items:center;justify-content:center;}
+#rpThumb{max-width:100%;max-height:140px;object-fit:contain;border-radius:6px;}
 
-.preview-box{
-height:620px;
-background:#0f1d4d;
-border-radius:18px;
-overflow:hidden;
-position:relative;
-display:flex;
-align-items:center;
-justify-content:center;
-}
+/* QUALITY METER */
+.qmeter{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;}
+.qm-val{font-size:26px;font-weight:800;font-family:var(--mono);background:linear-gradient(90deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.qm-track{height:5px;background:rgba(255,255,255,0.05);border-radius:100px;margin:6px 0;overflow:hidden;}
+.qm-fill{height:100%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80);border-radius:100px;transition:width 0.5s;}
 
-.preview-box img{
-max-width:100%;
-max-height:100%;
-object-fit:contain;
-position:absolute;
-}
+/* DOWNLOAD AREA */
+.dl-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
+.dl-formats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px;}
+.dlf{padding:6px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-align:center;cursor:pointer;font-size:10px;font-weight:700;font-family:var(--mono);transition:all 0.2s;}
+.dlf:hover{border-color:var(--accent);color:var(--accent);}
 
-.after{
-clip-path: inset(0 50% 0 0);
-}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(7,13,24,0.95);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:12px;z-index:2000;transition:transform 0.3s;pointer-events:none;font-family:var(--mono);}
+.toast.show{transform:translateX(-50%) translateY(0);}
 
-.slider{
-position:absolute;
-width:4px;
-height:100%;
-background:white;
-left:50%;
-top:0;
-cursor:ew-resize;
-z-index:20;
-}
-
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:14px;
-margin-top:15px;
-cursor:pointer;
-font-weight:700;
-color:white;
-transition:0.3s;
-}
-
-button:hover{
-transform:translateY(-2px);
-}
-
-.primary{
-background:linear-gradient(90deg,#25c5ff,#8c52ff);
-}
-
-.success{
-background:#16c55b;
-}
-
-.warning{
-background:#ff4d4d;
-}
-
-.analytics-card{
-background:#132453;
-border-radius:16px;
-padding:16px;
-margin-bottom:16px;
-}
-
-.analytics-card h4{
-margin-bottom:12px;
-color:#25c5ff;
-}
-
-.stat{
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
-font-size:14px;
-}
-
-.progress-bar{
-width:100%;
-height:14px;
-background:#102154;
-border-radius:30px;
-overflow:hidden;
-margin-top:20px;
-}
-
-.progress{
-width:0%;
-height:100%;
-background:linear-gradient(90deg,#25c5ff,#8c52ff);
-transition:0.3s;
-}
-
-.logs{
-margin-top:15px;
-font-size:13px;
-color:#9eb2ff;
-min-height:60px;
-}
-
-.feature{
-display:inline-block;
-padding:8px 12px;
-border-radius:12px;
-background:#102154;
-margin:4px;
-font-size:12px;
-}
-
-.download-box a{
-display:block;
-padding:12px;
-background:#132453;
-border-radius:12px;
-margin-top:12px;
-text-align:center;
-color:white;
-text-decoration:none;
-}
-
-.return-home{
-display:block;
-text-align:center;
-margin-top:20px;
-color:#25c5ff;
-text-decoration:none;
-}
-
-.canvas-tools{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin-top:15px;
-}
-
-.tool-btn{
-background:#132453;
-padding:12px;
-border-radius:12px;
-text-align:center;
-cursor:pointer;
-font-size:13px;
-}
-
-.tool-btn:hover{
-background:#1d3270;
-}
-
-@media(max-width:1300px){
-
-.workspace{
-grid-template-columns:1fr;
-}
-
-.preview-box{
-height:450px;
-}
-
-}
-
+@media(max-width:1200px){.app{grid-template-columns:1fr;}.left-panel,.right-panel{}.right-panel{display:none;}}
 </style>
-
 </head>
-
 <body>
+<div class="toast" id="toast"></div>
 
-<div class="main">
+<div class="app">
 
-<div class="header">
+<!-- ════════════════ LEFT PANEL ════════════════ -->
+<div class="left-panel">
+  <div class="logo-area">
+    <div class="logo"><span class="live-dot"></span>KJSynthora AI Image Studio</div>
+    <div class="logo-sub">Convert • Compress • Resize • Enhance • Batch</div>
+  </div>
+  <div class="lp-body">
 
-<h1>KJSynthora AI Image Studio</h1>
+    <!-- UPLOAD -->
+    <label class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" onchange="loadImage(event)">
+      <span class="dz-icon">🖼</span>
+      <div class="dz-text">Drop image or <span>click to browse</span></div>
+      <div class="dz-file-name" id="dzFileName">No file selected</div>
+    </label>
 
-<p>
-AI Converter • AI Repair • AI Compression • AI Resize • Metadata Cleaner • Background Recovery
-</p>
+    <!-- FORMAT -->
+    <div class="sec">Output Settings</div>
+    <div class="ctrl">
+      <label>Output Format</label>
+      <select id="outputFormat">
+        <option value="image/png">PNG (Lossless)</option>
+        <option value="image/jpeg" selected>JPG (Compressed)</option>
+        <option value="image/webp">WEBP (Modern)</option>
+        <option value="image/gif">GIF</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Quality: <span class="range-val" id="qualLabel">85%</span></label>
+      <input type="range" id="qualSlider" min="1" max="100" value="85" oninput="document.getElementById('qualLabel').textContent=this.value+'%'">
+    </div>
+    <div class="ctrl">
+      <label>Resize Width (px)</label>
+      <input type="number" id="resizeW" placeholder="Auto (keep original)">
+    </div>
+    <div class="ctrl">
+      <label>Target Size (KB)</label>
+      <input type="number" id="targetKB" placeholder="e.g. 200">
+    </div>
 
+    <div class="sec">Processing Options</div>
+    <div class="toggle-group">
+      <label class="tgl"><input type="checkbox" id="optMeta"> 🔒 Strip Metadata</label>
+      <label class="tgl"><input type="checkbox" id="optSharpen"> ✨ Sharpen</label>
+      <label class="tgl"><input type="checkbox" id="optDenoise"> 🧹 Denoise</label>
+      <label class="tgl"><input type="checkbox" id="optGrayscale"> ⚫ Grayscale</label>
+      <label class="tgl"><input type="checkbox" id="optInvert"> 🔄 Invert</label>
+      <label class="tgl"><input type="checkbox" id="optFlipH"> ↔ Flip H</label>
+    </div>
+
+    <div class="sec">Actions</div>
+    <button class="act-btn primary" id="processBtn" onclick="processImage()" disabled>⚡ Process Image</button>
+    <button class="act-btn green" id="downloadBtn" onclick="downloadResult()" disabled>⬇ Download Result</button>
+    <button class="act-btn amber" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    <button class="act-btn red" onclick="resetAll()">↺ Reset</button>
+    <a href="../index.html" style="display:block;text-align:center;margin-top:10px;color:var(--muted);font-size:12px;font-family:var(--mono);text-decoration:none;">← Return Home</a>
+
+    <!-- PROGRESS -->
+    <div class="prog-wrap" id="progWrap" style="display:none;">
+      <div class="prog-label"><span id="progText">Processing...</span><span id="progPct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+    <div class="log-box" id="logBox">Waiting for image upload...</div>
+  </div>
 </div>
 
-<div class="workspace">
+<!-- ════════════════ CENTER PANEL ════════════════ -->
+<div class="center-panel">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('convert',this)">🔄 Convert</button>
+    <button class="tab" onclick="switchTab('compress',this)">📦 Compress</button>
+    <button class="tab" onclick="switchTab('resize',this)">📐 Resize</button>
+    <button class="tab" onclick="switchTab('enhance',this)">✨ Enhance</button>
+    <button class="tab" onclick="switchTab('metadata',this)">🔍 Metadata</button>
+    <button class="tab" onclick="switchTab('background',this)">🎭 Background</button>
+    <button class="tab" onclick="switchTab('social',this)">📱 Social</button>
+    <button class="tab" onclick="switchTab('batch',this)">⚡ Batch</button>
+  </div>
 
-<!-- LEFT PANEL -->
-<div class="panel">
+  <div class="tab-area">
 
-<div class="panel-title">AI Controls</div>
+    <!-- ══ CONVERT TAB ══ -->
+    <div class="tab-panel active" id="tab-convert">
+      <div class="ba-labels">
+        <span>◀ Original</span>
+        <span style="color:var(--muted);font-size:10px;">Drag slider to compare</span>
+        <span>Processed ▶</span>
+      </div>
+      <div class="ba-container" id="baContainer">
+        <div class="ba-empty" id="baEmpty">
+          <span class="ba-empty-icon">🖼</span>
+          <span>Upload an image to begin</span>
+          <span style="font-size:11px;color:var(--muted);">Drag & drop or click upload</span>
+        </div>
+        <img id="imgBefore" style="display:none;">
+        <img id="imgAfter" style="display:none;">
+        <div class="ba-slider" id="baSlider" style="display:none;"></div>
+      </div>
+      <div class="tool-grid">
+        <div class="tool-card" onclick="quickAction('enhance')"><span class="tc-icon">✨</span><span class="tc-label">AI Enhance</span></div>
+        <div class="tool-card" onclick="quickAction('sharpen')"><span class="tc-icon">🔪</span><span class="tc-label">Sharpen</span></div>
+        <div class="tool-card" onclick="quickAction('denoise')"><span class="tc-icon">🧹</span><span class="tc-label">Denoise</span></div>
+        <div class="tool-card" onclick="quickAction('grayscale')"><span class="tc-icon">⚫</span><span class="tc-label">Grayscale</span></div>
+        <div class="tool-card" onclick="quickAction('invert')"><span class="tc-icon">🔄</span><span class="tc-label">Invert</span></div>
+        <div class="tool-card" onclick="quickAction('sepia')"><span class="tc-icon">🟫</span><span class="tc-label">Sepia</span></div>
+        <div class="tool-card" onclick="quickAction('blur')"><span class="tc-icon">💫</span><span class="tc-label">Blur</span></div>
+        <div class="tool-card" onclick="quickAction('vintage')"><span class="tc-icon">📸</span><span class="tc-label">Vintage</span></div>
+      </div>
+    </div>
 
-<label class="upload-box">
+    <!-- ══ COMPRESS TAB ══ -->
+    <div class="tab-panel" id="tab-compress">
+      <div class="compress-grid">
+        <div class="cstat"><div class="v blue" id="cs_orig">-- KB</div><div class="l">Original</div></div>
+        <div class="cstat"><div class="v green" id="cs_comp">-- KB</div><div class="l">Compressed</div></div>
+        <div class="cstat"><div class="v amber" id="cs_saved">--%</div><div class="l">Space Saved</div></div>
+        <div class="cstat"><div class="v" id="cs_ratio">--</div><div class="l">Ratio</div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Quick Quality Presets:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button onclick="setQuality(95)" style="padding:5px 12px;border-radius:6px;background:rgba(22,197,91,0.15);border:1px solid rgba(22,197,91,0.3);color:var(--accent3);font-size:11px;cursor:pointer;font-family:var(--mono);">Max Quality (95%)</button>
+          <button onclick="setQuality(80)" style="padding:5px 12px;border-radius:6px;background:rgba(37,197,255,0.1);border:1px solid rgba(37,197,255,0.2);color:var(--accent);font-size:11px;cursor:pointer;font-family:var(--mono);">Balanced (80%)</button>
+          <button onclick="setQuality(60)" style="padding:5px 12px;border-radius:6px;background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);color:var(--accent4);font-size:11px;cursor:pointer;font-family:var(--mono);">Web Optimized (60%)</button>
+          <button onclick="setQuality(40)" style="padding:5px 12px;border-radius:6px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.2);color:var(--red);font-size:11px;cursor:pointer;font-family:var(--mono);">Max Compress (40%)</button>
+        </div>
+      </div>
+      <div class="compare-strip">
+        <div class="cs-side">
+          <img id="cs_imgOrig" style="display:none;">
+          <div id="cs_emptyOrig" style="width:100%;height:180px;background:var(--card);border-radius:8px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;">Original</div>
+          <div class="cs-label">ORIGINAL</div>
+          <div class="cs-size blue" id="cs_origSz">-- KB</div>
+        </div>
+        <div style="font-size:20px;color:var(--muted);">→</div>
+        <div class="cs-side">
+          <img id="cs_imgComp" style="display:none;">
+          <div id="cs_emptyComp" style="width:100%;height:180px;background:var(--card);border-radius:8px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;">Compressed</div>
+          <div class="cs-label">COMPRESSED</div>
+          <div class="cs-size green" id="cs_compSz">-- KB</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="act-btn primary" onclick="runCompress()">📦 Run Smart Compression</button>
+      </div>
+    </div>
 
-<input type="file" id="upload" accept="image/*">
+    <!-- ══ RESIZE TAB ══ -->
+    <div class="tab-panel" id="tab-resize">
+      <div class="resize-presets">
+        <div class="rp-btn" onclick="applyResizePreset(1920,1080)"><div class="rp-name">FHD</div><div class="rp-size">1920×1080</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(1280,720)"><div class="rp-name">HD</div><div class="rp-size">1280×720</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(3840,2160)"><div class="rp-name">4K</div><div class="rp-size">3840×2160</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(1080,1080)"><div class="rp-name">Square</div><div class="rp-size">1080×1080</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(1080,1920)"><div class="rp-name">Story</div><div class="rp-size">1080×1920</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(1200,628)"><div class="rp-name">OG Image</div><div class="rp-size">1200×628</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(800,600)"><div class="rp-name">Web</div><div class="rp-size">800×600</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(400,300)"><div class="rp-name">Thumb</div><div class="rp-size">400×300</div></div>
+        <div class="rp-btn" onclick="applyResizePreset(32,32)"><div class="rp-name">Favicon</div><div class="rp-size">32×32</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div><label style="font-size:11px;color:var(--muted);">Width (px)</label><input type="number" id="rw" placeholder="Width" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-top:4px;" oninput="updateResizePreview()"></div>
+        <div><label style="font-size:11px;color:var(--muted);">Height (px)</label><input type="number" id="rh" placeholder="Height" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-top:4px;" oninput="updateResizePreview()"></div>
+        <div><label style="font-size:11px;color:var(--muted);">Scale %</label><input type="number" id="rscale" placeholder="100" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-top:4px;" oninput="scaleResize()"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="lockAspect" checked style="accent-color:var(--accent);"> Lock Aspect Ratio</label>
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono);" id="resSummary">Original: -- × --</span>
+      </div>
+      <div class="resize-canvas-wrap">
+        <canvas id="resizeCanvas"></canvas>
+        <div id="resizeEmpty" style="color:var(--muted);font-size:12px;">Upload image to preview resize</div>
+      </div>
+      <button class="act-btn primary" onclick="applyResize()" style="margin-top:10px;">📐 Apply Resize & Download</button>
+    </div>
 
-<h3>Upload Image</h3>
-<p>Drag & Drop or Click</p>
+    <!-- ══ ENHANCE TAB ══ -->
+    <div class="tab-panel" id="tab-enhance">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--mono);">Adjustments</div>
+          <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--muted);">Brightness</span><span style="color:var(--accent);font-family:var(--mono);" id="adjBrLabel">0</span></div><input type="range" min="-100" max="100" value="0" oninput="this.nextElementSibling.style.display='none';document.getElementById('adjBrLabel').textContent=this.value;applyAdjustments()" style="width:100%;accent-color:var(--accent);"><span></span></div>
+          <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--muted);">Contrast</span><span style="color:var(--accent);font-family:var(--mono);" id="adjContLabel">0</span></div><input type="range" min="-100" max="100" value="0" oninput="document.getElementById('adjContLabel').textContent=this.value;applyAdjustments()" style="width:100%;accent-color:var(--accent);"></div>
+          <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--muted);">Saturation</span><span style="color:var(--accent);font-family:var(--mono);" id="adjSatLabel">0</span></div><input type="range" min="-100" max="100" value="0" oninput="document.getElementById('adjSatLabel').textContent=this.value;applyAdjustments()" style="width:100%;accent-color:var(--accent);"></div>
+          <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--muted);">Hue Rotate</span><span style="color:var(--accent);font-family:var(--mono);" id="adjHueLabel">0°</span></div><input type="range" min="0" max="360" value="0" oninput="document.getElementById('adjHueLabel').textContent=this.value+'°';applyAdjustments()" style="width:100%;accent-color:var(--accent);"></div>
+          <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--muted);">Blur</span><span style="color:var(--accent);font-family:var(--mono);" id="adjBlurLabel">0px</span></div><input type="range" min="0" max="20" value="0" oninput="document.getElementById('adjBlurLabel').textContent=this.value+'px';applyAdjustments()" style="width:100%;accent-color:var(--accent);"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--mono);">Quick Filters</div>
+          <div class="enhance-grid">
+            <div class="enhance-card" onclick="applyFilter('vivid')"><span class="ec-icon">🌈</span><div class="ec-title">Vivid</div><div class="ec-desc">Boost colors</div></div>
+            <div class="enhance-card" onclick="applyFilter('cinematic')"><span class="ec-icon">🎬</span><div class="ec-title">Cinematic</div><div class="ec-desc">Film look</div></div>
+            <div class="enhance-card" onclick="applyFilter('vintage')"><span class="ec-icon">📸</span><div class="ec-title">Vintage</div><div class="ec-desc">Retro tone</div></div>
+            <div class="enhance-card" onclick="applyFilter('cool')"><span class="ec-icon">❄️</span><div class="ec-title">Cool</div><div class="ec-desc">Blue tone</div></div>
+            <div class="enhance-card" onclick="applyFilter('warm')"><span class="ec-icon">🔥</span><div class="ec-title">Warm</div><div class="ec-desc">Orange tone</div></div>
+            <div class="enhance-card" onclick="applyFilter('noir')"><span class="ec-icon">🎭</span><div class="ec-title">Noir</div><div class="ec-desc">B&W + contrast</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--card);border-radius:10px;border:1px solid var(--border);min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <canvas id="enhanceCanvas" style="max-width:100%;max-height:300px;border-radius:6px;"></canvas>
+        <div id="enhanceEmpty" style="color:var(--muted);font-size:12px;">Upload image to preview filters</div>
+      </div>
+      <button class="act-btn primary" onclick="downloadEnhanced()" style="margin-top:10px;">⬇ Download Enhanced</button>
+    </div>
 
-</label>
+    <!-- ══ METADATA TAB ══ -->
+    <div class="tab-panel" id="tab-metadata">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;">📋 Image Metadata & EXIF</div>
+        <button onclick="stripMetadata()" style="padding:7px 14px;border-radius:8px;background:rgba(255,77,77,0.15);border:1px solid rgba(255,77,77,0.3);color:var(--red);font-size:11px;cursor:pointer;font-family:var(--mono);">🔒 Strip All Metadata</button>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <table class="meta-table" id="metaTable">
+          <thead><tr><th>Property</th><th>Value</th></tr></thead>
+          <tbody id="metaBody">
+            <tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px;">Upload an image to see metadata</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.15);border-radius:10px;padding:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">🔒 Privacy Warning</div>
+        <div style="font-size:11px;color:#fca5a5;line-height:1.7;">Images from phones/cameras contain GPS coordinates, device model, date/time, and software info. Always strip metadata before posting on social media or sending to others.</div>
+      </div>
+      <button class="act-btn green" onclick="downloadStripped()" style="margin-top:10px;">⬇ Download Metadata-Free Image</button>
+    </div>
 
-<div class="control-group">
-<label>Output Format</label>
+    <!-- ══ BACKGROUND TAB ══ -->
+    <div class="tab-panel" id="tab-background">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Background removal runs entirely in your browser using canvas pixel processing. For best results, images with clear subject contrast work best.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <select id="bgReplaceColor" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+          <option value="transparent">Transparent (PNG)</option>
+          <option value="#ffffff">White</option>
+          <option value="#000000">Black</option>
+          <option value="#0000ff">Blue</option>
+          <option value="#ff0000">Red</option>
+          <option value="#00ff00">Green</option>
+        </select>
+        <input type="color" id="bgCustomColor" value="#ffffff" title="Custom background" style="height:36px;width:50px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:none;cursor:pointer;padding:2px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);"><input type="range" id="bgThreshold" min="10" max="100" value="30" style="width:80px;accent-color:var(--accent);"> Threshold</label>
+      </div>
+      <div class="bg-canvas-wrap">
+        <div class="bg-side" style="position:relative;">
+          <label style="position:absolute;top:6px;left:8px;z-index:2;background:rgba(0,0,0,0.5);border-radius:4px;padding:2px 6px;">Original</label>
+          <img id="bgOrigImg" style="max-width:100%;max-height:220px;object-fit:contain;border-radius:8px;">
+          <div id="bgOrigEmpty" style="color:var(--muted);font-size:12px;">Upload image</div>
+        </div>
+        <div class="bg-side checker" style="position:relative;">
+          <label style="position:absolute;top:6px;left:8px;z-index:2;background:rgba(0,0,0,0.5);border-radius:4px;padding:2px 6px;">Background Removed</label>
+          <canvas id="bgCanvas" style="max-width:100%;max-height:220px;border-radius:8px;display:none;"></canvas>
+          <div id="bgProcessed" style="color:var(--muted);font-size:12px;">Click process to remove background</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="act-btn primary" onclick="removeBackground()" style="flex:2;">🎭 Remove Background</button>
+        <button class="act-btn green" onclick="downloadBgRemoved()" style="flex:1;">⬇ Download PNG</button>
+      </div>
+    </div>
 
-<select id="format">
+    <!-- ══ SOCIAL TAB ══ -->
+    <div class="tab-panel" id="tab-social">
+      <div class="social-grid">
+        <div class="social-card" onclick="socialResize('yt-thumb',1280,720)"><span class="sc-platform">▶️</span><div class="sc-name">YT Thumb</div><div class="sc-size">1280×720</div></div>
+        <div class="social-card" onclick="socialResize('yt-shorts',1080,1920)"><span class="sc-platform">📱</span><div class="sc-name">YT Shorts</div><div class="sc-size">1080×1920</div></div>
+        <div class="social-card" onclick="socialResize('ig-post',1080,1080)"><span class="sc-platform">📸</span><div class="sc-name">Instagram</div><div class="sc-size">1080×1080</div></div>
+        <div class="social-card" onclick="socialResize('ig-story',1080,1920)"><span class="sc-platform">⭕</span><div class="sc-name">IG Story</span><div class="sc-size">1080×1920</div></div>
+        <div class="social-card" onclick="socialResize('twitter',1200,675)"><span class="sc-platform">🐦</span><div class="sc-name">Twitter</div><div class="sc-size">1200×675</div></div>
+        <div class="social-card" onclick="socialResize('fb-cover',1640,924)"><span class="sc-platform">📘</span><div class="sc-name">FB Cover</div><div class="sc-size">1640×924</div></div>
+        <div class="social-card" onclick="socialResize('linkedin',1200,628)"><span class="sc-platform">💼</span><div class="sc-name">LinkedIn</div><div class="sc-size">1200×628</div></div>
+        <div class="social-card" onclick="socialResize('og',1200,630)"><span class="sc-platform">🌐</span><div class="sc-name">OG Image</div><div class="sc-size">1200×630</div></div>
+        <div class="social-card" onclick="socialResize('whatsapp',512,512)"><span class="sc-platform">💬</span><div class="sc-name">WhatsApp</div><div class="sc-size">512×512</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:11px;color:var(--muted);" id="socialSizeLabel">Select a platform above</div>
+        <button onclick="downloadSocial()" class="act-btn green" style="width:auto;padding:7px 14px;margin:0;font-size:11px;">⬇ Download</button>
+      </div>
+      <div class="social-preview">
+        <canvas id="socialCanvas"></canvas>
+        <div id="socialEmpty" style="color:var(--muted);font-size:12px;">Upload image & select platform</div>
+      </div>
+    </div>
 
-<option value="image/png">PNG</option>
-<option value="image/jpeg">JPG</option>
-<option value="image/webp">WEBP</option>
+    <!-- ══ BATCH TAB ══ -->
+    <div class="tab-panel" id="tab-batch">
+      <label class="batch-drop" id="batchDrop">
+        <input type="file" id="batchInput" accept="image/*" multiple onchange="loadBatch(event)" style="display:none;">
+        <div style="font-size:28px;margin-bottom:6px;">📁</div>
+        <div style="font-size:13px;font-weight:600;">Click to select multiple images</div>
+        <div style="font-size:11px;color:var(--muted);">or drag & drop up to 50 files</div>
+      </label>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <select id="batchFormat" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WEBP</option>
+        </select>
+        <input type="number" id="batchQuality" value="80" min="1" max="100" placeholder="Quality%" style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+        <input type="number" id="batchWidth" placeholder="Max W px" style="width:90px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+        <button onclick="runBatch()" style="padding:7px 14px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#7c3aed);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">⚡ Process All</button>
+        <button onclick="downloadBatchZip()" style="padding:7px 14px;border-radius:8px;background:rgba(22,197,91,0.15);border:1px solid rgba(22,197,91,0.3);color:var(--accent3);font-size:12px;cursor:pointer;">⬇ Download All</button>
+        <button onclick="clearBatch()" style="padding:7px 14px;border-radius:8px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.2);color:var(--red);font-size:12px;cursor:pointer;">🗑 Clear</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;" id="batchSummary">No files loaded</div>
+      <div class="batch-list" id="batchList"></div>
+    </div>
 
-</select>
+  </div><!-- /tab-area -->
+</div><!-- /center-panel -->
 
+<!-- ════════════════ RIGHT PANEL ════════════════ -->
+<div class="right-panel">
+  <div class="rp-title">🖼 Preview</div>
+  <div class="thumb-wrap">
+    <img id="rpThumb" style="display:none;">
+    <div id="rpThumbEmpty" style="color:var(--muted);font-size:11px;font-family:var(--mono);">No image</div>
+  </div>
+
+  <div class="rp-title">📊 Image Info</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;">
+    <div class="stat-row"><span class="sk">Filename</span><span class="sv blue" id="ri_name" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">--</span></div>
+    <div class="stat-row"><span class="sk">Original Size</span><span class="sv" id="ri_origSize">--</span></div>
+    <div class="stat-row"><span class="sk">Processed Size</span><span class="sv green" id="ri_procSize">--</span></div>
+    <div class="stat-row"><span class="sk">Dimensions</span><span class="sv blue" id="ri_dims">--</span></div>
+    <div class="stat-row"><span class="sk">Format</span><span class="sv" id="ri_fmt">--</span></div>
+    <div class="stat-row"><span class="sk">Aspect Ratio</span><span class="sv" id="ri_ar">--</span></div>
+    <div class="stat-row"><span class="sk">Color Mode</span><span class="sv amber" id="ri_color">RGB</span></div>
+    <div class="stat-row"><span class="sk">Space Saved</span><span class="sv green" id="ri_saved">--</span></div>
+  </div>
+
+  <div class="rp-title">🎯 Quality Score</div>
+  <div class="qmeter">
+    <div class="qm-val" id="qmVal">--</div>
+    <div style="font-size:10px;color:var(--muted);">Estimated output quality</div>
+    <div class="qm-track"><div class="qm-fill" id="qmFill" style="width:0%;"></div></div>
+  </div>
+
+  <div class="rp-title">⬇ Quick Export</div>
+  <div class="dl-box">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Export as:</div>
+    <div class="dl-formats">
+      <div class="dlf" onclick="quickExport('image/jpeg')">JPG</div>
+      <div class="dlf" onclick="quickExport('image/png')">PNG</div>
+      <div class="dlf" onclick="quickExport('image/webp')">WEBP</div>
+    </div>
+  </div>
+
+  <div class="rp-title">📦 Batch Summary</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;">
+    <div class="stat-row"><span class="sk">Files Loaded</span><span class="sv blue" id="bs_loaded">0</span></div>
+    <div class="stat-row"><span class="sk">Processed</span><span class="sv green" id="bs_done">0</span></div>
+    <div class="stat-row"><span class="sk">Errors</span><span class="sv red" id="bs_err">0</span></div>
+    <div class="stat-row"><span class="sk">Total Saved</span><span class="sv green" id="bs_saved">-- KB</span></div>
+  </div>
+
+  <div class="rp-title">💡 Tips</div>
+  <div style="background:rgba(37,197,255,0.05);border:1px solid rgba(37,197,255,0.1);border-radius:10px;padding:10px;font-size:11px;color:var(--muted);line-height:1.8;" id="tipBox">
+    Upload an image to get started. Supports JPG, PNG, WEBP, GIF.
+  </div>
 </div>
 
-<div class="control-group">
-
-<label>Compression Quality</label>
-
-<input type="range" id="quality" min="10" max="100" value="80">
-
-<div class="range-output" id="qualityOutput">
-80%
-</div>
-
-</div>
-
-<div class="control-group">
-
-<label>Resize Width</label>
-
-<input type="number" id="resizeWidth" placeholder="1920">
-
-</div>
-
-<div class="control-group">
-
-<label>Target File Size (KB)</label>
-
-<input type="number" id="targetSize" placeholder="200">
-
-</div>
-
-<div class="control-group">
-
-<label>
-<input type="checkbox" id="metadata">
- Remove Metadata
-</label>
-
-</div>
-
-<div class="control-group">
-
-<label>
-<input type="checkbox" id="repair">
- AI Artifact Repair
-</label>
-
-</div>
-
-<div class="control-group">
-
-<label>
-<input type="checkbox" id="background">
- AI Background Recovery
-</label>
-
-</div>
-
-<div class="control-group">
-
-<label>
-<input type="checkbox" id="upscale">
- AI Upscale
-</label>
-
-</div>
-
-<button class="primary" id="processBtn">
-Process Image
-</button>
-
-<button class="success" id="downloadBtn">
-Download Final Image
-</button>
-
-<a href="../index.html" class="return-home">
-← Return Home
-</a>
-
-</div>
-
-<!-- CENTER PANEL -->
-<div class="panel">
-
-<div class="tabs">
-
-<div class="tab active" data-tab="convert">
-Convert
-</div>
-
-<div class="tab" data-tab="compress">
-Compress
-</div>
-
-<div class="tab" data-tab="repairPanel">
-AI Repair
-</div>
-
-<div class="tab" data-tab="resizePanel">
-Resize
-</div>
-
-<div class="tab" data-tab="metadataPanel">
-Metadata
-</div>
-
-<div class="tab" data-tab="backgroundPanel">
-Background
-</div>
-
-<div class="tab" data-tab="batchPanel">
-Batch
-</div>
-
-</div>
-
-<div class="preview-area">
-
-<!-- CONVERT -->
-<div class="tab-panel active" id="convert">
-
-<div class="preview-box" id="previewBox">
-
-<img id="before">
-<img id="after" class="after">
-
-<div class="slider" id="slider"></div>
-
-</div>
-
-</div>
-
-<!-- COMPRESS -->
-<div class="tab-panel" id="compress">
-
-<div class="preview-box">
-
-<h2>
-Smart Compression Engine
-</h2>
-
-</div>
-
-</div>
-
-<!-- REPAIR -->
-<div class="tab-panel" id="repairPanel">
-
-<div class="preview-box">
-
-<h2>
-AI Artifact Healing Engine
-</h2>
-
-</div>
-
-</div>
-
-<!-- RESIZE -->
-<div class="tab-panel" id="resizePanel">
-
-<div class="preview-box">
-
-<h2>
-AI Smart Resize Workspace
-</h2>
-
-</div>
-
-</div>
-
-<!-- METADATA -->
-<div class="tab-panel" id="metadataPanel">
-
-<div class="preview-box">
-
-<h2>
-Metadata Cleaner & Privacy Engine
-</h2>
-
-</div>
-
-</div>
-
-<!-- BACKGROUND -->
-<div class="tab-panel" id="backgroundPanel">
-
-<div class="preview-box">
-
-<h2>
-AI Transparent Background Studio
-</h2>
-
-</div>
-
-</div>
-
-<!-- BATCH -->
-<div class="tab-panel" id="batchPanel">
-
-<div class="preview-box">
-
-<h2>
-Bulk Batch Processing Engine
-</h2>
-
-</div>
-
-</div>
-
-<div class="canvas-tools">
-
-<div class="tool-btn">
-AI Enhance
-</div>
-
-<div class="tool-btn">
-Sharpen
-</div>
-
-<div class="tool-btn">
-Denoise
-</div>
-
-<div class="tool-btn">
-Remove BG
-</div>
-
-<div class="tool-btn">
-WEBP Export
-</div>
-
-<div class="tool-btn">
-Social Resize
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="panel">
-
-<div class="panel-title">
-Realtime Analytics
-</div>
-
-<div class="analytics-card">
-
-<h4>Image Stats</h4>
-
-<div class="stat">
-<span>Original Size</span>
-<span id="originalSize">0 KB</span>
-</div>
-
-<div class="stat">
-<span>Compressed</span>
-<span id="compressedSize">0 KB</span>
-</div>
-
-<div class="stat">
-<span>Saved</span>
-<span id="saved">0%</span>
-</div>
-
-<div class="stat">
-<span>Resolution</span>
-<span id="resolution">0x0</span>
-</div>
-
-<div class="stat">
-<span>Format</span>
-<span id="formatText">-</span>
-</div>
-
-</div>
-
-<div class="analytics-card">
-
-<h4>AI Engines</h4>
-
-<div class="feature">AI Repair</div>
-<div class="feature">AI Background</div>
-<div class="feature">AI Compression</div>
-<div class="feature">AI Resize</div>
-<div class="feature">WEBP Export</div>
-<div class="feature">Metadata Cleaner</div>
-<div class="feature">AI Upscaler</div>
-
-</div>
-
-<div class="progress-bar">
-<div class="progress" id="progress"></div>
-</div>
-
-<div class="logs" id="logs">
-Waiting for image...
-</div>
-
-<div class="download-box">
-
-<a href="#" id="downloadLink">
-Download Optimized Image
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+</div><!-- /app -->
 
 <script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let origFile=null,origImg=null,origObjectUrl=null;
+let processedBlob=null,processedUrl=null;
+let batchFiles=[],batchResults=[];
+let socialW=1280,socialH=720,socialName='YT Thumb';
+let bgRemovedBlob=null;
+let adjustCanvas=null,adjustCtx=null;
+let currentFilter={brightness:0,contrast:0,saturation:0,hue:0,blur:0};
 
-const upload = document.getElementById('upload');
-const before = document.getElementById('before');
-const after = document.getElementById('after');
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+let toastTimer;
+function toast(msg,dur=2500){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),dur);
+}
 
-const processBtn = document.getElementById('processBtn');
-const downloadBtn = document.getElementById('downloadBtn');
+// ════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
 
-const quality = document.getElementById('quality');
-const qualityOutput = document.getElementById('qualityOutput');
+// ════════════════════════════════════════
+// LOG & PROGRESS
+// ════════════════════════════════════════
+function log(msg){
+  const el=document.getElementById('logBox');
+  el.innerHTML=msg;
+}
+function setProgress(pct,msg){
+  const w=document.getElementById('progWrap');
+  const f=document.getElementById('progFill');
+  const p=document.getElementById('progPct');
+  const t=document.getElementById('progText');
+  w.style.display='block';
+  f.style.width=pct+'%';
+  p.textContent=pct+'%';
+  if(msg) t.textContent=msg;
+}
 
-const progress = document.getElementById('progress');
-const logs = document.getElementById('logs');
-
-const originalSize = document.getElementById('originalSize');
-const compressedSize = document.getElementById('compressedSize');
-const saved = document.getElementById('saved');
-const resolution = document.getElementById('resolution');
-const formatText = document.getElementById('formatText');
-
-let uploadedFile = null;
-let finalBlob = null;
-
-quality.addEventListener('input',()=>{
-
-qualityOutput.innerText =
-quality.value + "%";
-
+// ════════════════════════════════════════
+// UPLOAD
+// ════════════════════════════════════════
+const dropZone=document.getElementById('dropZone');
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{
+  e.preventDefault();dropZone.classList.remove('drag-over');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')) handleFile(file);
 });
 
-upload.addEventListener('change',(e)=>{
-
-uploadedFile = e.target.files[0];
-
-if(!uploadedFile) return;
-
-const reader = new FileReader();
-
-reader.onload = function(ev){
-
-before.src = ev.target.result;
-after.src = ev.target.result;
-
-};
-
-reader.readAsDataURL(uploadedFile);
-
-originalSize.innerText =
-(uploadedFile.size/1024).toFixed(2) + " KB";
-
-});
-
-processBtn.addEventListener('click',()=>{
-
-if(!uploadedFile){
-
-alert("Upload image first");
-return;
-
+function loadImage(e){
+  const file=e.target.files[0];if(!file) return;
+  handleFile(file);
 }
 
-startPipeline();
-processImage();
-
-});
-
-function startPipeline(){
-
-let value = 0;
-
-const interval = setInterval(()=>{
-
-value += 10;
-
-progress.style.width = value + "%";
-
-if(value < 20){
-
-logs.innerHTML =
-"[Uploading Assets...]";
-
+function handleFile(file){
+  origFile=file;
+  const url=URL.createObjectURL(file);
+  origObjectUrl=url;
+  const img=new Image();
+  img.onload=function(){
+    origImg=img;
+    // Show in BA view
+    const before=document.getElementById('imgBefore');
+    const after=document.getElementById('imgAfter');
+    const slider=document.getElementById('baSlider');
+    const empty=document.getElementById('baEmpty');
+    before.src=url; after.src=url;
+    before.style.display='block'; after.style.display='block';
+    slider.style.display='block'; empty.style.display='none';
+    // Right panel thumb
+    document.getElementById('rpThumb').src=url;
+    document.getElementById('rpThumb').style.display='block';
+    document.getElementById('rpThumbEmpty').style.display='none';
+    // Metadata
+    document.getElementById('ri_name').textContent=file.name;
+    document.getElementById('ri_origSize').textContent=fmtSize(file.size);
+    document.getElementById('ri_dims').textContent=img.width+'×'+img.height;
+    document.getElementById('ri_fmt').textContent=file.type.split('/')[1].toUpperCase();
+    const gcd=(a,b)=>b?gcd(b,a%b):a;
+    const g=gcd(img.width,img.height);
+    document.getElementById('ri_ar').textContent=(img.width/g)+':'+(img.height/g);
+    // BG tab
+    document.getElementById('bgOrigImg').src=url;document.getElementById('bgOrigImg').style.display='block';document.getElementById('bgOrigEmpty').style.display='none';
+    // Compress tab
+    document.getElementById('cs_imgOrig').src=url;document.getElementById('cs_imgOrig').style.display='block';document.getElementById('cs_emptyOrig').style.display='none';
+    document.getElementById('cs_origSz').textContent=fmtSize(file.size);
+    document.getElementById('cs_orig').textContent=fmtSize(file.size);
+    // Resize
+    document.getElementById('resSummary').textContent='Original: '+img.width+' × '+img.height;
+    document.getElementById('rw').value=img.width; document.getElementById('rh').value=img.height;
+    updateResizePreview();
+    // Enhance
+    renderEnhanceCanvas(img);
+    // Metadata table
+    populateMetadata(file,img);
+    // Drop zone
+    document.getElementById('dzFileName').textContent=file.name;
+    dropZone.classList.add('has-file');
+    // Enable buttons
+    document.getElementById('processBtn').disabled=false;
+    // Update quality
+    updateQualityScore(85);
+    log('✅ Loaded: '+file.name+' ('+fmtSize(file.size)+') — '+img.width+'×'+img.height);
+    toast('Image loaded: '+file.name);
+    setProgress(0);
+    document.getElementById('progWrap').style.display='none';
+    updateTips();
+  };
+  img.src=url;
 }
-else if(value < 40){
 
-logs.innerHTML =
-"[Decoding Image Blocks...]";
-
-}
-else if(value < 60){
-
-logs.innerHTML =
-"[AI Repair Running...]";
-
-}
-else if(value < 80){
-
-logs.innerHTML =
-"[Compressing & Optimizing...]";
-
-}
-else if(value < 100){
-
-logs.innerHTML =
-"[Generating Final Export...]";
-
-}
-else{
-
-logs.innerHTML =
-"[Complete ✓]";
-
-clearInterval(interval);
-
-}
-
-},300);
-
-}
-
+// ════════════════════════════════════════
+// PROCESS IMAGE
+// ════════════════════════════════════════
 function processImage(){
+  if(!origImg){toast('Upload an image first');return;}
+  setProgress(10,'Reading options...');log('⚡ Processing...');
+  const format=document.getElementById('outputFormat').value;
+  const quality=parseInt(document.getElementById('qualSlider').value)/100;
+  const resizeWVal=document.getElementById('resizeW').value;
+  const targetKBVal=parseFloat(document.getElementById('targetKB').value)||0;
+  const doMeta=document.getElementById('optMeta').checked;
+  const doSharpen=document.getElementById('optSharpen').checked;
+  const doGrayscale=document.getElementById('optGrayscale').checked;
+  const doInvert=document.getElementById('optInvert').checked;
+  const doFlipH=document.getElementById('optFlipH').checked;
 
-const img = new Image();
-
-img.onload = function(){
-
-const canvas =
-document.createElement('canvas');
-
-const ctx =
-canvas.getContext('2d');
-
-let width = img.width;
-let height = img.height;
-
-const resize =
-document.getElementById('resizeWidth').value;
-
-if(resize){
-
-height = (resize / width) * height;
-width = resize;
-
+  const c=document.createElement('canvas');
+  let W=origImg.width,H=origImg.height;
+  if(resizeWVal){W=parseInt(resizeWVal);H=Math.round(origImg.height*W/origImg.width);}
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  setProgress(30,'Drawing...');
+  if(doFlipH){ctx.translate(W,0);ctx.scale(-1,1);}
+  ctx.drawImage(origImg,0,0,W,H);
+  setProgress(50,'Applying filters...');
+  if(doSharpen) applyCanvasFilter(ctx,c,'sharpen');
+  if(doGrayscale) applyCanvasFilter(ctx,c,'grayscale');
+  if(doInvert) applyCanvasFilter(ctx,c,'invert');
+  setProgress(70,'Encoding...');
+  c.toBlob(blob=>{
+    if(targetKBVal>0&&blob.size/1024>targetKBVal){
+      // Reduce quality iteratively
+      const ratio=targetKBVal*1024/blob.size;
+      const adjQ=Math.max(0.1,quality*ratio);
+      c.toBlob(blob2=>{finalizeBlob(blob2,format);},format,adjQ);
+    } else {finalizeBlob(blob,format);}
+  },format,quality);
 }
 
-canvas.width = width;
-canvas.height = height;
-
-ctx.drawImage(img,0,0,width,height);
-
-if(document.getElementById('repair').checked){
-
-ctx.filter =
-"contrast(110%) saturate(120%) sharpen(1px)";
-
-ctx.drawImage(canvas,0,0);
-
+function finalizeBlob(blob,format){
+  processedBlob=blob;
+  processedUrl=URL.createObjectURL(blob);
+  document.getElementById('imgAfter').src=processedUrl;
+  document.getElementById('ri_procSize').textContent=fmtSize(blob.size);
+  const pct=Math.max(0,(1-blob.size/origFile.size)*100);
+  document.getElementById('ri_saved').textContent=pct.toFixed(1)+'% saved';
+  document.getElementById('downloadBtn').disabled=false;
+  setProgress(100,'Done!');
+  log('✅ Done! '+fmtSize(blob.size)+' ('+pct.toFixed(1)+'% smaller)');
+  updateQualityScore(parseInt(document.getElementById('qualSlider').value));
+  toast('Processed! '+fmtSize(origFile.size)+' → '+fmtSize(blob.size));
+  // Compress tab
+  document.getElementById('cs_imgComp').src=processedUrl;document.getElementById('cs_imgComp').style.display='block';document.getElementById('cs_emptyComp').style.display='none';
+  document.getElementById('cs_compSz').textContent=fmtSize(blob.size);
+  document.getElementById('cs_comp').textContent=fmtSize(blob.size);
+  document.getElementById('cs_saved').textContent=pct.toFixed(1)+'%';
+  document.getElementById('cs_ratio').textContent=(origFile.size/blob.size).toFixed(1)+'x';
 }
 
-canvas.toBlob((blob)=>{
-
-finalBlob = blob;
-
-const url = URL.createObjectURL(blob);
-
-after.src = url;
-
-compressedSize.innerText =
-(blob.size/1024).toFixed(2) + " KB";
-
-const percent =
-100 - ((blob.size/uploadedFile.size)*100);
-
-saved.innerText =
-percent.toFixed(1) + "%";
-
-resolution.innerText =
-width + " x " + height;
-
-formatText.innerText =
-document.getElementById('format').value;
-
-document.getElementById('downloadLink').href =
-url;
-
-},document.getElementById('format').value,
-quality.value/100);
-
-};
-
-img.src = URL.createObjectURL(uploadedFile);
-
+function applyCanvasFilter(ctx,canvas,type){
+  const id=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const d=id.data;
+  if(type==='grayscale'){for(let i=0;i<d.length;i+=4){const g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];d[i]=d[i+1]=d[i+2]=g;}}
+  else if(type==='invert'){for(let i=0;i<d.length;i+=4){d[i]=255-d[i];d[i+1]=255-d[i+1];d[i+2]=255-d[i+2];}}
+  else if(type==='sharpen'){
+    const k=[0,-1,0,-1,5,-1,0,-1,0];
+    const w=canvas.width,h=canvas.height,src=new Uint8ClampedArray(d);
+    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+      const p=(y*w+x)*4;
+      for(let c2=0;c2<3;c2++){let s=0;for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++){const q=((y+ky)*w+(x+kx))*4;s+=src[q+c2]*k[(ky+1)*3+(kx+1)];}d[p+c2]=Math.min(255,Math.max(0,s));}
+    }
+  }
+  ctx.putImageData(id,0,0);
 }
 
-downloadBtn.addEventListener('click',()=>{
-
-if(!finalBlob){
-
-alert("Process image first");
-return;
-
+// ════════════════════════════════════════
+// QUICK ACTIONS
+// ════════════════════════════════════════
+function quickAction(type){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');
+  c.width=origImg.width;c.height=origImg.height;
+  const ctx=c.getContext('2d');ctx.drawImage(origImg,0,0);
+  if(type==='enhance'){c.style.filter='contrast(110%) saturate(120%)';}
+  applyCanvasFilter(ctx,c,type==='grayscale'?'grayscale':type==='invert'?'invert':type==='sharpen'?'sharpen':'');
+  if(type==='sepia'){
+    const id=ctx.getImageData(0,0,c.width,c.height);const d=id.data;
+    for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];d[i]=Math.min(255,r*.393+g*.769+b*.189);d[i+1]=Math.min(255,r*.349+g*.686+b*.168);d[i+2]=Math.min(255,r*.272+g*.534+b*.131);}
+    ctx.putImageData(id,0,0);
+  }
+  if(type==='blur'){ctx.filter='blur(3px)';ctx.drawImage(origImg,0,0);}
+  if(type==='vintage'){
+    const id=ctx.getImageData(0,0,c.width,c.height);const d=id.data;
+    for(let i=0;i<d.length;i+=4){d[i]=Math.min(255,d[i]*1.2);d[i+2]=Math.max(0,d[i+2]*0.7);}
+    ctx.putImageData(id,0,0);
+  }
+  c.toBlob(blob=>{processedBlob=blob;processedUrl=URL.createObjectURL(blob);document.getElementById('imgAfter').src=processedUrl;document.getElementById('downloadBtn').disabled=false;toast(type+' applied!');log('✅ '+type+' applied');},  'image/png');
 }
 
-const a = document.createElement('a');
+// ════════════════════════════════════════
+// COMPRESS
+// ════════════════════════════════════════
+function setQuality(q){document.getElementById('qualSlider').value=q;document.getElementById('qualLabel').textContent=q+'%';updateQualityScore(q);}
+function runCompress(){if(!origImg){toast('Upload image first');return;}setQuality(parseInt(document.getElementById('qualSlider').value));processImage();}
 
-a.href = URL.createObjectURL(finalBlob);
-
-const format =
-document.getElementById('format').value;
-
-if(format.includes('png')){
-
-a.download =
-"kjsynthora-image.png";
-
+// ════════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════════
+function applyResizePreset(w,h){
+  document.getElementById('rw').value=w;document.getElementById('rh').value=h;
+  updateResizePreview();
 }
-else if(format.includes('webp')){
-
-a.download =
-"kjsynthora-image.webp";
-
+function scaleResize(){
+  if(!origImg) return;
+  const s=parseFloat(document.getElementById('rscale').value)||100;
+  document.getElementById('rw').value=Math.round(origImg.width*s/100);
+  document.getElementById('rh').value=Math.round(origImg.height*s/100);
+  updateResizePreview();
 }
-else{
-
-a.download =
-"kjsynthora-image.jpg";
-
+function updateResizePreview(){
+  if(!origImg) return;
+  const w=parseInt(document.getElementById('rw').value)||origImg.width;
+  const h=parseInt(document.getElementById('rh').value)||origImg.height;
+  document.getElementById('resizeEmpty').style.display='none';
+  const c=document.getElementById('resizeCanvas');
+  const MAX=400;
+  let dw=w,dh=h;
+  if(dw>MAX){dh=Math.round(dh*MAX/dw);dw=MAX;}
+  if(dh>MAX){dw=Math.round(dw*MAX/dh);dh=MAX;}
+  c.width=dw;c.height=dh;
+  c.getContext('2d').drawImage(origImg,0,0,dw,dh);
+}
+function applyResize(){
+  if(!origImg){toast('Upload image first');return;}
+  const w=parseInt(document.getElementById('rw').value)||origImg.width;
+  const h=parseInt(document.getElementById('rh').value)||origImg.height;
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  c.getContext('2d').drawImage(origImg,0,0,w,h);
+  c.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='resized_'+w+'x'+h+'.png';a.click();toast('Downloaded '+w+'×'+h);},  'image/png');
 }
 
-a.click();
+// ════════════════════════════════════════
+// ENHANCE
+// ════════════════════════════════════════
+function renderEnhanceCanvas(img){
+  const c=document.getElementById('enhanceCanvas');
+  const empty=document.getElementById('enhanceEmpty');
+  if(!img){return;}
+  empty.style.display='none';
+  const MAX=500;
+  let w=img.width,h=img.height;
+  if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+  c.width=w;c.height=h;
+  c.style.filter='';
+  c.getContext('2d').drawImage(img,0,0,w,h);
+}
+function applyAdjustments(){
+  if(!origImg){return;}
+  const br=parseInt(document.querySelector('#tab-enhance input[type=range]:nth-of-type(1)')||{value:0}).value||0;
+  const c=document.getElementById('enhanceCanvas');
+  const f=`brightness(${1+br/100}) contrast(1) saturate(1)`;
+  c.style.filter=f;
+}
+function applyFilter(type){
+  if(!origImg){toast('Upload image first');return;}
+  document.querySelectorAll('.enhance-card').forEach(c=>c.classList.remove('applied'));
+  event.target.closest('.enhance-card')?.classList.add('applied');
+  const c=document.getElementById('enhanceCanvas');
+  const filters={
+    vivid:'saturate(1.6) contrast(1.15)',
+    cinematic:'contrast(1.2) saturate(0.85) brightness(0.95)',
+    vintage:'sepia(0.5) contrast(1.1) brightness(0.95)',
+    cool:'hue-rotate(20deg) saturate(1.1) brightness(1.05)',
+    warm:'hue-rotate(-15deg) saturate(1.2) brightness(1.05)',
+    noir:'grayscale(1) contrast(1.4) brightness(0.9)',
+  };
+  c.style.filter=filters[type]||'';
+  toast(type+' filter applied');
+}
+function downloadEnhanced(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.getElementById('enhanceCanvas');
+  const link=document.createElement('a');link.download='enhanced.png';link.href=c.toDataURL('image/png');link.click();
+}
 
+// ════════════════════════════════════════
+// METADATA
+// ════════════════════════════════════════
+function populateMetadata(file,img){
+  const tbody=document.getElementById('metaBody');
+  const rows=[
+    ['File Name',file.name],
+    ['File Size',fmtSize(file.size)],
+    ['MIME Type',file.type],
+    ['Width',img.width+'px'],
+    ['Height',img.height+'px'],
+    ['Aspect Ratio',img.width+':'+img.height],
+    ['Last Modified',new Date(file.lastModified).toLocaleString()],
+    ['Color Space','sRGB (browser)'],
+    ['Orientation','Normal'],
+    ['Bit Depth','8 bit/channel'],
+    ['Has Alpha',file.type==='image/png'?'Yes':'No'],
+  ];
+  tbody.innerHTML=rows.map(([k,v])=>`<tr><td class="meta-k">${k}</td><td class="meta-v">${v}</td></tr>`).join('');
+}
+function stripMetadata(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');c.width=origImg.width;c.height=origImg.height;
+  c.getContext('2d').drawImage(origImg,0,0);
+  c.toBlob(blob=>{processedBlob=blob;processedUrl=URL.createObjectURL(blob);document.getElementById('downloadBtn').disabled=false;toast('Metadata stripped!');log('🔒 Metadata stripped');},  'image/png');
+}
+function downloadStripped(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');c.width=origImg.width;c.height=origImg.height;
+  c.getContext('2d').drawImage(origImg,0,0);
+  c.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='clean_'+origFile.name.replace(/\.[^.]+$/,'')+'.png';a.click();toast('Clean image downloaded!');},  'image/png');
+}
+
+// ════════════════════════════════════════
+// BACKGROUND REMOVAL
+// ════════════════════════════════════════
+function removeBackground(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.getElementById('bgCanvas');
+  c.width=origImg.width;c.height=origImg.height;
+  const ctx=c.getContext('2d');ctx.drawImage(origImg,0,0);
+  const id=ctx.getImageData(0,0,c.width,c.height);const d=id.data;
+  const threshold=parseInt(document.getElementById('bgThreshold').value)*2;
+  // Simple edge-based removal: remove near-white or near-solid corners
+  const corners=[[0,0],[c.width-1,0],[0,c.height-1],[c.width-1,c.height-1]];
+  const bgColors=corners.map(([cx,cy])=>{const p=(cy*c.width+cx)*4;return [d[p],d[p+1],d[p+2]];});
+  const avgBg=bgColors.reduce((a,b)=>[a[0]+b[0]/4,a[1]+b[1]/4,a[2]+b[2]/4],[0,0,0]);
+  for(let i=0;i<d.length;i+=4){
+    const diff=Math.abs(d[i]-avgBg[0])+Math.abs(d[i+1]-avgBg[1])+Math.abs(d[i+2]-avgBg[2]);
+    if(diff<threshold) d[i+3]=0;
+  }
+  ctx.putImageData(id,0,0);
+  c.style.display='block';document.getElementById('bgProcessed').style.display='none';
+  c.toBlob(blob=>{bgRemovedBlob=blob;toast('Background removed!');log('🎭 Background removed');},  'image/png');
+}
+function downloadBgRemoved(){
+  if(!bgRemovedBlob){toast('Remove background first');return;}
+  const url=URL.createObjectURL(bgRemovedBlob);const a=document.createElement('a');a.href=url;a.download='no-bg.png';a.click();
+}
+
+// ════════════════════════════════════════
+// SOCIAL RESIZE
+// ════════════════════════════════════════
+function socialResize(platform,w,h){
+  socialW=w;socialH=h;socialName=platform;
+  document.getElementById('socialSizeLabel').textContent=platform+': '+w+'×'+h;
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.getElementById('socialCanvas');
+  const empty=document.getElementById('socialEmpty');
+  const MAX_W=500,MAX_H=400;
+  let dw=w,dh=h;
+  if(dw>MAX_W){dh=Math.round(dh*MAX_W/dw);dw=MAX_W;}
+  if(dh>MAX_H){dw=Math.round(dw*MAX_H/dh);dh=MAX_H;}
+  c.width=dw;c.height=dh;c.style.display='block';empty.style.display='none';
+  const ctx=c.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,dw,dh);
+  const imgAR=origImg.width/origImg.height,canAR=dw/dh;
+  let sx=0,sy=0,sw=origImg.width,sh=origImg.height;
+  if(imgAR>canAR){sw=sh*canAR;sx=(origImg.width-sw)/2;}
+  else{sh=sw/canAR;sy=(origImg.height-sh)/2;}
+  ctx.drawImage(origImg,sx,sy,sw,sh,0,0,dw,dh);
+  toast('Preview: '+w+'×'+h);
+}
+function downloadSocial(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');c.width=socialW;c.height=socialH;
+  const ctx=c.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,socialW,socialH);
+  const imgAR=origImg.width/origImg.height,canAR=socialW/socialH;
+  let sx=0,sy=0,sw=origImg.width,sh=origImg.height;
+  if(imgAR>canAR){sw=sh*canAR;sx=(origImg.width-sw)/2;}
+  else{sh=sw/canAR;sy=(origImg.height-sh)/2;}
+  ctx.drawImage(origImg,sx,sy,sw,sh,0,0,socialW,socialH);
+  c.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=socialName+'_'+socialW+'x'+socialH+'.jpg';a.click();toast('Downloaded '+socialW+'×'+socialH);},  'image/jpeg',0.92);
+}
+
+// ════════════════════════════════════════
+// BATCH
+// ════════════════════════════════════════
+function loadBatch(e){
+  const files=Array.from(e.target.files);
+  batchFiles=[...batchFiles,...files].slice(0,50);
+  batchResults=new Array(batchFiles.length).fill(null);
+  renderBatchList();
+  document.getElementById('batchSummary').textContent=batchFiles.length+' files loaded';
+  document.getElementById('bs_loaded').textContent=batchFiles.length;
+}
+function renderBatchList(){
+  const list=document.getElementById('batchList');
+  list.innerHTML=batchFiles.map((f,i)=>`
+    <div class="batch-item" id="bi_${i}">
+      <img class="bi-thumb" id="bthumb_${i}">
+      <div style="flex:1;min-width:0;">
+        <div class="bi-name">${f.name}</div>
+        <div class="bi-prog"><div class="bi-prog-fill" id="bprog_${i}"></div></div>
+      </div>
+      <div class="bi-size">${fmtSize(f.size)}</div>
+      <div class="bi-status" id="bstat_${i}">⏳</div>
+    </div>
+  `).join('');
+  batchFiles.forEach((f,i)=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{const el=document.getElementById('bthumb_'+i);if(el) el.src=ev.target.result;};
+    reader.readAsDataURL(f);
+  });
+}
+async function runBatch(){
+  if(!batchFiles.length){toast('Add files first');return;}
+  const fmt=document.getElementById('batchFormat').value;
+  const qual=parseInt(document.getElementById('batchQuality').value)/100;
+  const maxW=parseInt(document.getElementById('batchWidth').value)||0;
+  let done=0,errs=0,totalSaved=0;
+  batchResults=[];
+  for(let i=0;i<batchFiles.length;i++){
+    try{
+      const blob=await processOneFile(batchFiles[i],fmt,qual,maxW);
+      batchResults[i]=blob;
+      document.getElementById('bprog_'+i).style.width='100%';
+      document.getElementById('bstat_'+i).textContent='✅';
+      totalSaved+=batchFiles[i].size-blob.size;
+      done++;
+    } catch(e){
+      document.getElementById('bstat_'+i).textContent='❌';errs++;
+    }
+    document.getElementById('bs_done').textContent=done;
+    document.getElementById('bs_err').textContent=errs;
+    document.getElementById('bs_saved').textContent=fmtSize(Math.max(0,totalSaved));
+    document.getElementById('batchSummary').textContent=`Processed ${i+1}/${batchFiles.length}`;
+  }
+  toast('Batch done! '+done+'/'+batchFiles.length+' processed');
+}
+function processOneFile(file,fmt,quality,maxW){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(maxW&&w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(blob=>{URL.revokeObjectURL(url);if(blob) resolve(blob);else reject();},fmt,quality);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject();};
+    img.src=url;
+  });
+}
+async function downloadBatchZip(){
+  if(!batchResults.length||batchResults.every(r=>!r)){toast('Run batch first');return;}
+  const fmt=document.getElementById('batchFormat').value;
+  const ext=fmt.split('/')[1];
+  batchResults.forEach((blob,i)=>{
+    if(!blob) return;
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    a.download=batchFiles[i].name.replace(/\.[^.]+$/,'')+'.'+ext;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  toast('All files downloaded!');
+}
+function clearBatch(){batchFiles=[];batchResults=[];document.getElementById('batchList').innerHTML='';document.getElementById('batchSummary').textContent='No files loaded';document.getElementById('bs_loaded').textContent=0;document.getElementById('bs_done').textContent=0;}
+
+// ════════════════════════════════════════
+// DOWNLOAD
+// ════════════════════════════════════════
+function downloadResult(){
+  if(!processedBlob){toast('Process image first');return;}
+  const fmt=document.getElementById('outputFormat').value;
+  const ext=fmt.split('/')[1]==='jpeg'?'jpg':fmt.split('/')[1];
+  const a=document.createElement('a');a.href=processedUrl;a.download='kjsynthora_output.'+ext;a.click();
+  toast('Downloaded!');
+}
+function quickExport(fmt){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');c.width=origImg.width;c.height=origImg.height;
+  c.getContext('2d').drawImage(origImg,0,0);
+  const ext=fmt.split('/')[1]==='jpeg'?'jpg':fmt.split('/')[1];
+  c.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='export.'+ext;a.click();toast('Exported as '+ext.toUpperCase());},fmt,0.9);
+}
+function copyToClipboard(){
+  if(!origImg){toast('Upload image first');return;}
+  const c=document.createElement('canvas');c.width=origImg.width;c.height=origImg.height;
+  c.getContext('2d').drawImage(origImg,0,0);
+  c.toBlob(blob=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);toast('Copied to clipboard!');}catch{toast('Copy failed — browser may not support');}},  'image/png');
+}
+function resetAll(){
+  origFile=null;origImg=null;processedBlob=null;processedUrl=null;
+  ['imgBefore','imgAfter','rpThumb','bgOrigImg'].forEach(id=>{const el=document.getElementById(id);if(el){el.src='';el.style.display='none';}});
+  document.getElementById('baEmpty').style.display='flex';
+  document.getElementById('baSlider').style.display='none';
+  document.getElementById('rpThumbEmpty').style.display='block';
+  document.getElementById('dzFileName').textContent='No file selected';
+  document.getElementById('dropZone').classList.remove('has-file');
+  document.getElementById('processBtn').disabled=true;
+  document.getElementById('downloadBtn').disabled=true;
+  document.getElementById('metaBody').innerHTML='<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px;">Upload an image to see metadata</td></tr>';
+  log('↺ Reset');toast('Reset complete');
+}
+
+// ════════════════════════════════════════
+// BEFORE/AFTER SLIDER
+// ════════════════════════════════════════
+const baContainer=document.getElementById('baContainer');
+const baSlider=document.getElementById('baSlider');
+let isDragging=false;
+baSlider.addEventListener('mousedown',()=>isDragging=true);
+document.addEventListener('mouseup',()=>isDragging=false);
+document.addEventListener('mousemove',e=>{
+  if(!isDragging) return;
+  const rect=baContainer.getBoundingClientRect();
+  let x=e.clientX-rect.left;
+  x=Math.max(0,Math.min(rect.width,x));
+  baSlider.style.left=x+'px';
+  const pct=x/rect.width*100;
+  document.getElementById('imgAfter').style.clipPath=`inset(0 ${100-pct}% 0 0)`;
+});
+baSlider.addEventListener('touchmove',e=>{
+  const rect=baContainer.getBoundingClientRect();
+  let x=e.touches[0].clientX-rect.left;
+  x=Math.max(0,Math.min(rect.width,x));
+  baSlider.style.left=x+'px';
+  const pct=x/rect.width*100;
+  document.getElementById('imgAfter').style.clipPath=`inset(0 ${100-pct}% 0 0)`;
 });
 
-const slider = document.getElementById('slider');
-const previewBox =
-document.getElementById('previewBox');
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function fmtSize(bytes){
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/1048576).toFixed(2)+'MB';
+}
+function updateQualityScore(q){
+  document.getElementById('qmVal').textContent=q+'%';
+  document.getElementById('qmFill').style.width=q+'%';
+}
+function updateTips(){
+  const tips=[
+    'Use WEBP format for 30% smaller files vs JPG with same quality.',
+    'Strip metadata to protect privacy before sharing photos online.',
+    'For web images, 80% quality is usually unnoticeable but saves 40% size.',
+    'Use the Social tab to instantly crop for any platform.',
+    'Batch mode can process 50 images at once!',
+    'PNG is lossless — best for logos, screenshots, and text images.',
+    'WEBP supports transparency AND compression — best of both worlds.',
+  ];
+  document.getElementById('tipBox').textContent=tips[Math.floor(Math.random()*tips.length)];
+}
 
-slider.addEventListener('mousedown',()=>{
-
-document.onmousemove = (e)=>{
-
-const rect =
-previewBox.getBoundingClientRect();
-
-let x = e.clientX - rect.left;
-
-if(x < 0) x = 0;
-if(x > rect.width) x = rect.width;
-
-slider.style.left = x + "px";
-
-const percent =
-(x / rect.width) * 100;
-
-after.style.clipPath =
-`inset(0 ${100-percent}% 0 0)`;
-
-};
-
+// ════════════════════════════════════════
+// DRAG DROP BATCH
+// ════════════════════════════════════════
+const batchDrop=document.getElementById('batchDrop');
+batchDrop.addEventListener('dragover',e=>{e.preventDefault();batchDrop.style.borderColor='var(--accent)';});
+batchDrop.addEventListener('dragleave',()=>batchDrop.style.borderColor='');
+batchDrop.addEventListener('drop',e=>{
+  e.preventDefault();batchDrop.style.borderColor='';
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  batchFiles=[...batchFiles,...files].slice(0,50);
+  batchResults=new Array(batchFiles.length).fill(null);
+  renderBatchList();
+  document.getElementById('batchSummary').textContent=batchFiles.length+' files loaded';
+  document.getElementById('bs_loaded').textContent=batchFiles.length;
 });
-
-document.addEventListener('mouseup',()=>{
-
-document.onmousemove = null;
-
-});
-
-const tabs =
-document.querySelectorAll('.tab');
-
-const panels =
-document.querySelectorAll('.tab-panel');
-
-tabs.forEach(tab=>{
-
-tab.addEventListener('click',()=>{
-
-tabs.forEach(t=>t.classList.remove('active'));
-
-tab.classList.add('active');
-
-const id =
-tab.getAttribute('data-tab');
-
-panels.forEach(panel=>{
-
-panel.classList.remove('active');
-
-});
-
-document.getElementById(id)
-.classList.add('active');
-
-});
-
-});
-
 </script>
-
 </body>
 </html>
