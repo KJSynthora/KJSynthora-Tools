@@ -1,1094 +1,818 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
-<title>KJSynthora AI Creative Cloud</title>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet"
-/>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Background Remover — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#040709;--s1:#070c14;--card:#0d1525;--card2:#101828;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.03);
+  --a1:#63b3ed;--a2:#9f7aea;--a3:#68d391;--a4:#fc8181;--a5:#f6ad55;--a6:#76e4f7;
+  --t1:#f0f4ff;--t2:#a8b8d0;--t3:#5a6e8a;
+  --g1:linear-gradient(135deg,#63b3ed,#9f7aea);
+  --g2:linear-gradient(135deg,#0ea5e9,#7c3aed);
 }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 5% 5%,rgba(99,179,237,0.06),transparent),radial-gradient(ellipse 50% 50% at 95% 90%,rgba(159,122,234,0.07),transparent);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:rgba(99,179,237,0.25);border-radius:3px}
 
-body{
+/* NAV */
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:62px;background:rgba(4,7,9,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-svg{width:34px;height:34px}
+.nav-logo-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;background:var(--g2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-back{padding:7px 16px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--b1);color:var(--t2);font-size:12.5px;font-weight:600;text-decoration:none;font-family:'Syne',sans-serif;transition:.2s;display:flex;align-items:center;gap:6px}
+.nav-back:hover{background:rgba(255,255,255,0.1);color:var(--t1)}
 
-background:
-linear-gradient(
-135deg,
-#020617,
-#081028,
-#020617
-);
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:36px 5% 28px}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;background:rgba(104,211,145,0.07);border:1px solid rgba(104,211,145,0.18);font-size:11px;font-weight:600;color:var(--a3);font-family:'DM Mono',monospace;letter-spacing:.8px;margin-bottom:14px}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--a3);animation:pd 1.6s infinite}
+@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(104,211,145,.5)}70%{box-shadow:0 0 0 7px transparent}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--t1) 45%,var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:14px;color:var(--t2);margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
 
-color:white;
-overflow-x:hidden;
+/* MAIN LAYOUT */
+.main{position:relative;z-index:1;display:grid;grid-template-columns:300px 1fr 260px;gap:14px;padding:0 5% 50px;max-width:1600px;margin:0 auto}
 
+/* PANELS */
+.panel{background:var(--card);border:1px solid var(--b1);border-radius:18px;overflow:hidden}
+.panel-hd{padding:14px 18px;border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
+.panel-body{padding:18px}
+
+/* LEFT: CONTROLS */
+.ctrl-section{margin-bottom:20px}
+.ctrl-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:8px;display:block}
+
+/* UPLOAD ZONE */
+.upload-zone{
+  border:2px dashed rgba(99,179,237,0.25);border-radius:14px;
+  padding:28px 16px;text-align:center;cursor:pointer;
+  background:rgba(99,179,237,0.03);transition:all .25s;position:relative;overflow:hidden;
 }
+.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(99,179,237,0.5);background:rgba(99,179,237,0.07)}
+.upload-zone.has-image{border-color:rgba(104,211,145,0.4);background:rgba(104,211,145,0.04)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{font-size:32px;margin-bottom:8px}
+.uz-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.uz-sub{font-size:11px;color:var(--t3)}
+.uz-name{font-size:11.5px;color:var(--a3);font-family:'DM Mono',monospace;margin-top:6px;word-break:break-all}
 
-body::before{
+/* SELECTS + SLIDERS */
+.ctrl-select{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t1);font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6e8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.ctrl-select option{background:#0d1525}
+.ctrl-select:focus{border-color:rgba(99,179,237,0.4)}
 
-content:'';
+.bg-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+.bg-swatch{width:100%;aspect-ratio:1;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:.2s}
+.bg-swatch:hover{transform:scale(1.1)}
+.bg-swatch.active{border-color:var(--a1);box-shadow:0 0 0 2px rgba(99,179,237,0.3)}
 
-position:fixed;
+.ctrl-range{width:100%;height:4px;border-radius:4px;-webkit-appearance:none;background:rgba(255,255,255,0.08);outline:none;cursor:pointer}
+.ctrl-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a1);box-shadow:0 0 0 3px rgba(99,179,237,0.2);cursor:pointer}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--a1);min-width:28px;text-align:right}
 
-width:700px;
-height:700px;
-
-background:
-radial-gradient(
-circle,
-#2563eb44,
-#8b5cf633,
-transparent
-);
-
-top:-250px;
-left:-250px;
-
-filter:blur(90px);
-
-z-index:-1;
-
-animation:glow 8s infinite alternate;
-
+/* BG CUSTOM UPLOAD */
+.bg-img-upload{
+  padding:8px 12px;border-radius:9px;border:1px dashed rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.02);font-size:11.5px;color:var(--t3);
+  cursor:pointer;text-align:center;transition:.2s;position:relative;overflow:hidden;
 }
+.bg-img-upload:hover{border-color:rgba(99,179,237,0.3);color:var(--t2)}
+.bg-img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
 
-@keyframes glow{
+/* ACTION BTNS */
+.btn{width:100%;padding:11px 14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px}
+.btn:last-child{margin-bottom:0}
+.btn-primary{background:var(--g2);color:#fff;box-shadow:0 4px 18px rgba(99,179,237,0.2)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,179,237,0.35)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-sec{background:rgba(255,255,255,0.05);color:var(--t2);border:1px solid var(--b1)}
+.btn-sec:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--t1)}
+.btn-sec:disabled{opacity:.35;cursor:not-allowed}
+.btn-grn{background:rgba(104,211,145,0.1);color:var(--a3);border:1px solid rgba(104,211,145,0.2)}
+.btn-grn:hover:not(:disabled){background:rgba(104,211,145,0.18)}
+.btn-grn:disabled{opacity:.35;cursor:not-allowed}
+.btn-red{background:rgba(252,129,129,0.08);color:var(--a4);border:1px solid rgba(252,129,129,0.18)}
+.btn-red:hover{background:rgba(252,129,129,0.15)}
 
-from{
-transform:translateY(0px);
+/* CENTER: PREVIEW */
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.preview-box{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:14px;overflow:hidden;position:relative}
+.pb-label{padding:9px 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between}
+.pb-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:999px;font-weight:600}
+.pb-badge.ok{background:rgba(104,211,145,0.12);color:var(--a3)}
+.pb-badge.idle{background:rgba(255,255,255,0.05);color:var(--t3)}
+.pb-badge.proc{background:rgba(99,179,237,0.12);color:var(--a1)}
+
+.img-stage{
+  min-height:340px;display:flex;align-items:center;justify-content:center;
+  position:relative;padding:12px;
 }
+/* Checkered pattern for transparent bg */
+.cb-bg{background-image:linear-gradient(45deg,rgba(255,255,255,0.05) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,0.05) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,0.05) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,0.05) 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0px}
 
-to{
-transform:translateY(80px);
+#origImg{max-width:100%;max-height:340px;border-radius:10px;display:none;object-fit:contain}
+#outCanvas{max-width:100%;max-height:340px;border-radius:10px;display:none}
+.img-placeholder{text-align:center;color:var(--t3)}
+.ip-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+.ip-text{font-size:12px;font-family:'DM Mono',monospace}
+
+/* PROCESSING OVERLAY */
+.proc-overlay{
+  position:absolute;inset:0;background:rgba(4,7,9,0.75);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  border-radius:14px;backdrop-filter:blur(6px);z-index:10;
 }
+.proc-overlay.show{display:flex}
+.proc-spinner{width:40px;height:40px;border:2.5px solid rgba(99,179,237,0.15);border-top-color:var(--a1);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-text{font-family:'DM Mono',monospace;font-size:12px;color:var(--a1)}
+.proc-bar-wrap{width:160px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.proc-bar{height:100%;background:var(--g2);transition:width .4s;width:0%}
 
+/* ZOOM CONTROLS */
+.zoom-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--b2)}
+.zoom-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t2);font-size:14px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.zoom-btn:hover{background:rgba(255,255,255,0.09);color:var(--t1)}
+.zoom-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:36px;text-align:center}
+
+/* DOWNLOAD ROW */
+.dl-row{display:flex;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--b1)}
+.dl-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t2);font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;text-align:center}
+.dl-btn:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--t1)}
+.dl-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* RIGHT: ANALYTICS */
+.stat-card{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:12px;padding:14px;margin-bottom:10px}
+.stat-card:last-child{margin-bottom:0}
+.sc-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:10px}
+.sc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11.5px}
+.sc-row:last-child{margin-bottom:0}
+.sc-key{color:var(--t3)}
+.sc-val{color:var(--t1);font-weight:600;font-family:'DM Mono',monospace;font-size:11px}
+.sc-val.ok{color:var(--a3)}
+.sc-val.active{color:var(--a1)}
+
+.prog-bar-wrap{margin-top:8px}
+.prog-bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-top:5px}
+.prog-bar-fill{height:100%;background:var(--g2);transition:width .5s ease;width:0%}
+.prog-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);margin-top:5px}
+#progText{color:var(--a1)}
+
+.feat-list{display:flex;flex-direction:column;gap:6px}
+.feat-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--t2)}
+.feat-ico{width:18px;height:18px;border-radius:5px;background:rgba(104,211,145,0.12);color:var(--a3);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+
+.model-status{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:9px;background:rgba(246,173,85,0.07);border:1px solid rgba(246,173,85,0.15);font-size:11.5px;color:var(--a5);font-family:'DM Mono',monospace;margin-bottom:10px}
+.ms-dot{width:6px;height:6px;border-radius:50%;background:var(--a5);animation:pd 1.5s infinite;flex-shrink:0}
+.model-status.ready{background:rgba(104,211,145,0.07);border-color:rgba(104,211,145,0.15);color:var(--a3)}
+.model-status.ready .ms-dot{background:var(--a3)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;background:var(--card);border:1px solid var(--b1);border-radius:12px;font-size:12.5px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999;opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none;font-family:'DM Mono',monospace}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .main{grid-template-columns:1fr;gap:12px}
+  .preview-grid{grid-template-columns:1fr 1fr}
+  .dl-row{flex-wrap:wrap}
 }
-
-.container{
-
-width:95%;
-max-width:1900px;
-
-margin:auto;
-
-padding:40px 0 100px;
-
+@media(max-width:640px){
+  .preview-grid{grid-template-columns:1fr}
+  .main{padding:0 4% 40px}
+  .hero{padding:28px 4% 20px}
 }
-
-.header{
-
-text-align:center;
-margin-bottom:40px;
-
-}
-
-.header h1{
-
-font-size:62px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.header p{
-
-margin-top:15px;
-
-color:#cbd5e1;
-
-font-size:18px;
-
-}
-
-.live-status{
-
-display:inline-block;
-
-margin-top:18px;
-
-padding:12px 22px;
-
-border-radius:999px;
-
-background:#16a34a;
-
-font-size:13px;
-font-weight:700;
-
-}
-
-.main-grid{
-
-display:grid;
-
-grid-template-columns:
-0.9fr 1.4fr 0.8fr;
-
-gap:25px;
-
-}
-
-.panel{
-
-background:#0f172a;
-
-padding:28px;
-
-border-radius:28px;
-
-border:1px solid rgba(255,255,255,.05);
-
-}
-
-.section-title{
-
-font-size:28px;
-margin-bottom:22px;
-
-}
-
-.upload-box{
-
-border:2px dashed #38bdf8;
-
-padding:45px;
-
-border-radius:22px;
-
-text-align:center;
-
-cursor:pointer;
-
-background:#111827;
-
-transition:.3s;
-
-}
-
-.upload-box:hover{
-
-background:#1e293b;
-
-}
-
-.upload-box i{
-
-font-size:60px;
-margin-bottom:20px;
-color:#38bdf8;
-
-}
-
-input[type=file]{
-
-display:none;
-
-}
-
-.control-group{
-
-margin-top:22px;
-
-}
-
-.control-group label{
-
-display:block;
-
-margin-bottom:10px;
-
-font-size:14px;
-
-color:#cbd5e1;
-
-}
-
-.select-box,
-.range-box{
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-}
-
-.action-btn{
-
-width:100%;
-
-padding:16px;
-
-border:none;
-
-border-radius:16px;
-
-margin-top:18px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
-}
-
-.action-btn:hover{
-
-transform:translateY(-2px);
-
-}
-
-.preview-container{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:20px;
-
-}
-
-.preview-box{
-
-background:#111827;
-
-border-radius:22px;
-
-padding:18px;
-
-text-align:center;
-
-min-height:600px;
-
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.preview-box h3{
-
-margin-bottom:15px;
-
-}
-
-.preview-box img,
-.preview-box canvas{
-
-max-width:100%;
-max-height:520px;
-
-border-radius:18px;
-
-}
-
-.analytics-box{
-
-background:#111827;
-
-padding:18px;
-
-border-radius:18px;
-
-margin-bottom:18px;
-
-line-height:2;
-
-}
-
-.progress-bar{
-
-height:14px;
-
-background:#1e293b;
-
-border-radius:999px;
-
-overflow:hidden;
-
-margin-top:12px;
-
-}
-
-.progress{
-
-height:100%;
-
-width:0%;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-transition:.4s;
-
-}
-
-.footer-buttons{
-
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-
-margin-top:45px;
-
-}
-
-.footer-buttons a{
-
-padding:16px 28px;
-
-border-radius:14px;
-
-text-decoration:none;
-
-font-weight:700;
-
-}
-
-.primary-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-}
-
-.secondary-btn{
-
-background:#111827;
-color:white;
-
-}
-
-@media(max-width:1400px){
-
-.main-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.preview-container{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg class="nav-logo-svg" viewBox="0 0 44 44" fill="none">
+      <defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#63b3ed"/><stop offset="100%" stop-color="#9f7aea"/></linearGradient></defs>
+      <rect width="44" height="44" rx="11" fill="url(#nlg)" opacity="0.15"/>
+      <rect x="1" y="1" width="42" height="42" rx="10" stroke="url(#nlg)" stroke-width="1.2" fill="none" opacity="0.5"/>
+      <line x1="10" y1="10" x2="10" y2="34" stroke="url(#nlg)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="10" y1="22" x2="22" y2="10" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="10" y1="22" x2="22" y2="34" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="30" y1="10" x2="30" y2="28" stroke="url(#nlg)" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M30 28 Q30 34 24 34" stroke="url(#nlg)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="36" cy="10" r="2.5" fill="url(#nlg)"/>
+    </svg>
+    <span class="nav-logo-name">KJSynthora</span>
+  </a>
+  <a href="/" class="nav-back">← All Tools</a>
+</nav>
 
-<div class="header">
-
-<h1>KJSynthora AI Creative Cloud</h1>
-
-<p>
-Enterprise-grade realtime AI background remover & creative studio
-</p>
-
-<div class="live-status">
-● REALTIME AI SEGMENTATION ACTIVE
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag"><span class="hero-dot"></span>TENSORFLOW AI · BROWSER-BASED · FREE</div>
+  <h1 class="hero-title">AI Background Remover</h1>
+  <p class="hero-sub">Enterprise-grade background removal powered by TensorFlow BodyPix. Multiple background styles, fine hair detection, AI shadows — all free.</p>
 </div>
 
-</div>
-
-<div class="main-grid">
-
-<!-- LEFT PANEL -->
-
-<div class="panel">
-
-<div class="section-title">
-AI Controls
-</div>
-
-<label class="upload-box">
-
-<i class="fa-solid fa-cloud-arrow-up"></i>
-
-<h2>
-Upload Image
-</h2>
-
-<p>
-Drag & Drop or Click
-</p>
-
-<input
-type="file"
-id="imageUpload"
-accept="image/*"
-/>
-
-</label>
-
-<div class="control-group">
-
-<label>
-AI Background Style
-</label>
-
-<select
-id="backgroundType"
-class="select-box"
->
-
-<option value="transparent">
-Transparent
-</option>
-
-<option value="white">
-White Studio
-</option>
-
-<option value="gradient">
-Gradient Background
-</option>
-
-<option value="blur">
-Blurred Background
-</option>
-
-</select>
-
-</div>
-
-<div class="control-group">
-
-<label>
-Edge Feathering
-</label>
-
-<input
-type="range"
-id="feather"
-min="0"
-max="20"
-value="5"
-class="range-box"
-/>
-
-</div>
-
-<div class="control-group">
-
-<label>
-Shadow Intensity
-</label>
-
-<input
-type="range"
-id="shadow"
-min="0"
-max="100"
-value="40"
-class="range-box"
-/>
-
-</div>
-
-<button
-class="action-btn"
-onclick="removeBackground()"
->
-Remove Background
-</button>
-
-<button
-class="action-btn"
-onclick="downloadPNG()"
->
-Download PNG
-</button>
-
-<button
-class="action-btn"
-onclick="downloadJPG()"
->
-Download JPG
-</button>
-
-<button
-class="action-btn"
-onclick="clearAll()"
->
-Clear Canvas
-</button>
-
-</div>
-
-<!-- CENTER -->
-
-<div class="panel">
-
-<div class="section-title">
-Realtime AI Preview
-</div>
-
-<div class="preview-container">
-
-<div class="preview-box">
-
-<h3>
-Original
-</h3>
-
-<img
-id="originalImage"
-/>
-
-</div>
-
-<div class="preview-box">
-
-<h3>
-AI Processed
-</h3>
-
-<canvas id="outputCanvas"></canvas>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="panel">
-
-<div class="section-title">
-AI Analytics
-</div>
-
-<div class="analytics-box">
-
-AI Model:
-<strong>
-TensorFlow BodyPix
-</strong>
-
-<br>
-
-Hair Detection:
-<strong>
-Enabled
-</strong>
-
-<br>
-
-Realtime Edge Refinement:
-<strong>
-Active
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Background Type:
-<strong id="bgStatus">
-Transparent
-</strong>
-
-<br>
-
-Shadow Engine:
-<strong>
-AI Generated
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Cloud Rendering:
-<strong>
-Hybrid Edge AI
-</strong>
-
-<br>
-
-Export Quality:
-<strong>
-4K Ready
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Live Processing Status
-
-<div class="progress-bar">
-
-<div
-class="progress"
-id="progressBar"
-></div>
-
-</div>
-
-<div
-id="progressText"
-style="margin-top:10px;"
->
-Idle
-</div>
-
-</div>
-
-<div class="analytics-box">
-
-Commercial Features
-
-<ul style="margin-left:18px; line-height:2;">
-
-<li>Fine Hair Detection</li>
-<li>Bulk Processing Ready</li>
-<li>Ecommerce Presets</li>
-<li>AI Smart Shadows</li>
-<li>Realtime Preview</li>
-<li>Future AI Backgrounds</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<a
-href="../index.html"
-class="primary-btn"
->
-← Return Home
-</a>
-
-<a
-href="../index.html"
-class="secondary-btn"
->
-More Tools
-</a>
-
-</div>
-
-</div>
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ LEFT: CONTROLS ══ -->
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="panel-title">🎛️ Controls</span>
+    </div>
+    <div class="panel-body">
+
+      <!-- Upload -->
+      <div class="ctrl-section">
+        <span class="ctrl-label">Upload Image</span>
+        <label class="upload-zone" id="uploadZone">
+          <input type="file" id="imgInput" accept="image/*">
+          <div class="uz-icon" id="uzIcon">☁️</div>
+          <div class="uz-title" id="uzTitle">Drop image here</div>
+          <div class="uz-sub" id="uzSub">JPG, PNG, WEBP — up to 20MB</div>
+          <div class="uz-name" id="uzName"></div>
+        </label>
+      </div>
+
+      <!-- AI Quality -->
+      <div class="ctrl-section">
+        <span class="ctrl-label">AI Segmentation Quality</span>
+        <select class="ctrl-select" id="qualitySel">
+          <option value="medium">⚡ Fast (Medium Quality)</option>
+          <option value="high" selected>✨ Balanced (Recommended)</option>
+          <option value="ultra">🔬 Ultra (Best Quality, Slow)</option>
+        </select>
+      </div>
+
+      <!-- Background Style -->
+      <div class="ctrl-section">
+        <span class="ctrl-label">Background Style</span>
+        <select class="ctrl-select" id="bgType" onchange="onBgTypeChange()">
+          <option value="transparent">🔲 Transparent</option>
+          <option value="white">⬜ White Studio</option>
+          <option value="black">⬛ Black Studio</option>
+          <option value="gradient1">🌈 Blue-Purple Gradient</option>
+          <option value="gradient2">🔥 Sunset Gradient</option>
+          <option value="gradient3">🌿 Green Nature</option>
+          <option value="color">🎨 Custom Color</option>
+          <option value="blur">🌫️ Blurred Original</option>
+          <option value="custom">🖼️ Custom Image</option>
+        </select>
+
+        <!-- Custom Color Picker -->
+        <div id="colorPickerWrap" style="display:none;margin-top:8px">
+          <div class="bg-colors">
+            <div class="bg-swatch" style="background:#ef4444" data-color="#ef4444" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#f97316" data-color="#f97316" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#eab308" data-color="#eab308" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#22c55e" data-color="#22c55e" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#3b82f6" data-color="#3b82f6" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#8b5cf6" data-color="#8b5cf6" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#ec4899" data-color="#ec4899" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#06b6d4" data-color="#06b6d4" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#64748b" data-color="#64748b" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#1e293b" data-color="#1e293b" onclick="setSwatchColor(this)"></div>
+            <div class="bg-swatch" style="background:#ffffff" data-color="#ffffff" onclick="setSwatchColor(this)" style="border:1px solid rgba(255,255,255,0.15)"></div>
+            <div class="bg-swatch" style="background:linear-gradient(45deg,#f00,#00f)" data-color="custom" onclick="document.getElementById('customColorInp').click()"></div>
+          </div>
+          <input type="color" id="customColorInp" style="display:none" oninput="onCustomColor(this.value)">
+        </div>
+
+        <!-- Custom BG Image Upload -->
+        <div id="bgImgWrap" style="display:none;margin-top:8px">
+          <label class="bg-img-upload">
+            <input type="file" id="bgImgInput" accept="image/*" onchange="loadBgImage(this)">
+            📁 Upload Background Image
+          </label>
+          <div id="bgImgName" style="font-size:10.5px;color:var(--a3);font-family:'DM Mono',monospace;margin-top:4px;display:none"></div>
+        </div>
+      </div>
+
+      <!-- Edge Feathering -->
+      <div class="ctrl-section">
+        <span class="ctrl-label">Edge Feathering</span>
+        <div class="range-row">
+          <input type="range" class="ctrl-range" id="featherRange" min="0" max="15" value="3" oninput="document.getElementById('featherVal').textContent=this.value">
+          <span class="range-val" id="featherVal">3</span>
+        </div>
+      </div>
+
+      <!-- Shadow -->
+      <div class="ctrl-section">
+        <span class="ctrl-label">Drop Shadow</span>
+        <div class="range-row">
+          <input type="range" class="ctrl-range" id="shadowRange" min="0" max="100" value="30" oninput="document.getElementById('shadowVal').textContent=this.value+'%'">
+          <span class="range-val" id="shadowVal">30%</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <button class="btn btn-primary" id="processBtn" onclick="processImage()" disabled>
+        🪄 Remove Background
+      </button>
+      <button class="btn btn-grn" id="reapplyBtn" onclick="reapplyBackground()" disabled>
+        🔄 Re-apply Background
+      </button>
+      <button class="btn btn-red" onclick="clearAll()">
+        🗑️ Clear All
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ══ CENTER: PREVIEW ══ -->
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="panel-title">🖼️ Preview</span>
+      <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace" id="imgSizeLabel"></span>
+    </div>
+    <div class="preview-grid">
+      <!-- Original -->
+      <div class="preview-box">
+        <div class="pb-label">
+          Original
+          <span class="pb-badge idle" id="origBadge">WAITING</span>
+        </div>
+        <div class="img-stage" id="origStage">
+          <div class="img-placeholder">
+            <div class="ip-icon">🖼️</div>
+            <div class="ip-text">Upload an image</div>
+          </div>
+          <img id="origImg">
+        </div>
+      </div>
+      <!-- Output -->
+      <div class="preview-box">
+        <div class="pb-label">
+          AI Processed
+          <span class="pb-badge idle" id="outBadge">WAITING</span>
+        </div>
+        <div class="img-stage cb-bg" id="outStage">
+          <div class="img-placeholder" id="outPlaceholder">
+            <div class="ip-icon">✨</div>
+            <div class="ip-text">Result appears here</div>
+          </div>
+          <canvas id="outCanvas"></canvas>
+          <!-- Processing overlay -->
+          <div class="proc-overlay" id="procOverlay">
+            <div class="proc-spinner"></div>
+            <div class="proc-text" id="procLabel">Loading AI Model...</div>
+            <div class="proc-bar-wrap">
+              <div class="proc-bar" id="procBar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="zoom-bar">
+          <button class="zoom-btn" onclick="zoom(-0.1)">−</button>
+          <span class="zoom-val" id="zoomVal">100%</span>
+          <button class="zoom-btn" onclick="zoom(0.1)">+</button>
+          <button class="zoom-btn" onclick="resetZoom()" title="Reset">⊡</button>
+        </div>
+      </div>
+    </div>
+    <!-- Download Row -->
+    <div class="dl-row">
+      <button class="dl-btn" id="dlPng" onclick="download('png')" disabled>⬇ PNG (Transparent)</button>
+      <button class="dl-btn" id="dlJpg" onclick="download('jpg')" disabled>⬇ JPG (White BG)</button>
+      <button class="dl-btn" id="dlWebp" onclick="download('webp')" disabled>⬇ WEBP</button>
+      <button class="dl-btn" onclick="copyCanvas()" id="dlCopy" disabled>📋 Copy</button>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT: ANALYTICS ══ -->
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="panel-title">📊 Info</span>
+    </div>
+    <div class="panel-body">
+
+      <!-- Model Status -->
+      <div class="model-status" id="modelStatus">
+        <div class="ms-dot"></div>
+        <span id="modelStatusText">Loading AI Model...</span>
+      </div>
+
+      <!-- Progress -->
+      <div class="stat-card">
+        <div class="sc-title">Processing Status</div>
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-track"><div class="prog-bar-fill" id="progBar"></div></div>
+          <div class="prog-label" id="progText">Idle — Upload an image to begin</div>
+        </div>
+      </div>
+
+      <!-- Image Info -->
+      <div class="stat-card">
+        <div class="sc-title">Image Info</div>
+        <div class="sc-row"><span class="sc-key">Resolution</span><span class="sc-val" id="infoRes">—</span></div>
+        <div class="sc-row"><span class="sc-key">File Size</span><span class="sc-val" id="infoSize">—</span></div>
+        <div class="sc-row"><span class="sc-key">Format</span><span class="sc-val" id="infoFmt">—</span></div>
+        <div class="sc-row"><span class="sc-key">Aspect Ratio</span><span class="sc-val" id="infoAR">—</span></div>
+      </div>
+
+      <!-- AI Info -->
+      <div class="stat-card">
+        <div class="sc-title">AI Engine</div>
+        <div class="sc-row"><span class="sc-key">Model</span><span class="sc-val active">TensorFlow BodyPix</span></div>
+        <div class="sc-row"><span class="sc-key">Hair Detection</span><span class="sc-val ok">✓ Enabled</span></div>
+        <div class="sc-row"><span class="sc-key">Edge Refinement</span><span class="sc-val ok">✓ Active</span></div>
+        <div class="sc-row"><span class="sc-key">Shadow Engine</span><span class="sc-val ok">✓ AI Generated</span></div>
+        <div class="sc-row"><span class="sc-key">Privacy</span><span class="sc-val ok">✓ Local only</span></div>
+      </div>
+
+      <!-- Features -->
+      <div class="stat-card">
+        <div class="sc-title">Features</div>
+        <div class="feat-list">
+          <div class="feat-item"><div class="feat-ico">✓</div>Fine Hair Detection</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Multiple BG Styles</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Custom BG Image</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Edge Feathering</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>AI Drop Shadow</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>PNG / JPG / WEBP Export</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>100% Browser — No Upload</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
 
 <script>
+let model=null,uploadedImg=null,bgImgEl=null,customColor='#3b82f6';
+let segData=null,zoomLevel=1;
 
-let uploadedImage = null;
-let model = null;
-
-const imageUpload =
-document.getElementById('imageUpload');
-
-const originalImage =
-document.getElementById('originalImage');
-
-const outputCanvas =
-document.getElementById('outputCanvas');
-
-const ctx =
-outputCanvas.getContext('2d');
-
-const progressBar =
-document.getElementById('progressBar');
-
-const progressText =
-document.getElementById('progressText');
-
-// ==========================
-// LOAD AI MODEL
-// ==========================
-
+// ════ MODEL LOAD ════
 async function loadModel(){
-
-progressText.innerText =
-'Loading AI Model...';
-
-progressBar.style.width='20%';
-
-model =
-await bodyPix.load();
-
-progressBar.style.width='100%';
-
-progressText.innerText =
-'AI Model Ready';
-
+  setProc(true,'Loading TensorFlow...',10);
+  try{
+    await tf.ready();
+    setProc(true,'Loading BodyPix Model...',40);
+    model=await bodyPix.load({
+      architecture:'MobileNetV1',
+      outputStride:16,
+      multiplier:.75,
+      quantBytes:2
+    });
+    setProc(false,'',100);
+    const ms=document.getElementById('modelStatus');
+    ms.className='model-status ready';
+    document.getElementById('modelStatusText').textContent='AI Model Ready ✓';
+    setProg(100,'AI Model loaded — ready to process');
+    showToast('✅ AI Model ready!');
+    setTimeout(()=>setProg(0,'Upload an image to begin'),2000);
+  }catch(e){
+    setProc(false,'',0);
+    document.getElementById('modelStatusText').textContent='Model Load Failed';
+    setProg(0,'Error loading model — check console');
+    showToast('❌ Model load failed');
+  }
 }
 
-loadModel();
-
-// ==========================
-// IMAGE UPLOAD
-// ==========================
-
-imageUpload.addEventListener(
-'change',
-function(e){
-
-const file =
-e.target.files[0];
-
-if(!file) return;
-
-const reader =
-new FileReader();
-
-reader.onload = function(event){
-
-uploadedImage =
-new Image();
-
-uploadedImage.src =
-event.target.result;
-
-uploadedImage.onload = function(){
-
-originalImage.src =
-uploadedImage.src;
-
-outputCanvas.width =
-uploadedImage.width;
-
-outputCanvas.height =
-uploadedImage.height;
-
-};
-
-};
-
-reader.readAsDataURL(file);
-
+// ════ UPLOAD ════
+document.getElementById('imgInput').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f)return;
+  loadImage(f);
 });
 
-// ==========================
-// REMOVE BACKGROUND
-// ==========================
+// Drag & Drop
+const uz=document.getElementById('uploadZone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag-over')});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag-over'));
+uz.addEventListener('drop',e=>{
+  e.preventDefault();uz.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/'))loadImage(f);
+});
 
-async function removeBackground(){
-
-if(!uploadedImage){
-
-alert('Upload image first');
-return;
-
+function loadImage(f){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    uploadedImg=new Image();
+    uploadedImg.onload=()=>{
+      // Show original
+      const oi=document.getElementById('origImg');
+      oi.src=uploadedImg.src;
+      oi.style.display='block';
+      document.getElementById('origStage').querySelector('.img-placeholder').style.display='none';
+      document.getElementById('origBadge').textContent='READY';
+      document.getElementById('origBadge').className='pb-badge ok';
+      // Update upload zone
+      uz.classList.add('has-image');
+      document.getElementById('uzIcon').textContent='✅';
+      document.getElementById('uzTitle').textContent='Image loaded!';
+      document.getElementById('uzSub').textContent='Click to change';
+      document.getElementById('uzName').textContent=f.name;
+      // Info
+      document.getElementById('infoRes').textContent=uploadedImg.width+'×'+uploadedImg.height;
+      document.getElementById('infoSize').textContent=fmtSize(f.size);
+      document.getElementById('infoFmt').textContent=f.type.split('/')[1].toUpperCase();
+      document.getElementById('infoAR').textContent=gcd(uploadedImg.width,uploadedImg.height,uploadedImg.width/uploadedImg.height);
+      document.getElementById('imgSizeLabel').textContent=uploadedImg.width+'×'+uploadedImg.height+'px';
+      document.getElementById('processBtn').disabled=!model;
+      segData=null;
+      // Reset output
+      const oc=document.getElementById('outCanvas');
+      oc.style.display='none';
+      document.getElementById('outPlaceholder').style.display='flex';
+      document.getElementById('outBadge').textContent='WAITING';
+      document.getElementById('outBadge').className='pb-badge idle';
+      disableDL(true);
+      document.getElementById('reapplyBtn').disabled=true;
+      setProg(0,'Image loaded — click Remove Background');
+    };
+    uploadedImg.src=ev.target.result;
+  };
+  reader.readAsDataURL(f);
 }
 
-progressBar.style.width='10%';
-progressText.innerText='Analyzing Image...';
+// ════ PROCESS ════
+async function processImage(){
+  if(!uploadedImg||!model){showToast('Upload an image first');return}
+  document.getElementById('processBtn').disabled=true;
+  document.getElementById('reapplyBtn').disabled=true;
+  disableDL(true);
 
-const segmentation =
-await model.segmentPerson(
-uploadedImage
-);
+  setProc(true,'Analyzing Image...',15);
+  setProg(15,'Analyzing image...');
 
-progressBar.style.width='55%';
-progressText.innerText='AI Segmentation Running...';
+  const quality=document.getElementById('qualitySel').value;
+  const internalRes=quality==='ultra'?513:quality==='high'?353:257;
 
-ctx.clearRect(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
+  try{
+    setProc(true,'AI Segmentation...',35);
+    setProg(35,'Running AI segmentation...');
 
-ctx.drawImage(
-uploadedImage,
-0,
-0
-);
+    segData=await model.segmentPerson(uploadedImg,{
+      internalResolution:internalRes,
+      segmentationThreshold:0.7,
+      maxDetections:1,
+    });
 
-const imageData =
-ctx.getImageData(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
+    setProc(true,'Removing Background...',70);
+    setProg(70,'Removing background...');
 
-const pixels =
-imageData.data;
+    renderResult();
 
-for(let i=0;i<pixels.length;i+=4){
-
-const n = i / 4;
-
-if(segmentation.data[n] === 0){
-
-pixels[i+3] = 0;
-
+    setProc(false,'',100);
+    setProg(100,'Background removed!');
+    document.getElementById('outBadge').textContent='DONE ✓';
+    document.getElementById('outBadge').className='pb-badge ok';
+    disableDL(false);
+    document.getElementById('reapplyBtn').disabled=false;
+    showToast('✨ Background removed!');
+    setTimeout(()=>setProg(0,'Done — download your image below'),2000);
+  }catch(e){
+    setProc(false,'',0);
+    setProg(0,'Error: '+e.message);
+    showToast('❌ Processing failed');
+  }finally{
+    document.getElementById('processBtn').disabled=false;
+  }
 }
 
+function renderResult(){
+  if(!segData||!uploadedImg)return;
+  const canvas=document.getElementById('outCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=uploadedImg.width;
+  canvas.height=uploadedImg.height;
+
+  // Draw original
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(uploadedImg,0,0);
+
+  // Get pixel data
+  const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const px=imgData.data;
+
+  // Apply feathering
+  const feather=parseInt(document.getElementById('featherRange').value);
+
+  for(let i=0;i<px.length;i+=4){
+    if(segData.data[i/4]===0){
+      px[i+3]=0; // transparent
+    } else if(feather>0){
+      // Check nearby pixels for edge feathering
+      const x=(i/4)%canvas.width,y=Math.floor((i/4)/canvas.width);
+      let edgeDist=feather;
+      for(let dx=-feather;dx<=feather;dx++){
+        for(let dy=-feather;dy<=feather;dy++){
+          const nx=x+dx,ny=y+dy;
+          if(nx>=0&&nx<canvas.width&&ny>=0&&ny<canvas.height){
+            const ni=ny*canvas.width+nx;
+            if(segData.data[ni]===0){edgeDist=Math.min(edgeDist,Math.sqrt(dx*dx+dy*dy))}
+          }
+        }
+      }
+      if(edgeDist<feather){px[i+3]=Math.round(px[i+3]*(edgeDist/feather))}
+    }
+  }
+  ctx.putImageData(imgData,0,0);
+
+  // Apply background
+  applyBg(canvas,ctx);
+
+  // Shadow
+  const shadowVal=parseInt(document.getElementById('shadowRange').value);
+  if(shadowVal>0)applyShadow(canvas,ctx,shadowVal);
+
+  // Show canvas
+  canvas.style.display='block';
+  document.getElementById('outPlaceholder').style.display='none';
+
+  // Zoom
+  canvas.style.transform=`scale(${zoomLevel})`;
+  canvas.style.transformOrigin='center center';
 }
 
-ctx.putImageData(
-imageData,
-0,
-0
-);
+function applyBg(canvas,ctx){
+  const type=document.getElementById('bgType').value;
+  if(type==='transparent')return;
 
-applyBackground();
+  // Save current (person only) data
+  const personData=ctx.getImageData(0,0,canvas.width,canvas.height);
 
-applyShadow();
+  ctx.globalCompositeOperation='destination-over';
 
-progressBar.style.width='100%';
-progressText.innerText='Background Removed';
+  if(type==='white'){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height)}
+  else if(type==='black'){ctx.fillStyle='#000000';ctx.fillRect(0,0,canvas.width,canvas.height)}
+  else if(type==='gradient1'){
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,'#0ea5e9');g.addColorStop(1,'#7c3aed');
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  }else if(type==='gradient2'){
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,'#f97316');g.addColorStop(1,'#ec4899');
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  }else if(type==='gradient3'){
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,'#10b981');g.addColorStop(1,'#065f46');
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  }else if(type==='color'){
+    ctx.fillStyle=customColor;ctx.fillRect(0,0,canvas.width,canvas.height);
+  }else if(type==='blur'){
+    // Draw blurred original behind
+    ctx.filter='blur(20px)';ctx.drawImage(uploadedImg,0,0);ctx.filter='none';
+  }else if(type==='custom'&&bgImgEl){
+    ctx.drawImage(bgImgEl,0,0,canvas.width,canvas.height);
+  }
 
+  ctx.globalCompositeOperation='source-over';
 }
 
-// ==========================
-// APPLY BACKGROUND
-// ==========================
+function applyShadow(canvas,ctx,val){
+  // Create shadow by drawing dark silhouette slightly offset
+  const opacity=val/200;
+  const tempC=document.createElement('canvas');
+  tempC.width=canvas.width;tempC.height=canvas.height;
+  const tCtx=tempC.getContext('2d');
+  tCtx.drawImage(canvas,0,0);
 
-function applyBackground(){
-
-const type =
-document.getElementById('backgroundType').value;
-
-document
-.getElementById('bgStatus')
-.innerText = type;
-
-if(type === 'white'){
-
-ctx.globalCompositeOperation =
-'destination-over';
-
-ctx.fillStyle='#ffffff';
-
-ctx.fillRect(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
-
-ctx.globalCompositeOperation =
-'source-over';
-
+  ctx.globalCompositeOperation='destination-over';
+  ctx.shadowColor=`rgba(0,0,0,${opacity})`;
+  ctx.shadowBlur=val/3;
+  ctx.shadowOffsetY=val/4;
+  ctx.shadowOffsetX=val/8;
+  ctx.drawImage(canvas,0,0);
+  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
+  ctx.globalCompositeOperation='source-over';
 }
 
-if(type === 'gradient'){
-
-ctx.globalCompositeOperation =
-'destination-over';
-
-const gradient =
-ctx.createLinearGradient(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
-
-gradient.addColorStop(
-0,
-'#0ea5e9'
-);
-
-gradient.addColorStop(
-1,
-'#9333ea'
-);
-
-ctx.fillStyle = gradient;
-
-ctx.fillRect(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
-
-ctx.globalCompositeOperation =
-'source-over';
-
+function reapplyBackground(){
+  if(!segData)return;
+  renderResult();
+  showToast('🔄 Background re-applied!');
 }
 
-if(type === 'blur'){
-
-ctx.globalCompositeOperation =
-'destination-over';
-
-ctx.filter='blur(20px)';
-
-ctx.drawImage(
-uploadedImage,
-0,
-0
-);
-
-ctx.filter='none';
-
-ctx.globalCompositeOperation =
-'source-over';
-
+// ════ BG TYPE CHANGE ════
+function onBgTypeChange(){
+  const t=document.getElementById('bgType').value;
+  document.getElementById('colorPickerWrap').style.display=t==='color'?'block':'none';
+  document.getElementById('bgImgWrap').style.display=t==='custom'?'block':'none';
 }
 
+function setSwatchColor(el){
+  if(el.dataset.color==='custom')return;
+  document.querySelectorAll('.bg-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  customColor=el.dataset.color;
+}
+function onCustomColor(v){customColor=v}
+
+function loadBgImage(input){
+  const f=input.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    bgImgEl=new Image();bgImgEl.src=ev.target.result;
+    document.getElementById('bgImgName').textContent=f.name;
+    document.getElementById('bgImgName').style.display='block';
+    showToast('Background image loaded');
+  };
+  reader.readAsDataURL(f);
 }
 
-// ==========================
-// SHADOW ENGINE
-// ==========================
-
-function applyShadow(){
-
-const shadow =
-document.getElementById('shadow').value;
-
-ctx.shadowColor =
-`rgba(0,0,0,${shadow/100})`;
-
-ctx.shadowBlur = 30;
-
-ctx.shadowOffsetY = 18;
-
+// ════ DOWNLOAD ════
+function download(fmt){
+  const canvas=document.getElementById('outCanvas');
+  if(canvas.style.display==='none'){showToast('Process image first');return}
+  const a=document.createElement('a');
+  if(fmt==='png'){a.href=canvas.toDataURL('image/png');a.download='KJSynthora-nobg.png'}
+  else if(fmt==='jpg'){
+    // Create white bg version for JPG
+    const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
+    const tc=tmp.getContext('2d');tc.fillStyle='#fff';tc.fillRect(0,0,tmp.width,tmp.height);tc.drawImage(canvas,0,0);
+    a.href=tmp.toDataURL('image/jpeg',0.95);a.download='KJSynthora-nobg.jpg';
+  }else{a.href=canvas.toDataURL('image/webp',0.9);a.download='KJSynthora-nobg.webp'}
+  a.click();showToast('💾 Downloaded as '+fmt.toUpperCase()+'!');
 }
 
-// ==========================
-// DOWNLOAD PNG
-// ==========================
-
-function downloadPNG(){
-
-const link =
-document.createElement('a');
-
-link.download =
-'KJSynthora-AI-Image.png';
-
-link.href =
-outputCanvas.toDataURL('image/png');
-
-link.click();
-
+async function copyCanvas(){
+  const canvas=document.getElementById('outCanvas');
+  try{
+    canvas.toBlob(async blob=>{
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+      showToast('📋 Image copied to clipboard!');
+    });
+  }catch{showToast('❌ Copy not supported in this browser')}
 }
 
-// ==========================
-// DOWNLOAD JPG
-// ==========================
-
-function downloadJPG(){
-
-const link =
-document.createElement('a');
-
-link.download =
-'KJSynthora-AI-Image.jpg';
-
-link.href =
-outputCanvas.toDataURL(
-'image/jpeg',
-1.0
-);
-
-link.click();
-
+// ════ ZOOM ════
+function zoom(delta){
+  zoomLevel=Math.min(3,Math.max(0.3,zoomLevel+delta));
+  const canvas=document.getElementById('outCanvas');
+  canvas.style.transform=`scale(${zoomLevel})`;
+  document.getElementById('zoomVal').textContent=Math.round(zoomLevel*100)+'%';
 }
+function resetZoom(){zoomLevel=1;zoom(0)}
 
-// ==========================
-// CLEAR
-// ==========================
-
+// ════ CLEAR ════
 function clearAll(){
-
-ctx.clearRect(
-0,
-0,
-outputCanvas.width,
-outputCanvas.height
-);
-
-originalImage.src='';
-
-uploadedImage=null;
-
-progressBar.style.width='0%';
-
-progressText.innerText='Idle';
-
+  uploadedImg=null;segData=null;bgImgEl=null;
+  document.getElementById('origImg').style.display='none';
+  document.getElementById('origImg').src='';
+  document.getElementById('origStage').querySelector('.img-placeholder').style.display='flex';
+  document.getElementById('origBadge').textContent='WAITING';
+  document.getElementById('origBadge').className='pb-badge idle';
+  document.getElementById('outCanvas').style.display='none';
+  document.getElementById('outPlaceholder').style.display='flex';
+  document.getElementById('outBadge').textContent='WAITING';
+  document.getElementById('outBadge').className='pb-badge idle';
+  document.getElementById('imgInput').value='';
+  uz.classList.remove('has-image');
+  document.getElementById('uzIcon').textContent='☁️';
+  document.getElementById('uzTitle').textContent='Drop image here';
+  document.getElementById('uzSub').textContent='JPG, PNG, WEBP — up to 20MB';
+  document.getElementById('uzName').textContent='';
+  document.getElementById('processBtn').disabled=true;
+  document.getElementById('reapplyBtn').disabled=true;
+  disableDL(true);
+  ['infoRes','infoSize','infoFmt','infoAR'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('imgSizeLabel').textContent='';
+  setProg(0,'Upload an image to begin');
+  resetZoom();
+  showToast('🗑️ Cleared!');
 }
 
-</script>
+// ════ HELPERS ════
+function setProc(show,label,pct){
+  const ov=document.getElementById('procOverlay');
+  ov.classList.toggle('show',show);
+  if(label)document.getElementById('procLabel').textContent=label;
+  if(pct!==undefined)document.getElementById('procBar').style.width=pct+'%';
+}
+function setProg(pct,text){
+  document.getElementById('progBar').style.width=pct+'%';
+  if(text)document.getElementById('progText').textContent=text;
+}
+function disableDL(v){
+  ['dlPng','dlJpg','dlWebp','dlCopy'].forEach(id=>document.getElementById(id).disabled=v);
+}
+function fmtSize(b){return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB'}
+function gcd(a,b,ar){
+  const g=(x,y)=>y?g(y,x%y):x;
+  const d=g(a,b);return(a/d)+':'+(b/d);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2700);
+}
 
+// Start loading model
+loadModel();
+</script>
 </body>
 </html>
