@@ -1,1122 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KJSynthora Writing Intelligence OS</title>
-
-<meta
-name="description"
-content="Enterprise-grade realtime global word counter and writing intelligence platform."
-/>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet"
-/>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs" type="module"></script>
-
+<meta name="description" content="Enterprise-grade realtime global word counter and writing intelligence platform.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04040a;--surface:#0d0d1a;--s2:#111827;--s3:#1a1f30;
+  --border:rgba(99,102,241,0.18);--accent:#818cf8;--accent2:#7c5cfc;
+  --cyan:#38bdf8;--green:#22c55e;--text:#e2e8f0;--muted:#4a5568;--danger:#f87171;
+  --orange:#fb923c;
 }
-
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-
-background:
-linear-gradient(
-135deg,
-#020617,
-#081028,
-#020617
-);
-
-color:white;
-overflow-x:hidden;
-
+  background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+  min-height:100vh;overflow-x:hidden;
 }
-
 body::before{
-
-content:'';
-
-position:fixed;
-
-width:700px;
-height:700px;
-
-background:
-radial-gradient(
-circle,
-#2563eb44,
-#8b5cf622,
-transparent
-);
-
-top:-250px;
-left:-250px;
-
-filter:blur(90px);
-
-z-index:-1;
-
-animation:glow 10s infinite alternate;
-
+  content:'';position:fixed;width:800px;height:800px;
+  background:radial-gradient(circle,rgba(99,102,241,0.1) 0%,rgba(124,92,252,0.05) 50%,transparent 70%);
+  top:-300px;left:-300px;filter:blur(60px);z-index:0;pointer-events:none;
+  animation:glow 10s infinite alternate;
 }
+@keyframes glow{from{transform:translate(0,0);}to{transform:translate(60px,80px);}}
 
-@keyframes glow{
+.container{width:95%;max-width:1600px;margin:auto;padding:36px 0 80px;position:relative;z-index:1;}
 
-from{
-transform:translateY(0px);
-}
-
-to{
-transform:translateY(80px);
-}
-
-}
-
-.container{
-
-width:95%;
-max-width:1800px;
-
-margin:auto;
-
-padding:40px 0 100px;
-
-}
-
-.header{
-
-text-align:center;
-margin-bottom:35px;
-
-}
-
+/* HEADER */
+.header{text-align:center;margin-bottom:32px;}
 .header h1{
-
-font-size:62px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
+  font-family:'Syne',sans-serif;font-size:50px;font-weight:800;line-height:1.1;
+  background:linear-gradient(90deg,#818cf8,#38bdf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-
-.header p{
-
-margin-top:15px;
-
-color:#cbd5e1;
-
-font-size:18px;
-
+.header p{margin-top:10px;color:var(--muted);font-size:15px;}
+.live-badge{
+  display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+  padding:9px 18px;border-radius:999px;background:rgba(34,197,94,0.1);
+  border:1px solid rgba(34,197,94,0.28);font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.06em;
 }
+.live-badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-.live-status{
-
-display:inline-block;
-
-margin-top:20px;
-
-padding:12px 24px;
-
-border-radius:999px;
-
-background:#16a34a;
-
-font-size:13px;
-font-weight:700;
-
-}
-
-.main-grid{
-
-display:grid;
-
-grid-template-columns:
-2fr 1fr;
-
-gap:25px;
-
-}
+/* GRID */
+.main-grid{display:grid;grid-template-columns:1.8fr 1fr;gap:22px;align-items:start;}
+@media(max-width:1000px){.main-grid{grid-template-columns:1fr;}}
 
 .panel{
-
-background:#0f172a;
-
-padding:28px;
-
-border-radius:28px;
-
-border:1px solid rgba(255,255,255,.05);
-
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:24px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
-textarea{
-
-width:100%;
-height:600px;
-
-resize:none;
-
-padding:25px;
-
-border:none;
-
-border-radius:24px;
-
-background:#111827;
-
-color:white;
-
-font-size:18px;
-line-height:1.9;
-
-outline:none;
-
-}
-
-.toolbar{
-
-display:flex;
-flex-wrap:wrap;
-gap:14px;
-
-margin-bottom:20px;
-
-}
-
+/* TOOLBAR */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
 .tool-btn{
+  padding:8px 14px;border:1px solid var(--border);border-radius:9px;
+  background:var(--s2);color:var(--muted);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;white-space:nowrap;
+}
+.tool-btn:hover{color:var(--text);border-color:var(--accent);background:rgba(129,140,248,0.08);}
+.tool-btn.primary{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;border-color:transparent;}
+.tool-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,92,252,0.35);}
+.tool-btn.danger{border-color:rgba(248,113,113,0.3);color:var(--muted);}
+.tool-btn.danger:hover{background:rgba(248,113,113,0.08);border-color:var(--danger);color:var(--danger);}
 
-padding:13px 18px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
+/* TEXTAREA */
+.editor-wrap{position:relative;}
+#textInput{
+  width:100%;height:520px;resize:vertical;
+  padding:22px;border:1px solid var(--border);border-radius:16px;
+  background:var(--s2);color:var(--text);font-size:16px;line-height:1.8;
+  outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;
+}
+#textInput:focus{border-color:var(--accent);}
+#textInput::placeholder{color:var(--muted);}
+.char-hint{
+  position:absolute;bottom:12px;right:16px;
+  font-size:11px;color:var(--muted);pointer-events:none;
 }
 
-.tool-btn:hover{
-
-transform:translateY(-2px);
-
-background:#1e293b;
-
-}
-
-.primary-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-}
-
-.analytics-grid{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:15px;
-
-}
-
-.metric-box{
-
-background:#111827;
-
-padding:18px;
-
-border-radius:18px;
-
-line-height:2;
-
-}
-
-.metric-box h3{
-
-font-size:15px;
-color:#94a3b8;
-
-}
-
-.metric-box strong{
-
-font-size:28px;
-
-}
-
+/* ANALYTICS PANEL */
 .section-title{
-
-font-size:30px;
-margin-bottom:20px;
-
+  font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:18px;color:var(--text);
 }
 
-.seo-box{
+/* METRICS GRID */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.metric-box{
+  background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:14px;
+}
+.metric-box h3{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;}
+.metric-box strong{font-size:26px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text);}
+.metric-box.accent strong{color:var(--accent);}
+.metric-box.cyan strong{color:var(--cyan);}
+.metric-box.green strong{color:var(--green);}
+.metric-box.orange strong{color:var(--orange);}
 
-background:#111827;
+/* SEO + READABILITY boxes */
+.info-box{
+  background:var(--s2);border:1px solid var(--border);border-radius:14px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.info-box h3{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
+.keyword-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;
+}
+.keyword-item:last-child{border-bottom:none;}
+.keyword-name{color:var(--text);}
+.keyword-count{
+  background:rgba(129,140,248,0.15);color:var(--accent);
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+}
+.readability-badge{
+  display:inline-block;padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;
+}
+.read-easy{background:rgba(34,197,94,0.12);color:var(--green);}
+.read-medium{background:rgba(251,146,60,0.12);color:var(--orange);}
+.read-hard{background:rgba(248,113,113,0.12);color:var(--danger);}
 
-padding:18px;
+/* TWITTER PROGRESS */
+.progress-track{height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin:8px 0;}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--cyan));width:0%;transition:width 0.3s;}
+.progress-fill.warn{background:linear-gradient(90deg,var(--orange),var(--danger));}
+.twitter-count-row{display:flex;justify-content:space-between;font-size:12px;}
+.twitter-count-row span:last-child{color:var(--muted);}
 
-border-radius:18px;
-
-margin-top:18px;
-
+/* LANGUAGE TAG */
+.lang-tag{
+  display:inline-block;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);
+  color:var(--cyan);font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;
 }
 
-.progress-container{
-
-margin-top:10px;
-
-}
-
-.progress-bar{
-
-height:12px;
-
-border-radius:999px;
-
-background:#1e293b;
-
-overflow:hidden;
-
-}
-
-.progress{
-
-height:100%;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-width:0%;
-
-transition:.3s;
-
-}
-
-.keyword-list{
-
-margin-top:15px;
-
-line-height:2;
-
-}
-
-.footer-buttons{
-
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-
-margin-top:45px;
-
-}
-
+/* FOOTER */
+.footer-buttons{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:32px;}
 .footer-buttons a{
-
-padding:16px 28px;
-
-border-radius:14px;
-
-text-decoration:none;
-
-font-weight:700;
-
+  padding:12px 24px;border-radius:12px;text-decoration:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;transition:all 0.2s;
 }
+.primary-link{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;}
+.secondary-link{background:var(--s2);border:1px solid var(--border);color:var(--muted);}
+.primary-link:hover,.secondary-link:hover{transform:translateY(-2px);}
 
-.home-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--s2);border:1px solid var(--green);color:var(--green);
+  padding:10px 18px;border-radius:10px;font-size:12px;font-weight:600;
+  z-index:999;opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none;
 }
+.toast.show{opacity:1;transform:translateY(0);}
 
-.more-btn{
-
-background:#111827;
-color:white;
-
-}
-
-.file-upload{
-
-display:none;
-
-}
-
-@media(max-width:1200px){
-
-.main-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.header h1{
-
-font-size:42px;
-
-}
-
-.analytics-grid{
-
-grid-template-columns:1fr;
-
-}
-
-textarea{
-
-height:450px;
-
-}
-
-}
-
+input[type=file]{display:none;}
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
 
-<div class="header">
+  <div class="header">
+    <h1>KJSynthora Writing Intelligence OS</h1>
+    <p>Enterprise-grade realtime worldwide writing analytics platform</p>
+    <div class="live-badge"><span class="dot"></span> REALTIME WRITING ENGINE ACTIVE</div>
+  </div>
 
-<h1>KJSynthora Writing Intelligence OS</h1>
+  <div class="main-grid">
 
-<p>
-Enterprise-grade realtime worldwide writing analytics platform
-</p>
+    <!-- LEFT: EDITOR -->
+    <div class="panel">
+      <div class="toolbar">
+        <button class="tool-btn danger" onclick="clearText()">✕ Clear</button>
+        <button class="tool-btn" onclick="convertUppercase()">UPPERCASE</button>
+        <button class="tool-btn" onclick="convertLowercase()">lowercase</button>
+        <button class="tool-btn" onclick="convertTitleCase()">Title Case</button>
+        <button class="tool-btn" onclick="removeDuplicateLines()">Remove Duplicates</button>
+        <button class="tool-btn" onclick="sortLines()">Sort Lines</button>
+        <button class="tool-btn" onclick="copyText()">⎘ Copy</button>
+        <button class="tool-btn" onclick="downloadTXT()">⬇ TXT</button>
+        <button class="tool-btn primary" onclick="document.getElementById('fileInput').click()">⬆ Upload</button>
+        <button class="tool-btn" onclick="startVoice()" id="voiceBtn">🎤 Voice</button>
+      </div>
+      <div class="editor-wrap">
+        <textarea id="textInput" placeholder="Start typing, paste your content, or upload a .txt / .docx file..."></textarea>
+        <div class="char-hint" id="charHint">0 chars</div>
+      </div>
+      <input type="file" id="fileInput" accept=".txt,.docx">
+    </div>
 
-<div class="live-status">
-● REALTIME WRITING ENGINE ACTIVE
+    <!-- RIGHT: ANALYTICS -->
+    <div class="panel">
+      <div class="section-title">Realtime Analytics</div>
+
+      <div class="metrics-grid">
+        <div class="metric-box accent">
+          <h3>Words</h3>
+          <strong id="wordCount">0</strong>
+        </div>
+        <div class="metric-box">
+          <h3>Characters</h3>
+          <strong id="charCount">0</strong>
+        </div>
+        <div class="metric-box">
+          <h3>No Spaces</h3>
+          <strong id="charNoSpaces">0</strong>
+        </div>
+        <div class="metric-box">
+          <h3>Sentences</h3>
+          <strong id="sentenceCount">0</strong>
+        </div>
+        <div class="metric-box">
+          <h3>Paragraphs</h3>
+          <strong id="paragraphCount">0</strong>
+        </div>
+        <div class="metric-box cyan">
+          <h3>Reading Time</h3>
+          <strong id="readingTime">0m</strong>
+        </div>
+        <div class="metric-box green">
+          <h3>Speaking Time</h3>
+          <strong id="speakingTime">0m</strong>
+        </div>
+        <div class="metric-box orange">
+          <h3>Unique Words</h3>
+          <strong id="uniqueWords">0</strong>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="info-box">
+        <h3>Detected Language</h3>
+        <span class="lang-tag" id="languageDetect">English</span>
+      </div>
+
+      <!-- Readability -->
+      <div class="info-box">
+        <h3>Readability Score</h3>
+        <span class="readability-badge read-easy" id="readabilityScore">Easy</span>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;" id="readabilityNote">Avg. words per sentence: 0</div>
+      </div>
+
+      <!-- Keywords -->
+      <div class="info-box">
+        <h3>Top Keywords (Density)</h3>
+        <div id="keywordList"><div style="font-size:12px;color:var(--muted);">Start typing to see keywords...</div></div>
+      </div>
+
+      <!-- Twitter limit -->
+      <div class="info-box">
+        <h3>Twitter / X Character Limit</h3>
+        <div class="progress-track">
+          <div class="progress-fill" id="twitterProgress"></div>
+        </div>
+        <div class="twitter-count-row">
+          <span id="twitterCount" style="font-weight:600;">0 / 280</span>
+          <span id="twitterStatus">Within limit</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-buttons">
+    <a href="../index.html" class="primary-link">← Return Home</a>
+    <a href="../index.html" class="secondary-link">More Tools</a>
+  </div>
 </div>
 
-</div>
-
-<div class="main-grid">
-
-<!-- LEFT -->
-
-<div class="panel">
-
-<div class="toolbar">
-
-<button
-class="tool-btn primary-btn"
-onclick="clearText()"
->
-Clear
-</button>
-
-<button
-class="tool-btn"
-onclick="convertUppercase()"
->
-UPPERCASE
-</button>
-
-<button
-class="tool-btn"
-onclick="convertLowercase()"
->
-lowercase
-</button>
-
-<button
-class="tool-btn"
-onclick="convertTitleCase()"
->
-Title Case
-</button>
-
-<button
-class="tool-btn"
-onclick="copyText()"
->
-Copy
-</button>
-
-<button
-class="tool-btn"
-onclick="downloadTXT()"
->
-Download TXT
-</button>
-
-<button
-class="tool-btn"
-onclick="document.getElementById('fileInput').click()"
->
-Upload File
-</button>
-
-<button
-class="tool-btn"
-onclick="startVoice()"
->
-🎤 Voice Typing
-</button>
-
-<input
-type="file"
-id="fileInput"
-class="file-upload"
-accept=".txt,.docx"
-/>
-
-</div>
-
-<textarea
-id="textInput"
-placeholder="Start typing or paste your content here..."
-></textarea>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="panel">
-
-<div class="section-title">
-Realtime Analytics
-</div>
-
-<div class="analytics-grid">
-
-<div class="metric-box">
-
-<h3>Words</h3>
-
-<strong id="wordCount">
-0
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Characters</h3>
-
-<strong id="charCount">
-0
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Characters (No Spaces)</h3>
-
-<strong id="charNoSpaces">
-0
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Sentences</h3>
-
-<strong id="sentenceCount">
-0
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Paragraphs</h3>
-
-<strong id="paragraphCount">
-0
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Reading Time</h3>
-
-<strong id="readingTime">
-0 min
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Speaking Time</h3>
-
-<strong id="speakingTime">
-0 min
-</strong>
-
-</div>
-
-<div class="metric-box">
-
-<h3>Language</h3>
-
-<strong id="languageDetect">
-English
-</strong>
-
-</div>
-
-</div>
-
-<div class="seo-box">
-
-<h3>
-SEO Keyword Density
-</h3>
-
-<div
-class="keyword-list"
-id="keywordList"
-></div>
-
-</div>
-
-<div class="seo-box">
-
-<h3>
-Readability Score
-</h3>
-
-<div id="readabilityScore">
-Easy
-</div>
-
-</div>
-
-<div class="seo-box">
-
-<h3>
-Twitter Character Limit
-</h3>
-
-<div class="progress-container">
-
-<div class="progress-bar">
-
-<div
-class="progress"
-id="twitterProgress"
-></div>
-
-</div>
-
-</div>
-
-<div id="twitterCount">
-0 / 280
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<a
-href="../index.html"
-class="home-btn"
->
-← Return Home
-</a>
-
-<a
-href="../index.html"
-class="more-btn"
->
-More Tools
-</a>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
+const textInput=document.getElementById('textInput');
 
-const textInput =
-document.getElementById('textInput');
-
-// =======================
-// REALTIME ANALYTICS
-// =======================
-
-textInput.addEventListener(
-'input',
-analyzeText
-);
+textInput.addEventListener('input',analyzeText);
 
 function analyzeText(){
+  const text=textInput.value;
+  const words=text.trim().match(/\S+/g)||[];
+  const wordCount=words.length;
+  const charCount=text.length;
+  const charNoSpaces=text.replace(/\s/g,'').length;
+  const sentences=text.split(/[.!?]+/).filter(s=>s.trim()!=='');
+  const paragraphs=text.split(/\n+/).filter(p=>p.trim()!=='');
+  const uniqueSet=new Set(words.map(w=>w.toLowerCase().replace(/[^\w]/g,'')));
 
-const text =
-textInput.value;
+  const readMins=wordCount>0?Math.ceil(wordCount/200):0;
+  const speakMins=wordCount>0?Math.ceil(wordCount/130):0;
+  const readStr=readMins>=60?`${Math.floor(readMins/60)}h ${readMins%60}m`:`${readMins}m`;
+  const speakStr=speakMins>=60?`${Math.floor(speakMins/60)}h ${speakMins%60}m`:`${speakMins}m`;
 
-const words =
-text
-.trim()
-.match(/\S+/g);
+  document.getElementById('wordCount').textContent=wordCount;
+  document.getElementById('charCount').textContent=charCount;
+  document.getElementById('charNoSpaces').textContent=charNoSpaces;
+  document.getElementById('sentenceCount').textContent=sentences.length;
+  document.getElementById('paragraphCount').textContent=paragraphs.length;
+  document.getElementById('readingTime').textContent=readStr;
+  document.getElementById('speakingTime').textContent=speakStr;
+  document.getElementById('uniqueWords').textContent=uniqueSet.size;
+  document.getElementById('charHint').textContent=charCount+' chars';
 
-const wordCount =
-words ? words.length : 0;
+  detectLanguage(text);
+  generateKeywords(words);
+  updateTwitterLimit(charCount);
+  calcReadability(wordCount,sentences.length);
 
-const charCount =
-text.length;
-
-const charNoSpaces =
-text.replace(/\s/g,'').length;
-
-const sentences =
-text
-.split(/[.!?]+/)
-.filter(s => s.trim() !== '');
-
-const paragraphs =
-text
-.split(/\n+/)
-.filter(p => p.trim() !== '');
-
-document
-.getElementById('wordCount')
-.innerText = wordCount;
-
-document
-.getElementById('charCount')
-.innerText = charCount;
-
-document
-.getElementById('charNoSpaces')
-.innerText = charNoSpaces;
-
-document
-.getElementById('sentenceCount')
-.innerText = sentences.length;
-
-document
-.getElementById('paragraphCount')
-.innerText = paragraphs.length;
-
-const reading =
-Math.ceil(wordCount / 200);
-
-const speaking =
-Math.ceil(wordCount / 130);
-
-document
-.getElementById('readingTime')
-.innerText =
-reading + ' min';
-
-document
-.getElementById('speakingTime')
-.innerText =
-speaking + ' min';
-
-detectLanguage(text);
-
-generateKeywords(words);
-
-updateTwitterLimit(charCount);
-
-calculateReadability(
-wordCount,
-sentences.length
-);
-
-localStorage.setItem(
-'writingDraft',
-text
-);
-
+  localStorage.setItem('writingDraft',text);
 }
-
-// =======================
-// LANGUAGE DETECTION
-// =======================
 
 function detectLanguage(text){
-
-let lang = 'English';
-
-if(/[؀-ۿ]/.test(text))
-lang = 'Arabic';
-
-if(/[一-龯]/.test(text))
-lang = 'Chinese/Japanese';
-
-if(/[ऀ-ॿ]/.test(text))
-lang = 'Hindi';
-
-if(/[ఀ-౿]/.test(text))
-lang = 'Telugu';
-
-document
-.getElementById('languageDetect')
-.innerText = lang;
-
+  let lang='English';
+  if(/[؀-ۿ]/.test(text)) lang='Arabic';
+  else if(/[一-龯]/.test(text)) lang='Chinese / Japanese';
+  else if(/[ऀ-ॿ]/.test(text)) lang='Hindi';
+  else if(/[ఀ-౿]/.test(text)) lang='Telugu';
+  else if(/[А-я]/.test(text)) lang='Russian';
+  else if(/[À-ÿ]/.test(text)) lang='French / Spanish';
+  document.getElementById('languageDetect').textContent=lang;
 }
-
-// =======================
-// KEYWORD DENSITY
-// =======================
 
 function generateKeywords(words){
-
-if(!words) return;
-
-const counts = {};
-
-words.forEach(word => {
-
-word =
-word
-.toLowerCase()
-.replace(/[^\w]/g,'');
-
-if(word.length > 3){
-
-counts[word] =
-(counts[word] || 0) + 1;
-
+  if(!words.length){
+    document.getElementById('keywordList').innerHTML='<div style="font-size:12px;color:var(--muted);">Start typing to see keywords...</div>';
+    return;
+  }
+  const stopWords=new Set(['the','and','for','that','this','with','are','was','were','have','from','not','but','been','they','will','what','your','which','there','their','when','more','also','into','than','then','some','just','about','over','after','before','other','only','same','such','like','well','even','both','each','much','very','can','all','any','may','its','our']);
+  const counts={};
+  words.forEach(w=>{
+    const clean=w.toLowerCase().replace(/[^\w]/g,'');
+    if(clean.length>3&&!stopWords.has(clean)) counts[clean]=(counts[clean]||0)+1;
+  });
+  const total=words.length;
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(!sorted.length){
+    document.getElementById('keywordList').innerHTML='<div style="font-size:12px;color:var(--muted);">No significant keywords yet...</div>';
+    return;
+  }
+  document.getElementById('keywordList').innerHTML=sorted.map(([w,c])=>`
+    <div class="keyword-item">
+      <span class="keyword-name">${w}</span>
+      <span class="keyword-count">${c}x &nbsp; ${((c/total)*100).toFixed(1)}%</span>
+    </div>`).join('');
 }
 
-});
-
-const sorted =
-Object.entries(counts)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,5);
-
-let html='';
-
-sorted.forEach(item => {
-
-html += `
-<div>
-${item[0]} :
-<strong>${item[1]}</strong>
-</div>
-`;
-
-});
-
-document
-.getElementById('keywordList')
-.innerHTML = html;
-
+function calcReadability(words,sentences){
+  const avg=words/(sentences||1);
+  let cls='read-easy',label='Easy',note='';
+  if(avg>25){cls='read-hard';label='Advanced';}
+  else if(avg>16){cls='read-medium';label='Standard';}
+  const badge=document.getElementById('readabilityScore');
+  badge.className='readability-badge '+cls;
+  badge.textContent=label;
+  document.getElementById('readabilityNote').textContent=`Avg. ${avg.toFixed(1)} words/sentence`;
 }
-
-// =======================
-// READABILITY
-// =======================
-
-function calculateReadability(
-words,
-sentences
-){
-
-let score = 'Easy';
-
-const avg =
-words / (sentences || 1);
-
-if(avg > 25)
-score='Professional';
-
-else if(avg > 18)
-score='Medium';
-
-document
-.getElementById('readabilityScore')
-.innerText = score;
-
-}
-
-// =======================
-// TWITTER LIMIT
-// =======================
 
 function updateTwitterLimit(chars){
-
-const percent =
-Math.min(
-(chars / 280) * 100,
-100
-);
-
-document
-.getElementById('twitterProgress')
-.style.width =
-percent + '%';
-
-document
-.getElementById('twitterCount')
-.innerText =
-`${chars} / 280`;
-
+  const pct=Math.min((chars/280)*100,100);
+  const fill=document.getElementById('twitterProgress');
+  fill.style.width=pct+'%';
+  fill.className='progress-fill'+(chars>280?' warn':'');
+  document.getElementById('twitterCount').textContent=`${chars} / 280`;
+  document.getElementById('twitterStatus').textContent=chars>280?`⚠ ${chars-280} over limit`:'Within limit';
+  document.getElementById('twitterCount').style.color=chars>280?'var(--danger)':'var(--text)';
 }
 
-// =======================
-// CASE CONVERTERS
-// =======================
-
-function convertUppercase(){
-
-textInput.value =
-textInput.value.toUpperCase();
-
-analyzeText();
-
-}
-
-function convertLowercase(){
-
-textInput.value =
-textInput.value.toLowerCase();
-
-analyzeText();
-
-}
-
+// TEXT TRANSFORMS
+function convertUppercase(){textInput.value=textInput.value.toUpperCase();analyzeText();}
+function convertLowercase(){textInput.value=textInput.value.toLowerCase();analyzeText();}
 function convertTitleCase(){
-
-textInput.value =
-textInput.value
-.toLowerCase()
-.replace(
-/\b\w/g,
-c => c.toUpperCase()
-);
-
-analyzeText();
-
+  textInput.value=textInput.value.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());analyzeText();
 }
-
-// =======================
-// COPY
-// =======================
-
+function removeDuplicateLines(){
+  const lines=textInput.value.split('\n');
+  const seen=new Set();
+  textInput.value=lines.filter(l=>{
+    const k=l.trim().toLowerCase();
+    if(seen.has(k)) return false;
+    seen.add(k);return true;
+  }).join('\n');
+  analyzeText();showToast('Duplicate lines removed');
+}
+function sortLines(){
+  textInput.value=textInput.value.split('\n').filter(l=>l.trim()).sort().join('\n');
+  analyzeText();showToast('Lines sorted A→Z');
+}
 function copyText(){
-
-navigator.clipboard.writeText(
-textInput.value
-);
-
-alert('Copied');
-
+  navigator.clipboard.writeText(textInput.value).then(()=>showToast('⎘ Copied to clipboard!'));
 }
-
-// =======================
-// CLEAR
-// =======================
-
 function clearText(){
-
-textInput.value='';
-
-analyzeText();
-
+  textInput.value='';analyzeText();textInput.focus();
 }
-
-// =======================
-// DOWNLOAD TXT
-// =======================
-
 function downloadTXT(){
-
-const blob =
-new Blob(
-[textInput.value],
-{type:'text/plain'}
-);
-
-const a =
-document.createElement('a');
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-'KJSynthora-Document.txt';
-
-a.click();
-
+  const blob=new Blob([textInput.value],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='KJSynthora-Document.txt';
+  a.click();showToast('⬇ TXT downloaded!');
 }
 
-// =======================
-// FILE IMPORT
-// =======================
-
-document
-.getElementById('fileInput')
-.addEventListener(
-'change',
-async function(e){
-
-const file =
-e.target.files[0];
-
-if(!file) return;
-
-if(file.name.endsWith('.txt')){
-
-const text =
-await file.text();
-
-textInput.value = text;
-
-analyzeText();
-
-}
-
-if(file.name.endsWith('.docx')){
-
-const arrayBuffer =
-await file.arrayBuffer();
-
-const result =
-await mammoth.extractRawText({
-arrayBuffer
+// FILE UPLOAD — .txt and .docx
+document.getElementById('fileInput').addEventListener('change',async function(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.name.endsWith('.txt')){
+    textInput.value=await file.text();analyzeText();showToast('✅ TXT file loaded');
+  } else if(file.name.endsWith('.docx')){
+    const ab=await file.arrayBuffer();
+    const result=await mammoth.extractRawText({arrayBuffer:ab});
+    textInput.value=result.value;analyzeText();showToast('✅ DOCX file loaded');
+  } else {showToast('⚠️ Only .txt and .docx supported');}
+  this.value='';
 });
 
-textInput.value =
-result.value;
-
-analyzeText();
-
-}
-
-});
-
-// =======================
 // VOICE TYPING
-// =======================
-
+let isListening=false;
+let recognition=null;
 function startVoice(){
-
-const SpeechRecognition =
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
-
-if(!SpeechRecognition){
-
-alert(
-'Voice recognition not supported'
-);
-
-return;
-
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('⚠️ Voice not supported in this browser');return;}
+  if(isListening){
+    recognition.stop();isListening=false;
+    document.getElementById('voiceBtn').textContent='🎤 Voice';return;
+  }
+  recognition=new SR();recognition.lang='en-US';recognition.continuous=true;recognition.interimResults=true;
+  recognition.start();isListening=true;
+  document.getElementById('voiceBtn').textContent='⏹ Stop Voice';
+  recognition.onresult=function(e){
+    let final='',interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    if(final){textInput.value+=' '+final.trim();analyzeText();}
+  };
+  recognition.onend=()=>{isListening=false;document.getElementById('voiceBtn').textContent='🎤 Voice';};
 }
 
-const recognition =
-new SpeechRecognition();
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
 
-recognition.lang='en-US';
-
-recognition.start();
-
-recognition.onresult =
-function(event){
-
-const transcript =
-event.results[0][0].transcript;
-
-textInput.value +=
-' ' + transcript;
-
-analyzeText();
-
+window.onload=()=>{
+  const saved=localStorage.getItem('writingDraft');
+  if(saved){textInput.value=saved;analyzeText();}
 };
-
-}
-
-// =======================
-// AUTOSAVE
-// =======================
-
-window.onload = () => {
-
-const saved =
-localStorage.getItem(
-'writingDraft'
-);
-
-if(saved){
-
-textInput.value = saved;
-
-analyzeText();
-
-}
-
-};
-
 </script>
-
 </body>
 </html>
