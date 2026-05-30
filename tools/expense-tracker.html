@@ -1,801 +1,1773 @@
-<!-- ========================= -->
-<!-- SMART EXPENSE PLANNER AI -->
-<!-- FULLY UPDATED GLOBAL VERSION -->
-<!-- ========================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global AI Smart Expense Planner</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<title>Smart Expense Planner AI | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#070b14;
+  --bg2:#0b1120;
+  --surface:#0f1828;
+  --surface2:#131f33;
+  --surface3:#182540;
+  --border:#1e2e4a;
+  --border2:#243659;
+  --accent:#3b82f6;
+  --accent-soft:rgba(59,130,246,0.12);
+  --accent2:#06b6d4;
+  --accent3:#8b5cf6;
+  --success:#10b981;
+  --success-soft:rgba(16,185,129,0.12);
+  --warning:#f59e0b;
+  --warning-soft:rgba(245,158,11,0.12);
+  --danger:#ef4444;
+  --danger-soft:rgba(239,68,68,0.12);
+  --text:#e2ecff;
+  --text2:#7a90b8;
+  --text3:#3d5070;
+  --card-shadow:0 4px 24px rgba(0,0,0,0.4);
 }
 
 body{
-background:
-linear-gradient(135deg,#020617,#04104d,#3b0ca3);
-min-height:100vh;
-padding:20px;
-color:white;
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
-.container{
-max-width:1600px;
-margin:auto;
-display:grid;
-grid-template-columns:420px 1fr;
-gap:20px;
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 0% 0%,rgba(59,130,246,0.07),transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 100%,rgba(139,92,246,0.06),transparent 60%),
+    radial-gradient(ellipse 40% 30% at 60% 40%,rgba(6,182,212,0.03),transparent 60%);
+  pointer-events:none;z-index:0;
 }
 
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.018) 1px,transparent 1px);
+  background-size:52px 52px;
+  pointer-events:none;z-index:0;
+}
+
+/* ── LAYOUT ── */
+.app{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:400px 1fr;
+  grid-template-rows:auto 1fr;
+  min-height:100vh;
+  gap:0;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  grid-column:1/-1;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 28px;
+  background:rgba(7,11,20,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;box-shadow:0 0 18px rgba(59,130,246,0.3);
+}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+.brand-name span{color:var(--accent);}
+
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.groq-badge{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.2);
+  padding:7px 14px;border-radius:999px;
+  font-size:12px;font-weight:600;color:var(--success);
+  letter-spacing:0.3px;cursor:pointer;
+  transition:all 0.2s;
+}
+.groq-badge:hover{background:rgba(16,185,129,0.18);}
+.groq-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 6px var(--success);
+  animation:pulse-dot 2s infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+.icon-btn{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  padding:24px 20px;
+  overflow-y:auto;
+  max-height:calc(100vh - 69px);
+  position:sticky;top:69px;
+}
+
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-track{background:transparent;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+
+.section-title{
+  font-size:11px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;
+  letter-spacing:1.2px;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:14px;}
+.field label{
+  display:block;font-size:12px;font-weight:600;
+  color:var(--text2);margin-bottom:6px;letter-spacing:0.3px;
+}
+
+.field input,.field select{
+  width:100%;padding:11px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:'Outfit',sans-serif;
+  font-size:14px;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field input:focus,.field select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(59,130,246,0.1);
+}
+.field input::placeholder{color:var(--text3);}
+.field select option{background:var(--surface2);}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* Currency prefix input */
+.input-prefix{
+  position:relative;
+}
+.input-prefix span{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:13px;font-family:'JetBrains Mono',monospace;
+  pointer-events:none;
+}
+.input-prefix input{padding-left:28px;}
+
+/* ── GENERATE BTN ── */
+.gen-btn{
+  width:100%;padding:14px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border:none;color:#fff;
+  font-family:'Outfit',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;margin-bottom:20px;
+  box-shadow:0 4px 20px rgba(59,130,246,0.3);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,0.4);}
+.gen-btn:active{transform:translateY(0);}
+.gen-btn.loading{opacity:0.7;pointer-events:none;}
+
+/* ── METRIC CARDS ── */
+.metrics-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-bottom:16px;
+}
+
+.metric-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;padding:14px;
+  transition:border-color 0.2s;
+}
+.metric-card:hover{border-color:var(--border2);}
+.metric-label{
+  font-size:10px;font-weight:600;
+  color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.8px;margin-bottom:6px;
+}
+.metric-value{
+  font-family:'JetBrains Mono',monospace;
+  font-size:18px;font-weight:600;color:var(--text);
+  line-height:1;
+}
+.metric-value.green{color:var(--success);}
+.metric-value.blue{color:var(--accent);}
+.metric-value.yellow{color:var(--warning);}
+.metric-value.red{color:var(--danger);}
+
+.metric-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+
+/* ── SCORE BAR ── */
+.score-bar-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px;margin-bottom:16px;
+}
+.score-bar-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;
+}
+.score-bar-title{font-size:12px;font-weight:600;color:var(--text2);}
+.score-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:20px;font-weight:700;color:var(--success);
+}
+.score-bar-bg{
+  height:8px;background:var(--surface3);
+  border-radius:99px;overflow:hidden;
+}
+.score-bar-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--success),var(--accent));
+  width:0%;transition:width 0.8s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ── GROQ API MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(8px);
+  z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+
+.modal{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:20px;padding:28px;
+  max-width:440px;width:90%;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  transform:translateY(20px);transition:transform 0.3s;
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+
+.modal h3{font-size:18px;font-weight:700;margin-bottom:6px;}
+.modal p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;}
+
+.modal-input{
+  width:100%;padding:13px 16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  outline:none;margin-bottom:14px;
+  transition:border-color 0.2s;
+}
+.modal-input:focus{border-color:var(--accent);}
+
+.modal-note{
+  font-size:11px;color:var(--text3);
+  background:var(--surface3);border-radius:8px;
+  padding:10px 12px;margin-bottom:16px;
+  line-height:1.6;
+}
+
+.modal-btns{display:flex;gap:10px;}
+
+.modal-save{
+  flex:1;padding:12px;border-radius:10px;
+  background:var(--accent);border:none;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all 0.15s;
+}
+.modal-save:hover{background:#5b96f8;}
+
+.modal-cancel{
+  padding:12px 20px;border-radius:10px;
+  background:var(--surface3);border:1px solid var(--border);
+  color:var(--text2);font-family:'Outfit',sans-serif;
+  font-size:14px;cursor:pointer;transition:all 0.15s;
+}
+.modal-cancel:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── ALERT BOX ── */
+.alert-box{
+  background:rgba(245,158,11,0.08);
+  border:1px solid rgba(245,158,11,0.2);
+  border-radius:12px;padding:12px 14px;
+  margin-bottom:16px;
+  font-size:13px;color:var(--text2);
+  line-height:1.7;display:none;
+}
+.alert-box.show{display:block;}
+.alert-box .alert-item{
+  display:flex;gap:8px;align-items:flex-start;
+  margin-bottom:6px;
+}
+.alert-box .alert-item:last-child{margin-bottom:0;}
+.alert-item-icon{flex-shrink:0;margin-top:2px;}
+
+/* ── SIDEBAR FOOTER ── */
+.sidebar-footer{
+  display:flex;gap:8px;margin-top:16px;
+  flex-wrap:wrap;
+}
+.footer-btn{
+  flex:1;padding:10px;border-radius:10px;
+  font-family:'Outfit',sans-serif;font-size:12px;
+  font-weight:600;cursor:pointer;transition:all 0.15s;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text2);display:flex;align-items:center;
+  justify-content:center;gap:6px;
+}
+.footer-btn:hover{border-color:var(--accent);color:var(--accent);}
+.footer-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+
+/* ── MAIN CONTENT ── */
+.main{
+  padding:24px;
+  overflow-y:auto;
+  display:flex;flex-direction:column;gap:20px;
+}
+
+/* ── CARDS ── */
 .card{
-background:#09175f;
-border-radius:20px;
-padding:20px;
-box-shadow:0 0 20px rgba(0,0,0,0.4);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;padding:22px;
 }
 
-h1{
-font-size:40px;
-margin-bottom:10px;
-background:linear-gradient(to right,#38bdf8,#c084fc);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.card-title{
+  font-size:16px;font-weight:700;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.card-title .icon{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.icon.blue{background:var(--accent-soft);}
+.icon.green{background:var(--success-soft);}
+.icon.yellow{background:var(--warning-soft);}
+.icon.purple{background:rgba(139,92,246,0.12);}
+
+/* ── SUMMARY ROW ── */
+.summary-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
 }
 
-.sub{
-opacity:0.8;
-margin-bottom:20px;
+.summary-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  position:relative;overflow:hidden;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.summary-card:hover{transform:translateY(-2px);}
+
+.summary-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 100% 0%,var(--glow,rgba(59,130,246,0.06)),transparent);
+  pointer-events:none;
 }
 
-.hero{
-width:100%;
-height:220px;
-object-fit:cover;
-border-radius:20px;
-margin-bottom:15px;
+.summary-card.income{--glow:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.15);}
+.summary-card.expense{--glow:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.15);}
+.summary-card.savings{--glow:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.15);}
+.summary-card.ratio{--glow:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.15);}
+
+.summary-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;margin-bottom:12px;
+}
+.summary-card.income .summary-icon{background:var(--success-soft);}
+.summary-card.expense .summary-icon{background:var(--danger-soft);}
+.summary-card.savings .summary-icon{background:var(--accent-soft);}
+.summary-card.ratio .summary-icon{background:rgba(139,92,246,0.12);}
+
+.summary-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.summary-value{
+  font-family:'JetBrains Mono',monospace;
+  font-size:22px;font-weight:600;color:var(--text);
+  letter-spacing:-0.5px;margin-bottom:4px;
+}
+.summary-card.income .summary-value{color:var(--success);}
+.summary-card.expense .summary-value{color:var(--danger);}
+.summary-card.savings .summary-value{color:var(--accent);}
+.summary-card.ratio .summary-value{color:var(--accent3);}
+.summary-delta{font-size:11px;color:var(--text3);}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.chart-container{position:relative;height:260px;}
+
+/* ── BUDGET CATEGORIES ── */
+.categories-list{display:flex;flex-direction:column;gap:10px;}
+
+.cat-item{
+  display:grid;grid-template-columns:120px 1fr 80px;
+  align-items:center;gap:12px;
+}
+.cat-name{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--text2);
+}
+.cat-dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+}
+.cat-bar-bg{
+  height:8px;background:var(--surface3);
+  border-radius:99px;overflow:hidden;
+}
+.cat-bar-fill{
+  height:100%;border-radius:99px;
+  transition:width 0.6s cubic-bezier(.34,1.56,.64,1);
+}
+.cat-pct{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--text3);text-align:right;
+}
+.cat-amount{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text3);margin-top:2px;
 }
 
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:20px;
+/* ── AI INSIGHTS ── */
+.ai-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;padding:22px;
 }
 
-.badge{
-padding:8px 14px;
-border-radius:20px;
-background:#1e2a8a;
-font-size:12px;
+.ai-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
 }
 
-.input-group{
-margin-bottom:16px;
+.ai-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
 }
 
-label{
-display:block;
-margin-bottom:8px;
-font-size:14px;
-font-weight:500;
+.ask-groq-btn{
+  padding:8px 18px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border:none;color:#fff;
+  font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;
+  display:flex;align-items:center;gap:6px;
+  box-shadow:0 3px 12px rgba(59,130,246,0.25);
+}
+.ask-groq-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(59,130,246,0.35);}
+.ask-groq-btn:disabled{opacity:0.5;pointer-events:none;}
+
+.ai-cards{display:flex;flex-direction:column;gap:10px;}
+
+.ai-card{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:14px;
+  animation:fadeUp 0.4s ease both;
 }
 
-input,select{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-background:#071248;
-color:white;
-font-size:15px;
-outline:none;
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
 }
 
-button{
-border:none;
-cursor:pointer;
+.ai-card-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.ai-card-text{
+  font-size:13px;color:var(--text2);line-height:1.65;
+}
+.ai-card-text strong{color:var(--text);}
+
+.ai-typing{
+  display:flex;align-items:center;gap:8px;
+  color:var(--text3);font-size:13px;
+  padding:12px 0;
+}
+.typing-dots{
+  display:flex;gap:4px;
+}
+.typing-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  animation:bounce 1.2s infinite;
+}
+.typing-dot:nth-child(2){animation-delay:0.15s;}
+.typing-dot:nth-child(3){animation-delay:0.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* ── EXPENSE TRACKER ── */
+.expense-add-row{
+  display:grid;
+  grid-template-columns:1fr 140px 140px 140px auto;
+  gap:10px;align-items:end;margin-bottom:20px;
 }
 
-.primary-btn{
-width:100%;
-padding:16px;
-border-radius:14px;
-font-size:16px;
-font-weight:600;
-background:linear-gradient(to right,#38bdf8,#d946ef);
-color:white;
-margin-top:10px;
+.add-field label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--text3);letter-spacing:0.5px;
+  text-transform:uppercase;margin-bottom:6px;
+}
+.add-field input,.add-field select{
+  width:100%;padding:10px 12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:9px;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:13px;outline:none;
+  transition:border-color 0.2s;
+}
+.add-field input:focus,.add-field select:focus{border-color:var(--accent);}
+.add-field input::placeholder{color:var(--text3);}
+.add-field input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.5);opacity:0.5;}
+
+.add-btn{
+  padding:10px 18px;border-radius:9px;
+  background:var(--accent);border:none;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;
+  white-space:nowrap;transition:all 0.15s;
+  display:flex;align-items:center;gap:6px;
+  height:38px;
+}
+.add-btn:hover{background:#5b96f8;transform:translateY(-1px);}
+
+/* ── EXPENSE TABLE ── */
+.expense-table-wrap{
+  overflow-x:auto;
+  border-radius:12px;
+  border:1px solid var(--border);
 }
 
-.row{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
+table{width:100%;border-collapse:collapse;}
+
+thead tr{background:var(--surface2);}
+thead th{
+  padding:11px 16px;
+  font-size:11px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.8px;text-align:left;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
 }
 
-.metrics{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:20px;
+tbody tr{
+  border-bottom:1px solid var(--border);
+  transition:background 0.15s;
+}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(59,130,246,0.04);}
+
+tbody td{
+  padding:11px 16px;
+  font-size:13px;color:var(--text2);
 }
 
-.metric{
-background:#122075;
-padding:18px;
-border-radius:16px;
-text-align:center;
+.expense-amount{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;color:var(--danger);
 }
 
-.metric h3{
-font-size:14px;
-margin-bottom:10px;
-opacity:0.8;
+.cat-chip{
+  padding:3px 10px;border-radius:999px;
+  font-size:11px;font-weight:600;
+  display:inline-block;
 }
 
-.metric p{
-font-size:28px;
-font-weight:700;
-color:#4ade80;
+.del-btn{
+  width:28px;height:28px;border-radius:7px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text3);cursor:pointer;font-size:12px;
+  transition:all 0.15s;display:flex;align-items:center;justify-content:center;
+}
+.del-btn:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-soft);}
+
+.empty-state{
+  text-align:center;padding:40px;
+  color:var(--text3);font-size:14px;
+}
+.empty-state .empty-icon{font-size:32px;margin-bottom:10px;}
+
+/* ── GOALS TRACKER ── */
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+
+.goal-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:14px;padding:16px;
+  transition:border-color 0.2s;
+}
+.goal-card:hover{border-color:var(--border2);}
+
+.goal-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:10px;
+}
+.goal-name{font-size:13px;font-weight:700;color:var(--text);}
+.goal-pct{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;font-weight:700;
+}
+.goal-bar-bg{
+  height:5px;background:var(--surface3);
+  border-radius:99px;overflow:hidden;margin-bottom:8px;
+}
+.goal-bar-fill{
+  height:100%;border-radius:99px;
+  transition:width 0.8s cubic-bezier(.34,1.56,.64,1);
+}
+.goal-amounts{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text3);
+  display:flex;justify-content:space-between;
 }
 
-.chart-wrap{
-background:#122075;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--surface2);border:1px solid var(--accent);
+  color:var(--text);padding:12px 18px;border-radius:12px;
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:10px;
+  transform:translateY(80px);opacity:0;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+  z-index:9999;max-width:320px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
 }
+.toast.show{transform:translateY(0);opacity:1;}
 
-.table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
+/* ── SAVINGS GOALS INPUT ── */
+.goal-add-row{
+  display:flex;gap:10px;align-items:flex-end;
+  margin-bottom:16px;flex-wrap:wrap;
 }
-
-.table th{
-background:#2840d9;
-padding:12px;
-font-size:14px;
+.goal-add-row .add-field{flex:1;min-width:120px;}
+.goal-add-btn{
+  padding:10px 16px;border-radius:9px;
+  background:var(--success);border:none;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:700;cursor:pointer;
+  white-space:nowrap;height:38px;
+  display:flex;align-items:center;gap:5px;
+  transition:all 0.15s;
 }
+.goal-add-btn:hover{background:#34d399;}
 
-.table td{
-padding:12px;
-border-bottom:1px solid rgba(255,255,255,0.1);
-text-align:center;
-}
-
-.alert{
-margin-top:20px;
-padding:16px;
-border-radius:14px;
-background:#3b0820;
-}
-
-.history{
-margin-top:20px;
-max-height:300px;
-overflow:auto;
-}
-
-.action-btn{
-padding:12px;
-border-radius:12px;
-font-weight:600;
-}
-
-.red{
-background:#ef4444;
-color:white;
-}
-
-.blue{
-background:#2563eb;
-color:white;
-}
-
-.green{
-background:#16a34a;
-color:white;
-}
-
-.footer-buttons{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.progress{
-height:14px;
-background:#1e293b;
-border-radius:20px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progress-fill{
-height:100%;
-width:40%;
-background:linear-gradient(to right,#22c55e,#facc15,#ef4444);
-}
-
-.ai-box{
-margin-top:20px;
-padding:18px;
-background:#101f70;
-border-radius:18px;
-line-height:1.8;
-}
-
-.big-number{
-font-size:32px;
-font-weight:700;
-color:#4ade80;
-}
-
+/* ── RESPONSIVE ── */
 @media(max-width:1200px){
-.container{
-grid-template-columns:1fr;
+  .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}
+  .sidebar{position:relative;top:0;max-height:none;}
+  .summary-row{grid-template-columns:repeat(2,1fr);}
+  .charts-row{grid-template-columns:1fr;}
+  .expense-add-row{grid-template-columns:1fr 1fr;row-gap:10px;}
 }
-.metrics{
-grid-template-columns:repeat(2,1fr);
-}
-}
-
 @media(max-width:700px){
-.metrics{
-grid-template-columns:1fr;
-}
-.row{
-grid-template-columns:1fr;
-}
+  .summary-row{grid-template-columns:1fr 1fr;}
+  .expense-add-row{grid-template-columns:1fr;}
+  .topbar{padding:12px 16px;}
+  .main{padding:14px;}
 }
 
+/* Cat colors */
+.cat-food{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.cat-travel{background:rgba(59,130,246,0.15);color:#93c5fd;}
+.cat-shopping{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.cat-entertainment{background:rgba(139,92,246,0.15);color:#c4b5fd;}
+.cat-bills{background:rgba(6,182,212,0.15);color:#67e8f9;}
+.cat-health{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+.cat-education{background:rgba(251,146,60,0.15);color:#fdba74;}
+.cat-other{background:rgba(100,116,139,0.15);color:#94a3b8;}
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="app">
 
-<!-- LEFT PANEL -->
-<div class="card">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">💰</div>
+      <span class="brand-name">KJ<span>Synthora</span> · Expense AI</span>
+    </div>
+    <div class="topbar-right">
+      <div class="groq-badge" onclick="openApiModal()">
+        <div class="groq-dot"></div>
+        <span id="groqStatus">Groq AI · Set API Key</span>
+      </div>
+      <button class="icon-btn" onclick="exportCSV()" title="Export CSV">📥</button>
+      <button class="icon-btn" onclick="window.print()" title="Print">🖨</button>
+    </div>
+  </header>
 
-<h1>Smart Expense Planner AI</h1>
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
 
-<p class="sub">
-Advanced global AI financial planner with yearly tracking,
-AI alerts, OCR-ready expense system and smart analytics.
-</p>
+    <div class="section-title">Income & Profile</div>
 
-<img class="hero"
-src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200&auto=format&fit=crop">
+    <div class="field-row">
+      <div class="field">
+        <label>Country</label>
+        <select id="country" onchange="onCountryChange()">
+          <option value="IN">🇮🇳 India</option>
+          <option value="US">🇺🇸 United States</option>
+          <option value="AE">🇦🇪 UAE</option>
+          <option value="GB">🇬🇧 UK</option>
+          <option value="CA">🇨🇦 Canada</option>
+          <option value="AU">🇦🇺 Australia</option>
+          <option value="SG">🇸🇬 Singapore</option>
+          <option value="DE">🇩🇪 Germany</option>
+          <option value="JP">🇯🇵 Japan</option>
+          <option value="BR">🇧🇷 Brazil</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Currency</label>
+        <select id="currency">
+          <option value="₹">₹ INR</option>
+          <option value="$">$ USD</option>
+          <option value="AED">AED</option>
+          <option value="£">£ GBP</option>
+          <option value="CA$">CA$</option>
+          <option value="A$">A$</option>
+          <option value="S$">S$</option>
+          <option value="€">€ EUR</option>
+          <option value="¥">¥ JPY</option>
+          <option value="R$">R$ BRL</option>
+        </select>
+      </div>
+    </div>
 
-<div class="badges">
-<div class="badge">195+ Countries</div>
-<div class="badge">AI Budget Coach</div>
-<div class="badge">Yearly Analytics</div>
-<div class="badge">Multi Wallet</div>
-<div class="badge">OCR Ready</div>
-<div class="badge">Cloud Sync</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Monthly Salary</label>
+        <div class="input-prefix">
+          <span id="currPrefix">₹</span>
+          <input type="number" id="salary" value="120000" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Other Income</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="otherIncome" value="10000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Fixed Expenses</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>EMI / Loan</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="emi" value="25000" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>House Rent</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="rent" value="18000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Utilities</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="bills" value="5000" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Insurance</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="insurance" value="3000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Budget Limits</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Food Budget</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="foodBudget" value="12000" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Entertainment</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="entBudget" value="5000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Travel Budget</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="travelBudget" value="8000" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Savings Goal</label>
+        <div class="input-prefix">
+          <span class="currPfx">₹</span>
+          <input type="number" id="savingsGoal" value="30000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generatePlan()">
+      <span>🚀</span> Generate Financial Plan
+    </button>
+
+    <!-- METRICS -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total Income</div>
+        <div class="metric-value green" id="mIncome">₹0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Fixed Expenses</div>
+        <div class="metric-value red" id="mExpenses">₹0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Daily Budget</div>
+        <div class="metric-value blue" id="mDaily">₹0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Savings / Mo</div>
+        <div class="metric-value green" id="mSavings">₹0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Yearly Savings</div>
+        <div class="metric-value blue" id="mYearly">₹0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Emergency Fund</div>
+        <div class="metric-value yellow" id="mEmergency">0M</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Risk Level</div>
+        <div class="metric-value" id="mRisk">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Saving Rate</div>
+        <div class="metric-value" id="mRate">—</div>
+      </div>
+    </div>
+
+    <!-- SCORE BAR -->
+    <div class="score-bar-wrap">
+      <div class="score-bar-header">
+        <span class="score-bar-title">Financial Health Score</span>
+        <span class="score-val" id="scoreVal">—</span>
+      </div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" id="scoreBarFill"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px;" id="scoreTip"></div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- FOOTER BUTTONS -->
+    <div class="sidebar-footer">
+      <button class="footer-btn" onclick="exportCSV()">📥 Export</button>
+      <button class="footer-btn" onclick="window.print()">🖨 Print</button>
+      <button class="footer-btn danger" onclick="clearAll()">🗑 Reset</button>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- SUMMARY ROW -->
+    <div class="summary-row">
+      <div class="summary-card income">
+        <div class="summary-icon">💰</div>
+        <div class="summary-label">Monthly Income</div>
+        <div class="summary-value" id="sIncome">₹1,30,000</div>
+        <div class="summary-delta" id="sIncomeDelta">Salary + other</div>
+      </div>
+      <div class="summary-card expense">
+        <div class="summary-icon">💸</div>
+        <div class="summary-label">Total Expenses</div>
+        <div class="summary-value" id="sExpenses">₹0</div>
+        <div class="summary-delta" id="sExpensesDelta">Fixed + tracked</div>
+      </div>
+      <div class="summary-card savings">
+        <div class="summary-icon">🏦</div>
+        <div class="summary-label">Net Savings</div>
+        <div class="summary-value" id="sSavings">₹0</div>
+        <div class="summary-delta" id="sSavingsDelta">After all expenses</div>
+      </div>
+      <div class="summary-card ratio">
+        <div class="summary-icon">📊</div>
+        <div class="summary-label">Expense Ratio</div>
+        <div class="summary-value" id="sRatio">0%</div>
+        <div class="summary-delta" id="sRatioDelta">of total income</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon blue">🍩</div>
+            Expense Breakdown
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon green">📈</div>
+            12-Month Savings Forecast
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET CATEGORIES -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="icon yellow">🎯</div>
+          Budget vs Actual Spending
+        </div>
+      </div>
+      <div class="categories-list" id="categoriesList">
+        <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">Generate plan to see budget breakdown</div>
+      </div>
+    </div>
+
+    <!-- EXPENSE TRACKER -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="icon blue">🧾</div>
+          Expense Tracker
+        </div>
+        <span style="font-size:12px;color:var(--text3);" id="totalExpensesTracked">Total: ₹0</span>
+      </div>
+
+      <div class="expense-add-row">
+        <div class="add-field">
+          <label>Description</label>
+          <input type="text" id="expTitle" placeholder="e.g. Zomato dinner">
+        </div>
+        <div class="add-field">
+          <label>Amount</label>
+          <input type="number" id="expAmount" placeholder="500" min="0">
+        </div>
+        <div class="add-field">
+          <label>Category</label>
+          <select id="expCategory">
+            <option value="food">🍔 Food</option>
+            <option value="travel">✈️ Travel</option>
+            <option value="shopping">🛍 Shopping</option>
+            <option value="entertainment">🎬 Entertainment</option>
+            <option value="bills">⚡ Bills</option>
+            <option value="health">❤️ Health</option>
+            <option value="education">📚 Education</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="add-field">
+          <label>Date</label>
+          <input type="date" id="expDate">
+        </div>
+        <button class="add-btn" onclick="addExpense()">
+          ➕ Add
+        </button>
+      </div>
+
+      <div class="expense-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody">
+            <tr>
+              <td colspan="5">
+                <div class="empty-state">
+                  <div class="empty-icon">📭</div>
+                  No expenses yet. Add one above!
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SAVINGS GOALS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="icon green">🎯</div>
+          Savings Goals
+        </div>
+      </div>
+
+      <div class="goal-add-row">
+        <div class="add-field">
+          <label>Goal Name</label>
+          <input type="text" id="goalName" placeholder="e.g. New iPhone, Emergency Fund">
+        </div>
+        <div class="add-field">
+          <label>Target Amount</label>
+          <input type="number" id="goalTarget" placeholder="100000" min="0">
+        </div>
+        <div class="add-field">
+          <label>Saved So Far</label>
+          <input type="number" id="goalSaved" placeholder="25000" min="0">
+        </div>
+        <button class="goal-add-btn" onclick="addGoal()">
+          ➕ Add Goal
+        </button>
+      </div>
+
+      <div class="goals-grid" id="goalsGrid">
+        <div style="color:var(--text3);font-size:13px;grid-column:1/-1;padding:10px 0;">
+          Add savings goals to track your progress →
+        </div>
+      </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="card-title">
+          <div class="icon purple">🤖</div>
+          AI Financial Insights
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="ai-status" id="aiStatus">Powered by Groq</div>
+          <button class="ask-groq-btn" id="groqInsightBtn" onclick="askGroqInsights()">
+            ✨ Get AI Insights
+          </button>
+        </div>
+      </div>
+      <div class="ai-cards" id="aiCards">
+        <div class="ai-card">
+          <div class="ai-card-icon" style="background:var(--accent-soft);">💡</div>
+          <div class="ai-card-text">
+            Set your <strong>Groq API key</strong> (free at console.groq.com) then click <strong>"Get AI Insights"</strong> for personalized financial advice powered by Llama 3.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div><!-- /app -->
+
+<!-- GROQ API MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h3>🔑 Groq API Key</h3>
+    <p>Enter your free Groq API key to enable AI-powered financial insights. Your key stays in your browser only.</p>
+    <input type="password" class="modal-input" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx">
+    <div class="modal-note">
+      ✅ 100% Free · Get your key at <strong>console.groq.com</strong><br>
+      🔒 Stored locally in your browser · Never sent to our servers<br>
+      ⚡ Uses Llama-3.1-8b-instant (ultra fast & free)
+    </div>
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveApiKey()">💾 Save Key</button>
+      <button class="modal-cancel" onclick="closeApiModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<div class="row">
-
-<div class="input-group">
-<label>Country</label>
-<select id="country">
-<option>India</option>
-<option>United States</option>
-<option>UAE</option>
-<option>UK</option>
-<option>Canada</option>
-<option>Australia</option>
-<option>Singapore</option>
-<option>Germany</option>
-<option>France</option>
-<option>Japan</option>
-</select>
-</div>
-
-<div class="input-group">
-<label>Currency</label>
-<select id="currency">
-<option value="₹">INR ₹</option>
-<option value="$">USD $</option>
-<option value="€">EUR €</option>
-<option value="AED">AED</option>
-<option value="£">GBP £</option>
-</select>
-</div>
-
-</div>
-
-<div class="row">
-
-<div class="input-group">
-<label>Monthly Salary</label>
-<input type="number" id="salary" value="120000">
-</div>
-
-<div class="input-group">
-<label>Other Income</label>
-<input type="number" id="income" value="10000">
-</div>
-
-</div>
-
-<div class="row">
-
-<div class="input-group">
-<label>Monthly EMI</label>
-<input type="number" id="emi" value="25000">
-</div>
-
-<div class="input-group">
-<label>House Rent</label>
-<input type="number" id="rent" value="18000">
-</div>
-
-</div>
-
-<div class="row">
-
-<div class="input-group">
-<label>Utility Bills</label>
-<input type="number" id="bills" value="5000">
-</div>
-
-<div class="input-group">
-<label>Savings Goal</label>
-<input type="number" id="goal" value="30000">
-</div>
-
-</div>
-
-<div class="row">
-
-<div class="input-group">
-<label>Food Budget</label>
-<input type="number" id="foodBudget" value="12000">
-</div>
-
-<div class="input-group">
-<label>Entertainment Budget</label>
-<input type="number" id="entBudget" value="8000">
-</div>
-
-</div>
-
-<button class="primary-btn" onclick="generatePlan()">
-🚀 Generate Smart Financial Plan
-</button>
-
-<div class="metrics">
-
-<div class="metric">
-<h3>Total Income</h3>
-<p id="totalIncome">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Total Expenses</h3>
-<p id="expenses">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Safe Budget</h3>
-<p id="safeBudget">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Expected Savings</h3>
-<p id="savings">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Financial Score</h3>
-<p id="score">0</p>
-</div>
-
-<div class="metric">
-<h3>Yearly Projection</h3>
-<p id="yearly">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Emergency Fund</h3>
-<p id="emergency">0M</p>
-</div>
-
-<div class="metric">
-<h3>Risk Level</h3>
-<p id="risk">LOW</p>
-</div>
-
-</div>
-
-<div class="alert" id="alerts">
-AI alerts will appear here...
-</div>
-
-<div class="progress">
-<div class="progress-fill" id="progressFill"></div>
-</div>
-
-<div class="ai-box">
-
-<h3>🤖 AI Financial Coach</h3>
-
-<p id="coach">
-Your financial AI insights will appear here.
-</p>
-
-</div>
-
-<div class="footer-buttons">
-
-<button class="action-btn blue"
-onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-<button class="action-btn green" onclick="window.print()">
-🖨 Print
-</button>
-
-<button class="action-btn red" onclick="clearAll()">
-🗑 Clear
-</button>
-
-</div>
-
-</div>
-
-<!-- RIGHT PANEL -->
-<div>
-
-<div class="chart-wrap">
-
-<h2>📊 Expense Analytics</h2>
-
-<canvas id="expenseChart"></canvas>
-
-</div>
-
-<div class="chart-wrap">
-
-<h2>📈 Yearly Forecast</h2>
-
-<canvas id="yearChart"></canvas>
-
-</div>
-
-<div class="chart-wrap">
-
-<h2>🧾 Expense Entries</h2>
-
-<div class="row">
-
-<input type="text" id="title" placeholder="Expense Title">
-
-<input type="number" id="amount" placeholder="Amount">
-
-</div>
-
-<br>
-
-<div class="row">
-
-<select id="category">
-<option>Food</option>
-<option>Travel</option>
-<option>Shopping</option>
-<option>Entertainment</option>
-<option>Bills</option>
-<option>Health</option>
-<option>Education</option>
-</select>
-
-<input type="date" id="date">
-
-</div>
-
-<button class="primary-btn" onclick="addExpense()">
-➕ Add Expense
-</button>
-
-<div class="history">
-
-<table class="table">
-
-<thead>
-<tr>
-<th>Title</th>
-<th>Amount</th>
-<th>Category</th>
-<th>Date</th>
-<th>Delete</th>
-</tr>
-</thead>
-
-<tbody id="expenseTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
 let expenses = [];
+let goals = [];
+let donutChart, lineChart;
+let planData = null;
 
-let expenseChart;
-let yearChart;
+const CURRENCY_MAP = {
+  IN:'₹', US:'$', AE:'AED ', GB:'£',
+  CA:'CA$', AU:'A$', SG:'S$', DE:'€', JP:'¥', BR:'R$'
+};
 
-function formatMoney(value){
+const CAT_COLORS = {
+  food:'#ef4444', travel:'#3b82f6', shopping:'#f59e0b',
+  entertainment:'#8b5cf6', bills:'#06b6d4', health:'#10b981',
+  education:'#fb923c', other:'#64748b'
+};
 
-const symbol =
-document.getElementById("currency").value;
+const CAT_LABELS = {
+  food:'🍔 Food', travel:'✈️ Travel', shopping:'🛍 Shopping',
+  entertainment:'🎬 Entertainment', bills:'⚡ Bills',
+  health:'❤️ Health', education:'📚 Education', other:'📦 Other'
+};
 
-return symbol + Number(value).toLocaleString('en-IN');
-
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function fmt(v){
+  const sym = document.getElementById('currency').value;
+  const n = parseFloat(v)||0;
+  return sym + n.toLocaleString('en-IN',{maximumFractionDigits:0});
 }
 
+function showToast(msg,type='info'){
+  const t = document.getElementById('toast');
+  const colors = {info:'var(--accent)',success:'var(--success)',error:'var(--danger)',warn:'var(--warning)'};
+  t.style.borderColor = colors[type]||colors.info;
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function getVal(id){return parseFloat(document.getElementById(id).value)||0;}
+
+function onCountryChange(){
+  const code = document.getElementById('country').value;
+  const sym = CURRENCY_MAP[code]||'₹';
+  document.getElementById('currency').value = sym.trim();
+  document.querySelectorAll('.currPfx, #currPrefix').forEach(el=>el.textContent=sym);
+}
+
+// Init date
+(function(){
+  const d = new Date();
+  const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('expDate').value = s;
+})();
+
+// ══════════════════════════════════════════
+// GENERATE PLAN
+// ══════════════════════════════════════════
 function generatePlan(){
+  const salary = getVal('salary');
+  const otherIncome = getVal('otherIncome');
+  const emi = getVal('emi');
+  const rent = getVal('rent');
+  const bills = getVal('bills');
+  const insurance = getVal('insurance');
+  const foodBudget = getVal('foodBudget');
+  const entBudget = getVal('entBudget');
+  const travelBudget = getVal('travelBudget');
+  const savingsGoalTarget = getVal('savingsGoal');
 
-const salary =
-+document.getElementById("salary").value;
+  const totalIncome = salary + otherIncome;
+  const fixedExpenses = emi + rent + bills + insurance;
+  const variableBudget = foodBudget + entBudget + travelBudget;
+  const totalTrackedExpenses = expenses.reduce((a,e)=>a+parseFloat(e.amount),0);
+  const totalExpenses = fixedExpenses + variableBudget;
+  const savings = totalIncome - fixedExpenses - totalTrackedExpenses;
+  const daily = Math.round((totalIncome - fixedExpenses) / 30);
+  const yearly = savings * 12;
+  const emiRatio = totalIncome > 0 ? emi / totalIncome : 0;
+  const savingsRate = totalIncome > 0 ? savings / totalIncome : 0;
+  const emergencyMonths = fixedExpenses > 0 ? (savings / fixedExpenses) : 0;
+  const expenseRatio = totalIncome > 0 ? (fixedExpenses + totalTrackedExpenses) / totalIncome : 0;
 
-const income =
-+document.getElementById("income").value;
+  // Score
+  let score = 100;
+  if(emiRatio > 0.5) score -= 25;
+  else if(emiRatio > 0.35) score -= 15;
+  else if(emiRatio > 0.2) score -= 5;
+  if(savingsRate < 0.1) score -= 20;
+  else if(savingsRate < 0.2) score -= 10;
+  if(savings < savingsGoalTarget) score -= 10;
+  if(emergencyMonths < 3) score -= 10;
+  score = Math.max(0, Math.min(100, score));
 
-const emi =
-+document.getElementById("emi").value;
+  let risk = 'LOW'; let riskColor = 'green';
+  if(score < 70){ risk='MEDIUM'; riskColor='yellow'; }
+  if(score < 50){ risk='HIGH'; riskColor='red'; }
 
-const rent =
-+document.getElementById("rent").value;
+  planData = {
+    totalIncome, fixedExpenses, variableBudget,
+    totalTrackedExpenses, savings, daily, yearly,
+    emiRatio, savingsRate, emergencyMonths, expenseRatio,
+    score, risk, emi, rent, bills, insurance,
+    foodBudget, entBudget, travelBudget,
+    salary, otherIncome, savingsGoalTarget
+  };
 
-const bills =
-+document.getElementById("bills").value;
+  // Update sidebar metrics
+  document.getElementById('mIncome').textContent = fmt(totalIncome);
+  document.getElementById('mExpenses').textContent = fmt(fixedExpenses);
+  document.getElementById('mDaily').textContent = fmt(daily);
+  document.getElementById('mSavings').textContent = fmt(savings);
+  document.getElementById('mYearly').textContent = fmt(yearly);
+  document.getElementById('mEmergency').textContent = emergencyMonths.toFixed(1)+'M';
+  const riskEl = document.getElementById('mRisk');
+  riskEl.textContent = risk;
+  riskEl.className = 'metric-value '+riskColor;
+  document.getElementById('mRate').textContent = Math.round(savingsRate*100)+'%';
 
-const goal =
-+document.getElementById("goal").value;
+  // Score bar
+  document.getElementById('scoreVal').textContent = score+'/100';
+  document.getElementById('scoreBarFill').style.width = score+'%';
+  const tips = score>=80?'Excellent financial health! 🎉':score>=65?'Good, room to improve 💪':score>=50?'Needs attention ⚠️':'Critical — take action now 🚨';
+  document.getElementById('scoreTip').textContent = tips;
 
-const totalIncome = salary + income;
+  // Summary cards
+  document.getElementById('sIncome').textContent = fmt(totalIncome);
+  document.getElementById('sIncomeDelta').textContent = fmt(salary)+' salary + '+fmt(otherIncome)+' other';
+  document.getElementById('sExpenses').textContent = fmt(fixedExpenses + totalTrackedExpenses);
+  document.getElementById('sExpensesDelta').textContent = fmt(fixedExpenses)+' fixed + '+fmt(totalTrackedExpenses)+' tracked';
+  document.getElementById('sSavings').textContent = fmt(savings);
+  document.getElementById('sSavingsDelta').textContent = savings >= savingsGoalTarget ? '✅ Goal achieved!' : fmt(savingsGoalTarget - savings)+' away from goal';
+  document.getElementById('sRatio').textContent = Math.round(expenseRatio*100)+'%';
+  document.getElementById('sRatioDelta').textContent = expenseRatio > 0.7 ? '⚠️ Too high (>70%)' : expenseRatio > 0.5 ? '⚡ Moderate' : '✅ Healthy';
 
-const totalExpenses =
-emi + rent + bills;
+  // Alerts
+  const alerts = [];
+  if(emiRatio > 0.5) alerts.push({icon:'🚨',text:`EMI is <strong>${Math.round(emiRatio*100)}%</strong> of salary — critically high. Try to reduce debt.`});
+  else if(emiRatio > 0.35) alerts.push({icon:'⚠️',text:`EMI is <strong>${Math.round(emiRatio*100)}%</strong> of income. Ideal is below 35%.`});
+  if(savings < savingsGoalTarget) alerts.push({icon:'🎯',text:`You're <strong>${fmt(savingsGoalTarget - savings)}</strong> short of your monthly savings goal.`});
+  if(emergencyMonths < 3) alerts.push({icon:'🛡',text:`Emergency fund covers only <strong>${emergencyMonths.toFixed(1)} months</strong>. Build to 6 months.`});
+  if(savingsRate < 0.2) alerts.push({icon:'💰',text:`Saving only <strong>${Math.round(savingsRate*100)}%</strong> of income. Target at least 20%.`});
+  if(!alerts.length) alerts.push({icon:'🎉',text:'<strong>Great job!</strong> Your finances look healthy. Keep up the good work!'});
 
-const savings =
-totalIncome - totalExpenses;
+  const alertBox = document.getElementById('alertBox');
+  alertBox.innerHTML = alerts.map(a=>`<div class="alert-item"><span class="alert-item-icon">${a.icon}</span><span>${a.text}</span></div>`).join('');
+  alertBox.classList.add('show');
 
-const safeBudget =
-Math.round(savings / 30);
+  // Categories
+  renderCategories();
 
-const yearly =
-savings * 12;
+  // Charts
+  renderCharts();
 
-const emergency =
-(savings / totalExpenses * 6).toFixed(1);
-
-let score = 80;
-
-if(emi > salary * 0.5) score -= 20;
-if(savings < goal) score -= 10;
-
-let risk = "LOW";
-
-if(score < 70) risk = "MEDIUM";
-if(score < 50) risk = "HIGH";
-
-document.getElementById("totalIncome").innerHTML =
-formatMoney(totalIncome);
-
-document.getElementById("expenses").innerHTML =
-formatMoney(totalExpenses);
-
-document.getElementById("safeBudget").innerHTML =
-formatMoney(safeBudget);
-
-document.getElementById("savings").innerHTML =
-formatMoney(savings);
-
-document.getElementById("yearly").innerHTML =
-formatMoney(yearly);
-
-document.getElementById("score").innerHTML =
-score + "/100";
-
-document.getElementById("risk").innerHTML =
-risk;
-
-document.getElementById("emergency").innerHTML =
-emergency + "M";
-
-document.getElementById("progressFill").style.width =
-score + "%";
-
-document.getElementById("alerts").innerHTML =
-`
-⚠️ EMI burden is ${Math.round((emi/salary)*100)}% of salary.<br>
-📈 You can safely spend ${formatMoney(safeBudget)} daily.<br>
-💰 Estimated yearly savings:
-${formatMoney(yearly)}
-`;
-
-document.getElementById("coach").innerHTML =
-`
-✅ Your savings trend looks healthy.<br>
-⚠️ Reduce unnecessary food delivery spending.<br>
-📊 Emergency reserve coverage:
-${emergency} months.<br>
-🚀 You are on track toward your savings goal.
-`;
-
-renderCharts(totalExpenses,savings,bills,emi,rent);
-
+  showToast('✅ Financial plan generated!','success');
 }
 
-function renderCharts(expenses,savings,bills,emi,rent){
+// ══════════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════════
+function renderCategories(){
+  if(!planData) return;
+  const {foodBudget, entBudget, travelBudget} = planData;
 
-const ctx =
-document.getElementById("expenseChart");
+  // Actual spend by category
+  const catSpend = {};
+  expenses.forEach(e=>{
+    catSpend[e.category] = (catSpend[e.category]||0) + parseFloat(e.amount);
+  });
 
-if(expenseChart) expenseChart.destroy();
+  const cats = [
+    {key:'food',budget:foodBudget,label:'🍔 Food'},
+    {key:'entertainment',budget:entBudget,label:'🎬 Entertainment'},
+    {key:'travel',budget:travelBudget,label:'✈️ Travel'},
+    {key:'health',budget:5000,label:'❤️ Health'},
+    {key:'education',budget:3000,label:'📚 Education'},
+    {key:'shopping',budget:5000,label:'🛍 Shopping'},
+  ];
 
-expenseChart = new Chart(ctx,{
-
-type:'doughnut',
-
-data:{
-labels:[
-'EMI',
-'Rent',
-'Bills',
-'Savings'
-],
-
-datasets:[{
-data:[
-emi,
-rent,
-bills,
-savings
-],
-backgroundColor:[
-'#ef4444',
-'#f59e0b',
-'#3b82f6',
-'#22c55e'
-]
-}]
+  const list = document.getElementById('categoriesList');
+  list.innerHTML = cats.map(c=>{
+    const spent = catSpend[c.key]||0;
+    const pct = c.budget > 0 ? Math.min(100, (spent/c.budget)*100) : 0;
+    const overBudget = spent > c.budget;
+    const color = overBudget ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--success)';
+    return `<div class="cat-item">
+      <div class="cat-name">
+        <div class="cat-dot" style="background:${CAT_COLORS[c.key]};"></div>
+        ${c.label}
+      </div>
+      <div>
+        <div class="cat-bar-bg">
+          <div class="cat-bar-fill" style="width:${pct}%;background:${color};"></div>
+        </div>
+        <div class="cat-amount">${fmt(spent)} / ${fmt(c.budget)}</div>
+      </div>
+      <div class="cat-pct" style="color:${color};">${Math.round(pct)}%</div>
+    </div>`;
+  }).join('');
 }
 
-});
+// ══════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════
+function renderCharts(){
+  if(!planData) return;
+  const {emi, rent, bills, insurance, foodBudget, entBudget, travelBudget, savings} = planData;
 
-const yearCtx =
-document.getElementById("yearChart");
+  // Donut
+  if(donutChart) donutChart.destroy();
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  donutChart = new Chart(donutCtx, {
+    type:'doughnut',
+    data:{
+      labels:['EMI/Loan','Rent','Utilities','Insurance','Food Budget','Entertainment','Travel','Savings'],
+      datasets:[{
+        data:[emi,rent,bills,insurance,foodBudget,entBudget,travelBudget,Math.max(0,savings)],
+        backgroundColor:['#ef4444','#f59e0b','#06b6d4','#8b5cf6','#10b981','#3b82f6','#fb923c','#22d3ee'],
+        borderWidth:0,
+        hoverBorderWidth:3,
+        hoverBorderColor:'rgba(255,255,255,0.3)',
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{
+        legend:{
+          position:'right',
+          labels:{color:'#7a90b8',font:{size:11,family:'Outfit'},padding:10,boxWidth:10}
+        },
+        tooltip:{
+          callbacks:{
+            label:(ctx)=>{
+              const val = ctx.parsed;
+              const sym = document.getElementById('currency').value;
+              return ` ${sym}${val.toLocaleString('en-IN')}`;
+            }
+          }
+        }
+      }
+    }
+  });
 
-if(yearChart) yearChart.destroy();
+  // Line chart - forecast
+  if(lineChart) lineChart.destroy();
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  const baseSavings = Math.max(0, savings);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const forecastData = months.map((_,i)=>{
+    const growth = 1 + (i * 0.005);
+    return Math.round(baseSavings * (i+1) * growth);
+  });
+  const goalLine = Array(12).fill(planData.savingsGoalTarget * 12);
 
-yearChart = new Chart(yearCtx,{
-
-type:'line',
-
-data:{
-labels:[
-'Jan','Feb','Mar','Apr',
-'May','Jun','Jul','Aug',
-'Sep','Oct','Nov','Dec'
-],
-
-datasets:[{
-label:'Projected Savings',
-data:[
-5000,7000,8000,12000,
-15000,18000,20000,
-22000,25000,27000,
-30000,35000
-],
-borderColor:'#38bdf8',
-backgroundColor:'rgba(56,189,248,0.2)',
-fill:true
-}]
+  lineChart = new Chart(lineCtx, {
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[
+        {
+          label:'Projected Savings',
+          data:forecastData,
+          borderColor:'#3b82f6',
+          backgroundColor:'rgba(59,130,246,0.08)',
+          fill:true,
+          tension:0.4,
+          pointBackgroundColor:'#3b82f6',
+          pointRadius:3,
+          pointHoverRadius:6,
+        },
+        {
+          label:'Annual Goal',
+          data:goalLine,
+          borderColor:'rgba(16,185,129,0.5)',
+          borderDash:[5,5],
+          backgroundColor:'transparent',
+          fill:false,
+          pointRadius:0,
+          tension:0,
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          labels:{color:'#7a90b8',font:{size:11,family:'Outfit'},padding:12,boxWidth:12}
+        },
+        tooltip:{
+          callbacks:{
+            label:(ctx)=>{
+              const sym = document.getElementById('currency').value;
+              return ` ${ctx.dataset.label}: ${sym}${ctx.parsed.y.toLocaleString('en-IN')}`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(255,255,255,0.04)'},
+          ticks:{color:'#4a5472',font:{size:11}}
+        },
+        y:{
+          grid:{color:'rgba(255,255,255,0.04)'},
+          ticks:{
+            color:'#4a5472',font:{size:11},
+            callback:v=>{
+              const sym = document.getElementById('currency').value;
+              return sym+(v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(0)+'K':v);
+            }
+          }
+        }
+      }
+    }
+  });
 }
 
-});
-
-}
-
+// ══════════════════════════════════════════
+// EXPENSE TRACKER
+// ══════════════════════════════════════════
 function addExpense(){
+  const title = document.getElementById('expTitle').value.trim();
+  const amount = parseFloat(document.getElementById('expAmount').value);
+  const category = document.getElementById('expCategory').value;
+  const date = document.getElementById('expDate').value;
 
-const title =
-document.getElementById("title").value;
+  if(!title || !amount || amount <= 0){
+    showToast('⚠️ Enter a valid title and amount','warn');return;
+  }
 
-const amount =
-document.getElementById("amount").value;
-
-const category =
-document.getElementById("category").value;
-
-const date =
-document.getElementById("date").value;
-
-if(!title || !amount) return;
-
-expenses.push({
-title,
-amount,
-category,
-date
-});
-
-renderExpenses();
-
+  expenses.push({id:Date.now(), title, amount, category, date});
+  document.getElementById('expTitle').value = '';
+  document.getElementById('expAmount').value = '';
+  renderExpenses();
+  if(planData) generatePlan();
+  showToast('✅ Expense added!','success');
 }
 
 function renderExpenses(){
+  const tbody = document.getElementById('expenseTableBody');
+  const total = expenses.reduce((a,e)=>a+parseFloat(e.amount),0);
+  document.getElementById('totalExpensesTracked').textContent = 'Total: '+fmt(total);
 
-const table =
-document.getElementById("expenseTable");
+  if(!expenses.length){
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div>No expenses yet. Add one above!</div></td></tr>`;
+    return;
+  }
 
-table.innerHTML = "";
-
-expenses.forEach((e,index)=>{
-
-table.innerHTML += `
-<tr>
-<td>${e.title}</td>
-<td>${formatMoney(e.amount)}</td>
-<td>${e.category}</td>
-<td>${e.date}</td>
-<td>
-<button onclick="deleteExpense(${index})">
-❌
-</button>
-</td>
-</tr>
-`;
-
-});
-
+  tbody.innerHTML = [...expenses].reverse().map((e,ri)=>{
+    const idx = expenses.length - 1 - ri;
+    const catClass = 'cat-'+e.category;
+    return `<tr>
+      <td style="font-weight:600;color:var(--text);">${e.title}</td>
+      <td><span class="expense-amount">-${fmt(e.amount)}</span></td>
+      <td><span class="cat-chip ${catClass}">${CAT_LABELS[e.category]||e.category}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${e.date||'—'}</td>
+      <td><button class="del-btn" onclick="deleteExpense(${idx})" title="Delete">✕</button></td>
+    </tr>`;
+  }).join('');
 }
 
-function deleteExpense(index){
-
-expenses.splice(index,1);
-
-renderExpenses();
-
+function deleteExpense(idx){
+  expenses.splice(idx, 1);
+  renderExpenses();
+  if(planData) generatePlan();
+  showToast('🗑 Expense removed','info');
 }
 
+// ══════════════════════════════════════════
+// SAVINGS GOALS
+// ══════════════════════════════════════════
+function addGoal(){
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const saved = parseFloat(document.getElementById('goalSaved').value)||0;
+
+  if(!name || !target || target <= 0){
+    showToast('⚠️ Enter goal name and target','warn');return;
+  }
+
+  goals.push({id:Date.now(), name, target, saved});
+  document.getElementById('goalName').value='';
+  document.getElementById('goalTarget').value='';
+  document.getElementById('goalSaved').value='';
+  renderGoals();
+  showToast('🎯 Goal added!','success');
+}
+
+function renderGoals(){
+  const grid = document.getElementById('goalsGrid');
+  if(!goals.length){
+    grid.innerHTML='<div style="color:var(--text3);font-size:13px;grid-column:1/-1;padding:10px 0;">Add savings goals to track your progress →</div>';
+    return;
+  }
+
+  const GOAL_COLORS = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4'];
+
+  grid.innerHTML = goals.map((g,i)=>{
+    const pct = Math.min(100, (g.saved/g.target)*100);
+    const color = GOAL_COLORS[i%GOAL_COLORS.length];
+    const pctColor = pct>=100?'var(--success)':pct>=70?'var(--accent)':'var(--text2)';
+    return `<div class="goal-card">
+      <div class="goal-header">
+        <div class="goal-name">${g.name}</div>
+        <div class="goal-pct" style="color:${pctColor};">${Math.round(pct)}%</div>
+      </div>
+      <div class="goal-bar-bg">
+        <div class="goal-bar-fill" style="width:${pct}%;background:${color};"></div>
+      </div>
+      <div class="goal-amounts">
+        <span>${fmt(g.saved)} saved</span>
+        <span>${fmt(g.target)} target</span>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:var(--text3);">${pct<100?fmt(g.target-g.saved)+' to go':'🎉 Goal reached!'}</span>
+        <button class="del-btn" onclick="deleteGoal(${i})" title="Delete">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteGoal(i){
+  goals.splice(i,1);
+  renderGoals();
+}
+
+// ══════════════════════════════════════════
+// GROQ AI INSIGHTS
+// ══════════════════════════════════════════
+function openApiModal(){
+  const saved = localStorage.getItem('groq_key')||'';
+  document.getElementById('apiKeyInput').value = saved;
+  document.getElementById('apiModal').classList.add('open');
+}
+
+function closeApiModal(){
+  document.getElementById('apiModal').classList.remove('open');
+}
+
+function saveApiKey(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('gsk_')){
+    showToast('⚠️ Key must start with gsk_','warn');return;
+  }
+  localStorage.setItem('groq_key', key);
+  document.getElementById('groqStatus').textContent = 'Groq AI · Connected ✓';
+  closeApiModal();
+  showToast('✅ Groq API key saved!','success');
+}
+
+async function askGroqInsights(){
+  const key = localStorage.getItem('groq_key');
+  if(!key){openApiModal();return;}
+
+  if(!planData){
+    showToast('⚠️ Generate a plan first!','warn');return;
+  }
+
+  const btn = document.getElementById('groqInsightBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Analyzing...';
+
+  const aiCards = document.getElementById('aiCards');
+  aiCards.innerHTML = `<div class="ai-typing">
+    <div class="typing-dots">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+    Groq AI is analyzing your finances...
+  </div>`;
+
+  document.getElementById('aiStatus').textContent = 'Fetching insights...';
+
+  const sym = document.getElementById('currency').value;
+  const {totalIncome, fixedExpenses, savings, emiRatio, savingsRate, emergencyMonths, score, risk,
+         salary, emi, rent, bills, insurance, foodBudget, entBudget, travelBudget} = planData;
+  const trackedTotal = expenses.reduce((a,e)=>a+parseFloat(e.amount),0);
+
+  const prompt = `You are a professional financial advisor. Analyze this person's finances and give exactly 5 specific, actionable insights.
+
+FINANCIAL DATA:
+- Monthly Salary: ${sym}${salary.toLocaleString()}
+- Total Income: ${sym}${totalIncome.toLocaleString()}
+- EMI/Loan: ${sym}${emi.toLocaleString()} (${Math.round(emiRatio*100)}% of salary)
+- Rent: ${sym}${rent.toLocaleString()}
+- Utilities: ${sym}${bills.toLocaleString()}
+- Insurance: ${sym}${insurance.toLocaleString()}
+- Food Budget: ${sym}${foodBudget.toLocaleString()}
+- Entertainment Budget: ${sym}${entBudget.toLocaleString()}
+- Travel Budget: ${sym}${travelBudget.toLocaleString()}
+- Net Monthly Savings: ${sym}${savings.toLocaleString()} (${Math.round(savingsRate*100)}%)
+- Total Tracked Expenses: ${sym}${trackedTotal.toLocaleString()}
+- Emergency Fund Coverage: ${emergencyMonths.toFixed(1)} months
+- Financial Health Score: ${score}/100
+- Risk Level: ${risk}
+- Savings Goals: ${goals.map(g=>g.name+' ('+Math.round(g.saved/g.target*100)+'%)').join(', ')||'None set'}
+
+Give exactly 5 insights in this JSON format (respond ONLY with valid JSON, no markdown):
+{"insights":[{"icon":"emoji","type":"tip|warning|success|info","title":"Short title","text":"Specific actionable advice in 1-2 sentences"}]}`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer '+key,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        model:'llama-3.1-8b-instant',
+        messages:[{role:'user',content:prompt}],
+        max_tokens:800,
+        temperature:0.7
+      })
+    });
+
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.error?.message||'API error '+res.status);
+    }
+
+    const data = await res.json();
+    const raw = data.choices[0].message.content.trim();
+
+    // Parse JSON
+    const cleaned = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(cleaned);
+
+    const TYPE_STYLES = {
+      tip:{bg:'var(--accent-soft)',color:'var(--accent)'},
+      warning:{bg:'var(--warning-soft)',color:'var(--warning)'},
+      success:{bg:'var(--success-soft)',color:'var(--success)'},
+      info:{bg:'rgba(139,92,246,0.1)',color:'var(--accent3)'},
+    };
+
+    aiCards.innerHTML = parsed.insights.map((ins,i)=>{
+      const st = TYPE_STYLES[ins.type]||TYPE_STYLES.info;
+      return `<div class="ai-card" style="animation-delay:${i*0.08}s;">
+        <div class="ai-card-icon" style="background:${st.bg};color:${st.color};font-size:16px;">${ins.icon}</div>
+        <div class="ai-card-text">
+          <strong>${ins.title}:</strong> ${ins.text}
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('aiStatus').textContent = 'Updated just now · Groq Llama-3.1';
+    showToast('✨ AI insights ready!','success');
+
+  } catch(e) {
+    aiCards.innerHTML = `<div class="ai-card">
+      <div class="ai-card-icon" style="background:var(--danger-soft);">❌</div>
+      <div class="ai-card-text"><strong>Error:</strong> ${e.message}. Check your API key.</div>
+    </div>`;
+    showToast('❌ '+e.message,'error');
+    document.getElementById('aiStatus').textContent = 'Error · Check API key';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✨ Get AI Insights';
+}
+
+// ══════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV(){
+  if(!expenses.length && !planData){
+    showToast('⚠️ No data to export','warn');return;
+  }
+
+  let csv = 'KJSynthora Smart Expense Planner Export\n\n';
+
+  if(planData){
+    const sym = document.getElementById('currency').value;
+    csv += 'FINANCIAL SUMMARY\n';
+    csv += `Total Income,${sym}${planData.totalIncome}\n`;
+    csv += `Fixed Expenses,${sym}${planData.fixedExpenses}\n`;
+    csv += `Net Savings,${sym}${planData.savings}\n`;
+    csv += `Financial Score,${planData.score}/100\n`;
+    csv += `Risk Level,${planData.risk}\n\n`;
+  }
+
+  if(expenses.length){
+    csv += 'EXPENSE ENTRIES\n';
+    csv += 'Title,Amount,Category,Date\n';
+    expenses.forEach(e=>{
+      csv += `"${e.title}",${e.amount},${CAT_LABELS[e.category]||e.category},${e.date}\n`;
+    });
+  }
+
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kjsynthora-expense-report.csv';
+  a.click();
+  showToast('📥 CSV exported!','success');
+}
+
+// ══════════════════════════════════════════
+// CLEAR ALL
+// ══════════════════════════════════════════
 function clearAll(){
-
-location.reload();
-
+  if(!confirm('Reset everything?')) return;
+  expenses=[];goals=[];planData=null;
+  renderExpenses();renderGoals();
+  if(donutChart){donutChart.destroy();donutChart=null;}
+  if(lineChart){lineChart.destroy();lineChart=null;}
+  document.getElementById('alertBox').classList.remove('show');
+  document.getElementById('categoriesList').innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">Generate plan to see budget breakdown</div>';
+  ['mIncome','mExpenses','mDaily','mSavings','mYearly'].forEach(id=>document.getElementById(id).textContent='₹0');
+  document.getElementById('mEmergency').textContent='0M';
+  document.getElementById('mRisk').textContent='—';
+  document.getElementById('mRate').textContent='—';
+  document.getElementById('scoreVal').textContent='—';
+  document.getElementById('scoreBarFill').style.width='0';
+  showToast('🗑 All data cleared','info');
 }
 
+// Init
 generatePlan();
-
+renderExpenses();
+renderGoals();
+document.getElementById('apiKeyInput').value = localStorage.getItem('groq_key')||'';
+if(localStorage.getItem('groq_key')) document.getElementById('groqStatus').textContent='Groq AI · Connected ✓';
 </script>
-
 </body>
 </html>
