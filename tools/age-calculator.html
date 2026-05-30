@@ -1,781 +1,705 @@
-<!-- ========================================================= -->
-<!-- ULTIMATE AI AGE CALCULATOR PLATFORM -->
-<!-- FILE: tools/age-calculator.html -->
-<!-- ========================================================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Ultimate AI Age Calculator</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<title>Ultimate AI Age Calculator — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04080f;--panel:#080e1c;--card:#0d1526;
+  --border:rgba(56,189,248,0.1);--accent:#38bdf8;--accent2:#c084fc;
+  --accent3:#4ade80;--accent4:#fb923c;--red:#f87171;
+  --text:#e0f0ff;--muted:#4a6080;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 50% 40% at 15% 15%,rgba(56,189,248,0.06),transparent 60%),
+             radial-gradient(ellipse 40% 50% at 85% 85%,rgba(192,132,252,0.05),transparent 60%);
+  pointer-events:none;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
 
-body{
-background:
-linear-gradient(135deg,#010b2d 0%,#07195f 45%,#4c1d95 100%);
-min-height:100vh;
-padding:30px;
-color:white;
-}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:0;min-height:100vh;position:relative;z-index:1;}
 
-.wrapper{
-max-width:1600px;
-margin:auto;
-display:grid;
-grid-template-columns:420px 1fr;
-gap:25px;
-}
+/* SIDEBAR */
+.sidebar{background:rgba(8,14,28,0.98);border-right:1px solid var(--border);padding:24px 18px;overflow-y:auto;}
+.logo{font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.tagline{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:20px;}
 
-.panel{
-background:#12207a;
-border-radius:24px;
-padding:24px;
-box-shadow:0 0 35px rgba(0,0,0,0.3);
-}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.badge{padding:4px 10px;border-radius:100px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);font-size:10px;color:var(--accent);}
 
-h1{
-font-size:42px;
-margin-bottom:10px;
-background:linear-gradient(90deg,#38bdf8,#c084fc);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
+.sec{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px;margin-top:16px;display:flex;align-items:center;gap:6px;}
+.sec::after{content:'';flex:1;height:1px;background:rgba(56,189,248,0.08);}
 
-.subtitle{
-font-size:14px;
-line-height:1.8;
-opacity:.85;
-margin-bottom:20px;
-}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-family:'JetBrains Mono',monospace;}
+.field input,.field select{width:100%;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.12);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field select option{background:#080e1c;}
 
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:20px;
-}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.btn{padding:11px;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,#0284c7,#7c3aed);color:#fff;grid-column:1/-1;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(2,132,199,0.3);}
+.btn-sec{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);color:var(--accent);}
+.btn-sec:hover{background:rgba(56,189,248,0.14);}
+.btn-home{background:linear-gradient(135deg,#f59e0b,#ec4899);color:#fff;grid-column:1/-1;}
+.btn-home:hover{transform:translateY(-2px);}
 
-.badge{
-padding:8px 12px;
-border-radius:999px;
-background:#1c2b92;
-font-size:12px;
-}
+/* BIG RESULT */
+.big-result{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;margin-top:14px;position:relative;overflow:hidden;}
+.big-result::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.br-age{font-size:36px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.br-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.live-ticker{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent3);margin-top:10px;letter-spacing:0.05em;}
 
-.input-group{
-margin-bottom:15px;
-}
+/* KPI MINI */
+.kpi-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.km{background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center;}
+.km .v{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;}
+.km .l{font-size:10px;color:var(--muted);margin-top:3px;}
 
-label{
-display:block;
-margin-bottom:6px;
-font-size:13px;
-opacity:.85;
-}
+/* MAIN */
+.main{padding:22px;overflow-y:auto;}
+.tabs{display:flex;gap:4px;background:rgba(8,14,28,0.8);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:20px;flex-wrap:wrap;}
+.tab{flex:1;min-width:80px;padding:9px 6px;text-align:center;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);border:none;background:none;font-family:'Outfit',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.tab.active{background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.2);}
 
-input,select{
-width:100%;
-padding:14px;
-border:none;
-outline:none;
-border-radius:14px;
-background:#07144f;
-color:white;
-font-size:15px;
-}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-button{
-border:none;
-padding:13px;
-border-radius:14px;
-font-weight:700;
-cursor:pointer;
-transition:.3s;
-}
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.k1::before{background:linear-gradient(90deg,#38bdf8,#0ea5e9);}
+.kpi.k2::before{background:linear-gradient(90deg,#4ade80,#22c55e);}
+.kpi.k3::before{background:linear-gradient(90deg,#c084fc,#a855f7);}
+.kpi.k4::before{background:linear-gradient(90deg,#fb923c,#f59e0b);}
+.kpi h4{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;}
+.kpi .big{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;}
 
-.btn-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-margin-top:10px;
-}
+/* INFO BOX */
+.ibox{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.ibox h3{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.mrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;}
+.mrow:last-child{border-bottom:none;}
+.mk{color:var(--muted);}
+.mv{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.mv.green{color:var(--accent3);}
+.mv.blue{color:var(--accent);}
+.mv.purple{color:var(--accent2);}
+.mv.amber{color:var(--accent4);}
 
-.primary-btn{
-background:linear-gradient(90deg,#38bdf8,#d946ef);
-color:white;
-}
+/* CHART */
+.chart-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.chart-box h3{font-size:13px;font-weight:700;margin-bottom:14px;}
 
-.secondary-btn{
-background:#2334a8;
-color:white;
-}
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:8px;}
+.tl-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px 14px;}
+.tl-icon{font-size:20px;flex-shrink:0;}
+.tl-body .tl-title{font-size:13px;font-weight:600;}
+.tl-body .tl-date{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.tl-badge{margin-left:auto;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.tb-done{background:rgba(74,222,128,0.12);color:#4ade80;}
+.tb-future{background:rgba(56,189,248,0.1);color:var(--accent);}
 
-.return-btn{
-background:linear-gradient(90deg,#f59e0b,#ec4899);
-color:white;
-}
+/* BIORHYTHM */
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.col3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 
-button:hover{
-transform:translateY(-2px);
-}
+/* ZODIAC */
+.zodiac-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.zod-symbol{font-size:60px;margin-bottom:10px;display:block;}
+.zod-name{font-size:22px;font-weight:800;}
+.zod-dates{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:4px;}
+.zod-traits{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;}
+.ztrait{padding:4px 10px;border-radius:100px;background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);font-size:11px;color:var(--accent2);}
 
-.cards{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:20px;
-}
-
-.card{
-background:#1a2a8a;
-padding:18px;
-border-radius:18px;
-text-align:center;
-}
-
-.card h3{
-font-size:13px;
-margin-bottom:10px;
-opacity:.85;
-}
-
-.card p{
-font-size:28px;
-font-weight:700;
-color:#4ade80;
-}
-
-.big-result{
-background:#1a2a8a;
-padding:25px;
-border-radius:20px;
-text-align:center;
-margin-top:20px;
-}
-
-.big-result h2{
-font-size:32px;
-color:#38bdf8;
-margin-bottom:12px;
-}
-
-.big-result p{
-font-size:20px;
-line-height:1.8;
-}
-
-.chart-box{
-background:#1a2a8a;
-padding:20px;
-border-radius:20px;
-margin-top:20px;
-}
-
-.info-box{
-background:#1a2a8a;
-padding:18px;
-border-radius:18px;
-margin-bottom:18px;
-}
-
-.info-box h3{
-margin-bottom:14px;
-}
-
-.metric{
-display:flex;
-justify-content:space-between;
-margin-bottom:12px;
-padding-bottom:10px;
-border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.metric span:last-child{
-color:#4ade80;
-font-weight:700;
-}
-
-.alert{
-padding:15px;
-border-radius:14px;
-margin-bottom:15px;
-background:#062f3a;
-color:#6ee7b7;
-}
-
-.timeline{
-margin-top:20px;
-}
-
-.timeline-item{
-background:#16257e;
-padding:15px;
-border-radius:14px;
-margin-bottom:10px;
-}
-
-.live-clock{
-font-size:20px;
-font-weight:700;
-color:#4ade80;
-margin-top:15px;
-}
-
-.footer-note{
-margin-top:20px;
-font-size:12px;
-opacity:.7;
-line-height:1.7;
-}
-
-@media(max-width:1200px){
-
-.wrapper{
-grid-template-columns:1fr;
-}
-
-.cards{
-grid-template-columns:repeat(2,1fr);
-}
-
-}
-
-@media(max-width:700px){
-
-.cards{
-grid-template-columns:1fr;
-}
-
-.btn-grid{
-grid-template-columns:1fr;
-}
-
-}
-
+@media(max-width:1000px){.layout{grid-template-columns:1fr;}.sidebar{}.kpi-row{grid-template-columns:repeat(2,1fr);}.col2,.col3{grid-template-columns:1fr;}}
 </style>
-
 </head>
-
 <body>
-
-<div class="wrapper">
-
-<!-- LEFT PANEL -->
-<div class="panel">
-
-<h1>KJSynthora Age Calculator</h1>
-
-<div class="subtitle">
-Advanced live age intelligence platform with birthday countdown,
-AI life analytics, retirement forecasting, zodiac engine,
-working days calculator and milestone timeline system.
-</div>
-
-<div class="badges">
-<div class="badge">⏱ Live Counter</div>
-<div class="badge">🎂 Birthday AI</div>
-<div class="badge">🧠 Life Insights</div>
-<div class="badge">📊 Analytics</div>
-<div class="badge">🌍 Global Age</div>
-<div class="badge">💼 Retirement</div>
-</div>
-
-<div class="input-group">
-<label>Date of Birth</label>
-<input type="date" id="dob">
-</div>
-
-<div class="input-group">
-<label>As Of Date</label>
-<input type="date" id="asOf">
-</div>
-
-<div class="input-group">
-<label>Retirement Age</label>
-<input type="number" id="retirementAge" value="60">
-</div>
-
-<div class="input-group">
-<label>Country / Age System</label>
-<select id="ageSystem">
-<option value="international">International Age</option>
-<option value="korean">Korean Age</option>
-<option value="lunar">Lunar Age</option>
-</select>
-</div>
-
-<div class="btn-grid">
-
-<button class="primary-btn" onclick="calculateAge()">
-Calculate
-</button>
-
-<button class="secondary-btn" onclick="copyResult()">
-Copy
-</button>
-
-<button class="secondary-btn" onclick="window.print()">
-Print
-</button>
-
-<button class="secondary-btn" onclick="shareResult()">
-Share
-</button>
-
-<button class="secondary-btn" onclick="resetForm()">
-Reset
-</button>
-
-<button class="return-btn" onclick="goHome()">
-Return Home
-</button>
-
-</div>
-
-<div class="big-result">
-
-<h2 id="exactAge">
---
-</h2>
-
-<p id="liveAge">
---
-</p>
-
-<div class="live-clock" id="liveClock">
---
-</div>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-<h3>Next Birthday</h3>
-<p id="nextBirthday">--</p>
-</div>
-
-<div class="card">
-<h3>Zodiac</h3>
-<p id="zodiac">--</p>
-</div>
-
-<div class="card">
-<h3>Total Days</h3>
-<p id="totalDays">--</p>
-</div>
-
-<div class="card">
-<h3>Total Hours</h3>
-<p id="totalHours">--</p>
-</div>
-
-<div class="card">
-<h3>Total Minutes</h3>
-<p id="totalMinutes">--</p>
-</div>
-
-<div class="card">
-<h3>Heartbeats</h3>
-<p id="heartbeats">--</p>
-</div>
-
-<div class="card">
-<h3>Retirement In</h3>
-<p id="retirementIn">--</p>
-</div>
-
-<div class="card">
-<h3>Life Usage</h3>
-<p id="lifePercent">--</p>
-</div>
-
-</div>
-
-<div class="footer-note">
-⚠ All calculations are AI-generated estimations based on date computation,
-lifestyle assumptions and time analytics.
-</div>
-
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="panel">
-
-<div class="alert">
-✅ Live Age Counter running in real-time.
-</div>
-
-<div class="chart-box">
-<h3>📊 Life Analytics</h3>
-<canvas id="lifeChart"></canvas>
-</div>
-
-<div class="info-box">
-
-<h3>🧠 AI Life Insights</h3>
-
-<div class="metric">
-<span>Estimated Sleep Time</span>
-<span id="sleepYears">--</span>
-</div>
-
-<div class="metric">
-<span>Estimated Work Years</span>
-<span id="workYears">--</span>
-</div>
-
-<div class="metric">
-<span>1 Billion Seconds Age</span>
-<span id="billionSeconds">--</span>
-</div>
-
-<div class="metric">
-<span>Half Birthday</span>
-<span id="halfBirthday">--</span>
-</div>
-
-<div class="metric">
-<span>Mars Age</span>
-<span id="marsAge">--</span>
-</div>
-
-</div>
-
-<div class="info-box">
-
-<h3>🎂 Birthday Countdown</h3>
-
-<div class="metric">
-<span>Remaining Days</span>
-<span id="birthdayCountdown">--</span>
-</div>
-
-</div>
-
-<div class="info-box">
-
-<h3>💼 Career & Retirement</h3>
-
-<div class="metric">
-<span>Working Days Remaining</span>
-<span id="workingDaysLeft">--</span>
-</div>
-
-<div class="metric">
-<span>Retirement Year</span>
-<span id="retirementYear">--</span>
-</div>
-
-</div>
-
-<div class="chart-box">
-
-<h3>📅 Life Timeline</h3>
-
-<div class="timeline">
-
-<div class="timeline-item">
-🎉 10,000 Days Milestone
-</div>
-
-<div class="timeline-item">
-🎂 Half Birthday Celebration
-</div>
-
-<div class="timeline-item">
-🧠 1 Billion Seconds Old
-</div>
-
-<div class="timeline-item">
-💼 Retirement Milestone
-</div>
-
-<div class="timeline-item">
-🌌 Mars Age Conversion
-</div>
-
-</div>
-
-</div>
-
-</div>
-
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">KJSynthora Age AI</div>
+  <div class="tagline">⏱ Live age intelligence platform</div>
+
+  <div class="badges">
+    <span class="badge">⏱ Live Counter</span><span class="badge">🎂 Birthday AI</span>
+    <span class="badge">🧠 Life Insights</span><span class="badge">♈ Zodiac</span>
+    <span class="badge">🌍 Multi-system</span><span class="badge">💼 Retirement</span>
+    <span class="badge">🔮 Biorhythm</span><span class="badge">📊 Analytics</span>
+  </div>
+
+  <div class="sec">📅 Date Inputs</div>
+  <div class="field"><label>Date of Birth</label><input type="date" id="dob"></div>
+  <div class="field"><label>Calculate As Of</label><input type="date" id="asOf"></div>
+
+  <div class="sec">⚙ Settings</div>
+  <div class="field">
+    <label>Age System</label>
+    <select id="ageSystem">
+      <option value="international">🌍 International Age</option>
+      <option value="korean">🇰🇷 Korean Age (+1 at birth)</option>
+      <option value="lunar">🌙 Lunar / Chinese Age</option>
+    </select>
+  </div>
+  <div class="field"><label>Retirement Age Target</label><input type="number" id="retAge" value="60"></div>
+  <div class="field"><label>Life Expectancy (years)</label><input type="number" id="lifeExp" value="80"></div>
+  <div class="field"><label>Country (Life Expectancy)</label>
+    <select id="lifeExpCountry" onchange="updateLifeExp()">
+      <option value="80">🇮🇳 India (70)</option>
+      <option value="79">🇺🇸 USA (79)</option>
+      <option value="83">🇯🇵 Japan (84)</option>
+      <option value="81">🇬🇧 UK (81)</option>
+      <option value="73">🌍 Global Avg (73)</option>
+    </select>
+  </div>
+
+  <div class="btns">
+    <button class="btn btn-primary" onclick="calculateAge()">⚡ Calculate Age</button>
+    <button class="btn btn-sec" onclick="copyResult()">📋 Copy</button>
+    <button class="btn btn-sec" onclick="shareResult()">📤 Share</button>
+    <button class="btn btn-sec" onclick="window.print()">🖨 Print</button>
+    <button class="btn btn-sec" onclick="resetForm()">↺ Reset</button>
+    <button class="btn btn-home" onclick="window.location.href='../index.html'">🏠 Return Home</button>
+  </div>
+
+  <!-- BIG RESULT -->
+  <div class="big-result">
+    <div class="br-age" id="br_age">-- Years</div>
+    <div class="br-sub" id="br_sub">Enter your date of birth</div>
+    <div class="live-ticker" id="liveTicker">⏱ 0D 0H 0M 0S</div>
+  </div>
+
+  <!-- MINI KPIs -->
+  <div class="kpi-mini">
+    <div class="km"><div class="v blue" id="m_days">--</div><div class="l">Total Days</div></div>
+    <div class="km"><div class="v green" id="m_hrs">--</div><div class="l">Total Hours</div></div>
+    <div class="km"><div class="v purple" id="m_min">--</div><div class="l">Minutes</div></div>
+    <div class="km"><div class="v amber" id="m_sec">--</div><div class="l">Seconds Lived</div></div>
+    <div class="km"><div class="v green" id="m_heart">--</div><div class="l">Heartbeats</div></div>
+    <div class="km"><div class="v amber" id="m_breaths">--</div><div class="l">Breaths Taken</div></div>
+    <div class="km"><div class="v blue" id="m_weeks">--</div><div class="l">Total Weeks</div></div>
+    <div class="km"><div class="v purple" id="m_months">--</div><div class="l">Total Months</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview',this)">📊 Overview</button>
+    <button class="tab" onclick="showTab('zodiac',this)">♈ Zodiac</button>
+    <button class="tab" onclick="showTab('milestones',this)">🏆 Milestones</button>
+    <button class="tab" onclick="showTab('career',this)">💼 Career</button>
+    <button class="tab" onclick="showTab('biorhythm',this)">🔮 Biorhythm</button>
+    <button class="tab" onclick="showTab('planetary',this)">🪐 Planetary</button>
+    <button class="tab" onclick="showTab('life',this)">🧬 Life Stats</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="kpi-row">
+      <div class="kpi k1"><h4>EXACT AGE</h4><div class="big blue" id="ov_age">-- yrs</div></div>
+      <div class="kpi k2"><h4>NEXT BIRTHDAY</h4><div class="big green" id="ov_bday">-- days</div></div>
+      <div class="kpi k3"><h4>ZODIAC</h4><div class="big purple" id="ov_zodiac">--</div></div>
+      <div class="kpi k4"><h4>LIFE LIVED %</h4><div class="big amber" id="ov_life">--%</div></div>
+    </div>
+    <div class="col2">
+      <div class="ibox">
+        <h3>📋 Age Breakdown</h3>
+        <div class="mrow"><span class="mk">Years</span><span class="mv blue" id="ab_y">--</span></div>
+        <div class="mrow"><span class="mk">Months (remaining)</span><span class="mv" id="ab_m">--</span></div>
+        <div class="mrow"><span class="mk">Days (remaining)</span><span class="mv" id="ab_d">--</span></div>
+        <div class="mrow"><span class="mk">Age System</span><span class="mv purple" id="ab_sys">International</span></div>
+        <div class="mrow"><span class="mk">Korean Age</span><span class="mv" id="ab_korean">--</span></div>
+        <div class="mrow"><span class="mk">Day of Week Born</span><span class="mv amber" id="ab_dow">--</span></div>
+        <div class="mrow"><span class="mk">Day Number in Year</span><span class="mv" id="ab_doy">--</span></div>
+        <div class="mrow"><span class="mk">Birth Week Number</span><span class="mv" id="ab_week">--</span></div>
+      </div>
+      <div class="ibox">
+        <h3>🎂 Birthday Intelligence</h3>
+        <div class="mrow"><span class="mk">Next Birthday</span><span class="mv green" id="bi_next">--</span></div>
+        <div class="mrow"><span class="mk">Days Until Birthday</span><span class="mv blue" id="bi_days">--</span></div>
+        <div class="mrow"><span class="mk">Birthday This Year</span><span class="mv" id="bi_thisyr">--</span></div>
+        <div class="mrow"><span class="mk">Half Birthday</span><span class="mv amber" id="bi_half">--</span></div>
+        <div class="mrow"><span class="mk">Quarter Birthday</span><span class="mv" id="bi_quarter">--</span></div>
+        <div class="mrow"><span class="mk">Birthdays Celebrated</span><span class="mv green" id="bi_count">--</span></div>
+        <div class="mrow"><span class="mk">1000th Day</span><span class="mv blue" id="bi_1000">--</span></div>
+        <div class="mrow"><span class="mk">10,000th Day</span><span class="mv purple" id="bi_10000">--</span></div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>📊 Life Allocation Chart</h3>
+      <canvas id="lifeChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- ZODIAC -->
+  <div class="tab-panel" id="tab-zodiac">
+    <div class="col2">
+      <div class="zodiac-card">
+        <span class="zod-symbol" id="zod_sym">♈</span>
+        <div class="zod-name" id="zod_name">--</div>
+        <div class="zod-dates" id="zod_dates">--</div>
+        <div class="zod-traits" id="zod_traits"></div>
+      </div>
+      <div class="ibox" style="margin-bottom:0;">
+        <h3>🐉 Chinese Zodiac</h3>
+        <div class="mrow"><span class="mk">Animal Sign</span><span class="mv purple" id="ch_animal">--</span></div>
+        <div class="mrow"><span class="mk">Element</span><span class="mv amber" id="ch_element">--</span></div>
+        <div class="mrow"><span class="mk">Personality</span><span class="mv green" id="ch_trait">--</span></div>
+        <div class="mrow"><span class="mk">Lucky Number</span><span class="mv blue" id="ch_lucky">--</span></div>
+        <div class="mrow"><span class="mk">Lucky Color</span><span class="mv" id="ch_color">--</span></div>
+        <div class="mrow"><span class="mk">Next Year of Sign</span><span class="mv amber" id="ch_next">--</span></div>
+      </div>
+    </div>
+    <div class="ibox" style="margin-top:16px;">
+      <h3>🔢 Numerology</h3>
+      <div class="col3">
+        <div class="mrow"><span class="mk">Life Path Number</span><span class="mv purple" id="num_life">--</span></div>
+        <div class="mrow"><span class="mk">Destiny Number</span><span class="mv blue" id="num_dest">--</span></div>
+        <div class="mrow"><span class="mk">Meaning</span><span class="mv green" id="num_mean">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="tab-panel" id="tab-milestones">
+    <div class="timeline" id="milestoneList"></div>
+  </div>
+
+  <!-- CAREER -->
+  <div class="tab-panel" id="tab-career">
+    <div class="col2">
+      <div class="ibox">
+        <h3>💼 Career & Retirement</h3>
+        <div class="mrow"><span class="mk">Retirement Age</span><span class="mv amber" id="cr_retAge">60</span></div>
+        <div class="mrow"><span class="mk">Retirement Year</span><span class="mv blue" id="cr_retYear">--</span></div>
+        <div class="mrow"><span class="mk">Years to Retirement</span><span class="mv green" id="cr_yrsLeft">--</span></div>
+        <div class="mrow"><span class="mk">Working Days Left</span><span class="mv blue" id="cr_wdays">--</span></div>
+        <div class="mrow"><span class="mk">Working Hours Left</span><span class="mv purple" id="cr_whrs">--</span></div>
+        <div class="mrow"><span class="mk">Career Months Left</span><span class="mv green" id="cr_months">--</span></div>
+        <div class="mrow"><span class="mk">Weeks to Retirement</span><span class="mv amber" id="cr_weeks">--</span></div>
+        <div class="mrow"><span class="mk">Pension Year</span><span class="mv" id="cr_pension">--</span></div>
+      </div>
+      <div class="ibox">
+        <h3>🎓 Life Stages</h3>
+        <div class="mrow"><span class="mk">Current Stage</span><span class="mv amber" id="ls_stage">--</span></div>
+        <div class="mrow"><span class="mk">Next Stage</span><span class="mv blue" id="ls_next">--</span></div>
+        <div class="mrow"><span class="mk">Generation</span><span class="mv purple" id="ls_gen">--</span></div>
+        <div class="mrow"><span class="mk">Digital Native?</span><span class="mv green" id="ls_digi">--</span></div>
+        <div class="mrow"><span class="mk">Millenniennial?</span><span class="mv" id="ls_mill">--</span></div>
+        <div class="mrow"><span class="mk">Baby Boomer?</span><span class="mv" id="ls_boomer">--</span></div>
+        <div class="mrow"><span class="mk">Years of Childhood Left</span><span class="mv green" id="ls_child">--</span></div>
+        <div class="mrow"><span class="mk">Prime Years Lived</span><span class="mv blue" id="ls_prime">--</span></div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>📅 Life Stages Bar</h3>
+      <canvas id="lifeStageChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- BIORHYTHM -->
+  <div class="tab-panel" id="tab-biorhythm">
+    <div class="ibox">
+      <h3>🔮 Biorhythm Cycles Today</h3>
+      <div class="col3" style="margin-bottom:16px;">
+        <div class="km" style="padding:16px;"><div class="v green" id="bio_phys">--</div><div class="l">Physical (23-day)</div></div>
+        <div class="km" style="padding:16px;"><div class="v blue" id="bio_emo">--</div><div class="l">Emotional (28-day)</div></div>
+        <div class="km" style="padding:16px;"><div class="v purple" id="bio_intell">--</div><div class="l">Intellectual (33-day)</div></div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>📈 Biorhythm Chart (30 days)</h3>
+      <canvas id="bioChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- PLANETARY -->
+  <div class="tab-panel" id="tab-planetary">
+    <div class="col2">
+      <div class="ibox">
+        <h3>🪐 Planetary Age Equivalents</h3>
+        <div class="mrow"><span class="mk">Mercury Age</span><span class="mv blue" id="pl_mercury">--</span></div>
+        <div class="mrow"><span class="mk">Venus Age</span><span class="mv purple" id="pl_venus">--</span></div>
+        <div class="mrow"><span class="mk">Mars Age</span><span class="mv red" id="pl_mars">--</span></div>
+        <div class="mrow"><span class="mk">Jupiter Age</span><span class="mv amber" id="pl_jupiter">--</span></div>
+        <div class="mrow"><span class="mk">Saturn Age</span><span class="mv" id="pl_saturn">--</span></div>
+        <div class="mrow"><span class="mk">Uranus Age</span><span class="mv blue" id="pl_uranus">--</span></div>
+        <div class="mrow"><span class="mk">Neptune Age</span><span class="mv purple" id="pl_neptune">--</span></div>
+        <div class="mrow"><span class="mk">Moon Age</span><span class="mv green" id="pl_moon">--</span></div>
+      </div>
+      <div class="ibox">
+        <h3>🌌 Cosmic Perspective</h3>
+        <div class="mrow"><span class="mk">Age in Light-Seconds</span><span class="mv blue" id="cos_ls">--</span></div>
+        <div class="mrow"><span class="mk">Light Travel Distance</span><span class="mv purple" id="cos_ld">--</span></div>
+        <div class="mrow"><span class="mk">Universe % of your age</span><span class="mv" id="cos_uni">--</span></div>
+        <div class="mrow"><span class="mk">Dog Years</span><span class="mv amber" id="cos_dog">--</span></div>
+        <div class="mrow"><span class="mk">Cat Years</span><span class="mv green" id="cos_cat">--</span></div>
+        <div class="mrow"><span class="mk">Tortoise Years</span><span class="mv blue" id="cos_tort">--</span></div>
+        <div class="mrow"><span class="mk">1 Billion Seconds At</span><span class="mv purple" id="cos_billion">--</span></div>
+        <div class="mrow"><span class="mk">2 Billion Seconds At</span><span class="mv amber" id="cos_2b">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIFE STATS -->
+  <div class="tab-panel" id="tab-life">
+    <div class="col2">
+      <div class="ibox">
+        <h3>🧬 Life Statistics</h3>
+        <div class="mrow"><span class="mk">Sleep Time (33%)</span><span class="mv blue" id="ls_sleep">--</span></div>
+        <div class="mrow"><span class="mk">Work Time (estimated)</span><span class="mv amber" id="ls_work">--</span></div>
+        <div class="mrow"><span class="mk">Eating Time</span><span class="mv green" id="ls_eat">--</span></div>
+        <div class="mrow"><span class="mk">Screen Time (5hrs/day)</span><span class="mv purple" id="ls_screen">--</span></div>
+        <div class="mrow"><span class="mk">Commute Time (1hr/day)</span><span class="mv" id="ls_commute">--</span></div>
+        <div class="mrow"><span class="mk">Steps Walked (est.)</span><span class="mv green" id="ls_steps">--</span></div>
+        <div class="mrow"><span class="mk">Words Spoken</span><span class="mv blue" id="ls_words">--</span></div>
+        <div class="mrow"><span class="mk">Blinks</span><span class="mv amber" id="ls_blinks">--</span></div>
+      </div>
+      <div class="ibox">
+        <h3>❤️ Body Stats (estimated)</h3>
+        <div class="mrow"><span class="mk">Heartbeats</span><span class="mv red" id="bs_heart">--</span></div>
+        <div class="mrow"><span class="mk">Breaths Taken</span><span class="mv blue" id="bs_breath">--</span></div>
+        <div class="mrow"><span class="mk">Blood Pumped</span><span class="mv red" id="bs_blood">--</span></div>
+        <div class="mrow"><span class="mk">Hair Growth</span><span class="mv green" id="bs_hair">--</span></div>
+        <div class="mrow"><span class="mk">Nails Grown</span><span class="mv purple" id="bs_nails">--</span></div>
+        <div class="mrow"><span class="mk">Skin Cells Shed</span><span class="mv amber" id="bs_skin">--</span></div>
+        <div class="mrow"><span class="mk">Calories Burned</span><span class="mv green" id="bs_cal">--</span></div>
+        <div class="mrow"><span class="mk">Water Drunk</span><span class="mv blue" id="bs_water">--</span></div>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
 
 <script>
+let birthDate=null,asOfDate=null,bioChart=null,lifeChart=null,stageChart=null;
 
-let birthDateGlobal = null;
+function showTab(id,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
 
-const chartCtx =
-document.getElementById('lifeChart');
+function updateLifeExp(){
+  document.getElementById('lifeExp').value=document.getElementById('lifeExpCountry').value;
+}
 
-const lifeChart =
-new Chart(chartCtx,{
-type:'doughnut',
-data:{
-labels:[
-'Sleep',
-'Work',
-'Leisure',
-'Other'
-],
-datasets:[{
-data:[30,25,25,20],
-backgroundColor:[
-'#38bdf8',
-'#d946ef',
-'#4ade80',
-'#f59e0b'
-]
-}]
-},
-options:{
-plugins:{
-legend:{
-labels:{
-color:'white'
+function fmt(n){return Math.round(n).toLocaleString('en-IN');}
+function fmtDate(d){return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+const ZODIACS=[
+  {name:'Capricorn',sym:'♑',dates:'Dec 22–Jan 19',el:'Earth',traits:['Ambitious','Disciplined','Practical','Patient']},
+  {name:'Aquarius',sym:'♒',dates:'Jan 20–Feb 18',el:'Air',traits:['Innovative','Humanitarian','Independent','Visionary']},
+  {name:'Pisces',sym:'♓',dates:'Feb 19–Mar 20',el:'Water',traits:['Compassionate','Artistic','Intuitive','Gentle']},
+  {name:'Aries',sym:'♈',dates:'Mar 21–Apr 19',el:'Fire',traits:['Courageous','Energetic','Enthusiastic','Leader']},
+  {name:'Taurus',sym:'♉',dates:'Apr 20–May 20',el:'Earth',traits:['Reliable','Patient','Practical','Devoted']},
+  {name:'Gemini',sym:'♊',dates:'May 21–Jun 20',el:'Air',traits:['Versatile','Expressive','Witty','Curious']},
+  {name:'Cancer',sym:'♋',dates:'Jun 21–Jul 22',el:'Water',traits:['Nurturing','Intuitive','Loyal','Creative']},
+  {name:'Leo',sym:'♌',dates:'Jul 23–Aug 22',el:'Fire',traits:['Confident','Generous','Creative','Charismatic']},
+  {name:'Virgo',sym:'♍',dates:'Aug 23–Sep 22',el:'Earth',traits:['Analytical','Helpful','Precise','Reliable']},
+  {name:'Libra',sym:'♎',dates:'Sep 23–Oct 22',el:'Air',traits:['Diplomatic','Fair','Social','Gracious']},
+  {name:'Scorpio',sym:'♏',dates:'Oct 23–Nov 21',el:'Water',traits:['Resourceful','Brave','Passionate','Stubborn']},
+  {name:'Sagittarius',sym:'♐',dates:'Nov 22–Dec 21',el:'Fire',traits:['Optimistic','Adventurous','Philosophical','Free']},
+];
+const CH_ANIMALS=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
+const CH_ELEMENTS=['Wood','Fire','Earth','Metal','Water'];
+const LIFE_PATH_MEANINGS={1:'The Leader',2:'The Peacemaker',3:'The Creative',4:'The Builder',5:'The Adventurer',6:'The Nurturer',7:'The Seeker',8:'The Achiever',9:'The Humanitarian'};
+
+function getZodiac(dob){
+  const m=dob.getMonth()+1,d=dob.getDate();
+  if((m===12&&d>=22)||(m===1&&d<=19)) return ZODIACS[0];
+  if((m===1&&d>=20)||(m===2&&d<=18)) return ZODIACS[1];
+  if((m===2&&d>=19)||(m===3&&d<=20)) return ZODIACS[2];
+  if((m===3&&d>=21)||(m===4&&d<=19)) return ZODIACS[3];
+  if((m===4&&d>=20)||(m===5&&d<=20)) return ZODIACS[4];
+  if((m===5&&d>=21)||(m===6&&d<=20)) return ZODIACS[5];
+  if((m===6&&d>=21)||(m===7&&d<=22)) return ZODIACS[6];
+  if((m===7&&d>=23)||(m===8&&d<=22)) return ZODIACS[7];
+  if((m===8&&d>=23)||(m===9&&d<=22)) return ZODIACS[8];
+  if((m===9&&d>=23)||(m===10&&d<=22)) return ZODIACS[9];
+  if((m===10&&d>=23)||(m===11&&d<=21)) return ZODIACS[10];
+  return ZODIACS[11];
 }
+
+function getLifePathNum(dob){
+  const str=dob.toISOString().slice(0,10).replace(/-/g,'');
+  let sum=str.split('').reduce((s,c)=>s+parseInt(c),0);
+  while(sum>9&&sum!==11&&sum!==22) sum=String(sum).split('').reduce((s,c)=>s+parseInt(c),0);
+  return sum;
 }
-}
-}
-});
 
 function calculateAge(){
+  const dobVal=document.getElementById('dob').value;
+  const asOfVal=document.getElementById('asOf').value;
+  if(!dobVal){alert('Please enter Date of Birth');return;}
+  birthDate=new Date(dobVal);
+  asOfDate=asOfVal?new Date(asOfVal):new Date();
+  const system=document.getElementById('ageSystem').value;
+  const retAge=parseInt(document.getElementById('retAge').value)||60;
+  const lifeExp=parseInt(document.getElementById('lifeExp').value)||80;
 
-const dob =
-new Date(document.getElementById('dob').value);
+  const diffMs=asOfDate-birthDate;
+  const totalSecs=Math.floor(diffMs/1000);
+  const totalMins=Math.floor(totalSecs/60);
+  const totalHrs=Math.floor(totalMins/60);
+  const totalDays=Math.floor(totalHrs/24);
+  const totalWeeks=Math.floor(totalDays/7);
+  const totalMonths=Math.floor(totalDays/30.44);
+  const years=asOfDate.getFullYear()-birthDate.getFullYear();
+  const mos=asOfDate.getMonth()-birthDate.getMonth();
+  const dys=asOfDate.getDate()-birthDate.getDate();
+  let exactYrs=years, exactMos=mos, exactDys=dys;
+  if(exactDys<0){exactMos--;exactDys+=30;}
+  if(exactMos<0){exactYrs--;exactMos+=12;}
 
-const asOf =
-new Date(document.getElementById('asOf').value || new Date());
+  let displayAge=exactYrs;
+  if(system==='korean') displayAge=exactYrs+1;
+  if(system==='lunar') displayAge=Math.floor((diffMs/(1000*60*60*24*354.37)));
 
-if(!dob || dob == 'Invalid Date'){
-alert('Select DOB');
-return;
+  // Sidebar
+  document.getElementById('br_age').textContent=displayAge+' Years Old';
+  document.getElementById('br_sub').textContent=exactMos+' months, '+exactDys+' days';
+  document.getElementById('m_days').textContent=fmt(totalDays);
+  document.getElementById('m_hrs').textContent=fmt(totalHrs);
+  document.getElementById('m_min').textContent=fmt(totalMins);
+  document.getElementById('m_sec').textContent=fmt(totalSecs);
+  document.getElementById('m_heart').textContent=fmt(totalMins*72);
+  document.getElementById('m_breaths').textContent=fmt(totalMins*15);
+  document.getElementById('m_weeks').textContent=fmt(totalWeeks);
+  document.getElementById('m_months').textContent=fmt(totalMonths);
+
+  // Overview KPIs
+  document.getElementById('ov_age').textContent=displayAge+' yrs';
+  const nextBday=new Date(asOfDate.getFullYear(),birthDate.getMonth(),birthDate.getDate());
+  if(nextBday<asOfDate) nextBday.setFullYear(asOfDate.getFullYear()+1);
+  const daysUntilBday=Math.ceil((nextBday-asOfDate)/(1000*60*60*24));
+  document.getElementById('ov_bday').textContent=daysUntilBday+' days';
+  const zod=getZodiac(birthDate);
+  document.getElementById('ov_zodiac').textContent=zod.sym+' '+zod.name;
+  document.getElementById('ov_life').textContent=((exactYrs/lifeExp)*100).toFixed(1)+'%';
+
+  // Age Breakdown
+  document.getElementById('ab_y').textContent=exactYrs+' years';
+  document.getElementById('ab_m').textContent=exactMos+' months';
+  document.getElementById('ab_d').textContent=exactDys+' days';
+  document.getElementById('ab_sys').textContent=system==='korean'?'Korean (세는나이)':system==='lunar'?'Lunar':' International';
+  document.getElementById('ab_korean').textContent=(exactYrs+1)+' yrs';
+  const days2=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('ab_dow').textContent=days2[birthDate.getDay()];
+  const start=new Date(birthDate.getFullYear(),0,0);
+  const doyN=Math.floor((birthDate-start)/(1000*60*60*24));
+  document.getElementById('ab_doy').textContent='Day #'+doyN;
+  document.getElementById('ab_week').textContent='Week '+Math.floor(doyN/7);
+
+  // Birthday Intelligence
+  document.getElementById('bi_next').textContent=fmtDate(nextBday);
+  document.getElementById('bi_days').textContent=daysUntilBday+' days';
+  const bThisYr=new Date(asOfDate.getFullYear(),birthDate.getMonth(),birthDate.getDate());
+  document.getElementById('bi_thisyr').textContent=fmtDate(bThisYr);
+  const half=new Date(birthDate); half.setMonth(half.getMonth()+6);
+  document.getElementById('bi_half').textContent=fmtDate(half);
+  const quarter=new Date(birthDate); quarter.setMonth(quarter.getMonth()+3);
+  document.getElementById('bi_quarter').textContent=fmtDate(quarter);
+  document.getElementById('bi_count').textContent=exactYrs+' birthdays';
+  const d1000=new Date(birthDate); d1000.setDate(d1000.getDate()+1000);
+  const d10000=new Date(birthDate); d10000.setDate(d10000.getDate()+10000);
+  document.getElementById('bi_1000').textContent=fmtDate(d1000);
+  document.getElementById('bi_10000').textContent=fmtDate(d10000);
+
+  // Life chart
+  const sleepYrs=exactYrs*0.33,workYrs=exactYrs*0.22,eatYrs=exactYrs*0.06,screenYrs=exactYrs*0.12,otherYrs=exactYrs*(1-0.33-0.22-0.06-0.12);
+  const ctx=document.getElementById('lifeChart');
+  if(lifeChart) lifeChart.destroy();
+  lifeChart=new Chart(ctx,{type:'doughnut',data:{
+    labels:['Sleep (33%)','Work (22%)','Eating (6%)','Screen (12%)','Other (27%)'],
+    datasets:[{data:[sleepYrs,workYrs,eatYrs,screenYrs,otherYrs].map(v=>+v.toFixed(1)),backgroundColor:['#38bdf8','#4ade80','#fb923c','#c084fc','#f87171'],borderWidth:0}]
+  },options:{plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},responsive:true}});
+
+  // ZODIAC TAB
+  document.getElementById('zod_sym').textContent=zod.sym;
+  document.getElementById('zod_name').textContent=zod.name;
+  document.getElementById('zod_dates').textContent=zod.dates+' · '+zod.el;
+  document.getElementById('zod_traits').innerHTML=zod.traits.map(t=>`<span class="ztrait">${t}</span>`).join('');
+  const chIdx=(birthDate.getFullYear()-1900)%12;
+  const chAnimal=CH_ANIMALS[((birthDate.getFullYear()-1900)%12+12)%12];
+  const chEl=CH_ELEMENTS[Math.floor(((birthDate.getFullYear()-1900)%10)/2)];
+  document.getElementById('ch_animal').textContent=chAnimal;
+  document.getElementById('ch_element').textContent=chEl;
+  const traitMap={Rat:'Witty',Ox:'Dependable',Tiger:'Brave',Rabbit:'Kind',Dragon:'Lucky',Snake:'Wise',Horse:'Active',Goat:'Gentle',Monkey:'Clever',Rooster:'Observant',Dog:'Loyal',Pig:'Honest'};
+  document.getElementById('ch_trait').textContent=traitMap[chAnimal]||'--';
+  document.getElementById('ch_lucky').textContent=((birthDate.getDate()%9)||9);
+  const colors=['Red','Blue','Green','Gold','White'];
+  document.getElementById('ch_color').textContent=colors[chIdx%5];
+  const nextYr=2024+((12-(new Date().getFullYear()-birthDate.getFullYear())%12)%12);
+  document.getElementById('ch_next').textContent=nextYr;
+
+  // Numerology
+  const lifePath=getLifePathNum(birthDate);
+  document.getElementById('num_life').textContent=lifePath;
+  document.getElementById('num_dest').textContent=lifePath;
+  document.getElementById('num_mean').textContent=LIFE_PATH_MEANINGS[lifePath]||'Master Number';
+
+  // MILESTONES
+  const milestones=[
+    {icon:'👶',title:'Born',date:birthDate,note:'Day 1'},
+    {icon:'🧸',title:'1000th Day',date:d1000,note:'~2.7 years'},
+    {icon:'🎓',title:'10th Birthday',date:new Date(birthDate.getFullYear()+10,birthDate.getMonth(),birthDate.getDate()),note:'Double digits'},
+    {icon:'🚗',title:'18th Birthday',date:new Date(birthDate.getFullYear()+18,birthDate.getMonth(),birthDate.getDate()),note:'Legal Adult'},
+    {icon:'🎓',title:'25th Birthday',date:new Date(birthDate.getFullYear()+25,birthDate.getMonth(),birthDate.getDate()),note:'Quarter century'},
+    {icon:'🌟',title:'1 Billion Seconds',date:new Date(birthDate.getTime()+1e9*1000),note:'~31.7 years'},
+    {icon:'🎉',title:'10,000th Day',date:d10000,note:'~27.4 years'},
+    {icon:'🥇',title:'50th Birthday',date:new Date(birthDate.getFullYear()+50,birthDate.getMonth(),birthDate.getDate()),note:'Half century'},
+    {icon:'💼',title:'Retirement',date:new Date(birthDate.getFullYear()+retAge,birthDate.getMonth(),birthDate.getDate()),note:'Freedom day'},
+    {icon:'🌟',title:'2 Billion Seconds',date:new Date(birthDate.getTime()+2e9*1000),note:'~63.4 years'},
+    {icon:'🎊',title:'100th Birthday',date:new Date(birthDate.getFullYear()+100,birthDate.getMonth(),birthDate.getDate()),note:'Centenarian'},
+  ];
+  document.getElementById('milestoneList').innerHTML=milestones.map(m=>{
+    const past=m.date<=asOfDate;
+    return `<div class="tl-item">
+      <span class="tl-icon">${m.icon}</span>
+      <div class="tl-body">
+        <div class="tl-title">${m.title}</div>
+        <div class="tl-date">${fmtDate(m.date)} — ${m.note}</div>
+      </div>
+      <span class="tl-badge ${past?'tb-done':'tb-future'}">${past?'✓ Done':'Upcoming'}</span>
+    </div>`;
+  }).join('');
+
+  // CAREER
+  document.getElementById('cr_retAge').textContent=retAge;
+  document.getElementById('cr_retYear').textContent=birthDate.getFullYear()+retAge;
+  const yrsLeft=Math.max(0,retAge-exactYrs);
+  document.getElementById('cr_yrsLeft').textContent=yrsLeft+' years';
+  document.getElementById('cr_wdays').textContent=fmt(yrsLeft*260);
+  document.getElementById('cr_whrs').textContent=fmt(yrsLeft*260*8);
+  document.getElementById('cr_months').textContent=fmt(yrsLeft*12);
+  document.getElementById('cr_weeks').textContent=fmt(yrsLeft*52);
+  document.getElementById('cr_pension').textContent=birthDate.getFullYear()+retAge+5;
+  // Stages
+  const stages=[{max:12,name:'Childhood',next:'Adolescence'},{max:17,name:'Adolescence',next:'Young Adult'},{max:35,name:'Young Adult',next:'Midlife'},{max:50,name:'Midlife',next:'Mature Adult'},{max:65,name:'Mature Adult',next:'Senior'},{max:999,name:'Senior',next:'Legend'}];
+  const stage=stages.find(s=>exactYrs<=s.max);
+  document.getElementById('ls_stage').textContent=stage.name;
+  document.getElementById('ls_next').textContent=stage.next;
+  const yr=birthDate.getFullYear();
+  document.getElementById('ls_gen').textContent=yr<1946?'Silent Gen':yr<1965?'Baby Boomer':yr<1980?'Gen X':yr<1997?'Millennial':yr<2013?'Gen Z':'Gen Alpha';
+  document.getElementById('ls_digi').textContent=yr>=1995?'Yes':'No';
+  document.getElementById('ls_mill').textContent=(yr>=1981&&yr<=1996)?'Yes':'No';
+  document.getElementById('ls_boomer').textContent=(yr>=1946&&yr<=1964)?'Yes':'No';
+  document.getElementById('ls_child').textContent=exactYrs<18?Math.max(0,18-exactYrs)+' yrs':'-';
+  document.getElementById('ls_prime').textContent=Math.max(0,Math.min(exactYrs,40)-18)+' yrs (18–40)';
+
+  // Stage chart
+  const ctxS=document.getElementById('lifeStageChart');
+  if(stageChart) stageChart.destroy();
+  stageChart=new Chart(ctxS,{type:'bar',data:{
+    labels:['Childhood','Adolescence','Young Adult','Midlife','Mature','Senior'],
+    datasets:[
+      {label:'Total',data:[12,5,18,15,15,Infinity].map((v,i)=>Math.min(v,lifeExp)),backgroundColor:'rgba(255,255,255,0.05)',borderRadius:4},
+      {label:'Lived',data:[Math.min(exactYrs,12),Math.min(Math.max(0,exactYrs-12),5),Math.min(Math.max(0,exactYrs-17),18),Math.min(Math.max(0,exactYrs-35),15),Math.min(Math.max(0,exactYrs-50),15),Math.max(0,exactYrs-65)],backgroundColor:'rgba(56,189,248,0.5)',borderRadius:4}
+    ]
+  },options:{indexAxis:'y',responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#4a6080'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#4a6080'},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  // BIORHYTHM
+  const bdays=totalDays;
+  const phys=+(Math.sin(2*Math.PI*bdays/23)*100).toFixed(1);
+  const emo=+(Math.sin(2*Math.PI*bdays/28)*100).toFixed(1);
+  const intell=+(Math.sin(2*Math.PI*bdays/33)*100).toFixed(1);
+  document.getElementById('bio_phys').textContent=phys+'%';
+  document.getElementById('bio_emo').textContent=emo+'%';
+  document.getElementById('bio_intell').textContent=intell+'%';
+  const bioLabels=Array.from({length:30},(_,i)=>{const d=new Date(asOfDate);d.setDate(d.getDate()+i-10);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});});
+  const bioPhys=Array.from({length:30},(_,i)=>+(Math.sin(2*Math.PI*(bdays-10+i)/23)*100).toFixed(1));
+  const bioEmo=Array.from({length:30},(_,i)=>+(Math.sin(2*Math.PI*(bdays-10+i)/28)*100).toFixed(1));
+  const bioInt=Array.from({length:30},(_,i)=>+(Math.sin(2*Math.PI*(bdays-10+i)/33)*100).toFixed(1));
+  const ctxB=document.getElementById('bioChart');
+  if(bioChart) bioChart.destroy();
+  bioChart=new Chart(ctxB,{type:'line',data:{labels:bioLabels,datasets:[
+    {label:'Physical',data:bioPhys,borderColor:'#4ade80',tension:0.4,pointRadius:2,fill:false},
+    {label:'Emotional',data:bioEmo,borderColor:'#38bdf8',tension:0.4,pointRadius:2,fill:false},
+    {label:'Intellectual',data:bioInt,borderColor:'#c084fc',tension:0.4,pointRadius:2,fill:false}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#4a6080',maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#4a6080'},min:-100,max:100,grid:{color:'rgba(255,255,255,0.06)'}}}}});
+
+  // PLANETARY
+  const pData={mercury:{period:0.241,col:'blue'},venus:{period:0.615,col:'purple'},mars:{period:1.881,col:'red'},jupiter:{period:11.86,col:'amber'},saturn:{period:29.46,col:''},uranus:{period:84.01,col:'blue'},neptune:{period:164.8,col:'purple'},moon:{period:0.0748,col:'green'}};
+  Object.entries(pData).forEach(([k,v])=>{
+    const el=document.getElementById('pl_'+k);
+    if(el) el.textContent=(exactYrs/v.period).toFixed(2)+' '+k+' yrs';
+  });
+  document.getElementById('cos_ls').textContent=fmt(totalSecs)+' ls';
+  document.getElementById('cos_ld').textContent=(totalSecs*299792/9.461e12).toFixed(4)+' light-years';
+  document.getElementById('cos_uni').textContent=((exactYrs/13.8e9)*100).toExponential(3)+'%';
+  document.getElementById('cos_dog').textContent=(exactYrs*7).toFixed(1)+' dog yrs';
+  document.getElementById('cos_cat').textContent=(exactYrs*4).toFixed(1)+' cat yrs';
+  document.getElementById('cos_tort').textContent=(exactYrs*0.5).toFixed(1)+' tortoise yrs';
+  const billionSecDate=new Date(birthDate.getTime()+1e9*1000);
+  document.getElementById('cos_billion').textContent=fmtDate(billionSecDate);
+  const twoBillionSecDate=new Date(birthDate.getTime()+2e9*1000);
+  document.getElementById('cos_2b').textContent=fmtDate(twoBillionSecDate);
+
+  // LIFE STATS
+  document.getElementById('ls_sleep').textContent=(exactYrs*0.33).toFixed(1)+' years';
+  document.getElementById('ls_work').textContent=(exactYrs>18?(exactYrs-18)*0.35:0).toFixed(1)+' years';
+  document.getElementById('ls_eat').textContent=(exactYrs*0.06).toFixed(1)+' years';
+  document.getElementById('ls_screen').textContent=(exactYrs*0.12).toFixed(1)+' years';
+  document.getElementById('ls_commute').textContent=(exactYrs>18?(exactYrs-18)*0.04:0).toFixed(1)+' years';
+  document.getElementById('ls_steps').textContent=fmt(totalDays*8000)+' steps';
+  document.getElementById('ls_words').textContent=fmt(totalDays*16000)+' words';
+  document.getElementById('ls_blinks').textContent=fmt(totalMins*15)+' blinks';
+  document.getElementById('bs_heart').textContent=fmt(totalMins*72)+' beats';
+  document.getElementById('bs_breath').textContent=fmt(totalMins*15)+' breaths';
+  document.getElementById('bs_blood').textContent=fmt(totalHrs*300)+' litres';
+  document.getElementById('bs_hair').textContent=fmt(totalDays*0.36)+' cm';
+  document.getElementById('bs_nails').textContent=fmt(totalDays*0.11)+' cm';
+  document.getElementById('bs_skin').textContent=fmt(totalDays*30000)+' cells';
+  document.getElementById('bs_cal').textContent=fmt(totalDays*2000)+' kcal';
+  document.getElementById('bs_water').textContent=fmt(totalDays*2)+' litres';
+
+  startLiveTicker();
 }
 
-birthDateGlobal = dob;
-
-const diff =
-asOf - dob;
-
-const days =
-Math.floor(diff / (1000*60*60*24));
-
-const years =
-Math.floor(days / 365.25);
-
-const months =
-Math.floor((days % 365.25)/30);
-
-const remainingDays =
-Math.floor((days % 365.25)%30);
-
-document.getElementById('exactAge').innerHTML =
-years + ' Years';
-
-document.getElementById('liveAge').innerHTML =
-months + ' Months ' +
-remainingDays + ' Days';
-
-document.getElementById('totalDays').innerHTML =
-days.toLocaleString('en-IN');
-
-document.getElementById('totalHours').innerHTML =
-(days*24).toLocaleString('en-IN');
-
-document.getElementById('totalMinutes').innerHTML =
-(days*24*60).toLocaleString('en-IN');
-
-document.getElementById('heartbeats').innerHTML =
-(days*24*60*72).toLocaleString('en-IN');
-
-document.getElementById('sleepYears').innerHTML =
-(years * .33).toFixed(1) + ' yrs';
-
-document.getElementById('workYears').innerHTML =
-(years * .22).toFixed(1) + ' yrs';
-
-document.getElementById('marsAge').innerHTML =
-(years / 1.88).toFixed(1);
-
-document.getElementById('lifePercent').innerHTML =
-((years / 80)*100).toFixed(1) + '%';
-
-const retirementAge =
-parseInt(document.getElementById('retirementAge').value);
-
-document.getElementById('retirementIn').innerHTML =
-(retirementAge - years) + ' yrs';
-
-document.getElementById('retirementYear').innerHTML =
-(new Date().getFullYear() + (retirementAge-years));
-
-document.getElementById('workingDaysLeft').innerHTML =
-((retirementAge-years)*260)
-.toLocaleString('en-IN');
-
-const nextBirthday =
-new Date(
-asOf.getFullYear(),
-dob.getMonth(),
-dob.getDate()
-);
-
-if(nextBirthday < asOf){
-nextBirthday.setFullYear(asOf.getFullYear()+1);
-}
-
-const birthdayDiff =
-Math.ceil(
-(nextBirthday - asOf)/(1000*60*60*24)
-);
-
-document.getElementById('birthdayCountdown').innerHTML =
-birthdayDiff + ' days';
-
-document.getElementById('nextBirthday').innerHTML =
-nextBirthday.toDateString();
-
-document.getElementById('halfBirthday').innerHTML =
-new Date(
-dob.getFullYear(),
-dob.getMonth()+6,
-dob.getDate()
-).toDateString();
-
-document.getElementById('billionSeconds').innerHTML =
-(years >= 31)
-? 'Completed'
-: 'Pending';
-
-document.getElementById('zodiac').innerHTML =
-getZodiac(dob);
-
-updateLiveCounter();
-
-}
-
-function updateLiveCounter(){
-
-setInterval(()=>{
-
-if(!birthDateGlobal) return;
-
-const now = new Date();
-
-const diff =
-now - birthDateGlobal;
-
-const totalSeconds =
-Math.floor(diff / 1000);
-
-const years =
-Math.floor(totalSeconds / (365*24*60*60));
-
-const days =
-Math.floor(
-(totalSeconds % (365*24*60*60))
-/ (24*60*60)
-);
-
-const hours =
-Math.floor(
-(totalSeconds % (24*60*60))
-/ (60*60)
-);
-
-const minutes =
-Math.floor(
-(totalSeconds % (60*60))
-/ 60
-);
-
-const seconds =
-Math.floor(totalSeconds % 60);
-
-document.getElementById('liveClock').innerHTML =
-days + 'D ' +
-hours + 'H ' +
-minutes + 'M ' +
-seconds + 'S';
-
-},1000);
-
-}
-
-function getZodiac(date){
-
-const day = date.getDate();
-const month = date.getMonth()+1;
-
-if((month==3&&day>=21)||(month==4&&day<=19)) return 'Aries';
-if((month==4&&day>=20)||(month==5&&day<=20)) return 'Taurus';
-if((month==5&&day>=21)||(month==6&&day<=20)) return 'Gemini';
-if((month==6&&day>=21)||(month==7&&day<=22)) return 'Cancer';
-if((month==7&&day>=23)||(month==8&&day<=22)) return 'Leo';
-if((month==8&&day>=23)||(month==9&&day<=22)) return 'Virgo';
-if((month==9&&day>=23)||(month==10&&day<=22)) return 'Libra';
-if((month==10&&day>=23)||(month==11&&day<=21)) return 'Scorpio';
-if((month==11&&day>=22)||(month==12&&day<=21)) return 'Sagittarius';
-if((month==12&&day>=22)||(month==1&&day<=19)) return 'Capricorn';
-if((month==1&&day>=20)||(month==2&&day<=18)) return 'Aquarius';
-return 'Pisces';
-
+let tickerInterval;
+function startLiveTicker(){
+  if(tickerInterval) clearInterval(tickerInterval);
+  tickerInterval=setInterval(()=>{
+    if(!birthDate) return;
+    const now=new Date();
+    const diff=now-birthDate;
+    const s=Math.floor(diff/1000);
+    const d=Math.floor(s/86400);
+    const h=Math.floor((s%86400)/3600);
+    const m=Math.floor((s%3600)/60);
+    const sec=s%60;
+    document.getElementById('liveTicker').textContent=`⏱ ${d.toLocaleString()}D ${h}H ${m}M ${sec}S`;
+    document.getElementById('m_sec').textContent=fmt(s);
+    document.getElementById('m_heart').textContent=fmt(Math.floor(s/60)*72);
+  },1000);
 }
 
 function copyResult(){
-
-navigator.clipboard.writeText(
-document.getElementById('exactAge').innerText
-);
-
-alert('Copied');
-
+  const txt=document.getElementById('br_age').textContent+' — '+document.getElementById('br_sub').textContent;
+  navigator.clipboard.writeText(txt);
+  alert('Copied: '+txt);
 }
-
 function shareResult(){
-
-if(navigator.share){
-
-navigator.share({
-title:'AI Age Calculator',
-text:document.getElementById('exactAge').innerText
-});
-
+  if(navigator.share) navigator.share({title:'My Age',text:document.getElementById('br_age').textContent});
 }
+function resetForm(){location.reload();}
 
-}
-
-function resetForm(){
-
-location.reload();
-
-}
-
-function goHome(){
-
-window.location.href="../index.html";
-
-}
-
+// Set today as default asOf
+document.getElementById('asOf').value=new Date().toISOString().slice(0,10);
 </script>
-
 </body>
 </html>
