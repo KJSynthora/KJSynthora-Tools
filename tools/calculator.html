@@ -1,1437 +1,932 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>KJSynthora Global Calculator OS</title>
-
-<meta
-name="description"
-content="Advanced worldwide calculator platform with scientific mode, finance suite, graphing, programmer tools, localization, realtime currency conversion and AI-style calculations."
->
-
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet"
->
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
+<title>KJSynthora Calculator OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#030509;--panel:#080d18;--card:#0d1525;--card2:#111c30;
+  --border:rgba(99,179,237,0.1);--accent:#63b3ed;--accent2:#9f7aea;
+  --accent3:#68d391;--accent4:#f6ad55;--red:#fc8181;
+  --text:#e2e8f0;--muted:#4a6080;--mono:'JetBrains Mono',monospace;
 }
-
-body{
-
-background:
-linear-gradient(
-135deg,
-#020617,
-#081028,
-#020617
-);
-
-color:white;
-overflow-x:hidden;
-
-}
-
-body::before{
-
-content:'';
-
-position:fixed;
-
-width:700px;
-height:700px;
-
-background:
-radial-gradient(
-circle,
-#2563eb44,
-#8b5cf633,
-transparent
-);
-
-top:-250px;
-left:-250px;
-
-filter:blur(90px);
-
-z-index:-1;
-
-animation:glow 10s infinite alternate;
-
-}
-
-@keyframes glow{
-
-from{
-transform:translateY(0px);
-}
-
-to{
-transform:translateY(80px);
-}
-
-}
-
-.container{
-
-width:95%;
-max-width:1800px;
-
-margin:auto;
-
-padding:40px 0 100px;
-
-}
-
-.header{
-
-text-align:center;
-margin-bottom:40px;
-
-}
-
-.header h1{
-
-font-size:60px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.header p{
-
-margin-top:15px;
-color:#cbd5e1;
-font-size:18px;
-
-}
-
-.live-status{
-
-display:inline-block;
-
-margin-top:18px;
-
-padding:12px 22px;
-
-border-radius:999px;
-
-background:#16a34a;
-
-font-size:13px;
-font-weight:700;
-
-}
-
-.main-grid{
-
-display:grid;
-grid-template-columns:2fr 1fr;
-gap:25px;
-
-}
-
-.calculator-panel{
-
-background:#0f172a;
-
-padding:30px;
-
-border-radius:30px;
-
-border:1px solid rgba(255,255,255,.05);
-
-}
-
-.history-panel{
-
-background:#0f172a;
-
-padding:30px;
-
-border-radius:30px;
-
-border:1px solid rgba(255,255,255,.05);
-
-max-height:1200px;
-
-overflow-y:auto;
-
-}
-
-.mode-bar{
-
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-
-margin-bottom:25px;
-
-}
-
-.mode-btn{
-
-padding:12px 18px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
-}
-
-.mode-btn.active{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-}
-
-.controls-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
-
-gap:16px;
-
-margin-bottom:25px;
-
-}
-
-.select-box{
-
-padding:16px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-}
-
-.display{
-
-background:#111827;
-
-padding:30px;
-
-border-radius:24px;
-
-margin-bottom:25px;
-
-min-height:150px;
-
-}
-
-.expression{
-
-font-size:24px;
-color:#94a3b8;
-
-word-wrap:break-word;
-
-}
-
-.result{
-
-font-size:56px;
-font-weight:800;
-
-margin-top:20px;
-
-word-wrap:break-word;
-
-}
-
-.keypad{
-
-display:grid;
-
-grid-template-columns:repeat(5,1fr);
-
-gap:18px;
-
-}
-
-.btn{
-
-padding:22px;
-
-border:none;
-
-border-radius:18px;
-
-background:#111827;
-
-color:white;
-
-font-size:22px;
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
-}
-
-.btn:hover{
-
-transform:translateY(-3px);
-
-background:#1e293b;
-
-}
-
-.operator{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-}
-
-.equal{
-
-background:#16a34a;
-
-}
-
-.clear{
-
-background:#ef4444;
-
-}
-
-.section{
-
-display:none;
-
-margin-top:35px;
-
-}
-
-.section.active{
-
-display:block;
-
-}
-
-.tool-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(280px,1fr));
-
-gap:22px;
-
-}
-
-.tool-card{
-
-background:#111827;
-
-padding:24px;
-
-border-radius:22px;
-
-}
-
-.tool-card h3{
-
-margin-bottom:15px;
-color:#38bdf8;
-
-}
-
-.tool-card input,
-.tool-card select{
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-border-radius:14px;
-
-background:#1e293b;
-
-color:white;
-
-margin-top:12px;
-
-}
-
-.tool-card button{
-
-margin-top:15px;
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-border-radius:14px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-}
-
-.result-box{
-
-margin-top:15px;
-
-line-height:1.9;
-
-}
-
-.history-title{
-
-font-size:34px;
-
-margin-bottom:25px;
-
-}
-
-.history-item{
-
-background:#111827;
-
-padding:18px;
-
-border-radius:18px;
-
-margin-bottom:15px;
-
-line-height:1.9;
-
-}
-
-.graph-container{
-
-background:#111827;
-
-padding:25px;
-
-border-radius:24px;
-
-}
-
-.footer-buttons{
-
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-
-margin-top:45px;
-
-}
-
-.footer-buttons a{
-
-padding:16px 28px;
-
-border-radius:14px;
-
-text-decoration:none;
-
-font-weight:700;
-
-transition:.3s;
-
-}
-
-.primary-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-}
-
-.secondary-btn{
-
-background:#111827;
-color:white;
-
-}
-
-@media(max-width:1200px){
-
-.main-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.header h1{
-
-font-size:42px;
-
-}
-
-.result{
-
-font-size:38px;
-
-}
-
-.keypad{
-
-grid-template-columns:repeat(4,1fr);
-
-}
-
-.btn{
-
-padding:18px;
-font-size:18px;
-
-}
-
-}
-
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
+
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* BG */
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 10% 10%,rgba(99,179,237,0.05),transparent 60%),
+             radial-gradient(ellipse 50% 50% at 90% 90%,rgba(159,122,234,0.05),transparent 60%);
+  pointer-events:none;z-index:0;}
+
+.app{display:grid;grid-template-columns:1fr 280px;height:100vh;position:relative;z-index:1;}
+
+/* SIDEBAR */
+.sidebar{background:rgba(8,13,24,0.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.logo-area{padding:18px 16px;border-bottom:1px solid var(--border);}
+.logo{font-size:13px;font-weight:700;letter-spacing:0.05em;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.live-dot{display:inline-block;width:6px;height:6px;background:#68d391;border-radius:50%;margin-right:6px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* TABS */
+.tab-list{padding:12px;display:flex;flex-direction:column;gap:3px;}
+.tab{padding:10px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);border:none;background:none;text-align:left;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px;}
+.tab.active{background:rgba(99,179,237,0.12);color:var(--accent);border:1px solid rgba(99,179,237,0.2);}
+.tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,0.04);}
+
+/* HISTORY */
+.hist-area{flex:1;overflow-y:auto;padding:12px;border-top:1px solid var(--border);}
+.hist-title{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
+.hist-item{background:var(--card);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:border-color 0.2s;}
+.hist-item:hover{border-color:rgba(99,179,237,0.2);}
+.hi-expr{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.hi-res{font-size:13px;font-weight:700;color:var(--accent);font-family:var(--mono);}
+
+/* MAIN */
+.main{overflow-y:auto;padding:20px;}
+
+/* DISPLAY */
+.display{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:16px;position:relative;}
+.display::before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.expr-line{font-size:13px;color:var(--muted);font-family:var(--mono);min-height:20px;word-break:break-all;}
+.result-line{font-size:42px;font-weight:700;font-family:var(--mono);word-break:break-all;margin-top:6px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.result-line.error{-webkit-text-fill-color:var(--red);}
+.display-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;font-family:var(--mono);}
+.dm-locale{color:var(--muted);}
+.dm-memory{color:var(--accent2);}
+
+/* CONTROLS */
+.ctrl-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.ctrl-sel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;cursor:pointer;}
+.ctrl-sel:focus{border-color:var(--accent);}
+.ctrl-sel option{background:#080d18;}
+
+/* PANEL */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* KEYPAD */
+.keypad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.key{padding:0;height:52px;border:1px solid rgba(255,255,255,0.06);border-radius:10px;background:var(--card);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;position:relative;overflow:hidden;}
+.key::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background 0.1s;}
+.key:hover::after{background:rgba(255,255,255,0.06);}
+.key:active::after{background:rgba(255,255,255,0.12);}
+.key.op{background:rgba(99,179,237,0.1);color:var(--accent);border-color:rgba(99,179,237,0.15);}
+.key.eq{background:linear-gradient(135deg,#22543d,#276749);color:#68d391;border-color:#276749;}
+.key.cl{background:rgba(252,129,129,0.12);color:var(--red);border-color:rgba(252,129,129,0.2);}
+.key.fn{background:rgba(159,122,234,0.1);color:var(--accent2);border-color:rgba(159,122,234,0.15);font-size:12px;}
+.key.mem{background:rgba(246,173,85,0.1);color:var(--accent4);border-color:rgba(246,173,85,0.15);font-size:12px;}
+
+/* SECTION TITLES */
+.sec{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-family:var(--mono);margin-bottom:10px;margin-top:18px;display:flex;align-items:center;gap:6px;}
+.sec::after{content:'';flex:1;height:1px;background:rgba(99,179,237,0.08);}
+
+/* TOOL GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.tcard{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.tcard h3{font-size:13px;color:var(--accent);margin-bottom:12px;}
+.tcard input,.tcard select,.tcard textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;margin-bottom:8px;}
+.tcard input:focus,.tcard select:focus{border-color:var(--accent);}
+.tcard select option{background:#080d18;}
+.tcard button{width:100%;padding:10px;border:none;border-radius:8px;background:linear-gradient(135deg,#2b6cb0,#553c9a);color:#fff;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13px;transition:all 0.2s;}
+.tcard button:hover{transform:translateY(-1px);}
+.res-box{background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.12);border-radius:8px;padding:12px;margin-top:10px;font-family:var(--mono);font-size:12px;line-height:1.8;display:none;}
+.res-box.show{display:block;}
+
+/* UNIT CONVERTER */
+.uc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* GRAPH */
+.graph-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.graph-input-row{display:flex;gap:8px;margin-bottom:14px;}
+.graph-input-row input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;}
+.graph-input-row input:focus{border-color:var(--accent);}
+.graph-input-row button{padding:10px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,#2b6cb0,#553c9a);color:#fff;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;white-space:nowrap;}
+
+/* STAT MODE */
+.stat-output{font-family:var(--mono);font-size:12px;line-height:2;}
+.stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.stat-k{color:var(--muted);}
+.stat-v{color:var(--accent3);font-weight:600;}
+
+/* PROGRAMMER */
+.prog-display{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-family:var(--mono);font-size:13px;line-height:2;}
+.prog-row{display:flex;justify-content:space-between;}
+.prog-base{color:var(--muted);font-size:11px;}
+.prog-val{color:var(--accent);}
+.prog-keypad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.prog-key{height:44px;border:1px solid rgba(255,255,255,0.06);border-radius:8px;background:var(--card);color:var(--text);font-weight:600;cursor:pointer;transition:all 0.15s;font-family:var(--mono);font-size:13px;}
+.prog-key.hex{color:var(--accent2);}
+.prog-key.op{background:rgba(99,179,237,0.08);color:var(--accent);}
+.prog-key.disabled{opacity:0.2;cursor:not-allowed;}
+
+/* MATRIX */
+.matrix-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.matrix-input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:100%;}
+.matrix-input:focus{border-color:var(--accent);}
+
+/* HOME BTN */
+.home-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:var(--muted);text-decoration:none;font-size:12px;font-family:var(--mono);transition:all 0.2s;margin-top:20px;}
+.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+@media(max-width:900px){.app{grid-template-columns:1fr;}.sidebar{display:none;}.keypad{grid-template-columns:repeat(4,1fr);}  }
 </style>
-
 </head>
-
 <body>
+<div class="app">
 
-<div class="container">
+<!-- MAIN -->
+<div class="main">
 
-<div class="header">
+  <!-- DISPLAY -->
+  <div class="display">
+    <div class="expr-line" id="expr"></div>
+    <div class="result-line" id="result">0</div>
+    <div class="display-meta">
+      <span class="dm-locale" id="localeLabel">en-US</span>
+      <span class="dm-memory" id="memLabel"></span>
+    </div>
+  </div>
 
-<h1>KJSynthora Calculator OS</h1>
+  <!-- CONTROLS -->
+  <div class="ctrl-row">
+    <select class="ctrl-sel" id="localeSelect" onchange="updateLocale()">
+      <option value="en-US">🇺🇸 US</option>
+      <option value="en-IN">🇮🇳 India</option>
+      <option value="de-DE">🇩🇪 Europe</option>
+      <option value="ar-EG">🇪🇬 Arabic</option>
+      <option value="ja-JP">🇯🇵 Japan</option>
+    </select>
+    <select class="ctrl-sel" id="angleMode">
+      <option value="deg">DEG</option>
+      <option value="rad">RAD</option>
+    </select>
+    <select class="ctrl-sel" id="currencyFrom">
+      <option value="USD">USD</option><option value="INR">INR</option>
+      <option value="EUR">EUR</option><option value="GBP">GBP</option>
+      <option value="JPY">JPY</option><option value="AED">AED</option>
+      <option value="SGD">SGD</option>
+    </select>
+  </div>
 
-<p>
-Enterprise-grade worldwide calculation platform
-</p>
+  <!-- TABS -->
+  <div class="ctrl-row" style="margin-bottom:16px;">
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('std',this)">Standard</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('sci',this)">Scientific</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('fin',this)">Finance</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('conv',this)">Converter</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('prog',this)">Programmer</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('stat',this)">Statistics</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('mat',this)">Matrix</button>
+    <button class="key fn" style="flex:1;height:36px;font-size:11px;" onclick="switchPanel('graph',this)">Graph</button>
+  </div>
 
-<div class="live-status">
-● REALTIME GLOBAL ENGINE ACTIVE
+  <!-- ═══════ STANDARD ═══════ -->
+  <div class="panel active" id="p-std">
+    <div class="keypad">
+      <button class="key fn" onclick="ap('sin(')">sin</button>
+      <button class="key fn" onclick="ap('cos(')">cos</button>
+      <button class="key fn" onclick="ap('tan(')">tan</button>
+      <button class="key fn" onclick="ap('sqrt(')">√</button>
+      <button class="key cl" onclick="clr()">C</button>
+      <button class="key fn" onclick="ap('log(')">log</button>
+      <button class="key fn" onclick="ap('pi')">π</button>
+      <button class="key" onclick="ap('(')">（</button>
+      <button class="key" onclick="ap(')')">）</button>
+      <button class="key cl" onclick="del()">⌫</button>
+      <button class="key" onclick="ap('7')">7</button>
+      <button class="key" onclick="ap('8')">8</button>
+      <button class="key" onclick="ap('9')">9</button>
+      <button class="key op" onclick="ap('/')">÷</button>
+      <button class="key op" onclick="ap('%')">%</button>
+      <button class="key" onclick="ap('4')">4</button>
+      <button class="key" onclick="ap('5')">5</button>
+      <button class="key" onclick="ap('6')">6</button>
+      <button class="key op" onclick="ap('*')">×</button>
+      <button class="key op" onclick="ap('^')">xʸ</button>
+      <button class="key" onclick="ap('1')">1</button>
+      <button class="key" onclick="ap('2')">2</button>
+      <button class="key" onclick="ap('3')">3</button>
+      <button class="key op" onclick="ap('-')">−</button>
+      <button class="key fn" onclick="ap('abs(')">|x|</button>
+      <button class="key" onclick="ap('0')">0</button>
+      <button class="key" onclick="ap('.')">.</button>
+      <button class="key fn" onclick="ap('ans')">Ans</button>
+      <button class="key op" onclick="ap('+')">+</button>
+      <button class="key eq" onclick="calc()">=</button>
+      <button class="key mem" onclick="ms()">M+</button>
+      <button class="key mem" onclick="mr()">MR</button>
+      <button class="key mem" onclick="mc()">MC</button>
+      <button class="key fn" onclick="ap('e')">e</button>
+      <button class="key fn" onclick="negate()">±</button>
+    </div>
+  </div>
+
+  <!-- ═══════ SCIENTIFIC ═══════ -->
+  <div class="panel" id="p-sci">
+    <div class="keypad">
+      <button class="key fn" onclick="ap('sin(')">sin</button>
+      <button class="key fn" onclick="ap('cos(')">cos</button>
+      <button class="key fn" onclick="ap('tan(')">tan</button>
+      <button class="key fn" onclick="ap('asin(')">sin⁻¹</button>
+      <button class="key cl" onclick="clr()">C</button>
+      <button class="key fn" onclick="ap('acos(')">cos⁻¹</button>
+      <button class="key fn" onclick="ap('atan(')">tan⁻¹</button>
+      <button class="key fn" onclick="ap('sinh(')">sinh</button>
+      <button class="key fn" onclick="ap('cosh(')">cosh</button>
+      <button class="key cl" onclick="del()">⌫</button>
+      <button class="key fn" onclick="ap('log(')">log₁₀</button>
+      <button class="key fn" onclick="ap('log2(')">log₂</button>
+      <button class="key fn" onclick="ap('ln(')">ln</button>
+      <button class="key fn" onclick="ap('exp(')">eˣ</button>
+      <button class="key fn" onclick="ap('10^(')">10ˣ</button>
+      <button class="key fn" onclick="ap('sqrt(')">√</button>
+      <button class="key fn" onclick="ap('cbrt(')">∛</button>
+      <button class="key fn" onclick="ap('^(1/')">ⁿ√</button>
+      <button class="key fn" onclick="ap('pi')">π</button>
+      <button class="key fn" onclick="ap('e')">e</button>
+      <button class="key" onclick="ap('7')">7</button>
+      <button class="key" onclick="ap('8')">8</button>
+      <button class="key" onclick="ap('9')">9</button>
+      <button class="key op" onclick="ap('/')">÷</button>
+      <button class="key op" onclick="ap('^')">xʸ</button>
+      <button class="key" onclick="ap('4')">4</button>
+      <button class="key" onclick="ap('5')">5</button>
+      <button class="key" onclick="ap('6')">6</button>
+      <button class="key op" onclick="ap('*')">×</button>
+      <button class="key fn" onclick="ap('factorial(')">n!</button>
+      <button class="key" onclick="ap('1')">1</button>
+      <button class="key" onclick="ap('2')">2</button>
+      <button class="key" onclick="ap('3')">3</button>
+      <button class="key op" onclick="ap('-')">−</button>
+      <button class="key fn" onclick="ap('mod ')">mod</button>
+      <button class="key" onclick="ap('0')">0</button>
+      <button class="key" onclick="ap('.')">.</button>
+      <button class="key fn" onclick="ap('ans')">Ans</button>
+      <button class="key op" onclick="ap('+')">+</button>
+      <button class="key eq" onclick="calc()">=</button>
+    </div>
+  </div>
+
+  <!-- ═══════ FINANCE ═══════ -->
+  <div class="panel" id="p-fin">
+    <div class="tgrid">
+      <div class="tcard">
+        <h3>📊 EMI / Loan Calculator</h3>
+        <input type="number" id="f_principal" placeholder="Principal Amount (₹)">
+        <input type="number" id="f_rate" placeholder="Annual Interest Rate (%)">
+        <input type="number" id="f_years" placeholder="Loan Duration (Years)">
+        <select id="f_type"><option value="reducing">Reducing Balance</option><option value="flat">Flat Rate</option></select>
+        <button onclick="calcEMI()">Calculate EMI</button>
+        <div class="res-box" id="r_emi"></div>
+      </div>
+      <div class="tcard">
+        <h3>📈 SIP / Investment Returns</h3>
+        <input type="number" id="f_sip" placeholder="Monthly SIP (₹)">
+        <input type="number" id="f_siprate" placeholder="Expected Return (% p.a.)">
+        <input type="number" id="f_sipyears" placeholder="Duration (Years)">
+        <button onclick="calcSIP()">Calculate SIP</button>
+        <div class="res-box" id="r_sip"></div>
+      </div>
+      <div class="tcard">
+        <h3>🧾 GST / VAT / Tax</h3>
+        <input type="number" id="f_gstamt" placeholder="Base Amount">
+        <input type="number" id="f_gstpct" placeholder="Tax Rate (%)">
+        <select id="f_gstmode"><option value="add">Add Tax to Amount</option><option value="extract">Extract Tax from Total</option></select>
+        <button onclick="calcGST()">Calculate</button>
+        <div class="res-box" id="r_gst"></div>
+      </div>
+      <div class="tcard">
+        <h3>💰 Compound Interest</h3>
+        <input type="number" id="f_ci_p" placeholder="Principal (₹)">
+        <input type="number" id="f_ci_r" placeholder="Rate (% p.a.)">
+        <input type="number" id="f_ci_n" placeholder="Times compounded / yr">
+        <input type="number" id="f_ci_t" placeholder="Years">
+        <button onclick="calcCI()">Calculate CI</button>
+        <div class="res-box" id="r_ci"></div>
+      </div>
+      <div class="tcard">
+        <h3>💱 Live Currency Converter</h3>
+        <input type="number" id="f_cur_amt" placeholder="Amount">
+        <select id="f_cur_from"><option>USD</option><option>INR</option><option>EUR</option><option>GBP</option><option>JPY</option><option>AED</option></select>
+        <select id="f_cur_to"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option><option>JPY</option><option>AED</option></select>
+        <button onclick="convertCurrency()">Convert Currency</button>
+        <div class="res-box" id="r_cur"></div>
+      </div>
+      <div class="tcard">
+        <h3>📉 Discount / Profit / Loss</h3>
+        <input type="number" id="f_cp" placeholder="Cost Price">
+        <input type="number" id="f_sp" placeholder="Selling Price">
+        <input type="number" id="f_disc" placeholder="Discount % (optional)">
+        <button onclick="calcPL()">Calculate Profit / Loss</button>
+        <div class="res-box" id="r_pl"></div>
+      </div>
+      <div class="tcard">
+        <h3>🏠 Home Affordability</h3>
+        <input type="number" id="f_income" placeholder="Monthly Income (₹)">
+        <input type="number" id="f_downpay" placeholder="Down Payment (₹)">
+        <input type="number" id="f_hrate" placeholder="Interest Rate (%)">
+        <input type="number" id="f_hterm" placeholder="Loan Term (Years)">
+        <button onclick="calcHome()">Check Affordability</button>
+        <div class="res-box" id="r_home"></div>
+      </div>
+      <div class="tcard">
+        <h3>📊 ROI Calculator</h3>
+        <input type="number" id="f_roi_inv" placeholder="Initial Investment">
+        <input type="number" id="f_roi_ret" placeholder="Final Return">
+        <input type="number" id="f_roi_yr" placeholder="Number of Years">
+        <button onclick="calcROI()">Calculate ROI</button>
+        <div class="res-box" id="r_roi"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ CONVERTER ═══════ -->
+  <div class="panel" id="p-conv">
+    <div class="tgrid">
+      <div class="tcard">
+        <h3>📏 Length</h3>
+        <input type="number" id="uc_len_val" placeholder="Value" oninput="convLen()">
+        <select id="uc_len_from" onchange="convLen()">
+          <option value="1">Metre</option><option value="0.001">Kilometre</option>
+          <option value="0.0254">Inch</option><option value="0.3048">Foot</option>
+          <option value="0.9144">Yard</option><option value="1609.34">Mile</option>
+          <option value="1852">Nautical Mile</option><option value="1e-9">Nanometre</option>
+          <option value="1e-6">Micrometre</option><option value="0.01">Centimetre</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_len_to" onchange="convLen()">
+          <option value="0.0254">Inch</option><option value="1">Metre</option>
+          <option value="0.3048">Foot</option><option value="0.9144">Yard</option>
+          <option value="1609.34">Mile</option><option value="0.001">Kilometre</option>
+          <option value="1852">Nautical Mile</option><option value="0.01">Centimetre</option>
+        </select>
+        <div class="res-box show" id="r_len">Enter a value above</div>
+      </div>
+      <div class="tcard">
+        <h3>⚖️ Weight / Mass</h3>
+        <input type="number" id="uc_w_val" placeholder="Value" oninput="convW()">
+        <select id="uc_w_from" onchange="convW()">
+          <option value="1">Kilogram</option><option value="0.001">Gram</option>
+          <option value="0.0001">Milligram</option><option value="1000">Metric Ton</option>
+          <option value="0.453592">Pound</option><option value="0.0283495">Ounce</option>
+          <option value="6.35029">Stone</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_w_to" onchange="convW()">
+          <option value="0.453592">Pound</option><option value="1">Kilogram</option>
+          <option value="0.001">Gram</option><option value="0.0283495">Ounce</option>
+          <option value="1000">Metric Ton</option><option value="6.35029">Stone</option>
+        </select>
+        <div class="res-box show" id="r_w">Enter a value above</div>
+      </div>
+      <div class="tcard">
+        <h3>🌡️ Temperature</h3>
+        <input type="number" id="uc_t_val" placeholder="Value" oninput="convT()">
+        <select id="uc_t_from" onchange="convT()">
+          <option value="C">Celsius</option><option value="F">Fahrenheit</option>
+          <option value="K">Kelvin</option><option value="R">Rankine</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_t_to" onchange="convT()">
+          <option value="F">Fahrenheit</option><option value="C">Celsius</option>
+          <option value="K">Kelvin</option><option value="R">Rankine</option>
+        </select>
+        <div class="res-box show" id="r_t">Enter a value above</div>
+      </div>
+      <div class="tcard">
+        <h3>⚡ Energy / Power</h3>
+        <input type="number" id="uc_e_val" placeholder="Value" oninput="convE()">
+        <select id="uc_e_from" onchange="convE()">
+          <option value="1">Joule</option><option value="1000">Kilojoule</option>
+          <option value="4184">Kilocalorie</option><option value="3600000">kWh</option>
+          <option value="1055.06">BTU</option><option value="1e-7">Erg</option>
+          <option value="0.000239006">Calorie</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_e_to" onchange="convE()">
+          <option value="4184">Kilocalorie</option><option value="1">Joule</option>
+          <option value="1000">Kilojoule</option><option value="3600000">kWh</option>
+          <option value="1055.06">BTU</option>
+        </select>
+        <div class="res-box show" id="r_e">Enter a value above</div>
+      </div>
+      <div class="tcard">
+        <h3>🚀 Speed</h3>
+        <input type="number" id="uc_sp_val" placeholder="Value" oninput="convSp()">
+        <select id="uc_sp_from" onchange="convSp()">
+          <option value="1">m/s</option><option value="0.277778">km/h</option>
+          <option value="0.44704">mph</option><option value="340.29">Mach</option>
+          <option value="299792458">Speed of Light</option>
+          <option value="0.514444">Knot</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_sp_to" onchange="convSp()">
+          <option value="0.277778">km/h</option><option value="1">m/s</option>
+          <option value="0.44704">mph</option><option value="0.514444">Knot</option>
+        </select>
+        <div class="res-box show" id="r_sp">Enter a value above</div>
+      </div>
+      <div class="tcard">
+        <h3>💾 Data Storage</h3>
+        <input type="number" id="uc_d_val" placeholder="Value" oninput="convD()">
+        <select id="uc_d_from" onchange="convD()">
+          <option value="1">Bit</option><option value="8">Byte</option>
+          <option value="8192">Kilobyte</option><option value="8388608">Megabyte</option>
+          <option value="8589934592">Gigabyte</option><option value="8796093022208">Terabyte</option>
+        </select>
+        <div style="text-align:center;color:var(--muted);font-size:18px;margin:4px;">⇅</div>
+        <select id="uc_d_to" onchange="convD()">
+          <option value="8388608">Megabyte</option><option value="8">Byte</option>
+          <option value="8192">Kilobyte</option><option value="8589934592">Gigabyte</option>
+          <option value="8796093022208">Terabyte</option>
+        </select>
+        <div class="res-box show" id="r_d">Enter a value above</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ PROGRAMMER ═══════ -->
+  <div class="panel" id="p-prog">
+    <div class="prog-display">
+      <div class="prog-row"><span class="prog-base">BIN</span><span class="prog-val" id="pb_bin">0</span></div>
+      <div class="prog-row"><span class="prog-base">OCT</span><span class="prog-val" id="pb_oct">0</span></div>
+      <div class="prog-row"><span class="prog-base">DEC</span><span class="prog-val" id="pb_dec">0</span></div>
+      <div class="prog-row"><span class="prog-base">HEX</span><span class="prog-val" id="pb_hex">0</span></div>
+    </div>
+    <div class="ctrl-row" style="margin-bottom:10px;">
+      <button class="key fn" style="height:32px;font-size:11px;flex:1;" onclick="setProgBase(2)">BIN</button>
+      <button class="key fn" style="height:32px;font-size:11px;flex:1;" onclick="setProgBase(8)">OCT</button>
+      <button class="key fn active" style="height:32px;font-size:11px;flex:1;" onclick="setProgBase(10)">DEC</button>
+      <button class="key fn" style="height:32px;font-size:11px;flex:1;" onclick="setProgBase(16)">HEX</button>
+    </div>
+    <div class="prog-keypad">
+      <button class="prog-key hex" id="pk_A" onclick="ppush('A')">A</button>
+      <button class="prog-key hex" id="pk_B" onclick="ppush('B')">B</button>
+      <button class="prog-key hex" id="pk_C" onclick="ppush('C')">C</button>
+      <button class="prog-key hex" id="pk_D" onclick="ppush('D')">D</button>
+      <button class="prog-key hex" id="pk_E" onclick="ppush('E')">E</button>
+      <button class="prog-key hex" id="pk_F" onclick="ppush('F')">F</button>
+      <button class="prog-key op" onclick="pbop('AND')">AND</button>
+      <button class="prog-key op" onclick="pbop('OR')">OR</button>
+      <button class="prog-key op" onclick="pbop('XOR')">XOR</button>
+      <button class="prog-key op" onclick="pbop('NOT')">NOT</button>
+      <button class="prog-key op" onclick="pbop('<<')">SHL</button>
+      <button class="prog-key op" onclick="pbop('>>')">SHR</button>
+      <button class="prog-key op" onclick="pbop('%')">MOD</button>
+      <button class="prog-key" onclick="ppush('7')">7</button>
+      <button class="prog-key" onclick="ppush('8')">8</button>
+      <button class="prog-key" onclick="ppush('9')">9</button>
+      <button class="prog-key op" onclick="ppush('/')">÷</button>
+      <button class="prog-key" onclick="ppush('4')">4</button>
+      <button class="prog-key" onclick="ppush('5')">5</button>
+      <button class="prog-key" onclick="ppush('6')">6</button>
+      <button class="prog-key op" onclick="ppush('*')">×</button>
+      <button class="prog-key" onclick="ppush('1')">1</button>
+      <button class="prog-key" onclick="ppush('2')">2</button>
+      <button class="prog-key" onclick="ppush('3')">3</button>
+      <button class="prog-key op" onclick="ppush('-')">−</button>
+      <button class="prog-key" onclick="ppush('0')">0</button>
+      <button class="prog-key cl" onclick="pclr()">C</button>
+      <button class="prog-key cl" onclick="pdel()">⌫</button>
+      <button class="prog-key op" onclick="ppush('+')">+</button>
+      <button class="prog-key eq" onclick="pcalc()" style="background:linear-gradient(135deg,#22543d,#276749);color:#68d391;">=</button>
+    </div>
+  </div>
+
+  <!-- ═══════ STATISTICS ═══════ -->
+  <div class="panel" id="p-stat">
+    <div class="tcard" style="max-width:600px;">
+      <h3>📊 Statistics Calculator</h3>
+      <textarea id="stat_data" placeholder="Enter numbers separated by commas: 2,4,6,8,10" style="height:80px;resize:vertical;"></textarea>
+      <button onclick="calcStats()">Calculate Statistics</button>
+      <div class="res-box" id="r_stat"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ MATRIX ═══════ -->
+  <div class="panel" id="p-mat">
+    <div class="tcard">
+      <h3>🔢 Matrix Calculator (2×2)</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Matrix A</p>
+      <div class="matrix-grid">
+        <input class="matrix-input" id="ma11" placeholder="a11" type="number">
+        <input class="matrix-input" id="ma12" placeholder="a12" type="number">
+        <input class="matrix-input" id="ma21" placeholder="a21" type="number">
+        <input class="matrix-input" id="ma22" placeholder="a22" type="number">
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Matrix B</p>
+      <div class="matrix-grid">
+        <input class="matrix-input" id="mb11" placeholder="b11" type="number">
+        <input class="matrix-input" id="mb12" placeholder="b12" type="number">
+        <input class="matrix-input" id="mb21" placeholder="b21" type="number">
+        <input class="matrix-input" id="mb22" placeholder="b22" type="number">
+      </div>
+      <div class="ctrl-row" style="margin-top:8px;">
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('add')">A+B</button>
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('sub')">A−B</button>
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('mul')">A×B</button>
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('detA')">det(A)</button>
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('invA')">A⁻¹</button>
+        <button class="key fn" style="flex:1;height:38px;font-size:12px;" onclick="matOp('trA')">tr(A)</button>
+      </div>
+      <div class="res-box" id="r_mat"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ GRAPH ═══════ -->
+  <div class="panel" id="p-graph">
+    <div class="graph-box">
+      <div class="graph-input-row">
+        <input type="text" id="g_func" placeholder="Enter function: sin(x), x^2, 2*x+1..." value="sin(x)">
+        <input type="text" id="g_func2" placeholder="Second function (optional)" style="display:none;" id="g2">
+        <button onclick="plotGraph()">Plot</button>
+        <button onclick="addFunc2()" style="padding:10px;background:rgba(159,122,234,0.2);border:1px solid rgba(159,122,234,0.3);color:var(--accent2);">+f(x)</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input type="number" id="g_xmin" value="-10" placeholder="X min" style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+        <input type="number" id="g_xmax" value="10" placeholder="X max" style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:6px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+        <button onclick="plotGraph()" style="padding:6px 14px;border:none;border-radius:6px;background:rgba(99,179,237,0.12);color:var(--accent);font-size:12px;cursor:pointer;">Update Range</button>
+      </div>
+      <canvas id="graphCanvas" height="300"></canvas>
+    </div>
+  </div>
+
+  <a href="../index.html" class="home-btn">← Return Home</a>
+
 </div>
 
+<!-- SIDEBAR (history) -->
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo"><span class="live-dot"></span>KJSynthora Calculator OS</div>
+    <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px;" id="liveTime">--:--:--</div>
+  </div>
+  <div class="tab-list">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:var(--mono);padding:4px 14px;">Memory</div>
+    <div id="memDisplay" style="padding:8px 14px;font-family:var(--mono);font-size:13px;color:var(--accent4);">M = 0</div>
+  </div>
+  <div class="hist-area">
+    <div class="hist-title">Calculation History</div>
+    <div id="historyList"></div>
+  </div>
 </div>
 
-<div class="main-grid">
-
-<div class="calculator-panel">
-
-<div class="mode-bar">
-
-<button class="mode-btn active" data-tab="calculatorSection">
-Standard
-</button>
-
-<button class="mode-btn" data-tab="financeSection">
-Finance
-</button>
-
-<button class="mode-btn" data-tab="converterSection">
-Converter
-</button>
-
-<button class="mode-btn" data-tab="programmerSection">
-Programmer
-</button>
-
-<button class="mode-btn" data-tab="graphSection">
-Graphing
-</button>
-
-</div>
-
-<div class="controls-grid">
-
-<select
-class="select-box"
-id="localeSelect"
->
-
-<option value="en-US">
-US Format
-</option>
-
-<option value="en-IN">
-India Format
-</option>
-
-<option value="de-DE">
-Europe Format
-</option>
-
-<option value="ar-EG">
-Arabic Format
-</option>
-
-</select>
-
-<select
-class="select-box"
-id="currencySelect"
->
-
-<option value="USD">
-USD
-</option>
-
-<option value="INR">
-INR
-</option>
-
-<option value="EUR">
-EUR
-</option>
-
-<option value="GBP">
-GBP
-</option>
-
-<option value="JPY">
-JPY
-</option>
-
-<option value="AED">
-AED
-</option>
-
-</select>
-
-</div>
-
-<div class="display">
-
-<div
-class="expression"
-id="expression"
-></div>
-
-<div
-class="result"
-id="result"
->
-0
-</div>
-
-</div>
-
-<div
-id="calculatorSection"
-class="section active"
->
-
-<div class="keypad">
-
-<button class="btn" onclick="appendValue('sin(')">sin</button>
-<button class="btn" onclick="appendValue('cos(')">cos</button>
-<button class="btn" onclick="appendValue('tan(')">tan</button>
-<button class="btn" onclick="appendValue('sqrt(')">√</button>
-<button class="btn clear" onclick="clearDisplay()">C</button>
-
-<button class="btn" onclick="appendValue('log(')">log</button>
-<button class="btn" onclick="appendValue('pi')">π</button>
-<button class="btn" onclick="appendValue('(')">(</button>
-<button class="btn" onclick="appendValue(')')">)</button>
-<button class="btn" onclick="deleteLast()">⌫</button>
-
-<button class="btn" onclick="appendValue('7')">7</button>
-<button class="btn" onclick="appendValue('8')">8</button>
-<button class="btn" onclick="appendValue('9')">9</button>
-<button class="btn operator" onclick="appendValue('/')">÷</button>
-<button class="btn operator" onclick="appendValue('%')">%</button>
-
-<button class="btn" onclick="appendValue('4')">4</button>
-<button class="btn" onclick="appendValue('5')">5</button>
-<button class="btn" onclick="appendValue('6')">6</button>
-<button class="btn operator" onclick="appendValue('*')">×</button>
-<button class="btn operator" onclick="appendValue('^')">xʸ</button>
-
-<button class="btn" onclick="appendValue('1')">1</button>
-<button class="btn" onclick="appendValue('2')">2</button>
-<button class="btn" onclick="appendValue('3')">3</button>
-<button class="btn operator" onclick="appendValue('-')">−</button>
-<button class="btn" onclick="appendValue('.')">.</button>
-
-<button class="btn" onclick="appendValue('0')">0</button>
-<button class="btn" onclick="appendValue('e')">e</button>
-<button class="btn" onclick="appendValue('ans')">Ans</button>
-<button class="btn operator" onclick="appendValue('+')">+</button>
-<button class="btn equal" onclick="calculate()">=</button>
-
-</div>
-
-</div>
-
-<div
-id="financeSection"
-class="section"
->
-
-<div class="tool-grid">
-
-<div class="tool-card">
-
-<h3>EMI Calculator</h3>
-
-<input
-type="number"
-id="loanAmount"
-placeholder="Loan Amount"
->
-
-<input
-type="number"
-id="interestRate"
-placeholder="Interest Rate"
->
-
-<input
-type="number"
-id="loanYears"
-placeholder="Years"
->
-
-<button onclick="calculateEMI()">
-Calculate EMI
-</button>
-
-<div
-class="result-box"
-id="emiResult"
-></div>
-
-</div>
-
-<div class="tool-card">
-
-<h3>GST / VAT Calculator</h3>
-
-<input
-type="number"
-id="gstAmount"
-placeholder="Amount"
->
-
-<input
-type="number"
-id="gstPercent"
-placeholder="Tax %"
->
-
-<button onclick="calculateGST()">
-Calculate Tax
-</button>
-
-<div
-class="result-box"
-id="gstResult"
-></div>
-
-</div>
-
-</div>
-
-</div>
-
-<div
-id="converterSection"
-class="section"
->
-
-<div class="tool-grid">
-
-<div class="tool-card">
-
-<h3>Unit Converter</h3>
-
-<input
-type="number"
-id="meterInput"
-placeholder="Meters"
->
-
-<button onclick="convertMeters()">
-Convert to Feet
-</button>
-
-<div
-class="result-box"
-id="meterResult"
-></div>
-
-</div>
-
-<div class="tool-card">
-
-<h3>Realtime Currency Converter</h3>
-
-<input
-type="number"
-id="usdInput"
-placeholder="USD"
->
-
-<button onclick="convertCurrency()">
-Convert Currency
-</button>
-
-<div
-class="result-box"
-id="currencyResult"
-></div>
-
-</div>
-
-</div>
-
-</div>
-
-<div
-id="programmerSection"
-class="section"
->
-
-<div class="tool-grid">
-
-<div class="tool-card">
-
-<h3>Programmer Mode</h3>
-
-<input
-type="number"
-id="binaryInput"
-placeholder="Decimal Number"
->
-
-<button onclick="convertBinary()">
-Convert
-</button>
-
-<div
-class="result-box"
-id="binaryResult"
-></div>
-
-</div>
-
-</div>
-
-</div>
-
-<div
-id="graphSection"
-class="section"
->
-
-<div class="graph-container">
-
-<canvas id="graphCanvas"></canvas>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="history-panel">
-
-<div class="history-title">
-History
-</div>
-
-<div id="historyList"></div>
-
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<a
-href="../index.html"
-class="primary-btn"
->
-← Return Home
-</a>
-
-<a
-href="../index.html"
-class="secondary-btn"
->
-More Tools
-</a>
-
-</div>
-
-</div>
+</div><!-- /app -->
 
 <script>
+// ── STATE ──
+let expr='', ans=0, memory=0, progBase=10, progExpr='', graphChart=null;
+const locale={current:'en-US'};
 
-let expression = '';
-let lastAnswer = 0;
+// ── CLOCK ──
+setInterval(()=>{document.getElementById('liveTime').textContent=new Date().toLocaleTimeString();},1000);
 
-const expressionEl =
-document.getElementById('expression');
+// ── PANEL SWITCH ──
+function switchPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+}
+function updateLocale(){
+  locale.current=document.getElementById('localeSelect').value;
+  document.getElementById('localeLabel').textContent=locale.current;
+}
 
-const resultEl =
-document.getElementById('result');
+// ── CORE CALC ──
+function ap(v){
+  if(v==='ans') expr+=ans;
+  else expr+=v;
+  document.getElementById('expr').textContent=expr;
+  liveEval();
+}
+function clr(){expr='';document.getElementById('expr').textContent='';setResult('0',false);}
+function del(){expr=expr.slice(0,-1);document.getElementById('expr').textContent=expr;liveEval();}
+function negate(){if(expr)expr='-('+expr+')';document.getElementById('expr').textContent=expr;liveEval();}
+function ms(){memory=parseFloat(document.getElementById('result').textContent.replace(/,/g,''))||0;document.getElementById('memDisplay').textContent='M = '+memory;document.getElementById('memLabel').textContent='M='+memory;}
+function mr(){ap(String(memory));}
+function mc(){memory=0;document.getElementById('memDisplay').textContent='M = 0';document.getElementById('memLabel').textContent='';}
+function setResult(v,isErr){const el=document.getElementById('result');el.textContent=v;el.className='result-line'+(isErr?' error':'');}
 
-const historyList =
-document.getElementById('historyList');
+function liveEval(){
+  try{
+    let e=prepExpr(expr);
+    const r=math.evaluate(e);
+    if(typeof r==='number'&&isFinite(r)) setResult(fmt(r),false);
+    else setResult('...',false);
+  }catch{setResult('...',false);}
+}
 
-// ===========================
-// TAB SYSTEM
-// ===========================
+function calc(){
+  try{
+    let e=prepExpr(expr);
+    const r=math.evaluate(e);
+    ans=r;
+    const formatted=fmt(r);
+    setResult(formatted,false);
+    addHistory(expr,formatted);
+    expr='';
+    document.getElementById('expr').textContent='';
+  }catch{setResult('Error',true);}
+}
 
-const modeButtons =
-document.querySelectorAll('.mode-btn');
+function prepExpr(e){
+  const deg=document.getElementById('angleMode').value==='deg';
+  if(deg){
+    e=e.replace(/\bsin\(/g,'sin(pi/180*').replace(/\bcos\(/g,'cos(pi/180*').replace(/\btan\(/g,'tan(pi/180*');
+    e=e.replace(/\basin\(/g,'(180/pi)*asin(').replace(/\bacos\(/g,'(180/pi)*acos(').replace(/\batan\(/g,'(180/pi)*atan(');
+  }
+  return e;
+}
 
-const sections =
-document.querySelectorAll('.section');
+function fmt(n){
+  if(!isFinite(n)) return String(n);
+  const loc=document.getElementById('localeSelect').value;
+  return new Intl.NumberFormat(loc,{maximumFractionDigits:10}).format(n);
+}
 
-modeButtons.forEach(btn => {
+function addHistory(e,r){
+  const list=document.getElementById('historyList');
+  const d=document.createElement('div');
+  d.className='hist-item';
+  d.innerHTML=`<div class="hi-expr">${e}</div><div class="hi-res">= ${r}</div>`;
+  d.onclick=()=>{expr=String(ans);document.getElementById('expr').textContent=expr;};
+  list.prepend(d);
+  if(list.children.length>50) list.lastChild.remove();
+  try{localStorage.setItem('kjcalc_hist',list.innerHTML);}catch{}
+}
 
-btn.addEventListener('click', () => {
+try{const h=localStorage.getItem('kjcalc_hist');if(h)document.getElementById('historyList').innerHTML=h;}catch{}
 
-modeButtons.forEach(b =>
-b.classList.remove('active')
-);
-
-btn.classList.add('active');
-
-sections.forEach(section =>
-section.classList.remove('active')
-);
-
-document
-.getElementById(
-btn.dataset.tab
-)
-.classList.add('active');
-
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(['0','1','2','3','4','5','6','7','8','9'].includes(e.key)){ap(e.key);}
+  else if(['+','-','*','/','(',')','.','%'].includes(e.key)){ap(e.key);}
+  else if(e.key==='Enter'){calc();}
+  else if(e.key==='Backspace'){del();}
+  else if(e.key==='Escape'){clr();}
+  else if(e.key==='^'){ap('^');}
 });
 
-});
+// ── FINANCE ──
+function res(id,html){const el=document.getElementById(id);el.innerHTML=html;el.classList.add('show');}
+function fmt2(n){return new Intl.NumberFormat(locale.current,{maximumFractionDigits:2}).format(n);}
 
-// ===========================
-// CALCULATOR ENGINE
-// ===========================
-
-function appendValue(value){
-
-if(value === 'ans'){
-
-expression += lastAnswer;
-
-}
-else{
-
-expression += value;
-
-}
-
-expressionEl.innerText = expression;
-
-liveEvaluate();
-
+function calcEMI(){
+  const P=parseFloat(document.getElementById('f_principal').value)||0;
+  const R=parseFloat(document.getElementById('f_rate').value)||0;
+  const Y=parseFloat(document.getElementById('f_years').value)||0;
+  const type=document.getElementById('f_type').value;
+  const r=R/12/100,n=Y*12;
+  let emi,total,interest;
+  if(type==='reducing'){
+    emi=r?P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):P/n;
+  } else {
+    emi=P*(1+R/100*Y)/n;
+  }
+  total=emi*n; interest=total-P;
+  res('r_emi',`Monthly EMI: <b style="color:var(--accent3);">₹${fmt2(emi)}</b><br>Total Payment: ₹${fmt2(total)}<br>Total Interest: <span style="color:var(--red);">₹${fmt2(interest)}</span><br>Principal: ₹${fmt2(P)}`);
 }
 
-function clearDisplay(){
-
-expression = '';
-
-expressionEl.innerText = '';
-
-resultEl.innerText = '0';
-
+function calcSIP(){
+  const m=parseFloat(document.getElementById('f_sip').value)||0;
+  const r=parseFloat(document.getElementById('f_siprate').value)/12/100;
+  const n=parseFloat(document.getElementById('f_sipyears').value)*12;
+  const fv=m*(Math.pow(1+r,n)-1)/r*(1+r);
+  const invested=m*n;
+  res('r_sip',`Future Value: <b style="color:var(--accent3);">₹${fmt2(fv)}</b><br>Total Invested: ₹${fmt2(invested)}<br>Total Returns: <span style="color:var(--accent);">₹${fmt2(fv-invested)}</span><br>Gain: ${((fv-invested)/invested*100).toFixed(1)}%`);
 }
 
-function deleteLast(){
-
-expression =
-expression.slice(0,-1);
-
-expressionEl.innerText = expression;
-
-liveEvaluate();
-
+function calcGST(){
+  const amt=parseFloat(document.getElementById('f_gstamt').value)||0;
+  const pct=parseFloat(document.getElementById('f_gstpct').value)||0;
+  const mode=document.getElementById('f_gstmode').value;
+  let tax,base,total;
+  if(mode==='add'){base=amt;tax=amt*pct/100;total=amt+tax;}
+  else{total=amt;base=amt/(1+pct/100);tax=total-base;}
+  res('r_gst',`Base Amount: ₹${fmt2(base)}<br>Tax (${pct}%): <b style="color:var(--accent2);">₹${fmt2(tax)}</b><br>Total: <b style="color:var(--accent3);">₹${fmt2(total)}</b>`);
 }
 
-function liveEvaluate(){
-
-if(expression.trim() === ''){
-
-resultEl.innerText='0';
-return;
-
+function calcCI(){
+  const P=parseFloat(document.getElementById('f_ci_p').value)||0;
+  const r=parseFloat(document.getElementById('f_ci_r').value)/100;
+  const n=parseFloat(document.getElementById('f_ci_n').value)||1;
+  const t=parseFloat(document.getElementById('f_ci_t').value)||0;
+  const A=P*Math.pow(1+r/n,n*t);
+  res('r_ci',`Amount: <b style="color:var(--accent3);">₹${fmt2(A)}</b><br>Interest Earned: <span style="color:var(--accent);">₹${fmt2(A-P)}</span><br>Principal: ₹${fmt2(P)}`);
 }
-
-try{
-
-const result =
-math.evaluate(expression);
-
-resultEl.innerText =
-formatNumber(result);
-
-}
-catch(err){
-
-resultEl.innerText='...';
-
-}
-
-}
-
-function calculate(){
-
-try{
-
-const result =
-math.evaluate(expression);
-
-lastAnswer = result;
-
-const formatted =
-formatNumber(result);
-
-resultEl.innerText =
-formatted;
-
-addHistory(
-expression,
-formatted
-);
-
-expression='';
-
-expressionEl.innerText='';
-
-}
-catch(err){
-
-resultEl.innerText='Error';
-
-}
-
-}
-
-function formatNumber(number){
-
-const locale =
-document.getElementById('localeSelect').value;
-
-return new Intl.NumberFormat(
-locale,
-{
-maximumFractionDigits:10
-}
-).format(number);
-
-}
-
-function addHistory(exp,res){
-
-const div =
-document.createElement('div');
-
-div.className='history-item';
-
-div.innerHTML=`
-
-<div>${exp}</div>
-
-<strong>= ${res}</strong>
-
-`;
-
-historyList.prepend(div);
-
-localStorage.setItem(
-'calcHistory',
-historyList.innerHTML
-);
-
-}
-
-historyList.innerHTML =
-localStorage.getItem('calcHistory') || '';
-
-// ===========================
-// EMI CALCULATOR
-// ===========================
-
-function calculateEMI(){
-
-const P =
-parseFloat(
-document.getElementById('loanAmount').value
-);
-
-const annualRate =
-parseFloat(
-document.getElementById('interestRate').value
-);
-
-const years =
-parseFloat(
-document.getElementById('loanYears').value
-);
-
-const r =
-annualRate / 12 / 100;
-
-const n =
-years * 12;
-
-const emi =
-(
-P * r *
-Math.pow(1+r,n)
-)
-/
-(
-Math.pow(1+r,n)-1
-);
-
-document
-.getElementById('emiResult')
-.innerHTML = `
-
-Monthly EMI:
-<strong>
-${formatNumber(emi.toFixed(2))}
-</strong>
-
-`;
-
-}
-
-// ===========================
-// GST
-// ===========================
-
-function calculateGST(){
-
-const amount =
-parseFloat(
-document.getElementById('gstAmount').value
-);
-
-const percent =
-parseFloat(
-document.getElementById('gstPercent').value
-);
-
-const gst =
-(amount * percent)/100;
-
-const total =
-amount + gst;
-
-document
-.getElementById('gstResult')
-.innerHTML = `
-
-GST:
-<strong>${gst.toFixed(2)}</strong>
-
-<br>
-
-Total:
-<strong>${total.toFixed(2)}</strong>
-
-`;
-
-}
-
-// ===========================
-// UNIT CONVERTER
-// ===========================
-
-function convertMeters(){
-
-const meters =
-parseFloat(
-document.getElementById('meterInput').value
-);
-
-const feet =
-meters * 3.28084;
-
-document
-.getElementById('meterResult')
-.innerHTML = `
-
-${meters} meters =
-<strong>
-${feet.toFixed(2)} feet
-</strong>
-
-`;
-
-}
-
-// ===========================
-// LIVE CURRENCY
-// ===========================
 
 async function convertCurrency(){
-
-const usd =
-parseFloat(
-document.getElementById('usdInput').value
-);
-
-const currency =
-document.getElementById('currencySelect').value;
-
-try{
-
-const response =
-await fetch(
-'https://open.er-api.com/v6/latest/USD'
-);
-
-const data =
-await response.json();
-
-const rate =
-data.rates[currency];
-
-const converted =
-usd * rate;
-
-document
-.getElementById('currencyResult')
-.innerHTML = `
-
-USD ${usd}
-
-=
-
-<strong>
-${converted.toFixed(2)}
-${currency}
-</strong>
-
-`;
-
-}
-catch(err){
-
-document
-.getElementById('currencyResult')
-.innerHTML =
-'Currency API Error';
-
+  const amt=parseFloat(document.getElementById('f_cur_amt').value)||1;
+  const from=document.getElementById('f_cur_from').value;
+  const to=document.getElementById('f_cur_to').value;
+  res('r_cur','⏳ Fetching live rates...');
+  try{
+    const r=await fetch(`https://open.er-api.com/v6/latest/${from}`);
+    const d=await r.json();
+    const rate=d.rates[to];
+    res('r_cur',`${fmt2(amt)} ${from} = <b style="color:var(--accent3);">${fmt2(amt*rate)} ${to}</b><br>Rate: 1 ${from} = ${rate} ${to}<br><span style="color:var(--muted);font-size:11px;">Live rate</span>`);
+  }catch{res('r_cur','API Error — check connection');}
 }
 
+function calcPL(){
+  const cp=parseFloat(document.getElementById('f_cp').value)||0;
+  const sp=parseFloat(document.getElementById('f_sp').value)||0;
+  const disc=parseFloat(document.getElementById('f_disc').value)||0;
+  const spAfterDisc=sp*(1-disc/100);
+  const diff=spAfterDisc-cp;
+  const pct=(diff/cp*100).toFixed(2);
+  const type=diff>=0?'Profit':'Loss';
+  res('r_pl',`${type}: <b style="color:${diff>=0?'var(--accent3)':'var(--red)'};">₹${fmt2(Math.abs(diff))}</b><br>${type}%: ${pct}%<br>SP after discount: ₹${fmt2(spAfterDisc)}`);
 }
 
-// ===========================
-// PROGRAMMER MODE
-// ===========================
-
-function convertBinary(){
-
-const num =
-parseInt(
-document.getElementById('binaryInput').value
-);
-
-document
-.getElementById('binaryResult')
-.innerHTML = `
-
-BIN:
-<strong>${num.toString(2)}</strong>
-
-<br>
-
-HEX:
-<strong>${num.toString(16)}</strong>
-
-<br>
-
-OCT:
-<strong>${num.toString(8)}</strong>
-
-`;
-
+function calcHome(){
+  const inc=parseFloat(document.getElementById('f_income').value)||0;
+  const dp=parseFloat(document.getElementById('f_downpay').value)||0;
+  const r=parseFloat(document.getElementById('f_hrate').value)/12/100;
+  const n=parseFloat(document.getElementById('f_hterm').value)*12;
+  const maxEMI=inc*0.4;
+  const loanMax=r?maxEMI*(Math.pow(1+r,n)-1)/(r*Math.pow(1+r,n)):maxEMI*n;
+  const homeMax=loanMax+dp;
+  res('r_home',`Max Monthly EMI (40% rule): ₹${fmt2(maxEMI)}<br>Max Loan: <b style="color:var(--accent3);">₹${fmt2(loanMax)}</b><br>Affordable Home Value: <b>₹${fmt2(homeMax)}</b>`);
 }
 
-// ===========================
-// GRAPH ENGINE
-// ===========================
-
-const ctx =
-document.getElementById('graphCanvas');
-
-new Chart(ctx, {
-
-type:'line',
-
-data:{
-
-labels:[
--5,-4,-3,-2,-1,0,1,2,3,4,5
-],
-
-datasets:[{
-
-label:'y = x²',
-
-data:[
-25,16,9,4,1,0,1,4,9,16,25
-],
-
-borderWidth:3
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-legend:{
-labels:{
-color:'white'
-}
-}
-},
-
-scales:{
-
-x:{
-ticks:{
-color:'white'
-}
-},
-
-y:{
-ticks:{
-color:'white'
-}
+function calcROI(){
+  const inv=parseFloat(document.getElementById('f_roi_inv').value)||1;
+  const ret=parseFloat(document.getElementById('f_roi_ret').value)||0;
+  const yr=parseFloat(document.getElementById('f_roi_yr').value)||1;
+  const roi=(ret-inv)/inv*100;
+  const cagr=(Math.pow(ret/inv,1/yr)-1)*100;
+  res('r_roi',`ROI: <b style="color:var(--accent3);">${roi.toFixed(2)}%</b><br>CAGR: <b style="color:var(--accent);">${cagr.toFixed(2)}% p.a.</b><br>Profit: ₹${fmt2(ret-inv)}`);
 }
 
+// ── UNIT CONVERTERS ──
+function convSimple(vid,fid,tid,rid){
+  const v=parseFloat(document.getElementById(vid).value);
+  const f=parseFloat(document.getElementById(fid).value);
+  const t=parseFloat(document.getElementById(tid).value);
+  if(isNaN(v)){document.getElementById(rid).textContent='Enter a value';return;}
+  const result=v*f/t;
+  document.getElementById(rid).textContent=`${v} ${document.getElementById(fid).options[document.getElementById(fid).selectedIndex].text} = ${result.toLocaleString(undefined,{maximumFractionDigits:8})} ${document.getElementById(tid).options[document.getElementById(tid).selectedIndex].text}`;
+}
+function convLen(){convSimple('uc_len_val','uc_len_from','uc_len_to','r_len');}
+function convW(){convSimple('uc_w_val','uc_w_from','uc_w_to','r_w');}
+function convE(){convSimple('uc_e_val','uc_e_from','uc_e_to','r_e');}
+function convSp(){convSimple('uc_sp_val','uc_sp_from','uc_sp_to','r_sp');}
+function convD(){convSimple('uc_d_val','uc_d_from','uc_d_to','r_d');}
+function convT(){
+  const v=parseFloat(document.getElementById('uc_t_val').value);
+  if(isNaN(v)){document.getElementById('r_t').textContent='Enter a value';return;}
+  const from=document.getElementById('uc_t_from').value;
+  const to=document.getElementById('uc_t_to').value;
+  let celsius;
+  if(from==='C') celsius=v;
+  else if(from==='F') celsius=(v-32)*5/9;
+  else if(from==='K') celsius=v-273.15;
+  else celsius=(v-491.67)*5/9;
+  let result;
+  if(to==='C') result=celsius;
+  else if(to==='F') result=celsius*9/5+32;
+  else if(to==='K') result=celsius+273.15;
+  else result=(celsius+273.15)*9/5;
+  document.getElementById('r_t').textContent=`${v}°${from} = ${result.toFixed(4)}°${to}`;
 }
 
+// ── PROGRAMMER ──
+let progNum=0;
+function setProgBase(b){
+  progBase=b;
+  updateProgDisplay();
+  ['A','B','C','D','E','F'].forEach(c=>{
+    const btn=document.getElementById('pk_'+c);
+    if(btn) btn.className='prog-key hex'+(b<16?' disabled':'');
+  });
+}
+function ppush(c){
+  if(['A','B','C','D','E','F'].includes(c)&&progBase<16) return;
+  progExpr+=c; updateProgCalc();
+}
+function pclr(){progExpr='';progNum=0;updateProgDisplay();}
+function pdel(){progExpr=progExpr.slice(0,-1);updateProgCalc();}
+function pbop(op){progExpr+=' '+op+' ';}
+function pcalc(){
+  try{
+    const r=Function('"use strict";return ('+progExpr+')')();
+    progNum=Math.floor(r); progExpr=String(progNum); updateProgDisplay();
+  }catch{progNum=0;}
+}
+function updateProgCalc(){
+  try{const r=parseInt(progExpr,progBase);if(!isNaN(r)){progNum=r;updateProgDisplay();}}catch{}
+}
+function updateProgDisplay(){
+  document.getElementById('pb_dec').textContent=progNum.toString(10);
+  document.getElementById('pb_bin').textContent=progNum.toString(2);
+  document.getElementById('pb_oct').textContent=progNum.toString(8);
+  document.getElementById('pb_hex').textContent=progNum.toString(16).toUpperCase();
 }
 
-});
-
-// ===========================
-// KEYBOARD SUPPORT
-// ===========================
-
-document.addEventListener(
-'keydown',
-function(e){
-
-if(
-(
-e.key >= '0'
-&&
-e.key <= '9'
-)
-||
-'+-*/().'.includes(e.key)
-){
-
-appendValue(e.key);
-
+// ── STATS ──
+function calcStats(){
+  const raw=document.getElementById('stat_data').value;
+  const nums=raw.split(/[\s,;]+/).map(Number).filter(n=>!isNaN(n)&&n!=='');
+  if(nums.length===0){res('r_stat','Enter valid numbers');return;}
+  const n=nums.length;
+  const sorted=[...nums].sort((a,b)=>a-b);
+  const mean=nums.reduce((s,v)=>s+v,0)/n;
+  const median=n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
+  const freq={};nums.forEach(v=>freq[v]=(freq[v]||0)+1);
+  const modeVal=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+  const variance=nums.reduce((s,v)=>s+Math.pow(v-mean,2),0)/n;
+  const stdDev=Math.sqrt(variance);
+  const min=sorted[0],max=sorted[n-1];
+  const q1=sorted[Math.floor(n/4)],q3=sorted[Math.floor(3*n/4)];
+  const iqr=q3-q1;
+  const sum=nums.reduce((s,v)=>s+v,0);
+  res('r_stat',`
+    <div class="stat-row"><span class="stat-k">Count (n)</span><span class="stat-v">${n}</span></div>
+    <div class="stat-row"><span class="stat-k">Sum</span><span class="stat-v">${fmt2(sum)}</span></div>
+    <div class="stat-row"><span class="stat-k">Mean</span><span class="stat-v">${fmt2(mean)}</span></div>
+    <div class="stat-row"><span class="stat-k">Median</span><span class="stat-v">${fmt2(median)}</span></div>
+    <div class="stat-row"><span class="stat-k">Mode</span><span class="stat-v">${modeVal}</span></div>
+    <div class="stat-row"><span class="stat-k">Std Deviation</span><span class="stat-v">${fmt2(stdDev)}</span></div>
+    <div class="stat-row"><span class="stat-k">Variance</span><span class="stat-v">${fmt2(variance)}</span></div>
+    <div class="stat-row"><span class="stat-k">Min</span><span class="stat-v">${min}</span></div>
+    <div class="stat-row"><span class="stat-k">Max</span><span class="stat-v">${max}</span></div>
+    <div class="stat-row"><span class="stat-k">Range</span><span class="stat-v">${max-min}</span></div>
+    <div class="stat-row"><span class="stat-k">Q1</span><span class="stat-v">${q1}</span></div>
+    <div class="stat-row"><span class="stat-k">Q3</span><span class="stat-v">${q3}</span></div>
+    <div class="stat-row"><span class="stat-k">IQR</span><span class="stat-v">${iqr}</span></div>
+  `);
 }
 
-if(e.key === 'Enter'){
-
-calculate();
-
+// ── MATRIX ──
+function getM(prefix){
+  return [
+    [parseFloat(document.getElementById(prefix+'11').value)||0, parseFloat(document.getElementById(prefix+'12').value)||0],
+    [parseFloat(document.getElementById(prefix+'21').value)||0, parseFloat(document.getElementById(prefix+'22').value)||0]
+  ];
+}
+function fmtMat(m){return `[${m[0][0].toFixed(3)}, ${m[0][1].toFixed(3)}]<br>[${m[1][0].toFixed(3)}, ${m[1][1].toFixed(3)}]`;}
+function matOp(op){
+  const A=getM('ma'),B=getM('mb');
+  let out;
+  if(op==='add') out=fmtMat([[A[0][0]+B[0][0],A[0][1]+B[0][1]],[A[1][0]+B[1][0],A[1][1]+B[1][1]]]);
+  else if(op==='sub') out=fmtMat([[A[0][0]-B[0][0],A[0][1]-B[0][1]],[A[1][0]-B[1][0],A[1][1]-B[1][1]]]);
+  else if(op==='mul') out=fmtMat([[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]]);
+  else if(op==='detA'){const d=A[0][0]*A[1][1]-A[0][1]*A[1][0];out='det(A) = '+d.toFixed(6);}
+  else if(op==='invA'){
+    const d=A[0][0]*A[1][1]-A[0][1]*A[1][0];
+    if(d===0){out='Matrix is singular (not invertible)';} 
+    else out=fmtMat([[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]]);
+  }
+  else if(op==='trA') out='tr(A) = '+(A[0][0]+A[1][1]).toFixed(6);
+  res('r_mat',out);
 }
 
-if(e.key === 'Backspace'){
-
-deleteLast();
-
+// ── GRAPH ──
+let showFunc2=false;
+function addFunc2(){
+  showFunc2=!showFunc2;
+  const el=document.querySelector('#p-graph .graph-input-row input:nth-child(2)');
+  if(el) el.style.display=showFunc2?'block':'none';
 }
-
-});
-
+function plotGraph(){
+  const funcStr=document.getElementById('g_func').value;
+  const xmin=parseFloat(document.getElementById('g_xmin').value)||-10;
+  const xmax=parseFloat(document.getElementById('g_xmax').value)||10;
+  const steps=200;
+  const dx=(xmax-xmin)/steps;
+  const xs=[],ys1=[],ys2=[];
+  const f2el=document.querySelector('#p-graph input[placeholder*="Second"]');
+  const func2=f2el?f2el.value:'';
+  for(let i=0;i<=steps;i++){
+    const x=xmin+i*dx;
+    xs.push(x.toFixed(2));
+    try{ys1.push(math.evaluate(funcStr,{x}));}catch{ys1.push(null);}
+    if(func2){try{ys2.push(math.evaluate(func2,{x}));}catch{ys2.push(null);}}
+  }
+  const ctx=document.getElementById('graphCanvas').getContext('2d');
+  if(graphChart) graphChart.destroy();
+  const datasets=[{label:'f(x)='+funcStr,data:ys1,borderColor:'#63b3ed',backgroundColor:'rgba(99,179,237,0.08)',borderWidth:2,pointRadius:0,fill:true,tension:0.1}];
+  if(func2&&ys2.length) datasets.push({label:'g(x)='+func2,data:ys2,borderColor:'#9f7aea',backgroundColor:'rgba(159,122,234,0.05)',borderWidth:2,pointRadius:0,fill:false,tension:0.1,borderDash:[6,3]});
+  graphChart=new Chart(ctx,{
+    type:'line',data:{labels:xs,datasets},
+    options:{responsive:true,animation:{duration:400},
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},
+      scales:{
+        x:{ticks:{color:'#4a6080',maxTicksLimit:10},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#4a6080'},grid:{color:'rgba(255,255,255,0.06)'}}
+      }
+    }
+  });
+}
+plotGraph();
 </script>
-
 </body>
 </html>
