@@ -2,845 +2,651 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Global AI Hashtag Engine</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Hashtag Generator — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Inter',sans-serif;
+:root{
+  --bg:#040709;--card:#0d1525;--card2:#101828;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.03);
+  --a1:#63b3ed;--a2:#9f7aea;--a3:#68d391;--a4:#fc8181;--a5:#f6ad55;--a6:#76e4f7;
+  --t1:#f0f4ff;--t2:#a8b8d0;--t3:#5a6e8a;
+  --g1:linear-gradient(135deg,#63b3ed,#9f7aea);
+  --g2:linear-gradient(135deg,#0ea5e9,#7c3aed);
 }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 5% 5%,rgba(99,179,237,0.06),transparent),radial-gradient(ellipse 50% 50% at 95% 90%,rgba(159,122,234,0.07),transparent);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:rgba(99,179,237,0.25);border-radius:3px}
 
-body{
-    background:
-    linear-gradient(135deg,#040b3d,#07175e,#3f0f75,#ff1f8f);
-    min-height:100vh;
-    padding:20px;
-    color:white;
-}
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:62px;background:rgba(4,7,9,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;background:var(--g2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-back{padding:7px 16px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--b1);color:var(--t2);font-size:12.5px;font-weight:600;text-decoration:none;font-family:'Syne',sans-serif;transition:.2s}
+.nav-back:hover{background:rgba(255,255,255,0.1);color:var(--t1)}
 
-.main-layout{
-    display:grid;
-    grid-template-columns:320px 1fr 240px;
-    gap:16px;
-    max-width:1800px;
-    margin:auto;
-}
+.hero{position:relative;z-index:1;text-align:center;padding:36px 5% 28px}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;background:rgba(159,122,234,0.07);border:1px solid rgba(159,122,234,0.18);font-size:11px;font-weight:600;color:var(--a2);font-family:'DM Mono',monospace;letter-spacing:.8px;margin-bottom:14px}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--a2);animation:pd 1.6s infinite}
+@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(159,122,234,.5)}70%{box-shadow:0 0 0 7px transparent}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1.5px;background:linear-gradient(135deg,var(--t1) 45%,var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:14px;color:var(--t2);margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
 
-.panel{
-    background:#07144e;
-    border-radius:20px;
-    padding:18px;
-    box-shadow:0 0 25px rgba(0,0,0,.4);
-}
+.main{position:relative;z-index:1;display:grid;grid-template-columns:300px 1fr 250px;gap:14px;padding:0 5% 50px;max-width:1600px;margin:0 auto}
 
-.left-panel{
-    height:calc(100vh - 40px);
-    overflow:auto;
-}
+.panel{background:var(--card);border:1px solid var(--b1);border-radius:18px;overflow:hidden}
+.panel-hd{padding:14px 18px;border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:800;color:var(--t1)}
+.panel-body{padding:16px}
 
-.center-panel{
-    min-height:calc(100vh - 40px);
-}
+/* Scrollable left/right */
+.left-scroll{max-height:calc(100vh - 180px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent}
+.right-scroll{max-height:calc(100vh - 180px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent}
 
-.right-panel{
-    height:calc(100vh - 40px);
-    overflow:auto;
-}
+.ctrl-label{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:6px;margin-top:14px;display:block}
+.ctrl-label:first-child{margin-top:0}
+.ctrl-input{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t1);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:.2s}
+.ctrl-input:focus{border-color:rgba(99,179,237,0.4);background:rgba(99,179,237,0.04)}
+.ctrl-input::placeholder{color:var(--t3)}
+textarea.ctrl-input{resize:vertical;min-height:80px;line-height:1.55}
+.ctrl-select{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t1);font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6e8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.ctrl-select option{background:#0d1525}
+.ctrl-select:focus{border-color:rgba(99,179,237,0.4)}
 
-.logo-title{
-    font-size:42px;
-    font-weight:800;
-    line-height:1;
-    background:linear-gradient(to right,#33d2ff,#8b5cf6,#ff3cac);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-bottom:12px;
-}
+/* Platform pills */
+.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px}
+.plat-btn{padding:9px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.03);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Syne',sans-serif;text-align:center}
+.plat-btn:hover{background:rgba(255,255,255,0.07);color:var(--t1)}
+.plat-btn.on{background:rgba(159,122,234,0.12);border-color:rgba(159,122,234,0.3);color:var(--a2)}
 
-.desc{
-    font-size:12px;
-    color:#c7d2fe;
-    line-height:1.7;
-    margin-bottom:16px;
-}
+/* Range */
+.range-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.ctrl-range{flex:1;height:4px;border-radius:4px;-webkit-appearance:none;background:rgba(255,255,255,0.08);outline:none;cursor:pointer}
+.ctrl-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a2);cursor:pointer}
+.range-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--a2);min-width:28px;text-align:right}
 
-.badges{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-bottom:20px;
-}
+/* Buttons */
+.btn{width:100%;padding:11px 14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px}
+.btn-primary{background:var(--g2);color:#fff;box-shadow:0 4px 18px rgba(99,179,237,0.2)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,179,237,0.35)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-sec{background:rgba(255,255,255,0.05);color:var(--t2);border:1px solid var(--b1)}
+.btn-sec:hover{background:rgba(255,255,255,0.09);color:var(--t1)}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.btn-sm{padding:9px 12px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:.2s;text-align:center}
+.btn-sm:hover{background:rgba(255,255,255,0.09);color:var(--t1)}
 
-.badge{
-    padding:7px 12px;
-    border-radius:30px;
-    font-size:11px;
-    background:#16256f;
-    border:1px solid rgba(255,255,255,.08);
-}
+/* CENTER OUTPUT */
+.output-section{margin-bottom:14px}
+.out-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.out-hd-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.out-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:999px;font-weight:700}
+.ob-ai{background:rgba(104,211,145,0.12);color:var(--a3)}
+.ob-idle{background:rgba(255,255,255,0.06);color:var(--t3)}
 
-.section-title{
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:8px;
-    margin-top:16px;
-}
+/* Hashtag pills output */
+.hashtag-output{min-height:80px;padding:14px;background:rgba(255,255,255,0.02);border:1px solid var(--b2);border-radius:12px;display:flex;flex-wrap:wrap;gap:7px;align-items:flex-start}
+.h-pill{padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;cursor:pointer;transition:.15s;border:1px solid transparent}
+.h-pill:hover{transform:translateY(-1px)}
+.h-high{background:rgba(104,211,145,0.1);border-color:rgba(104,211,145,0.25);color:var(--a3)}
+.h-med{background:rgba(246,173,85,0.1);border-color:rgba(246,173,85,0.2);color:var(--a5)}
+.h-niche{background:rgba(99,179,237,0.1);border-color:rgba(99,179,237,0.2);color:var(--a1)}
+.h-placeholder{font-size:12px;color:var(--t3);font-family:'DM Mono',monospace;padding:10px 0}
 
-.tabs{
-    display:flex;
-    gap:8px;
-    margin-bottom:10px;
-}
+/* Hook cards */
+.hooks-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.hook-card{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:11px;padding:12px;font-size:12.5px;color:var(--t2);line-height:1.55;cursor:pointer;transition:.15s}
+.hook-card:hover{background:rgba(255,255,255,0.05);border-color:rgba(99,179,237,0.2);color:var(--t1)}
 
-.tab{
-    flex:1;
-    padding:10px;
-    border:none;
-    border-radius:12px;
-    background:#16256f;
-    color:white;
-    cursor:pointer;
-    font-size:12px;
-    transition:.3s;
-}
+/* Caption output */
+.caption-box{padding:14px;background:rgba(255,255,255,0.02);border:1px solid var(--b2);border-radius:12px;font-size:13px;color:var(--t2);line-height:1.7;min-height:80px;white-space:pre-wrap}
 
-.tab.active{
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-}
+/* Platform tabs */
+.plat-tabs{display:flex;gap:7px;margin-bottom:14px}
+.pt-btn{padding:6px 14px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.03);color:var(--t3);font-size:11.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Syne',sans-serif}
+.pt-btn.on{background:rgba(159,122,234,0.12);border-color:rgba(159,122,234,0.3);color:var(--a2)}
 
-.drop-zone{
-    border:2px dashed rgba(255,255,255,.2);
-    padding:18px;
-    border-radius:14px;
-    text-align:center;
-    font-size:12px;
-    color:#dbeafe;
-    margin-bottom:15px;
-}
+/* Loading spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-input,textarea,select{
-    width:100%;
-    background:#13235f;
-    border:none;
-    color:white;
-    padding:13px;
-    border-radius:12px;
-    outline:none;
-    margin-bottom:12px;
-}
+/* RIGHT METRICS */
+.metric-card{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:12px;padding:14px;margin-bottom:10px}
+.mc-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:8px}
+.mc-big{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.mc-big.warn{background:linear-gradient(135deg,#f6ad55,#f97316);-webkit-background-clip:text;background-clip:text}
+.mc-big.bad{background:linear-gradient(135deg,#fc8181,#f97316);-webkit-background-clip:text;background-clip:text}
+.prog-track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;background:var(--g1);transition:width .8s ease;width:0%}
+.mc-sub{font-size:10.5px;color:var(--t3);margin-top:5px}
 
-textarea{
-    resize:none;
-    min-height:90px;
-}
+.sc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:11.5px}
+.sc-key{color:var(--t3)}
+.sc-val{color:var(--t1);font-weight:600;font-family:'DM Mono',monospace;font-size:11px}
+.sc-val.ok{color:var(--a3)}
 
-.platform-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-    margin-bottom:14px;
-}
+/* Trending pills */
+.trend-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:10.5px;font-weight:600;font-family:'DM Mono',monospace;margin:3px}
+.tp-hot{background:rgba(104,211,145,0.1);border:1px solid rgba(104,211,145,0.2);color:var(--a3)}
+.tp-med{background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);color:var(--a5)}
+.tp-rise{background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.2);color:var(--a1)}
 
-.platform-btn{
-    padding:11px;
-    border:none;
-    border-radius:12px;
-    background:#1b2c74;
-    color:white;
-    cursor:pointer;
-    transition:.3s;
-}
+/* Risk badge */
+.risk-low{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:9px;background:rgba(104,211,145,0.08);border:1px solid rgba(104,211,145,0.18);color:var(--a3);font-size:12px;font-weight:600}
+.risk-med{background:rgba(246,173,85,0.08);border-color:rgba(246,173,85,0.18);color:var(--a5)}
+.risk-high{background:rgba(252,129,129,0.08);border-color:rgba(252,129,129,0.18);color:var(--a4)}
 
-.platform-btn.active{
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-}
+/* Char counter */
+.char-row{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;margin-bottom:4px}
+.char-bar{height:3px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.char-fill{height:100%;background:var(--a3);transition:width .3s}
 
-.range{
-    width:100%;
-}
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;background:var(--card);border:1px solid var(--b1);border-radius:12px;font-size:12.5px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999;opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none;font-family:'DM Mono',monospace}
+.toast.show{opacity:1;transform:translateY(0)}
 
-.generate-btn{
-    width:100%;
-    border:none;
-    padding:16px;
-    border-radius:14px;
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-    margin-top:10px;
-}
-
-.action-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin-top:12px;
-}
-
-.action-btn{
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    background:#17307f;
-    color:white;
-    cursor:pointer;
-}
-
-.home-btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    margin-top:12px;
-    background:linear-gradient(to right,#1cb5ff,#8b5cf6);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-}
-
-.top-toolbar{
-    display:flex;
-    gap:8px;
-    margin-bottom:14px;
-}
-
-.toolbar-btn{
-    padding:10px 16px;
-    border:none;
-    border-radius:12px;
-    background:#182868;
-    color:white;
-    cursor:pointer;
-}
-
-.toolbar-btn.active{
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-}
-
-.workspace{
-    background:#f4f4f5;
-    border-radius:18px;
-    padding:20px;
-    min-height:900px;
-    color:black;
-}
-
-.workspace-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.workspace-title{
-    font-size:42px;
-    font-weight:800;
-}
-
-.live-ai{
-    background:#d1fae5;
-    color:#16a34a;
-    padding:8px 14px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
-}
-
-.output-box{
-    background:white;
-    border-radius:16px;
-    border:1px solid #ddd;
-    padding:18px;
-    margin-bottom:18px;
-}
-
-.output-title{
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:12px;
-}
-
-.output-content{
-    color:#444;
-    line-height:1.8;
-}
-
-.grid-2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-}
-
-.hook-card{
-    background:white;
-    border:1px solid #ddd;
-    padding:14px;
-    border-radius:14px;
-}
-
-.keyword-highlight{
-    background:yellow;
-    padding:3px 7px;
-    border-radius:5px;
-}
-
-.bottom-actions{
-    position:sticky;
-    bottom:0;
-    display:flex;
-    gap:10px;
-    margin-top:16px;
-    background:#07144e;
-    padding:16px;
-    border-radius:20px;
-}
-
-.bottom-btn{
-    flex:1;
-    border:none;
-    padding:14px;
-    border-radius:12px;
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-}
-
-.metric-card{
-    background:#13235f;
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:14px;
-}
-
-.metric-title{
-    font-size:11px;
-    color:#c7d2fe;
-    margin-bottom:8px;
-}
-
-.metric-value{
-    font-size:40px;
-    font-weight:800;
-    color:#4ade80;
-}
-
-.progress{
-    width:100%;
-    height:8px;
-    background:#091038;
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:10px;
-}
-
-.progress-bar{
-    height:100%;
-    width:0%;
-    background:linear-gradient(to right,#1cb5ff,#ff3cac);
-}
-
-.hashtag-list{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:10px;
-}
-
-.hash{
-    padding:8px 12px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:700;
-}
-
-.hash.green{
-    background:#14532d;
-}
-
-.hash.orange{
-    background:#78350f;
-}
-
-.hash.red{
-    background:#7f1d1d;
-}
-
-.chart-box{
-    background:#13235f;
-    border-radius:16px;
-    padding:16px;
-}
-
-@media(max-width:1200px){
-
-.main-layout{
-    grid-template-columns:1fr;
-}
-
-.left-panel,
-.right-panel{
-    height:auto;
-}
-
-.center-panel{
-    order:-1;
-}
-
-.bottom-actions{
-    flex-wrap:wrap;
-}
-
-}
-
+@media(max-width:1100px){.main{grid-template-columns:1fr;gap:12px}.left-scroll,.right-scroll{max-height:none}.hooks-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.main{padding:0 4% 40px}.hero{padding:28px 4% 20px}.plat-grid{grid-template-columns:1fr 1fr}.btn-grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
 
-<div class="main-layout">
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="34" height="34" viewBox="0 0 44 44" fill="none">
+      <defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#63b3ed"/><stop offset="100%" stop-color="#9f7aea"/></linearGradient></defs>
+      <rect width="44" height="44" rx="11" fill="url(#nlg)" opacity="0.15"/>
+      <rect x="1" y="1" width="42" height="42" rx="10" stroke="url(#nlg)" stroke-width="1.2" fill="none" opacity="0.5"/>
+      <line x1="10" y1="10" x2="10" y2="34" stroke="url(#nlg)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="10" y1="22" x2="22" y2="10" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="10" y1="22" x2="22" y2="34" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="30" y1="10" x2="30" y2="28" stroke="url(#nlg)" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M30 28 Q30 34 24 34" stroke="url(#nlg)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="36" cy="10" r="2.5" fill="url(#nlg)"/>
+    </svg>
+    <span class="nav-logo-name">KJSynthora</span>
+  </a>
+  <a href="/" class="nav-back">← All Tools</a>
+</nav>
 
-<div class="panel left-panel">
-
-<div class="logo-title">
-Global AI<br>
-Hashtag<br>
-Engine
+<div class="hero">
+  <div class="hero-tag"><span class="hero-dot"></span>GROQ AI · VIRAL ANALYTICS · FREE</div>
+  <h1 class="hero-title">AI Hashtag Generator</h1>
+  <p class="hero-sub">Generate viral, platform-optimized hashtags with AI. Engagement scoring, shadowban risk check, hook suggestions — powered by Groq.</p>
 </div>
 
-<div class="desc">
-Enterprise-grade AI hashtag studio with realtime viral analytics, platform optimization, SEO targeting and multi-format intelligent generation.
+<div class="main">
+
+<!-- ══ LEFT CONTROLS ══ -->
+<div class="panel">
+  <div class="panel-hd"><span class="panel-title">🎛️ Controls</span></div>
+  <div class="panel-body left-scroll">
+
+    <span class="ctrl-label">Topic / Keyword *</span>
+    <textarea class="ctrl-input" id="topicInput" placeholder="AI marketing, fitness tips, startup growth, travel vlog..." rows="3"></textarea>
+
+    <span class="ctrl-label">Platform</span>
+    <div class="plat-grid">
+      <button class="plat-btn on" data-p="Instagram" onclick="togglePlat(this)">📸 Instagram</button>
+      <button class="plat-btn" data-p="LinkedIn" onclick="togglePlat(this)">💼 LinkedIn</button>
+      <button class="plat-btn" data-p="TikTok" onclick="togglePlat(this)">🎵 TikTok</button>
+      <button class="plat-btn" data-p="YouTube" onclick="togglePlat(this)">▶️ YouTube</button>
+      <button class="plat-btn" data-p="Twitter" onclick="togglePlat(this)">🐦 Twitter/X</button>
+      <button class="plat-btn" data-p="Pinterest" onclick="togglePlat(this)">📌 Pinterest</button>
+    </div>
+
+    <span class="ctrl-label">Target Audience</span>
+    <select class="ctrl-select" id="audienceSel">
+      <option>Creators & Influencers</option>
+      <option>Business & Entrepreneurs</option>
+      <option>Students & Gen-Z</option>
+      <option>Developers & Tech</option>
+      <option>Fitness & Health</option>
+      <option>Travel & Lifestyle</option>
+      <option>Fashion & Beauty</option>
+      <option>Food & Cooking</option>
+    </select>
+
+    <span class="ctrl-label">Tone</span>
+    <select class="ctrl-select" id="toneSel">
+      <option>Professional</option>
+      <option>Viral & Trendy</option>
+      <option>Funny & Casual</option>
+      <option>Luxury & Premium</option>
+      <option>Motivational</option>
+      <option>Educational</option>
+      <option>Emotional</option>
+    </select>
+
+    <span class="ctrl-label">Hashtag Count</span>
+    <div class="range-row">
+      <input type="range" class="ctrl-range" id="countRange" min="5" max="30" value="15" oninput="document.getElementById('countVal').textContent=this.value">
+      <span class="range-val" id="countVal">15</span>
+    </div>
+
+    <span class="ctrl-label">Niche Tags Mix</span>
+    <div class="range-row">
+      <input type="range" class="ctrl-range" id="nicheRange" min="0" max="100" value="40" oninput="document.getElementById('nicheVal').textContent=this.value+'%'">
+      <span class="range-val" id="nicheVal">40%</span>
+    </div>
+
+    <span class="ctrl-label">Include Caption</span>
+    <select class="ctrl-select" id="captionSel">
+      <option value="yes">Yes — Generate Caption</option>
+      <option value="no">No — Hashtags Only</option>
+    </select>
+
+    <span class="ctrl-label">Language</span>
+    <select class="ctrl-select" id="langSel">
+      <option>English</option>
+      <option>Telugu</option>
+      <option>Hindi</option>
+      <option>Tamil</option>
+      <option>Spanish</option>
+      <option>French</option>
+      <option>Arabic</option>
+      <option>German</option>
+    </select>
+
+    <span class="ctrl-label">Brand Voice (optional)</span>
+    <input type="text" class="ctrl-input" id="brandVoice" placeholder="Luxury, modern, bold, minimal...">
+
+    <button class="btn btn-primary" id="genBtn" onclick="generateHashtags()">🚀 Generate AI Hashtags</button>
+
+    <div class="btn-grid">
+      <button class="btn-sm" onclick="copyAll()">📋 Copy All</button>
+      <button class="btn-sm" onclick="exportTxt()">📄 Export TXT</button>
+      <button class="btn-sm" onclick="exportCsv()">📊 Export CSV</button>
+      <button class="btn-sm" onclick="clearOutput()">🗑️ Clear</button>
+    </div>
+
+  </div>
 </div>
 
-<div class="badges">
-<div class="badge">🔥 Viral AI</div>
-<div class="badge">📈 SEO</div>
-<div class="badge">🌍 Multi Platform</div>
-<div class="badge">⚡ Realtime</div>
-<div class="badge">🧠 Smart AI</div>
+<!-- ══ CENTER OUTPUT ══ -->
+<div class="panel">
+  <div class="panel-hd">
+    <span class="panel-title">✨ AI Output</span>
+    <div class="plat-tabs">
+      <button class="pt-btn on" onclick="setTab(this,'viral')">🔥 Viral</button>
+      <button class="pt-btn" onclick="setTab(this,'professional')">💼 Professional</button>
+      <button class="pt-btn" onclick="setTab(this,'niche')">🎯 Niche</button>
+    </div>
+  </div>
+  <div class="panel-body" style="overflow-y:auto;max-height:calc(100vh - 180px)">
+
+    <!-- Hashtags -->
+    <div class="output-section">
+      <div class="out-hd">
+        <div class="out-hd-title">🏷️ Generated Hashtags <span id="hashCount" style="color:var(--t3);font-size:11px;font-weight:400"></span></div>
+        <span class="out-badge ob-idle" id="genBadge">WAITING</span>
+      </div>
+      <div class="hashtag-output" id="hashOutput">
+        <span class="h-placeholder">Your AI hashtags appear here — fill in your topic and click Generate...</span>
+      </div>
+    </div>
+
+    <!-- Caption -->
+    <div class="output-section" id="captionSection">
+      <div class="out-hd">
+        <div class="out-hd-title">📝 AI Caption</div>
+        <button class="btn-sm" style="width:auto;padding:4px 10px;font-size:11px" onclick="copyCaption()">📋 Copy</button>
+      </div>
+      <div class="caption-box" id="captionOutput">Caption appears here after generation...</div>
+    </div>
+
+    <!-- Hook Variations -->
+    <div class="output-section">
+      <div class="out-hd">
+        <div class="out-hd-title">🎣 Hook Variations</div>
+        <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace">Click to copy</span>
+      </div>
+      <div class="hooks-grid" id="hooksGrid">
+        <div class="hook-card" style="color:var(--t3);grid-column:1/-1">Hook suggestions appear after generation...</div>
+      </div>
+    </div>
+
+    <!-- Repurpose -->
+    <div class="output-section">
+      <div class="out-hd">
+        <div class="out-hd-title">♻️ Repurpose Strategy</div>
+      </div>
+      <div id="repurposeBox" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--b2);border-radius:9px;font-size:12px;color:var(--t3)">Repurpose suggestions appear after generation...</div>
+      </div>
+    </div>
+
+    <!-- Char limits -->
+    <div class="output-section">
+      <div class="out-hd"><div class="out-hd-title">📏 Character Limits</div></div>
+      <div id="charLimits">
+        <div class="char-row"><span>Instagram (2,200)</span><span id="igCount">0 / 2200</span></div>
+        <div class="char-bar"><div class="char-fill" id="igBar" style="width:0%"></div></div>
+        <div class="char-row"><span>LinkedIn (3,000)</span><span id="liCount">0 / 3000</span></div>
+        <div class="char-bar"><div class="char-fill" id="liBar" style="width:0%"></div></div>
+        <div class="char-row"><span>Twitter/X (280)</span><span id="twCount">0 / 280</span></div>
+        <div class="char-bar"><div class="char-fill" id="twBar" style="width:0%"></div></div>
+        <div class="char-row"><span>TikTok (2,200)</span><span id="tkCount">0 / 2200</span></div>
+        <div class="char-bar"><div class="char-fill" id="tkBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div class="tabs">
-<button class="tab active">Text</button>
-<button class="tab">Image</button>
-<button class="tab">Video</button>
-<button class="tab">URL</button>
+<!-- ══ RIGHT METRICS ══ -->
+<div class="panel">
+  <div class="panel-hd"><span class="panel-title">📊 Analytics</span></div>
+  <div class="panel-body right-scroll">
+
+    <div class="metric-card">
+      <div class="mc-title">Viral Score</div>
+      <span class="mc-big" id="viralScore">—</span>
+      <div class="prog-track"><div class="prog-fill" id="viralBar"></div></div>
+      <div class="mc-sub" id="viralSub">Generate to see score</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="mc-title">Engagement Potential</div>
+      <span class="mc-big" id="engScore">—</span>
+      <div class="prog-track"><div class="prog-fill" id="engBar" style="background:linear-gradient(90deg,var(--a3),var(--a1))"></div></div>
+      <div class="mc-sub" id="engSub">Predicted reach estimate</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="mc-title">Shadowban Risk</div>
+      <div id="riskBadge" class="risk-low" style="display:inline-flex">⚪ Not checked</div>
+      <div class="mc-sub" id="riskSub" style="margin-top:6px">AI checks banned/overused tags</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="mc-title">Emotional Triggers</div>
+      <div id="emotionRows">
+        <div class="sc-row"><span class="sc-key">Curiosity</span><span class="sc-val">—</span></div>
+        <div class="sc-row"><span class="sc-key">Urgency</span><span class="sc-val">—</span></div>
+        <div class="sc-row"><span class="sc-key">Trust</span><span class="sc-val">—</span></div>
+        <div class="sc-row"><span class="sc-key">FOMO</span><span class="sc-val">—</span></div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="mc-title">Trending Tags</div>
+      <div id="trendPills" style="margin-top:4px">
+        <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace">Generate to see trends</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="mc-title">Tag Distribution</div>
+      <div id="tagDist">
+        <div class="sc-row"><span class="sc-key">🔥 High Volume</span><span class="sc-val" id="dHigh">—</span></div>
+        <div class="sc-row"><span class="sc-key">📈 Mid Range</span><span class="sc-val" id="dMed">—</span></div>
+        <div class="sc-row"><span class="sc-key">🎯 Niche</span><span class="sc-val" id="dNiche">—</span></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div class="drop-zone">
-✍️ Enter your text prompt below
-</div>
-
-<div class="section-title">URL Scraper</div>
-<input type="text" placeholder="Paste social media URL">
-
-<div class="section-title">Topic / Keyword</div>
-<textarea id="keywordInput" placeholder="AI marketing, startup, reels, fitness..."></textarea>
-
-<div class="section-title">Target Audience</div>
-<select>
-<option>Creators</option>
-<option>Business</option>
-<option>Students</option>
-<option>Developers</option>
-<option>Influencers</option>
-</select>
-
-<div class="section-title">Platforms</div>
-
-<div class="platform-grid">
-<button class="platform-btn active">Instagram</button>
-<button class="platform-btn">LinkedIn</button>
-<button class="platform-btn">TikTok</button>
-<button class="platform-btn">YouTube</button>
-</div>
-
-<div class="section-title">Tone</div>
-<select>
-<option>Professional</option>
-<option>Funny</option>
-<option>Luxury</option>
-<option>Minimal</option>
-<option>Sales</option>
-<option>Emotional</option>
-</select>
-
-<div class="section-title">Length</div>
-<select>
-<option>Short</option>
-<option>Medium</option>
-<option>Long</option>
-</select>
-
-<div class="section-title">Emoji Intensity</div>
-<input type="range" class="range" min="0" max="100">
-
-<div class="section-title">Upload Image / Video</div>
-<input type="file">
-
-<div class="section-title">Brand Voice</div>
-<textarea placeholder="Luxury, modern, corporate, minimalist..."></textarea>
-
-<button class="generate-btn" onclick="generateHashtags()">
-🚀 Generate AI Hashtags
-</button>
-
-<div class="action-grid">
-<button class="action-btn" onclick="copyHashtags()">📋 Copy</button>
-<button class="action-btn">📤 Export</button>
-<button class="action-btn">🔥 Variants</button>
-<button class="action-btn">♻️ Repurpose</button>
-</div>
-
-<button class="home-btn" onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-</div>
-
-<div class="panel center-panel">
-
-<div class="top-toolbar">
-<button class="toolbar-btn active">Viral</button>
-<button class="toolbar-btn">Professional</button>
-<button class="toolbar-btn">SEO</button>
-<button class="toolbar-btn">Gen-Z</button>
-</div>
-
-<div class="workspace">
-
-<div class="workspace-header">
-<div>
-<div class="workspace-title">AI Hashtag Studio</div>
-<div style="color:#666;">
-Realtime hashtag generation & trend intelligence engine
-</div>
-</div>
-
-<div class="live-ai">
-🟢 LIVE AI
-</div>
-</div>
-
-<div class="output-box">
-
-<div class="output-title">
-Generated Hashtags
-</div>
-
-<div class="output-content" id="hashtagsOutput">
-Your AI hashtags will appear here...
-</div>
-
-</div>
-
-<div class="output-box">
-
-<div class="output-title">
-Hook Variations
-</div>
-
-<div class="grid-2">
-
-<div class="hook-card">
-🔥 Nobody is talking about this trend...
-</div>
-
-<div class="hook-card">
-🚀 The secret strategy creators use...
-</div>
-
-<div class="hook-card">
-⚡ This content format is exploding...
-</div>
-
-<div class="hook-card">
-📈 Most brands are doing this wrong...
-</div>
-
-</div>
-
-</div>
-
-<div class="output-box">
-
-<div class="output-title">
-Keyword Auto Highlighting
-</div>
-
-<div class="output-content">
-Your selected keyword:
-<span class="keyword-highlight">AI Marketing</span>
-is being optimized for discoverability.
-</div>
-
-</div>
-
-<div class="output-box">
-
-<div class="output-title">
-Repurpose Suggestions
-</div>
-
-<div class="output-content">
-Instagram ➜ TikTok Shorts<br><br>
-LinkedIn ➜ Twitter Threads<br><br>
-YouTube ➜ Pinterest Carousel
-</div>
-
-</div>
-
-</div>
-
-<div class="bottom-actions">
-
-<button class="bottom-btn">📋 Copy</button>
-<button class="bottom-btn">📄 Export TXT</button>
-<button class="bottom-btn">📊 Export CSV</button>
-<button class="bottom-btn">⚡ Generate 5 More</button>
-<button class="bottom-btn">📅 Schedule</button>
-
-</div>
-
-</div>
-
-<div class="panel right-panel">
-
-<div class="metric-card">
-<div class="metric-title">VIRAL SCORE</div>
-<div class="metric-value" id="viralScore">0%</div>
-
-<div class="progress">
-<div class="progress-bar" id="viralBar"></div>
-</div>
-</div>
-
-<div class="metric-card">
-<div class="metric-title">ENGAGEMENT SCORE</div>
-<div class="metric-value" id="engagementScore">0%</div>
-</div>
-
-<div class="metric-card">
-<div class="metric-title">CHARACTER LIMITS</div>
-
-<div style="font-size:13px; line-height:2;">
-Instagram: 0 / 2200<br>
-LinkedIn: 0 / 3000<br>
-TikTok: 0 / 2200
-</div>
-</div>
-
-<div class="metric-card">
-<div class="metric-title">SHADOWBAN RISK</div>
-
-<div style="color:#fb7185;font-weight:700;">
-⚠️ Low Risk
-</div>
-</div>
-
-<div class="metric-card">
-<div class="metric-title">EMOTIONAL TRIGGERS</div>
-
-<div style="font-size:13px;line-height:2;">
-Curiosity: 82%<br>
-Urgency: 64%<br>
-Trust: 71%
-</div>
-</div>
-
-<div class="metric-card">
-<div class="metric-title">HASHTAG INTELLIGENCE</div>
-
-<div class="hashtag-list">
-
-<div class="hash green">
-#AIMarketing 🔥 1.2M
-</div>
-
-<div class="hash orange">
-#GrowthStrategy 📈 540K
-</div>
-
-<div class="hash red">
-#StartupTips 📄 Rising
-</div>
-
-</div>
-
-</div>
-
-<div class="chart-box">
-<canvas id="analyticsChart"></canvas>
-</div>
-
-</div>
-
-</div>
+</div><!-- /main -->
+<div class="toast" id="toast"></div>
 
 <script>
+const GROQ_API = '/api/resume'; // uses your existing endpoint
+let lastHashtags = '', lastCaption = '', activeTab = 'viral';
 
-const chart = new Chart(document.getElementById('analyticsChart'),{
-
-type:'bar',
-
-data:{
-labels:['Viral','SEO','Trend','CTR'],
-datasets:[{
-label:'AI Metrics',
-data:[70,55,42,33],
-backgroundColor:[
-'#38bdf8',
-'#8b5cf6',
-'#4ade80',
-'#ff4fd8'
-]
-}]
-},
-
-options:{
-responsive:true,
-plugins:{
-legend:{
-labels:{
-color:'white'
-}
-}
-},
-scales:{
-x:{
-ticks:{
-color:'white'
-}
-},
-y:{
-ticks:{
-color:'white'
-}
-}
-}
+// Platform toggle (multi-select)
+let selectedPlatforms = ['Instagram'];
+function togglePlat(btn){
+  const p = btn.dataset.p;
+  if(btn.classList.contains('on')){
+    if(selectedPlatforms.length > 1){btn.classList.remove('on');selectedPlatforms=selectedPlatforms.filter(x=>x!==p)}
+  } else {btn.classList.add('on');selectedPlatforms.push(p)}
 }
 
-});
-
-const tabs = document.querySelectorAll('.tab');
-
-tabs.forEach(tab=>{
-
-tab.addEventListener('click',()=>{
-
-tabs.forEach(t=>t.classList.remove('active'));
-
-tab.classList.add('active');
-
-const tabName = tab.innerText;
-
-const dropZone = document.querySelector('.drop-zone');
-
-if(tabName === 'Text'){
-dropZone.innerHTML='✍️ Enter your text prompt below';
+function setTab(btn, tab){
+  document.querySelectorAll('.pt-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); activeTab=tab;
 }
 
-if(tabName === 'Image'){
-dropZone.innerHTML='🖼️ Drag & Drop Image Here';
+async function generateHashtags(){
+  const topic = document.getElementById('topicInput').value.trim();
+  if(!topic){showToast('⚠ Enter a topic first');return}
+
+  const count = document.getElementById('countRange').value;
+  const niche = document.getElementById('nicheRange').value;
+  const audience = document.getElementById('audienceSel').value;
+  const tone = document.getElementById('toneSel').value;
+  const caption = document.getElementById('captionSel').value;
+  const lang = document.getElementById('langSel').value;
+  const brand = document.getElementById('brandVoice').value;
+  const platforms = selectedPlatforms.join(', ');
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  document.getElementById('genBadge').textContent = 'GENERATING';
+  document.getElementById('genBadge').className = 'out-badge ob-ai';
+
+  const prompt = `You are an expert social media strategist and viral hashtag specialist. Generate highly optimized hashtags for the following:
+
+Topic: ${topic}
+Platforms: ${platforms}
+Target Audience: ${audience}
+Tone: ${tone}
+Language: ${lang}
+Hashtag Count Requested: ${count}
+Niche Mix: ${niche}% niche tags, rest popular
+Brand Voice: ${brand || 'Not specified'}
+
+INSTRUCTIONS:
+- Generate exactly ${count} hashtags optimized for ${platforms}
+- Mix ${100-parseInt(niche)}% high-volume tags, ${niche}% niche/specific tags
+- Make them relevant, viral-potential, and ${tone} in tone
+- Target ${audience} audience
+- ${caption==='yes' ? 'Also write a compelling 2-3 sentence caption with the hashtags naturally at the end' : 'Hashtags only'}
+- Generate 4 viral hook variations (engaging opening lines for posts)
+- Assess viral score (0-100), engagement potential (0-100), shadowban risk (low/medium/high)
+- Suggest emotional triggers used
+- Provide repurpose strategy for each platform
+
+Return ONLY valid JSON, no markdown:
+{
+  "hashtags": ["#tag1", "#tag2", ...],
+  "high_volume": ["#tag1"],
+  "mid_range": ["#tag2"],
+  "niche": ["#tag3"],
+  "caption": "caption text here",
+  "hooks": ["hook1", "hook2", "hook3", "hook4"],
+  "viral_score": 82,
+  "engagement_score": 75,
+  "shadowban_risk": "low",
+  "emotions": {"curiosity": 80, "urgency": 65, "trust": 72, "fomo": 58},
+  "repurpose": ["Instagram → TikTok Reels", "LinkedIn → Twitter Thread"],
+  "trending_tags": ["#trending1", "#trending2", "#trending3"]
+}`;
+
+  try {
+    const res = await fetch(GROQ_API, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    let aiData = null;
+    if(res.ok){
+      const raw = await res.text();
+      try{
+        const parsed = JSON.parse(raw);
+        if(parsed.hashtags) aiData = parsed;
+        else { const m = raw.match(/\{[\s\S]*\}/); if(m) aiData = JSON.parse(m[0]); }
+      }catch(e){ const m = raw.match(/\{[\s\S]*\}/); if(m) try{aiData=JSON.parse(m[0])}catch{} }
+    }
+
+    if(aiData){
+      renderOutput(aiData, topic);
+    } else {
+      renderFallback(topic, parseInt(count));
+    }
+  } catch(e) {
+    renderFallback(topic, parseInt(count));
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Generate AI Hashtags';
+    document.getElementById('genBadge').textContent = 'AI DONE ✓';
+    showToast('✨ Hashtags generated!');
+  }
 }
 
-if(tabName === 'Video'){
-dropZone.innerHTML='🎬 Drag & Drop Video Here';
+function renderOutput(d, topic){
+  // Hashtags
+  const tags = d.hashtags || [];
+  lastHashtags = tags.join(' ');
+  const high = new Set((d.high_volume||[]).map(t=>t.toLowerCase()));
+  const niche = new Set((d.niche||[]).map(t=>t.toLowerCase()));
+  const out = document.getElementById('hashOutput');
+  out.innerHTML = '';
+  tags.forEach(tag=>{
+    const pill = document.createElement('span');
+    const tl = tag.toLowerCase();
+    pill.className = 'h-pill ' + (high.has(tl)?'h-high':niche.has(tl)?'h-niche':'h-med');
+    pill.textContent = tag;
+    pill.title = 'Click to copy';
+    pill.onclick = ()=>{navigator.clipboard.writeText(tag);showToast('📋 '+tag+' copied!')};
+    out.appendChild(pill);
+  });
+  document.getElementById('hashCount').textContent = '('+tags.length+' tags)';
+
+  // Caption
+  lastCaption = d.caption || '';
+  document.getElementById('captionOutput').textContent = d.caption || 'No caption generated';
+
+  // Hooks
+  const hooks = d.hooks || [];
+  const hg = document.getElementById('hooksGrid');
+  hg.innerHTML = hooks.map(h=>`<div class="hook-card" onclick="navigator.clipboard.writeText(this.textContent);showToast('📋 Hook copied!')">${h}</div>`).join('');
+
+  // Repurpose
+  const rp = d.repurpose || [];
+  document.getElementById('repurposeBox').innerHTML = rp.map(r=>`<div style="padding:10px;background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:9px;font-size:12.5px;color:var(--t2)">→ ${r}</div>`).join('') || '<div style="padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--b2);border-radius:9px;font-size:12px;color:var(--t3)">No repurpose data</div>';
+
+  // Char limits
+  const allText = tags.join(' ');
+  updateCharLimits(allText);
+
+  // Metrics
+  const vs = d.viral_score || 75, es = d.engagement_score || 68;
+  const vsEl = document.getElementById('viralScore');
+  vsEl.textContent = vs+'%';
+  vsEl.className = 'mc-big ' + (vs>=75?'':vs>=50?'warn':'bad');
+  document.getElementById('viralBar').style.width = vs+'%';
+  document.getElementById('viralSub').textContent = vs>=75?'Excellent viral potential':vs>=50?'Good — above average':'Needs more viral tags';
+
+  const esEl = document.getElementById('engScore');
+  esEl.textContent = es+'%';
+  esEl.className = 'mc-big ' + (es>=70?'':es>=45?'warn':'bad');
+  document.getElementById('engBar').style.width = es+'%';
+  document.getElementById('engSub').textContent = 'Estimated '+Math.round(es*12)+' avg reach/post';
+
+  // Risk
+  const risk = (d.shadowban_risk||'low').toLowerCase();
+  const rb = document.getElementById('riskBadge');
+  if(risk==='low'){rb.className='risk-low';rb.innerHTML='✅ Low Risk — Safe to post'}
+  else if(risk==='medium'){rb.className='risk-med';rb.innerHTML='⚠️ Medium Risk — Check tags'}
+  else{rb.className='risk-high';rb.innerHTML='🚫 High Risk — Replace some tags'}
+
+  // Emotions
+  const em = d.emotions || {curiosity:80,urgency:65,trust:72,fomo:58};
+  document.getElementById('emotionRows').innerHTML = Object.entries(em).map(([k,v])=>`
+    <div class="sc-row"><span class="sc-key" style="text-transform:capitalize">${k}</span><span class="sc-val ${v>=70?'ok':''}">${v}%</span></div>
+  `).join('');
+
+  // Trending
+  const tp = document.getElementById('trendPills');
+  const trending = d.trending_tags || (d.hashtags||[]).slice(0,4);
+  tp.innerHTML = trending.map((t,i)=>`<span class="trend-pill ${i===0?'tp-hot':i===1?'tp-med':'tp-rise'}">${t} ${i===0?'🔥':i===1?'📈':'⬆'}</span>`).join('');
+
+  // Distribution
+  document.getElementById('dHigh').textContent = (d.high_volume||[]).length || Math.round(tags.length*0.3);
+  document.getElementById('dMed').textContent = (d.mid_range||[]).length || Math.round(tags.length*0.4);
+  document.getElementById('dNiche').textContent = (d.niche||[]).length || Math.round(tags.length*0.3);
 }
 
-if(tabName === 'URL'){
-dropZone.innerHTML='🔗 Paste URL to auto-fetch content';
+function renderFallback(topic, count){
+  const clean = topic.replace(/\s+/g,'').replace(/[^a-zA-Z0-9]/g,'');
+  const base = [
+    '#'+clean, '#'+clean+'Tips', '#'+clean+'Life', '#'+clean+'Community', '#'+clean+'Vibes',
+    '#AI', '#ContentCreator', '#DigitalMarketing', '#GrowthHack', '#ViralContent',
+    '#SocialMediaMarketing', '#BusinessTips', '#Entrepreneurship', '#OnlineBusiness',
+    '#CreatorEconomy', '#Reels', '#ExplorePage', '#Trending', '#Innovation', '#Success',
+    '#MindsetMatters', '#PersonalBranding', '#MarketingStrategy', '#SmallBusiness', '#Hustle',
+    '#Motivation', '#Inspiration', '#LearnOnTikTok', '#FYP', '#ForYouPage'
+  ].slice(0, count);
+  renderOutput({
+    hashtags: base,
+    high_volume: base.slice(6,12),
+    mid_range: base.slice(3,6),
+    niche: base.slice(0,3),
+    caption: `Unlock the power of ${topic}! 🚀 Whether you're just starting out or leveling up your game, this is your sign to take action. Drop a comment below and let's connect! 💬`,
+    hooks: [
+      '🔥 Nobody is talking about this '+topic+' strategy...',
+      '📈 The secret that '+topic+' experts use daily...',
+      '⚡ This '+topic+' hack changed everything...',
+      '🎯 Stop scrolling — this '+topic+' tip will blow your mind...'
+    ],
+    viral_score: 72,
+    engagement_score: 65,
+    shadowban_risk: 'low',
+    emotions: {curiosity:78,urgency:62,trust:68,fomo:55},
+    repurpose: ['Instagram → TikTok Reels','LinkedIn → Twitter/X Thread','YouTube Long → Shorts','Blog → Pinterest Carousel'],
+    trending_tags: base.slice(0,4)
+  }, topic);
 }
 
-});
-
-});
-
-const platformButtons = document.querySelectorAll('.platform-btn');
-
-platformButtons.forEach(btn=>{
-
-btn.addEventListener('click',()=>{
-
-platformButtons.forEach(b=>b.classList.remove('active'));
-
-btn.classList.add('active');
-
-});
-
-});
-
-function generateHashtags(){
-
-const keyword = document.getElementById('keywordInput').value;
-
-if(keyword.trim()===''){
-
-alert('Please enter keyword/topic');
-return;
-
+function updateCharLimits(text){
+  const len = text.length;
+  const limits = [{id:'ig',max:2200},{id:'li',max:3000},{id:'tw',max:280},{id:'tk',max:2200}];
+  limits.forEach(({id,max})=>{
+    const pct = Math.min(100,(len/max)*100);
+    document.getElementById(id+'Count').textContent = len+' / '+max;
+    document.getElementById(id+'Bar').style.width = pct+'%';
+    document.getElementById(id+'Bar').style.background = pct>90?'var(--a4)':pct>70?'var(--a5)':'var(--a3)';
+  });
 }
 
-const clean = keyword.replace(/\s+/g,'');
-
-const hashtags = `
-#${clean}
-#${clean}Growth
-#${clean}Marketing
-#${clean}Strategy
-#AI
-#ContentCreator
-#BusinessGrowth
-#ViralContent
-#MarketingTips
-#SocialMedia
-#ExplorePage
-#Reels
-#Startup
-#DigitalMarketing
-`;
-
-document.getElementById('hashtagsOutput').innerHTML = hashtags;
-
-const viral = Math.floor(Math.random()*20)+75;
-const engagement = Math.floor(Math.random()*20)+70;
-
-document.getElementById('viralScore').innerHTML = viral + '%';
-document.getElementById('engagementScore').innerHTML = engagement + '%';
-
-document.getElementById('viralBar').style.width = viral + '%';
-
-chart.data.datasets[0].data = [
-viral,
-engagement,
-viral-10,
-engagement-20
-];
-
-chart.update();
-
+function copyAll(){
+  if(!lastHashtags){showToast('⚠ Generate first');return}
+  navigator.clipboard.writeText(lastHashtags+(lastCaption?'\n\n'+lastCaption:''));
+  showToast('📋 All copied!');
 }
-
-function copyHashtags(){
-
-const text = document.getElementById('hashtagsOutput').innerText;
-
-navigator.clipboard.writeText(text);
-
-alert('Copied Successfully');
-
+function copyCaption(){
+  if(!lastCaption){showToast('⚠ Generate first');return}
+  navigator.clipboard.writeText(lastCaption);
+  showToast('📋 Caption copied!');
 }
-
+function exportTxt(){
+  if(!lastHashtags){showToast('⚠ Generate first');return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lastHashtags+'\n\n'+lastCaption],{type:'text/plain'}));a.download='hashtags.txt';a.click();
+  showToast('📄 Downloaded!');
+}
+function exportCsv(){
+  if(!lastHashtags){showToast('⚠ Generate first');return}
+  const csv=lastHashtags.split(' ').map(h=>'"'+h+'"').join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='hashtags.csv';a.click();
+  showToast('📊 CSV Downloaded!');
+}
+function clearOutput(){
+  document.getElementById('hashOutput').innerHTML='<span class="h-placeholder">Your AI hashtags appear here...</span>';
+  document.getElementById('captionOutput').textContent='Caption appears here...';
+  document.getElementById('hooksGrid').innerHTML='<div class="hook-card" style="color:var(--t3);grid-column:1/-1">Hook suggestions appear after generation...</div>';
+  document.getElementById('repurposeBox').innerHTML='<div style="padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--b2);border-radius:9px;font-size:12px;color:var(--t3)">Repurpose suggestions...</div>';
+  document.getElementById('hashCount').textContent='';
+  document.getElementById('genBadge').textContent='WAITING';document.getElementById('genBadge').className='out-badge ob-idle';
+  ['viralScore','engScore'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('viralBar').style.width='0';document.getElementById('engBar').style.width='0';
+  document.getElementById('riskBadge').innerHTML='⚪ Not checked';document.getElementById('riskBadge').className='risk-low';
+  document.getElementById('trendPills').innerHTML='<span style="font-size:11px;color:var(--t3);font-family:\'DM Mono\',monospace">Generate to see trends</span>';
+  lastHashtags='';lastCaption='';
+  showToast('🗑️ Cleared!');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);
+}
 </script>
-
 </body>
 </html>
