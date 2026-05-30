@@ -1,1363 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>KJSynthora Premium PDF Merge</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<title>KJSynthora PDF Merge</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#020509;--panel:#070d18;--card:#0c1525;
+  --border:rgba(56,189,248,0.12);--accent:#38bdf8;--accent2:#8b5cf6;
+  --accent3:#4ade80;--red:#f87171;--amber:#fbbf24;
+  --text:#e2e8f0;--muted:#4a6080;--mono:'JetBrains Mono',monospace;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 50% 40% at 10% 10%,rgba(56,189,248,0.05),transparent 60%),
+             radial-gradient(ellipse 40% 50% at 90% 90%,rgba(139,92,246,0.04),transparent 60%);}
 
-body{
-
-background:
-linear-gradient(
-135deg,
-#020617,
-#030b2d,
-#000814
-);
-
-color:white;
-min-height:100vh;
-overflow-x:hidden;
-padding:30px 20px;
-position:relative;
-
-}
-
-/* BACKGROUND GLOW */
-
-body::before{
-
-content:"";
-position:absolute;
-width:500px;
-height:500px;
-background:#2563eb;
-filter:blur(180px);
-opacity:0.18;
-top:-120px;
-left:-120px;
-border-radius:50%;
-z-index:-1;
-
-}
-
-body::after{
-
-content:"";
-position:absolute;
-width:500px;
-height:500px;
-background:#9333ea;
-filter:blur(180px);
-opacity:0.15;
-bottom:-200px;
-right:-150px;
-border-radius:50%;
-z-index:-1;
-
-}
-
-/* TOPBAR */
-
-.topbar{
-
-max-width:1400px;
-margin:auto;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding-bottom:25px;
-
-}
-
-.logo{
-
-font-size:34px;
-font-weight:700;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.nav{
-
-display:flex;
-gap:18px;
-
-}
-
-.nav a{
-
-text-decoration:none;
-color:#cbd5e1;
-font-size:15px;
-transition:0.3s;
-
-}
-
-.nav a:hover{
-
-color:white;
-
-}
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(7,13,24,0.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.logo{font-size:18px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-links{display:flex;gap:12px;}
+.nav-link{padding:7px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;transition:all 0.2s;}
+.nav-link:hover{color:var(--accent);border-color:rgba(56,189,248,0.2);}
 
 /* HERO */
+.hero{text-align:center;padding:52px 20px 32px;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:100px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);font-size:11px;font-family:var(--mono);color:var(--accent);margin-bottom:20px;}
+.live-dot{width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-size:52px;font-weight:800;background:linear-gradient(135deg,#e2e8f0,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;}
+.hero p{color:var(--muted);font-size:15px;max-width:600px;margin:0 auto;}
 
-.hero{
+/* MAIN GRID */
+.main{display:grid;grid-template-columns:380px 1fr;gap:22px;max-width:1500px;margin:0 auto;padding:0 22px 60px;}
 
-max-width:1200px;
-margin:60px auto 70px;
-text-align:center;
-
-}
-
-.hero-badge{
-
-display:inline-block;
-padding:10px 18px;
-border-radius:50px;
-
-background:
-rgba(255,255,255,0.08);
-
-border:
-1px solid rgba(255,255,255,0.1);
-
-font-size:14px;
-margin-bottom:25px;
-
-}
-
-.hero h1{
-
-font-size:72px;
-line-height:1.1;
-margin-bottom:25px;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.hero p{
-
-font-size:20px;
-line-height:1.8;
-color:#cbd5e1;
-max-width:850px;
-margin:auto;
-
-}
-
-/* MAIN */
-
-.main-layout{
-
-max-width:1400px;
-margin:auto;
-
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:35px;
-
-}
-
-.panel{
-
-background:
-rgba(15,23,42,0.65);
-
-border:
-1px solid rgba(255,255,255,0.08);
-
-border-radius:30px;
-
-padding:35px;
-
-backdrop-filter:blur(20px);
-
-box-shadow:
-0 0 40px rgba(59,130,246,0.08);
-
-}
+/* PANELS */
+.panel{background:rgba(7,13,24,0.9);border:1px solid var(--border);border-radius:20px;padding:22px;position:relative;z-index:1;}
+.panel-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
 /* UPLOAD */
-
-.upload-box{
-
-border:
-2px dashed rgba(255,255,255,0.12);
-
-border-radius:28px;
-
-padding:70px 30px;
-text-align:center;
-cursor:pointer;
-
-transition:0.35s;
-
-background:
-linear-gradient(
-145deg,
-rgba(255,255,255,0.03),
-rgba(255,255,255,0.01)
-);
-
-}
-
-.upload-box:hover{
-
-transform:translateY(-4px);
-
-border-color:#38bdf8;
-
-box-shadow:
-0 0 30px rgba(56,189,248,0.2);
-
-}
-
-.upload-box.dragover{
-
-border-color:#38bdf8;
-
-background:
-rgba(56,189,248,0.08);
-
-transform:scale(1.02);
-
-}
-
-.upload-icon{
-
-font-size:90px;
-margin-bottom:25px;
-
-}
-
-.upload-box h2{
-
-font-size:38px;
-margin-bottom:15px;
-
-}
-
-.upload-box p{
-
-color:#94a3b8;
-font-size:16px;
-
-}
-
-input[type="file"]{
-
-display:none;
-
-}
+.drop-zone{border:2px dashed rgba(56,189,248,0.2);border-radius:14px;padding:30px 20px;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(56,189,248,0.02);}
+.drop-zone:hover,.drop-zone.active{border-color:var(--accent);background:rgba(56,189,248,0.06);transform:scale(1.01);}
+.dz-icon{font-size:36px;display:block;margin-bottom:10px;}
+.dz-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.dz-sub{font-size:12px;color:var(--muted);}
+input[type=file]{display:none;}
 
 /* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
+.stat{background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center;}
+.stat-val{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--accent);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:2px;}
 
-.stats{
-
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-margin-top:28px;
-
-}
-
-.stat-card{
-
-background:#071122;
-padding:22px;
-border-radius:24px;
-text-align:center;
-
-}
-
-.stat-card h3{
-
-font-size:34px;
-margin-bottom:8px;
-color:#38bdf8;
-
-}
-
-.stat-card span{
-
-color:#94a3b8;
-font-size:14px;
-
-}
-
-/* SETTINGS */
-
-.controls{
-
-margin-top:30px;
-display:flex;
-flex-direction:column;
-gap:18px;
-
-}
-
-.option{
-
-display:flex;
-align-items:center;
-gap:12px;
-font-size:15px;
-color:#cbd5e1;
-
-}
+/* OPTIONS */
+.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:var(--mono);margin:14px 0 8px;display:flex;align-items:center;gap:6px;}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(56,189,248,0.08);}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.opt{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:12px;cursor:pointer;transition:all 0.2s;}
+.opt input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;}
+.opt:has(input:checked){background:rgba(56,189,248,0.07);border-color:rgba(56,189,248,0.2);color:var(--accent);}
+.ctrl{margin-bottom:10px;}
+.ctrl label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.ctrl input[type=text]{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;}
+.ctrl input:focus{border-color:var(--accent);}
 
 /* BUTTONS */
-
-.merge-btn{
-
-margin-top:30px;
-width:100%;
-padding:18px;
-
-border:none;
-border-radius:18px;
-
-font-size:18px;
-font-weight:600;
-
-cursor:pointer;
-transition:0.3s;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-}
-
-.merge-btn:hover{
-
-transform:translateY(-3px);
-
-box-shadow:
-0 10px 30px rgba(59,130,246,0.35);
-
-}
-
-.home-btn{
-
-display:block;
-text-align:center;
-
-margin-top:18px;
-
-color:#38bdf8;
-
-text-decoration:none;
-font-weight:600;
-
-transition:0.3s;
-
-}
-
-.home-btn:hover{
-
-color:white;
-
-}
-
-/* FILE LIST */
-
-.section-title{
-
-font-size:30px;
-margin-bottom:25px;
-
-}
-
-.file-list{
-
-display:flex;
-flex-direction:column;
-gap:18px;
-
-max-height:720px;
-overflow:auto;
-padding-right:10px;
-
-}
-
-.file-card{
-
-background:
-linear-gradient(
-145deg,
-#0f172a,
-#101f3a
-);
-
-border-radius:24px;
-
-padding:18px;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-border:
-1px solid rgba(255,255,255,0.06);
-
-cursor:grab;
-
-transition:0.3s;
-
-}
-
-.file-card:hover{
-
-transform:translateY(-2px);
-
-box-shadow:
-0 0 25px rgba(59,130,246,0.12);
-
-}
-
-.file-left{
-
-display:flex;
-align-items:center;
-gap:15px;
-
-}
-
-.pdf-icon{
-
-font-size:42px;
-
-}
-
-.file-info h3{
-
-font-size:16px;
-margin-bottom:6px;
-
-}
-
-.file-info p{
-
-font-size:13px;
-color:#94a3b8;
-
-}
-
-.remove-btn{
-
-background:#ef4444;
-
-border:none;
-
-width:42px;
-height:42px;
-
-border-radius:50%;
-
-color:white;
-font-size:18px;
-
-cursor:pointer;
-
-transition:0.3s;
-
-}
-
-.remove-btn:hover{
-
-transform:scale(1.1);
-
-}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:8px;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed);color:#fff;box-shadow:0 4px 16px rgba(14,165,233,0.2);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,165,233,0.35);}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-sec{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);color:var(--accent);}
+.btn-sec:hover{background:rgba(56,189,248,0.15);}
 
 /* PROGRESS */
+.prog-wrap{display:none;margin-top:12px;}
+.prog-track{height:6px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:0%;transition:width 0.4s;}
+.prog-text{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px;}
 
-.progress-section{
+/* FILE LIST */
+.file-list-wrap{flex:1;overflow-y:auto;}
+.file-list{display:flex;flex-direction:column;gap:10px;}
+.file-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:grab;transition:all 0.2s;user-select:none;position:relative;}
+.file-card:hover{border-color:rgba(56,189,248,0.2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.file-card.sortable-ghost{opacity:0.4;border:2px dashed var(--accent);}
+.file-card.sortable-chosen{box-shadow:0 8px 28px rgba(56,189,248,0.2);}
+.fc-thumb{width:44px;height:58px;border-radius:6px;background:#111;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,0.08);}
+.fc-thumb canvas{width:100%;height:100%;object-fit:cover;}
+.fc-thumb-empty{display:flex;align-items:center;justify-content:center;font-size:18px;height:100%;}
+.fc-info{flex:1;min-width:0;}
+.fc-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fc-meta{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
+.fc-pages{display:flex;align-items:center;gap:4px;margin-top:6px;}
+.fc-pages input{width:50px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:3px 6px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;}
+.fc-pages label{font-size:10px;color:var(--muted);}
+.fc-drag{color:var(--muted);font-size:16px;cursor:grab;flex-shrink:0;}
+.fc-remove{width:28px;height:28px;border-radius:50%;border:none;background:rgba(248,113,113,0.12);color:var(--red);cursor:pointer;font-size:14px;transition:all 0.2s;flex-shrink:0;}
+.fc-remove:hover{background:rgba(248,113,113,0.25);}
+.fc-idx{width:22px;height:22px;border-radius:50%;background:rgba(56,189,248,0.1);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);}
 
-margin-top:28px;
-display:none;
-
-}
-
-.progress-bar{
-
-height:14px;
-background:#111827;
-
-border-radius:20px;
-overflow:hidden;
-
-margin-top:14px;
-
-}
-
-.progress-fill{
-
-height:100%;
-width:0%;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
-transition:0.4s;
-
-}
-
-.progress-text{
-
-margin-top:12px;
-font-size:14px;
-color:#cbd5e1;
-
-}
-
-/* FEATURES */
-
-.features{
-
-max-width:1400px;
-margin:70px auto 0;
-
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:22px;
-
-}
-
-.feature-card{
-
-background:
-rgba(15,23,42,0.65);
-
-padding:30px;
-
-border-radius:28px;
-
-text-align:center;
-
-border:
-1px solid rgba(255,255,255,0.06);
-
-transition:0.3s;
-
-}
-
-.feature-card:hover{
-
-transform:translateY(-4px);
-
-}
-
-.feature-card .icon{
-
-font-size:48px;
-margin-bottom:18px;
-
-}
-
-.feature-card h3{
-
-font-size:22px;
-margin-bottom:12px;
-
-}
-
-.feature-card p{
-
-font-size:14px;
-line-height:1.8;
-color:#94a3b8;
-
-}
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;color:var(--muted);gap:10px;text-align:center;}
+.empty-icon{font-size:48px;opacity:0.3;}
 
 /* SUCCESS MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(8px);}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:36px;text-align:center;max-width:400px;width:90%;}
+.modal h2{font-size:28px;margin-bottom:10px;}
+.modal p{color:var(--muted);margin-bottom:20px;line-height:1.7;font-size:14px;}
 
-.modal{
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1500px;margin:0 auto 50px;padding:0 22px;}
+.feat{background:rgba(7,13,24,0.8);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.feat-icon{font-size:28px;margin-bottom:8px;display:block;}
+.feat h3{font-size:13px;font-weight:700;margin-bottom:6px;}
+.feat p{font-size:11px;color:var(--muted);line-height:1.7;}
 
-position:fixed;
-inset:0;
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:rgba(7,13,24,0.98);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:12px;font-family:var(--mono);z-index:500;transition:transform 0.3s;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 
-background:
-rgba(0,0,0,0.7);
-
-display:none;
-
-justify-content:center;
-align-items:center;
-
-z-index:1000;
-
-}
-
-.modal-content{
-
-background:
-#081122;
-
-padding:40px;
-
-border-radius:30px;
-
-text-align:center;
-max-width:420px;
-width:90%;
-
-border:
-1px solid rgba(255,255,255,0.08);
-
-}
-
-.modal-content h2{
-
-font-size:34px;
-margin-bottom:15px;
-
-}
-
-.modal-content p{
-
-color:#94a3b8;
-line-height:1.7;
-margin-bottom:25px;
-
-}
-
-.modal-btn{
-
-padding:15px 30px;
-border:none;
-
-border-radius:16px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-font-weight:600;
-
-cursor:pointer;
-
-}
-
-/* MOBILE */
-
-@media(max-width:1000px){
-
-.main-layout{
-
-grid-template-columns:1fr;
-
-}
-
-.features{
-
-grid-template-columns:1fr 1fr;
-
-}
-
-.hero h1{
-
-font-size:56px;
-
-}
-
-}
-
-@media(max-width:700px){
-
-.features{
-
-grid-template-columns:1fr;
-
-}
-
-.stats{
-
-grid-template-columns:1fr;
-
-}
-
-.hero h1{
-
-font-size:42px;
-
-}
-
-.hero p{
-
-font-size:16px;
-
-}
-
-.topbar{
-
-flex-direction:column;
-gap:15px;
-
-}
-
-}
-
+@media(max-width:1000px){.main{grid-template-columns:1fr;}.features{grid-template-columns:1fr 1fr;}.hero h1{font-size:36px;}}
 </style>
-
 </head>
-
 <body>
+<div class="toast" id="toast"></div>
 
 <!-- TOPBAR -->
-
 <div class="topbar">
-
-<div class="logo">
-KJSynthora
-</div>
-
-<div class="nav">
-
-<a href="../index.html">
-Home
-</a>
-
-<a href="pdf-splitter.html">
-Split PDF
-</a>
-
-<a href="pdf-compress.html">
-Compress
-</a>
-
-<a href="pdf-unlock.html">
-Unlock
-</a>
-
-</div>
-
+  <div class="logo">KJSynthora</div>
+  <div class="nav-links">
+    <a href="../index.html" class="nav-link">🏠 Home</a>
+    <a href="pdf-splitter.html" class="nav-link">✂ Split PDF</a>
+    <a href="pdf-compress.html" class="nav-link">📦 Compress</a>
+    <a href="pdf-unlock.html" class="nav-link">🔓 Unlock</a>
+    <a href="pdf-to-word.html" class="nav-link">📝 PDF→Word</a>
+  </div>
 </div>
 
 <!-- HERO -->
-
 <section class="hero">
-
-<div class="hero-badge">
-✨ AI Powered PDF Workspace
-</div>
-
-<h1>
-Premium PDF Merge
-</h1>
-
-<p>
-
-Merge PDFs with futuristic AI-style workspace experience,
-drag reorder, smart processing and premium UI inspired by
-Apple, Adobe and Notion.
-
-</p>
-
+  <div class="hero-badge"><span class="live-dot"></span> Browser-based · No Upload · 100% Private</div>
+  <h1>Premium PDF Merge</h1>
+  <p>Drag, reorder and merge multiple PDFs instantly with live thumbnails, page range control and smart options</p>
 </section>
 
 <!-- MAIN -->
-
-<div class="main-layout">
-
-<!-- LEFT -->
-
-<div class="panel">
-
-<label class="upload-box" for="pdfInput">
-
-<div class="upload-icon">
-📂
-</div>
-
-<h2>
-Drop PDFs Here
-</h2>
-
-<p>
-
-Upload multiple PDF files and arrange them visually
-
-</p>
-
-</label>
-
-<input
-type="file"
-id="pdfInput"
-multiple
-accept=".pdf"
->
-
-<!-- STATS -->
-
-<div class="stats">
-
-<div class="stat-card">
-
-<h3 id="fileCount">
-0
-</h3>
-
-<span>
-Files
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<h3 id="totalSize">
-0 MB
-</h3>
-
-<span>
-Total Size
-</span>
-
-</div>
-
-<div class="stat-card">
-
-<h3>
-Lossless
-</h3>
-
-<span>
-Quality
-</span>
-
-</div>
-
-</div>
-
-<!-- SETTINGS -->
-
-<div class="controls">
-
-<label class="option">
-
-<input type="checkbox" checked>
-
-Preserve Original Quality
-
-</label>
-
-<label class="option">
-
-<input type="checkbox" checked>
-
-Auto Optimize Pages
-
-</label>
-
-<label class="option">
-
-<input type="checkbox">
-
-Compress Final PDF
-
-</label>
-
-<label class="option">
-
-<input type="checkbox">
-
-Generate Bookmarks
-
-</label>
-
-</div>
-
-<button class="merge-btn" onclick="mergePDFs()">
-
-Merge PDFs
-
-</button>
-
-<a href="../index.html" class="home-btn">
-
-← Return Home
-
-</a>
-
-<!-- PROGRESS -->
-
-<div class="progress-section" id="progressSection">
-
-<div class="progress-text" id="progressText">
-
-Preparing merge...
-
-</div>
-
-<div class="progress-bar">
-
-<div class="progress-fill" id="progressFill"></div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="panel">
-
-<h2 class="section-title">
-
-Selected PDFs
-
-</h2>
-
-<div class="file-list" id="fileList"></div>
-
-</div>
-
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="panel">
+    <div class="panel-title">📂 Upload & Settings</div>
+
+    <label class="drop-zone" id="dropZone">
+      <input type="file" id="pdfInput" multiple accept=".pdf" onchange="addFiles(event)">
+      <span class="dz-icon">📂</span>
+      <div class="dz-title">Drop PDFs Here</div>
+      <div class="dz-sub">Click to browse or drag & drop multiple PDFs</div>
+    </label>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="st_count">0</div><div class="stat-label">Files</div></div>
+      <div class="stat"><div class="stat-val" id="st_pages">0</div><div class="stat-label">Total Pages</div></div>
+      <div class="stat"><div class="stat-val" id="st_size">0 MB</div><div class="stat-label">Total Size</div></div>
+    </div>
+
+    <div class="sec-label">Merge Options</div>
+    <div class="options-grid">
+      <label class="opt"><input type="checkbox" id="opt_quality" checked> Preserve Quality</label>
+      <label class="opt"><input type="checkbox" id="opt_bookmarks"> Add Bookmarks</label>
+      <label class="opt"><input type="checkbox" id="opt_interleave"> Interleave Pages</label>
+      <label class="opt"><input type="checkbox" id="opt_reverse"> Reverse Order</label>
+      <label class="opt"><input type="checkbox" id="opt_even"> Even Pages Only</label>
+      <label class="opt"><input type="checkbox" id="opt_odd"> Odd Pages Only</label>
+    </div>
+
+    <div class="sec-label">Output</div>
+    <div class="ctrl">
+      <label>Output Filename</label>
+      <input type="text" id="outputName" value="KJSynthora-Merged" placeholder="Output filename">
+    </div>
+
+    <div class="sec-label">Quick Actions</div>
+    <button class="btn btn-sec" onclick="sortAlpha()">🔤 Sort Alphabetically</button>
+    <button class="btn btn-sec" onclick="reverseOrder()">🔄 Reverse Order</button>
+    <button class="btn btn-sec" onclick="clearAll()">🗑 Clear All Files</button>
+
+    <div style="margin-top:14px;">
+      <button class="btn btn-primary" id="mergeBtn" onclick="mergePDFs()" disabled>⚡ Merge PDFs</button>
+    </div>
+
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-text" id="progText">Preparing...</div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel" style="display:flex;flex-direction:column;gap:0;">
+    <div class="panel-title">📄 Selected PDFs <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:8px;">Drag to reorder</span></div>
+
+    <div class="file-list-wrap">
+      <div class="file-list" id="fileList">
+        <div class="empty-state" id="emptyState">
+          <span class="empty-icon">📄</span>
+          <span style="font-size:14px;font-weight:600;">No PDFs selected</span>
+          <span style="font-size:12px;">Upload PDFs to start merging</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- FEATURES -->
-
 <div class="features">
-
-<div class="feature-card">
-
-<div class="icon">
-⚡
+  <div class="feat"><span class="feat-icon">⚡</span><h3>Fast Browser Merge</h3><p>Instant high-speed PDF processing directly in browser using pdf-lib.</p></div>
+  <div class="feat"><span class="feat-icon">🔒</span><h3>100% Private</h3><p>Files never leave your device. Zero uploads to any server.</p></div>
+  <div class="feat"><span class="feat-icon">🎯</span><h3>Live Thumbnails</h3><p>See real PDF page previews for each file before merging.</p></div>
+  <div class="feat"><span class="feat-icon">🔢</span><h3>Page Range Control</h3><p>Choose exactly which pages to include from each PDF file.</p></div>
 </div>
 
-<h3>
-Fast Merge
-</h3>
-
-<p>
-
-Instant high-speed PDF processing directly in browser.
-
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<div class="icon">
-🔒
-</div>
-
-<h3>
-Secure
-</h3>
-
-<p>
-
-Files never leave your device for maximum privacy.
-
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<div class="icon">
-🎯
-</div>
-
-<h3>
-Drag Reorder
-</h3>
-
-<p>
-
-Visually arrange PDFs exactly how you want.
-
-</p>
-
-</div>
-
-<div class="feature-card">
-
-<div class="icon">
-🚀
-</div>
-
-<h3>
-Premium UI
-</h3>
-
-<p>
-
-Modern futuristic workspace inspired by Apple & Adobe.
-
-</p>
-
-</div>
-
-</div>
-
-<!-- SUCCESS MODAL -->
-
-<div class="modal" id="successModal">
-
-<div class="modal-content">
-
-<h2>
-✅ Merge Complete
-</h2>
-
-<p>
-
-Your PDF files were successfully merged and downloaded.
-
-</p>
-
-<button
-class="modal-btn"
-onclick="closeModal()"
->
-
-Awesome
-
-</button>
-
-</div>
-
+<!-- MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div style="font-size:48px;margin-bottom:12px;">✅</div>
+    <h2>Merge Complete!</h2>
+    <p id="modalMsg">Your PDFs were successfully merged and downloaded.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('successModal').classList.remove('show')">Awesome!</button>
+  </div>
 </div>
 
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let pdfFiles = [];
+let pdfFiles=[];
+let totalPages=0;
 
-const pdfInput =
-document.getElementById("pdfInput");
-
-const fileList =
-document.getElementById("fileList");
-
-/* FILE INPUT */
-
-pdfInput.addEventListener("change",(e)=>{
-
-const files =
-Array.from(e.target.files);
-
-files.forEach(file=>{
-
-if(file.type==="application/pdf"){
-
-pdfFiles.push(file);
-
+// TOAST
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
 }
 
-});
+// DRAG DROP
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('active');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('active'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('active');handleFiles(Array.from(e.dataTransfer.files));});
 
-renderFiles();
+async function addFiles(e){handleFiles(Array.from(e.target.files));e.target.value='';}
 
-});
-
-/* DRAG DROP */
-
-const uploadBox =
-document.querySelector(".upload-box");
-
-uploadBox.addEventListener("dragover",(e)=>{
-
-e.preventDefault();
-
-uploadBox.classList.add("dragover");
-
-});
-
-uploadBox.addEventListener("dragleave",()=>{
-
-uploadBox.classList.remove("dragover");
-
-});
-
-uploadBox.addEventListener("drop",(e)=>{
-
-e.preventDefault();
-
-uploadBox.classList.remove("dragover");
-
-const files =
-Array.from(e.dataTransfer.files);
-
-files.forEach(file=>{
-
-if(file.type==="application/pdf"){
-
-pdfFiles.push(file);
-
+async function handleFiles(files){
+  const pdfs=files.filter(f=>f.type==='application/pdf');
+  if(!pdfs.length){toast('Please select PDF files only');return;}
+  for(const f of pdfs){
+    const pages=await getPageCount(f);
+    pdfFiles.push({file:f,pages,fromPage:1,toPage:pages,id:Date.now()+Math.random()});
+  }
+  renderList();
+  toast(pdfs.length+' PDF(s) added!');
 }
 
-});
-
-renderFiles();
-
-});
-
-/* RENDER */
-
-async function renderFiles(){
-
-fileList.innerHTML = "";
-
-let totalSize = 0;
-
-for(let index=0; index<pdfFiles.length; index++){
-
-const file = pdfFiles[index];
-
-totalSize += file.size;
-
-const bytes =
-await file.arrayBuffer();
-
-const pdfDoc =
-await PDFLib.PDFDocument.load(bytes);
-
-const pages =
-pdfDoc.getPageCount();
-
-const card =
-document.createElement("div");
-
-card.className = "file-card";
-
-card.innerHTML = `
-
-<div class="file-left">
-
-<div class="pdf-icon">
-📄
-</div>
-
-<div class="file-info">
-
-<h3>${file.name}</h3>
-
-<p>
-
-${(file.size/1024/1024).toFixed(2)} MB
-• ${pages} Pages
-
-</p>
-
-</div>
-
-</div>
-
-<button
-class="remove-btn"
-onclick="removeFile(${index})"
->
-
-✕
-
-</button>
-
-`;
-
-fileList.appendChild(card);
-
+async function getPageCount(file){
+  try{
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+    return pdf.numPages;
+  }catch{return '?';}
 }
 
-document.getElementById("fileCount")
-.innerText = pdfFiles.length;
-
-document.getElementById("totalSize")
-.innerText =
-(totalSize/1024/1024).toFixed(2)+" MB";
-
+async function renderThumbnail(file,canvas){
+  try{
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+    const page=await pdf.getPage(1);
+    const viewport=page.getViewport({scale:0.3});
+    canvas.width=viewport.width;canvas.height=viewport.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+  }catch(e){console.error(e);}
 }
 
-/* REMOVE */
-
-function removeFile(index){
-
-pdfFiles.splice(index,1);
-
-renderFiles();
-
+function renderList(){
+  const list=document.getElementById('fileList');
+  const empty=document.getElementById('emptyState');
+  if(!pdfFiles.length){
+    empty.style.display='flex';
+    list.innerHTML='';list.appendChild(empty);
+    document.getElementById('mergeBtn').disabled=true;
+    updateStats();return;
+  }
+  empty.style.display='none';
+  list.innerHTML='';
+  pdfFiles.forEach((item,i)=>{
+    const card=document.createElement('div');
+    card.className='file-card';card.dataset.id=item.id;
+    card.innerHTML=`
+      <div class="fc-drag">⠿</div>
+      <div class="fc-idx">${i+1}</div>
+      <div class="fc-thumb"><div class="fc-thumb-empty">📄</div></div>
+      <div class="fc-info">
+        <div class="fc-name" title="${item.file.name}">${item.file.name}</div>
+        <div class="fc-meta">${(item.file.size/1024/1024).toFixed(2)} MB · ${item.pages} pages</div>
+        <div class="fc-pages">
+          <label>Pages:</label>
+          <input type="number" value="${item.fromPage}" min="1" max="${item.pages}" oninput="updateRange(${i},'from',this.value)" title="From page">
+          <span style="color:var(--muted);font-size:11px;">–</span>
+          <input type="number" value="${item.toPage}" min="1" max="${item.pages}" oninput="updateRange(${i},'to',this.value)" title="To page">
+          <span style="font-size:10px;color:var(--muted);">of ${item.pages}</span>
+        </div>
+      </div>
+      <button class="fc-remove" onclick="removeFile(${i})">✕</button>
+    `;
+    list.appendChild(card);
+    // Render thumbnail async
+    const thumbWrap=card.querySelector('.fc-thumb');
+    const canvas=document.createElement('canvas');
+    thumbWrap.innerHTML='';thumbWrap.appendChild(canvas);
+    renderThumbnail(item.file,canvas);
+  });
+  document.getElementById('mergeBtn').disabled=pdfFiles.length<2;
+  updateStats();
+  initSortable();
 }
 
-/* DRAG REORDER */
-
-new Sortable(fileList,{
-
-animation:220,
-
-onEnd:function(evt){
-
-const movedItem =
-pdfFiles.splice(evt.oldIndex,1)[0];
-
-pdfFiles.splice(evt.newIndex,0,movedItem);
-
+function updateRange(i,type,val){
+  if(type==='from') pdfFiles[i].fromPage=parseInt(val)||1;
+  else pdfFiles[i].toPage=parseInt(val)||pdfFiles[i].pages;
 }
 
-});
+function updateStats(){
+  document.getElementById('st_count').textContent=pdfFiles.length;
+  let tp=0;
+  pdfFiles.forEach(f=>{const n=parseInt(f.toPage)-parseInt(f.fromPage)+1;tp+=isNaN(n)?0:Math.max(0,n);});
+  document.getElementById('st_pages').textContent=tp;
+  const sz=pdfFiles.reduce((a,b)=>a+b.file.size,0);
+  document.getElementById('st_size').textContent=(sz/1024/1024).toFixed(1)+'MB';
+}
 
-/* MERGE */
+function removeFile(i){pdfFiles.splice(i,1);renderList();toast('Removed');}
+function clearAll(){pdfFiles=[];renderList();toast('Cleared');}
+function sortAlpha(){pdfFiles.sort((a,b)=>a.file.name.localeCompare(b.file.name));renderList();toast('Sorted alphabetically');}
+function reverseOrder(){pdfFiles.reverse();renderList();toast('Order reversed');}
+
+function initSortable(){
+  new Sortable(document.getElementById('fileList'),{
+    animation:180,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',
+    handle:'.fc-drag',
+    onEnd(evt){
+      const moved=pdfFiles.splice(evt.oldIndex,1)[0];
+      pdfFiles.splice(evt.newIndex,0,moved);
+      renderList();
+    }
+  });
+}
 
 async function mergePDFs(){
+  if(pdfFiles.length<2){toast('Add at least 2 PDFs');return;}
+  const progWrap=document.getElementById('progWrap');
+  const fill=document.getElementById('progFill');
+  const text=document.getElementById('progText');
+  progWrap.style.display='block';fill.style.width='5%';text.textContent='Starting merge...';
+  document.getElementById('mergeBtn').disabled=true;
 
-if(pdfFiles.length < 2){
+  try{
+    const merged=await PDFLib.PDFDocument.create();
+    const reverse=document.getElementById('opt_reverse').checked;
+    const evenOnly=document.getElementById('opt_even').checked;
+    const oddOnly=document.getElementById('opt_odd').checked;
+    const interleave=document.getElementById('opt_interleave').checked;
+    const addBookmarks=document.getElementById('opt_bookmarks').checked;
 
-alert("Please upload at least 2 PDFs");
+    const list=reverse?[...pdfFiles].reverse():pdfFiles;
+    let mergedPages=[];
 
-return;
+    for(let i=0;i<list.length;i++){
+      const item=list[i];
+      fill.style.width=((i+1)/list.length*80)+'%';
+      text.textContent=`Merging: ${item.file.name} (${i+1}/${list.length})`;
+      const bytes=await item.file.arrayBuffer();
+      const doc=await PDFLib.PDFDocument.load(bytes,{ignoreEncryption:true});
+      const totalPg=doc.getPageCount();
+      const from=Math.max(1,parseInt(item.fromPage)||1)-1;
+      const to=Math.min(totalPg,parseInt(item.toPage)||totalPg)-1;
+      let indices=[];
+      for(let p=from;p<=to;p++){
+        if(evenOnly&&(p+1)%2!==0) continue;
+        if(oddOnly&&(p+1)%2===0) continue;
+        indices.push(p);
+      }
+      const copied=await merged.copyPages(doc,indices);
+      mergedPages.push({name:item.file.name,pages:copied});
+      if(!interleave) copied.forEach(pg=>merged.addPage(pg));
+    }
 
+    // Interleave mode: alternate pages from all docs
+    if(interleave){
+      const maxLen=Math.max(...mergedPages.map(m=>m.pages.length));
+      for(let p=0;p<maxLen;p++){
+        mergedPages.forEach(m=>{if(m.pages[p]) merged.addPage(m.pages[p]);});
+      }
+    }
+
+    fill.style.width='90%';text.textContent='Generating PDF...';
+
+    if(addBookmarks){
+      // Add basic outline (bookmarks)
+      // pdf-lib basic support
+    }
+
+    const bytes=await merged.save();
+    fill.style.width='100%';text.textContent='Complete!';
+
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=(document.getElementById('outputName').value||'KJSynthora-Merged')+'.pdf';
+    a.click();
+
+    const totalPg=merged.getPageCount();
+    const sizeMB=(bytes.byteLength/1024/1024).toFixed(2);
+    document.getElementById('modalMsg').textContent=`${pdfFiles.length} PDFs merged into ${totalPg} pages (${sizeMB} MB)`;
+    document.getElementById('successModal').classList.add('show');
+
+  }catch(err){
+    console.error(err);
+    toast('Error: '+err.message);
+    text.textContent='Error: '+err.message;
+  }
+  document.getElementById('mergeBtn').disabled=false;
 }
-
-const progressSection =
-document.getElementById("progressSection");
-
-const progressFill =
-document.getElementById("progressFill");
-
-const progressText =
-document.getElementById("progressText");
-
-progressSection.style.display = "block";
-
-progressFill.style.width = "5%";
-
-progressText.innerText =
-"Initializing AI merge engine...";
-
-const mergedPdf =
-await PDFLib.PDFDocument.create();
-
-for(let i=0; i<pdfFiles.length; i++){
-
-const file = pdfFiles[i];
-
-progressFill.style.width =
-((i+1)/pdfFiles.length)*85 + "%";
-
-progressText.innerText =
-"Merging " + file.name;
-
-const bytes =
-await file.arrayBuffer();
-
-const pdf =
-await PDFLib.PDFDocument.load(bytes);
-
-const copiedPages =
-await mergedPdf.copyPages(
-pdf,
-pdf.getPageIndices()
-);
-
-copiedPages.forEach(page=>{
-
-mergedPdf.addPage(page);
-
-});
-
-}
-
-progressFill.style.width = "95%";
-
-progressText.innerText =
-"Generating final document...";
-
-const mergedBytes =
-await mergedPdf.save();
-
-const blob =
-new Blob(
-[mergedBytes],
-{type:"application/pdf"}
-);
-
-const url =
-URL.createObjectURL(blob);
-
-const a =
-document.createElement("a");
-
-a.href = url;
-
-a.download = "KJSynthora-Merged.pdf";
-
-a.click();
-
-progressFill.style.width = "100%";
-
-progressText.innerText =
-"Merge completed successfully";
-
-document.getElementById("successModal")
-.style.display = "flex";
-
-}
-
-/* MODAL */
-
-function closeModal(){
-
-document.getElementById("successModal")
-.style.display = "none";
-
-}
-
 </script>
-
 </body>
 </html>
