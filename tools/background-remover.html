@@ -4,193 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>AI Background Remover — KJSynthora</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
 <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#040709;--s1:#070c14;--card:#0d1525;--card2:#101828;
-  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.03);
-  --a1:#63b3ed;--a2:#9f7aea;--a3:#68d391;--a4:#fc8181;--a5:#f6ad55;--a6:#76e4f7;
-  --t1:#f0f4ff;--t2:#a8b8d0;--t3:#5a6e8a;
-  --g1:linear-gradient(135deg,#63b3ed,#9f7aea);
-  --g2:linear-gradient(135deg,#0ea5e9,#7c3aed);
+  --bg:#04060c;--bg2:#070a14;--surface:#0c1020;--surface2:#101528;
+  --surface3:#141c32;--border:#1a2240;--border2:#202a50;
+  --acc:#38bdf8;--acc2:#818cf8;--acc3:#34d399;
+  --warn:#f59e0b;--danger:#f87171;--success:#34d399;
+  --text:#e8f0ff;--text2:#7a8aaa;--text3:#2e3a5a;
+  --mono:'JetBrains Mono',monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 5% 5%,rgba(99,179,237,0.06),transparent),radial-gradient(ellipse 50% 50% at 95% 90%,rgba(159,122,234,0.07),transparent);pointer-events:none;z-index:0}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:rgba(99,179,237,0.25);border-radius:3px}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 45% at 5% 5%,rgba(56,189,248,0.06),transparent),radial-gradient(ellipse 50% 45% at 95% 90%,rgba(129,140,248,0.06),transparent);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:62px;background:rgba(4,7,9,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1)}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo-svg{width:34px;height:34px}
-.nav-logo-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;background:var(--g2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-back{padding:7px 16px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--b1);color:var(--t2);font-size:12.5px;font-weight:600;text-decoration:none;font-family:'Syne',sans-serif;transition:.2s;display:flex;align-items:center;gap:6px}
-.nav-back:hover{background:rgba(255,255,255,0.1);color:var(--t1)}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4%;height:60px;background:rgba(4,6,12,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 16px rgba(56,189,248,0.25);}
+.nav-name{font-size:15px;font-weight:800;color:var(--text);}
+.nav-name span{color:var(--acc);}
+.nav-back{padding:7px 15px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;transition:.2s;display:flex;align-items:center;gap:5px;}
+.nav-back:hover{background:rgba(255,255,255,0.1);color:var(--text);}
 
-/* HERO */
-.hero{position:relative;z-index:1;text-align:center;padding:36px 5% 28px}
-.hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;background:rgba(104,211,145,0.07);border:1px solid rgba(104,211,145,0.18);font-size:11px;font-weight:600;color:var(--a3);font-family:'DM Mono',monospace;letter-spacing:.8px;margin-bottom:14px}
-.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--a3);animation:pd 1.6s infinite}
-@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(104,211,145,.5)}70%{box-shadow:0 0 0 7px transparent}}
-.hero-title{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--t1) 45%,var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:14px;color:var(--t2);margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:32px 5% 24px;}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);font-size:11px;font-weight:600;color:var(--success);font-family:var(--mono);letter-spacing:.8px;margin-bottom:14px;}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--success);animation:pd 1.6s infinite;}
+@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.5);}70%{box-shadow:0 0 0 7px transparent;}}
+.hero-title{font-size:clamp(24px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--text) 40%,var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:13px;color:var(--text2);margin-top:8px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.65;}
 
-/* MAIN LAYOUT */
-.main{position:relative;z-index:1;display:grid;grid-template-columns:300px 1fr 260px;gap:14px;padding:0 5% 50px;max-width:1600px;margin:0 auto}
+/* ── LAYOUT ── */
+.main{position:relative;z-index:1;display:grid;grid-template-columns:290px 1fr 250px;gap:14px;padding:0 4% 50px;max-width:1700px;margin:0 auto;}
 
-/* PANELS */
-.panel{background:var(--card);border:1px solid var(--b1);border-radius:18px;overflow:hidden}
-.panel-hd{padding:14px 18px;border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:7px}
-.panel-body{padding:18px}
+/* ── PANELS ── */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.panel-hd{padding:13px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;}
+.panel-body{padding:16px;}
 
-/* LEFT: CONTROLS */
-.ctrl-section{margin-bottom:20px}
-.ctrl-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:8px;display:block}
+/* ── LEFT CONTROLS ── */
+.ctrl-sec{margin-bottom:16px;}
+.ctrl-lbl{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:7px;display:block;}
 
-/* UPLOAD ZONE */
-.upload-zone{
-  border:2px dashed rgba(99,179,237,0.25);border-radius:14px;
-  padding:28px 16px;text-align:center;cursor:pointer;
-  background:rgba(99,179,237,0.03);transition:all .25s;position:relative;overflow:hidden;
-}
-.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(99,179,237,0.5);background:rgba(99,179,237,0.07)}
-.upload-zone.has-image{border-color:rgba(104,211,145,0.4);background:rgba(104,211,145,0.04)}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.uz-icon{font-size:32px;margin-bottom:8px}
-.uz-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px}
-.uz-sub{font-size:11px;color:var(--t3)}
-.uz-name{font-size:11.5px;color:var(--a3);font-family:'DM Mono',monospace;margin-top:6px;word-break:break-all}
+/* Upload zone */
+.upload-zone{border:2px dashed rgba(56,189,248,0.2);border-radius:13px;padding:22px 14px;text-align:center;cursor:pointer;background:rgba(56,189,248,0.02);transition:all .25s;position:relative;overflow:hidden;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(56,189,248,0.45);background:rgba(56,189,248,0.06);}
+.upload-zone.has-img{border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.03);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.uz-icon{font-size:28px;margin-bottom:7px;}
+.uz-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.uz-sub{font-size:10px;color:var(--text3);}
+.uz-name{font-size:10px;color:var(--success);font-family:var(--mono);margin-top:5px;word-break:break-all;}
 
-/* SELECTS + SLIDERS */
-.ctrl-select{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t1);font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6e8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-.ctrl-select option{background:#0d1525}
-.ctrl-select:focus{border-color:rgba(99,179,237,0.4)}
+/* Select */
+.ctrl-sel{width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:12px;font-family:'Outfit',sans-serif;outline:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M0 0l4.5 6L9 0z' fill='%235a6e8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;}
+.ctrl-sel option{background:#0c1020;}
+.ctrl-sel:focus{border-color:rgba(56,189,248,0.4);}
 
-.bg-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
-.bg-swatch{width:100%;aspect-ratio:1;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:.2s}
-.bg-swatch:hover{transform:scale(1.1)}
-.bg-swatch.active{border-color:var(--a1);box-shadow:0 0 0 2px rgba(99,179,237,0.3)}
+/* Mode toggle */
+.mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.mode-btn{padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.mode-btn.active{background:rgba(56,189,248,0.12);border-color:var(--acc);color:var(--acc);}
+.mode-btn:hover:not(.active){border-color:var(--border2);color:var(--text);}
 
-.ctrl-range{width:100%;height:4px;border-radius:4px;-webkit-appearance:none;background:rgba(255,255,255,0.08);outline:none;cursor:pointer}
-.ctrl-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a1);box-shadow:0 0 0 3px rgba(99,179,237,0.2);cursor:pointer}
-.range-row{display:flex;align-items:center;gap:10px}
-.range-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--a1);min-width:28px;text-align:right}
+/* Swatch grid */
+.swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px;}
+.swatch{width:100%;aspect-ratio:1;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:.2s;}
+.swatch:hover{transform:scale(1.08);}
+.swatch.active{border-color:var(--acc);box-shadow:0 0 0 2px rgba(56,189,248,0.3);}
 
-/* BG CUSTOM UPLOAD */
-.bg-img-upload{
-  padding:8px 12px;border-radius:9px;border:1px dashed rgba(255,255,255,0.12);
-  background:rgba(255,255,255,0.02);font-size:11.5px;color:var(--t3);
-  cursor:pointer;text-align:center;transition:.2s;position:relative;overflow:hidden;
-}
-.bg-img-upload:hover{border-color:rgba(99,179,237,0.3);color:var(--t2)}
-.bg-img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* Range */
+.range-row{display:flex;align-items:center;gap:8px;}
+.ctrl-range{width:100%;height:4px;border-radius:4px;-webkit-appearance:none;background:rgba(255,255,255,0.07);outline:none;cursor:pointer;}
+.ctrl-range::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(56,189,248,0.2);cursor:pointer;}
+.range-val{font-family:var(--mono);font-size:10px;color:var(--acc);min-width:26px;text-align:right;}
 
-/* ACTION BTNS */
-.btn{width:100%;padding:11px 14px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px}
-.btn:last-child{margin-bottom:0}
-.btn-primary{background:var(--g2);color:#fff;box-shadow:0 4px 18px rgba(99,179,237,0.2)}
-.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,179,237,0.35)}
-.btn-primary:disabled{opacity:.35;cursor:not-allowed}
-.btn-sec{background:rgba(255,255,255,0.05);color:var(--t2);border:1px solid var(--b1)}
-.btn-sec:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--t1)}
-.btn-sec:disabled{opacity:.35;cursor:not-allowed}
-.btn-grn{background:rgba(104,211,145,0.1);color:var(--a3);border:1px solid rgba(104,211,145,0.2)}
-.btn-grn:hover:not(:disabled){background:rgba(104,211,145,0.18)}
-.btn-grn:disabled{opacity:.35;cursor:not-allowed}
-.btn-red{background:rgba(252,129,129,0.08);color:var(--a4);border:1px solid rgba(252,129,129,0.18)}
-.btn-red:hover{background:rgba(252,129,129,0.15)}
+/* Color picker wrap */
+.color-swatch-wrap{display:none;margin-top:6px;}
+.bg-img-wrap{display:none;margin-top:6px;}
+.bg-img-lbl{padding:7px 10px;border-radius:8px;border:1px dashed rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);font-size:11px;color:var(--text3);cursor:pointer;text-align:center;transition:.2s;position:relative;overflow:hidden;display:block;}
+.bg-img-lbl:hover{border-color:rgba(56,189,248,0.3);color:var(--text2);}
+.bg-img-lbl input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.bg-img-name{font-size:10px;color:var(--success);font-family:var(--mono);margin-top:4px;display:none;}
 
-/* CENTER: PREVIEW */
-.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
-.preview-box{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:14px;overflow:hidden;position:relative}
-.pb-label{padding:9px 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between}
-.pb-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:999px;font-weight:600}
-.pb-badge.ok{background:rgba(104,211,145,0.12);color:var(--a3)}
-.pb-badge.idle{background:rgba(255,255,255,0.05);color:var(--t3)}
-.pb-badge.proc{background:rgba(99,179,237,0.12);color:var(--a1)}
+/* Color key picker (for color removal mode) */
+.color-key-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.color-key-preview{width:36px;height:36px;border-radius:8px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;}
+.color-key-info{font-size:11px;color:var(--text2);}
+.color-key-info small{display:block;font-size:10px;color:var(--text3);margin-top:2px;}
 
-.img-stage{
-  min-height:340px;display:flex;align-items:center;justify-content:center;
-  position:relative;padding:12px;
-}
-/* Checkered pattern for transparent bg */
-.cb-bg{background-image:linear-gradient(45deg,rgba(255,255,255,0.05) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,0.05) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,0.05) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,0.05) 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0px}
+/* Action buttons */
+.btn{width:100%;padding:11px 13px;border-radius:10px;border:none;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px;}
+.btn:last-child{margin-bottom:0;}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 4px 16px rgba(56,189,248,0.2);}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 22px rgba(56,189,248,0.35);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;}
+.btn-sec{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border);}
+.btn-sec:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--text);}
+.btn-sec:disabled{opacity:.35;cursor:not-allowed;}
+.btn-grn{background:rgba(52,211,153,0.1);color:var(--success);border:1px solid rgba(52,211,153,0.2);}
+.btn-grn:hover:not(:disabled){background:rgba(52,211,153,0.17);}
+.btn-grn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-red{background:rgba(248,113,113,0.08);color:var(--danger);border:1px solid rgba(248,113,113,0.18);}
+.btn-red:hover{background:rgba(248,113,113,0.14);}
 
-#origImg{max-width:100%;max-height:340px;border-radius:10px;display:none;object-fit:contain}
-#outCanvas{max-width:100%;max-height:340px;border-radius:10px;display:none}
-.img-placeholder{text-align:center;color:var(--t3)}
-.ip-icon{font-size:36px;margin-bottom:10px;opacity:.3}
-.ip-text{font-size:12px;font-family:'DM Mono',monospace}
+/* ── CENTER: PREVIEW ── */
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
+.preview-box{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.pb-hd{padding:8px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.pb-badge{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:999px;font-weight:600;}
+.pb-badge.idle{background:rgba(255,255,255,0.05);color:var(--text3);}
+.pb-badge.ok{background:rgba(52,211,153,0.1);color:var(--success);}
+.pb-badge.proc{background:rgba(56,189,248,0.1);color:var(--acc);}
+.pb-badge.err{background:rgba(248,113,113,0.1);color:var(--danger);}
 
-/* PROCESSING OVERLAY */
-.proc-overlay{
-  position:absolute;inset:0;background:rgba(4,7,9,0.75);display:none;
-  flex-direction:column;align-items:center;justify-content:center;gap:12px;
-  border-radius:14px;backdrop-filter:blur(6px);z-index:10;
-}
-.proc-overlay.show{display:flex}
-.proc-spinner{width:40px;height:40px;border:2.5px solid rgba(99,179,237,0.15);border-top-color:var(--a1);border-radius:50%;animation:spin .75s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.proc-text{font-family:'DM Mono',monospace;font-size:12px;color:var(--a1)}
-.proc-bar-wrap{width:160px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.proc-bar{height:100%;background:var(--g2);transition:width .4s;width:0%}
+.img-stage{min-height:320px;display:flex;align-items:center;justify-content:center;position:relative;padding:10px;overflow:hidden;}
+.cb-bg{background-image:linear-gradient(45deg,rgba(255,255,255,0.04) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,0.04) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,0.04) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,0.04) 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0px;}
+#origImg{max-width:100%;max-height:320px;border-radius:8px;display:none;object-fit:contain;cursor:crosshair;}
+#outCanvas{max-width:100%;max-height:320px;border-radius:8px;display:none;object-fit:contain;}
+.img-ph{text-align:center;color:var(--text3);}
+.ip-icon{font-size:32px;margin-bottom:9px;opacity:.3;}
+.ip-text{font-size:11px;font-family:var(--mono);}
 
-/* ZOOM CONTROLS */
-.zoom-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--b2)}
-.zoom-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t2);font-size:14px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
-.zoom-btn:hover{background:rgba(255,255,255,0.09);color:var(--t1)}
-.zoom-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);min-width:36px;text-align:center}
+/* Processing overlay */
+.proc-overlay{position:absolute;inset:0;background:rgba(4,6,12,0.82);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;backdrop-filter:blur(5px);z-index:10;}
+.proc-overlay.show{display:flex;}
+.proc-spin{width:36px;height:36px;border:2.5px solid rgba(56,189,248,0.12);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.proc-txt{font-family:var(--mono);font-size:11px;color:var(--acc);}
+.proc-bar-bg{width:140px;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.proc-bar{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s;width:0%;}
 
-/* DOWNLOAD ROW */
-.dl-row{display:flex;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--b1)}
-.dl-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--b1);background:rgba(255,255,255,0.04);color:var(--t2);font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;text-align:center}
-.dl-btn:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--t1)}
-.dl-btn:disabled{opacity:.3;cursor:not-allowed}
+/* Zoom bar */
+.zoom-bar{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px;border-top:1px solid var(--border);}
+.zoom-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text2);font-size:13px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;}
+.zoom-btn:hover{background:rgba(255,255,255,0.09);color:var(--text);}
+.zoom-val{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:34px;text-align:center;}
 
-/* RIGHT: ANALYTICS */
-.stat-card{background:rgba(255,255,255,0.025);border:1px solid var(--b2);border-radius:12px;padding:14px;margin-bottom:10px}
-.stat-card:last-child{margin-bottom:0}
-.sc-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);font-family:'Syne',sans-serif;margin-bottom:10px}
-.sc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11.5px}
-.sc-row:last-child{margin-bottom:0}
-.sc-key{color:var(--t3)}
-.sc-val{color:var(--t1);font-weight:600;font-family:'DM Mono',monospace;font-size:11px}
-.sc-val.ok{color:var(--a3)}
-.sc-val.active{color:var(--a1)}
+/* Picker hint */
+.pick-hint{padding:7px 12px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.15);border-radius:8px;font-size:11px;color:var(--acc);font-family:var(--mono);margin:8px 14px 0;display:none;}
+.pick-hint.show{display:block;}
 
-.prog-bar-wrap{margin-top:8px}
-.prog-bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-top:5px}
-.prog-bar-fill{height:100%;background:var(--g2);transition:width .5s ease;width:0%}
-.prog-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);margin-top:5px}
-#progText{color:var(--a1)}
+/* Download row */
+.dl-row{display:flex;gap:7px;padding:10px 14px 14px;border-top:1px solid var(--border);}
+.dl-btn{flex:1;padding:9px 4px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text2);font-size:11px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:.2s;text-align:center;}
+.dl-btn:hover:not(:disabled){background:rgba(255,255,255,0.09);color:var(--text);}
+.dl-btn:disabled{opacity:.3;cursor:not-allowed;}
 
-.feat-list{display:flex;flex-direction:column;gap:6px}
-.feat-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--t2)}
-.feat-ico{width:18px;height:18px;border-radius:5px;background:rgba(104,211,145,0.12);color:var(--a3);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+/* ── RIGHT: INFO ── */
+.info-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:11px;padding:13px;margin-bottom:9px;}
+.info-card:last-child{margin-bottom:0;}
+.ic-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:9px;}
+.ic-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:11px;}
+.ic-row:last-child{margin-bottom:0;}
+.ic-key{color:var(--text3);}
+.ic-val{color:var(--text);font-weight:600;font-family:var(--mono);font-size:10px;}
+.ic-val.ok{color:var(--success);}
+.ic-val.blue{color:var(--acc);}
 
-.model-status{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:9px;background:rgba(246,173,85,0.07);border:1px solid rgba(246,173,85,0.15);font-size:11.5px;color:var(--a5);font-family:'DM Mono',monospace;margin-bottom:10px}
-.ms-dot{width:6px;height:6px;border-radius:50%;background:var(--a5);animation:pd 1.5s infinite;flex-shrink:0}
-.model-status.ready{background:rgba(104,211,145,0.07);border-color:rgba(104,211,145,0.15);color:var(--a3)}
-.model-status.ready .ms-dot{background:var(--a3)}
+/* Progress */
+.prog-track{height:4px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;margin-top:7px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s ease;width:0%;}
+.prog-txt{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:5px;}
 
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;background:var(--card);border:1px solid var(--b1);border-radius:12px;font-size:12.5px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999;opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none;font-family:'DM Mono',monospace}
-.toast.show{opacity:1;transform:translateY(0)}
+/* Model status */
+.model-status{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:8px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.15);font-size:11px;color:var(--warn);font-family:var(--mono);margin-bottom:9px;}
+.ms-dot{width:6px;height:6px;border-radius:50%;background:var(--warn);animation:pd 1.5s infinite;flex-shrink:0;}
+.model-status.ready{background:rgba(52,211,153,0.07);border-color:rgba(52,211,153,0.15);color:var(--success);}
+.model-status.ready .ms-dot{background:var(--success);}
+.model-status.err{background:rgba(248,113,113,0.07);border-color:rgba(248,113,113,0.15);color:var(--danger);}
+.model-status.err .ms-dot{background:var(--danger);}
 
-/* RESPONSIVE */
+/* Feature list */
+.feat-list{display:flex;flex-direction:column;gap:5px;}
+.feat-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.feat-ico{width:16px;height:16px;border-radius:4px;background:rgba(52,211,153,0.1);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+
+/* Mode info box */
+.mode-info{padding:8px 10px;border-radius:8px;font-size:11px;color:var(--text2);line-height:1.55;border:1px solid var(--border);background:rgba(255,255,255,0.02);margin-bottom:10px;}
+.mode-info strong{color:var(--text);display:block;margin-bottom:2px;font-size:11px;}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;right:22px;padding:10px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;font-size:12px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:9999;opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none;font-family:var(--mono);}
+.toast.show{opacity:1;transform:translateY(0);}
+
 @media(max-width:1100px){
-  .main{grid-template-columns:1fr;gap:12px}
-  .preview-grid{grid-template-columns:1fr 1fr}
-  .dl-row{flex-wrap:wrap}
+  .main{grid-template-columns:1fr;gap:12px;}
+  .preview-grid{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:640px){
-  .preview-grid{grid-template-columns:1fr}
-  .main{padding:0 4% 40px}
-  .hero{padding:28px 4% 20px}
+  .preview-grid{grid-template-columns:1fr;}
+  .main{padding:0 3% 40px;}
 }
 </style>
 </head>
@@ -199,129 +209,171 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
 <!-- NAV -->
 <nav>
   <a href="/" class="nav-logo">
-    <svg class="nav-logo-svg" viewBox="0 0 44 44" fill="none">
-      <defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#63b3ed"/><stop offset="100%" stop-color="#9f7aea"/></linearGradient></defs>
-      <rect width="44" height="44" rx="11" fill="url(#nlg)" opacity="0.15"/>
-      <rect x="1" y="1" width="42" height="42" rx="10" stroke="url(#nlg)" stroke-width="1.2" fill="none" opacity="0.5"/>
-      <line x1="10" y1="10" x2="10" y2="34" stroke="url(#nlg)" stroke-width="3" stroke-linecap="round"/>
-      <line x1="10" y1="22" x2="22" y2="10" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="10" y1="22" x2="22" y2="34" stroke="url(#nlg)" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="30" y1="10" x2="30" y2="28" stroke="url(#nlg)" stroke-width="2.8" stroke-linecap="round"/>
-      <path d="M30 28 Q30 34 24 34" stroke="url(#nlg)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <circle cx="36" cy="10" r="2.5" fill="url(#nlg)"/>
-    </svg>
-    <span class="nav-logo-name">KJSynthora</span>
+    <div class="nav-icon">🎨</div>
+    <span class="nav-name">KJ<span>Synthora</span></span>
   </a>
   <a href="/" class="nav-back">← All Tools</a>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-tag"><span class="hero-dot"></span>TENSORFLOW AI · BROWSER-BASED · FREE</div>
+  <div class="hero-tag"><span class="hero-dot"></span>AI POWERED · BROWSER ONLY · NO UPLOAD · FREE</div>
   <h1 class="hero-title">AI Background Remover</h1>
-  <p class="hero-sub">Enterprise-grade background removal powered by TensorFlow BodyPix. Multiple background styles, fine hair detection, AI shadows — all free.</p>
+  <p class="hero-sub">Two powerful modes: <strong>Person/Body AI</strong> (TensorFlow BodyPix) for people photos, and <strong>Color Key Removal</strong> for logos, objects & studio backgrounds. PNG/JPG/WEBP export.</p>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- ══ LEFT: CONTROLS ══ -->
+  <!-- ══ LEFT ══ -->
   <div class="panel">
     <div class="panel-hd">
       <span class="panel-title">🎛️ Controls</span>
     </div>
     <div class="panel-body">
 
+      <!-- Mode Selection -->
+      <div class="ctrl-sec">
+        <span class="ctrl-lbl">Removal Mode</span>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="modeBodyBtn" onclick="setMode('body')">🧑 Person / Body AI</button>
+          <button class="mode-btn" id="modeColorBtn" onclick="setMode('color')">🎨 Color Key / Object</button>
+        </div>
+        <div class="mode-info" id="modeInfo">
+          <strong>Person / Body AI</strong>
+          TensorFlow BodyPix — best for portraits & human photos. Detects fine hair edges.
+        </div>
+      </div>
+
       <!-- Upload -->
-      <div class="ctrl-section">
-        <span class="ctrl-label">Upload Image</span>
+      <div class="ctrl-sec">
+        <span class="ctrl-lbl">Upload Image</span>
         <label class="upload-zone" id="uploadZone">
           <input type="file" id="imgInput" accept="image/*">
           <div class="uz-icon" id="uzIcon">☁️</div>
-          <div class="uz-title" id="uzTitle">Drop image here</div>
+          <div class="uz-title" id="uzTitle">Drop or click to upload</div>
           <div class="uz-sub" id="uzSub">JPG, PNG, WEBP — up to 20MB</div>
           <div class="uz-name" id="uzName"></div>
         </label>
       </div>
 
-      <!-- AI Quality -->
-      <div class="ctrl-section">
-        <span class="ctrl-label">AI Segmentation Quality</span>
-        <select class="ctrl-select" id="qualitySel">
-          <option value="medium">⚡ Fast (Medium Quality)</option>
-          <option value="high" selected>✨ Balanced (Recommended)</option>
-          <option value="ultra">🔬 Ultra (Best Quality, Slow)</option>
-        </select>
+      <!-- Body AI options -->
+      <div id="bodyOpts">
+        <div class="ctrl-sec">
+          <span class="ctrl-lbl">AI Quality</span>
+          <select class="ctrl-sel" id="qualitySel">
+            <option value="low">⚡ Fast (Low Quality)</option>
+            <option value="medium" selected>✨ Balanced (Recommended)</option>
+            <option value="high">🔬 High Quality (Slower)</option>
+          </select>
+        </div>
+        <div class="ctrl-sec">
+          <span class="ctrl-lbl">Segmentation Threshold</span>
+          <div class="range-row">
+            <input type="range" class="ctrl-range" id="threshRange" min="30" max="90" value="65" oninput="document.getElementById('threshVal').textContent=this.value+'%'">
+            <span class="range-val" id="threshVal">65%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Key options -->
+      <div id="colorOpts" style="display:none;">
+        <div class="ctrl-sec">
+          <span class="ctrl-lbl">Pick Background Color</span>
+          <div class="color-key-row">
+            <div class="color-key-preview" id="keyColorPreview" style="background:#00ff00;"></div>
+            <div class="color-key-info">
+              Click image to pick color<br>
+              <small id="keyColorHex">#00ff00</small>
+            </div>
+          </div>
+          <div style="margin-top:7px;">
+            <span class="ctrl-lbl">Tolerance</span>
+            <div class="range-row">
+              <input type="range" class="ctrl-range" id="toleranceRange" min="5" max="100" value="35" oninput="document.getElementById('tolVal').textContent=this.value">
+              <span class="range-val" id="tolVal">35</span>
+            </div>
+          </div>
+          <!-- Preset colors -->
+          <span class="ctrl-lbl" style="margin-top:10px;">Quick Presets</span>
+          <div class="swatch-grid">
+            <div class="swatch" style="background:#00ff00;" onclick="setKeyColor('#00ff00')" title="Green Screen"></div>
+            <div class="swatch" style="background:#0000ff;" onclick="setKeyColor('#0000ff')" title="Blue Screen"></div>
+            <div class="swatch" style="background:#ffffff;" onclick="setKeyColor('#ffffff')" title="White BG"></div>
+            <div class="swatch" style="background:#000000;border:1px solid #333;" onclick="setKeyColor('#000000')" title="Black BG"></div>
+            <div class="swatch" style="background:#ff0000;" onclick="setKeyColor('#ff0000')" title="Red BG"></div>
+            <div class="swatch" style="background:#c8c8c8;" onclick="setKeyColor('#c8c8c8')" title="Gray BG"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edge Feathering (both modes) -->
+      <div class="ctrl-sec">
+        <span class="ctrl-lbl">Edge Feathering</span>
+        <div class="range-row">
+          <input type="range" class="ctrl-range" id="featherRange" min="0" max="12" value="2" oninput="document.getElementById('featherVal').textContent=this.value">
+          <span class="range-val" id="featherVal">2</span>
+        </div>
       </div>
 
       <!-- Background Style -->
-      <div class="ctrl-section">
-        <span class="ctrl-label">Background Style</span>
-        <select class="ctrl-select" id="bgType" onchange="onBgTypeChange()">
+      <div class="ctrl-sec">
+        <span class="ctrl-lbl">Output Background</span>
+        <select class="ctrl-sel" id="bgType" onchange="onBgChange()">
           <option value="transparent">🔲 Transparent</option>
           <option value="white">⬜ White Studio</option>
           <option value="black">⬛ Black Studio</option>
-          <option value="gradient1">🌈 Blue-Purple Gradient</option>
-          <option value="gradient2">🔥 Sunset Gradient</option>
-          <option value="gradient3">🌿 Green Nature</option>
+          <option value="g1">🌈 Blue-Purple Gradient</option>
+          <option value="g2">🔥 Sunset Gradient</option>
+          <option value="g3">🌿 Green Nature</option>
+          <option value="g4">🌌 Dark Space</option>
           <option value="color">🎨 Custom Color</option>
           <option value="blur">🌫️ Blurred Original</option>
-          <option value="custom">🖼️ Custom Image</option>
+          <option value="custom">🖼️ Custom Image BG</option>
         </select>
 
-        <!-- Custom Color Picker -->
-        <div id="colorPickerWrap" style="display:none;margin-top:8px">
-          <div class="bg-colors">
-            <div class="bg-swatch" style="background:#ef4444" data-color="#ef4444" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#f97316" data-color="#f97316" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#eab308" data-color="#eab308" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#22c55e" data-color="#22c55e" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#3b82f6" data-color="#3b82f6" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#8b5cf6" data-color="#8b5cf6" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#ec4899" data-color="#ec4899" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#06b6d4" data-color="#06b6d4" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#64748b" data-color="#64748b" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#1e293b" data-color="#1e293b" onclick="setSwatchColor(this)"></div>
-            <div class="bg-swatch" style="background:#ffffff" data-color="#ffffff" onclick="setSwatchColor(this)" style="border:1px solid rgba(255,255,255,0.15)"></div>
-            <div class="bg-swatch" style="background:linear-gradient(45deg,#f00,#00f)" data-color="custom" onclick="document.getElementById('customColorInp').click()"></div>
+        <div class="color-swatch-wrap" id="colorSwatches">
+          <div class="swatch-grid" style="margin-top:6px;">
+            <div class="swatch" style="background:#ef4444;" data-c="#ef4444" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#f97316;" data-c="#f97316" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#eab308;" data-c="#eab308" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#22c55e;" data-c="#22c55e" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#3b82f6;" data-c="#3b82f6" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#8b5cf6;" data-c="#8b5cf6" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#ec4899;" data-c="#ec4899" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#06b6d4;" data-c="#06b6d4" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#1e293b;" data-c="#1e293b" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:#ffffff;" data-c="#ffffff" onclick="setBgColor(this)"></div>
+            <div class="swatch" style="background:linear-gradient(135deg,#f00,#00f);" title="Custom" onclick="document.getElementById('customColorInp').click()"></div>
+            <div class="swatch" style="background:linear-gradient(135deg,#ff6b6b,#feca57);" data-c="gradient-custom" onclick="setBgColor(this)"></div>
           </div>
-          <input type="color" id="customColorInp" style="display:none" oninput="onCustomColor(this.value)">
+          <input type="color" id="customColorInp" style="display:none;" oninput="customBgColor=this.value;">
         </div>
 
-        <!-- Custom BG Image Upload -->
-        <div id="bgImgWrap" style="display:none;margin-top:8px">
-          <label class="bg-img-upload">
-            <input type="file" id="bgImgInput" accept="image/*" onchange="loadBgImage(this)">
+        <div class="bg-img-wrap" id="bgImgWrap">
+          <label class="bg-img-lbl">
+            <input type="file" id="bgImgInput" accept="image/*" onchange="loadBgImg(this)">
             📁 Upload Background Image
           </label>
-          <div id="bgImgName" style="font-size:10.5px;color:var(--a3);font-family:'DM Mono',monospace;margin-top:4px;display:none"></div>
+          <div class="bg-img-name" id="bgImgName"></div>
         </div>
       </div>
 
-      <!-- Edge Feathering -->
-      <div class="ctrl-section">
-        <span class="ctrl-label">Edge Feathering</span>
+      <!-- Drop Shadow -->
+      <div class="ctrl-sec">
+        <span class="ctrl-lbl">Drop Shadow</span>
         <div class="range-row">
-          <input type="range" class="ctrl-range" id="featherRange" min="0" max="15" value="3" oninput="document.getElementById('featherVal').textContent=this.value">
-          <span class="range-val" id="featherVal">3</span>
-        </div>
-      </div>
-
-      <!-- Shadow -->
-      <div class="ctrl-section">
-        <span class="ctrl-label">Drop Shadow</span>
-        <div class="range-row">
-          <input type="range" class="ctrl-range" id="shadowRange" min="0" max="100" value="30" oninput="document.getElementById('shadowVal').textContent=this.value+'%'">
-          <span class="range-val" id="shadowVal">30%</span>
+          <input type="range" class="ctrl-range" id="shadowRange" min="0" max="100" value="25" oninput="document.getElementById('shadowVal').textContent=this.value+'%'">
+          <span class="range-val" id="shadowVal">25%</span>
         </div>
       </div>
 
       <!-- Actions -->
-      <button class="btn btn-primary" id="processBtn" onclick="processImage()" disabled>
+      <button class="btn btn-primary" id="processBtn" onclick="process()" disabled>
         🪄 Remove Background
       </button>
-      <button class="btn btn-grn" id="reapplyBtn" onclick="reapplyBackground()" disabled>
-        🔄 Re-apply Background
+      <button class="btn btn-grn" id="reapplyBtn" onclick="reapply()" disabled>
+        🔄 Re-apply Background / Settings
       </button>
       <button class="btn btn-red" onclick="clearAll()">
         🗑️ Clear All
@@ -330,488 +382,648 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
     </div>
   </div>
 
-  <!-- ══ CENTER: PREVIEW ══ -->
+  <!-- ══ CENTER ══ -->
   <div class="panel">
     <div class="panel-hd">
       <span class="panel-title">🖼️ Preview</span>
-      <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace" id="imgSizeLabel"></span>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--mono);" id="imgSizeLbl"></span>
     </div>
+
+    <!-- Color picker hint -->
+    <div class="pick-hint" id="pickHint">👆 Click anywhere on the image to pick the background color to remove</div>
+
     <div class="preview-grid">
+
       <!-- Original -->
       <div class="preview-box">
-        <div class="pb-label">
-          Original
-          <span class="pb-badge idle" id="origBadge">WAITING</span>
-        </div>
+        <div class="pb-hd">Original<span class="pb-badge idle" id="origBadge">WAITING</span></div>
         <div class="img-stage" id="origStage">
-          <div class="img-placeholder">
-            <div class="ip-icon">🖼️</div>
-            <div class="ip-text">Upload an image</div>
-          </div>
+          <div class="img-ph" id="origPh"><div class="ip-icon">🖼️</div><div class="ip-text">Upload image</div></div>
           <img id="origImg">
         </div>
       </div>
+
       <!-- Output -->
       <div class="preview-box">
-        <div class="pb-label">
-          AI Processed
-          <span class="pb-badge idle" id="outBadge">WAITING</span>
-        </div>
+        <div class="pb-hd">AI Result<span class="pb-badge idle" id="outBadge">WAITING</span></div>
         <div class="img-stage cb-bg" id="outStage">
-          <div class="img-placeholder" id="outPlaceholder">
-            <div class="ip-icon">✨</div>
-            <div class="ip-text">Result appears here</div>
-          </div>
+          <div class="img-ph" id="outPh"><div class="ip-icon">✨</div><div class="ip-text">Result here</div></div>
           <canvas id="outCanvas"></canvas>
-          <!-- Processing overlay -->
           <div class="proc-overlay" id="procOverlay">
-            <div class="proc-spinner"></div>
-            <div class="proc-text" id="procLabel">Loading AI Model...</div>
-            <div class="proc-bar-wrap">
-              <div class="proc-bar" id="procBar"></div>
-            </div>
+            <div class="proc-spin"></div>
+            <div class="proc-txt" id="procLbl">Loading...</div>
+            <div class="proc-bar-bg"><div class="proc-bar" id="procBar"></div></div>
           </div>
         </div>
         <div class="zoom-bar">
-          <button class="zoom-btn" onclick="zoom(-0.1)">−</button>
+          <button class="zoom-btn" onclick="zoom(-0.15)">−</button>
           <span class="zoom-val" id="zoomVal">100%</span>
-          <button class="zoom-btn" onclick="zoom(0.1)">+</button>
-          <button class="zoom-btn" onclick="resetZoom()" title="Reset">⊡</button>
+          <button class="zoom-btn" onclick="zoom(0.15)">+</button>
+          <button class="zoom-btn" onclick="resetZoom()">⊡</button>
         </div>
       </div>
     </div>
-    <!-- Download Row -->
+
     <div class="dl-row">
-      <button class="dl-btn" id="dlPng" onclick="download('png')" disabled>⬇ PNG (Transparent)</button>
-      <button class="dl-btn" id="dlJpg" onclick="download('jpg')" disabled>⬇ JPG (White BG)</button>
-      <button class="dl-btn" id="dlWebp" onclick="download('webp')" disabled>⬇ WEBP</button>
-      <button class="dl-btn" onclick="copyCanvas()" id="dlCopy" disabled>📋 Copy</button>
+      <button class="dl-btn" id="dlPng" onclick="dl('png')" disabled>⬇ PNG (Alpha)</button>
+      <button class="dl-btn" id="dlJpg" onclick="dl('jpg')" disabled>⬇ JPG</button>
+      <button class="dl-btn" id="dlWebp" onclick="dl('webp')" disabled>⬇ WEBP</button>
+      <button class="dl-btn" id="dlCopy" onclick="copyImg()" disabled>📋 Copy</button>
     </div>
   </div>
 
-  <!-- ══ RIGHT: ANALYTICS ══ -->
+  <!-- ══ RIGHT ══ -->
   <div class="panel">
-    <div class="panel-hd">
-      <span class="panel-title">📊 Info</span>
-    </div>
+    <div class="panel-hd"><span class="panel-title">📊 Info</span></div>
     <div class="panel-body">
 
-      <!-- Model Status -->
       <div class="model-status" id="modelStatus">
         <div class="ms-dot"></div>
-        <span id="modelStatusText">Loading AI Model...</span>
+        <span id="modelTxt">Loading BodyPix AI...</span>
       </div>
 
-      <!-- Progress -->
-      <div class="stat-card">
-        <div class="sc-title">Processing Status</div>
-        <div class="prog-bar-wrap">
-          <div class="prog-bar-track"><div class="prog-bar-fill" id="progBar"></div></div>
-          <div class="prog-label" id="progText">Idle — Upload an image to begin</div>
-        </div>
+      <div class="info-card">
+        <div class="ic-title">Processing</div>
+        <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+        <div class="prog-txt" id="progTxt">Idle — upload image</div>
       </div>
 
-      <!-- Image Info -->
-      <div class="stat-card">
-        <div class="sc-title">Image Info</div>
-        <div class="sc-row"><span class="sc-key">Resolution</span><span class="sc-val" id="infoRes">—</span></div>
-        <div class="sc-row"><span class="sc-key">File Size</span><span class="sc-val" id="infoSize">—</span></div>
-        <div class="sc-row"><span class="sc-key">Format</span><span class="sc-val" id="infoFmt">—</span></div>
-        <div class="sc-row"><span class="sc-key">Aspect Ratio</span><span class="sc-val" id="infoAR">—</span></div>
+      <div class="info-card">
+        <div class="ic-title">Image Info</div>
+        <div class="ic-row"><span class="ic-key">Resolution</span><span class="ic-val" id="iRes">—</span></div>
+        <div class="ic-row"><span class="ic-key">File Size</span><span class="ic-val" id="iSize">—</span></div>
+        <div class="ic-row"><span class="ic-key">Format</span><span class="ic-val" id="iFmt">—</span></div>
+        <div class="ic-row"><span class="ic-key">Aspect Ratio</span><span class="ic-val" id="iAR">—</span></div>
       </div>
 
-      <!-- AI Info -->
-      <div class="stat-card">
-        <div class="sc-title">AI Engine</div>
-        <div class="sc-row"><span class="sc-key">Model</span><span class="sc-val active">TensorFlow BodyPix</span></div>
-        <div class="sc-row"><span class="sc-key">Hair Detection</span><span class="sc-val ok">✓ Enabled</span></div>
-        <div class="sc-row"><span class="sc-key">Edge Refinement</span><span class="sc-val ok">✓ Active</span></div>
-        <div class="sc-row"><span class="sc-key">Shadow Engine</span><span class="sc-val ok">✓ AI Generated</span></div>
-        <div class="sc-row"><span class="sc-key">Privacy</span><span class="sc-val ok">✓ Local only</span></div>
+      <div class="info-card">
+        <div class="ic-title">Active Mode</div>
+        <div class="ic-row"><span class="ic-key">Mode</span><span class="ic-val blue" id="iMode">Person AI</span></div>
+        <div class="ic-row"><span class="ic-key">Model</span><span class="ic-val blue" id="iModel">BodyPix v2</span></div>
+        <div class="ic-row"><span class="ic-key">Hair Detection</span><span class="ic-val ok" id="iHair">✓ Enabled</span></div>
+        <div class="ic-row"><span class="ic-key">Privacy</span><span class="ic-val ok">✓ 100% Local</span></div>
+        <div class="ic-row"><span class="ic-key">No Server</span><span class="ic-val ok">✓ Browser Only</span></div>
       </div>
 
-      <!-- Features -->
-      <div class="stat-card">
-        <div class="sc-title">Features</div>
+      <div class="info-card">
+        <div class="ic-title">Features</div>
         <div class="feat-list">
-          <div class="feat-item"><div class="feat-ico">✓</div>Fine Hair Detection</div>
-          <div class="feat-item"><div class="feat-ico">✓</div>Multiple BG Styles</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Person AI (BodyPix)</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Color Key / Chroma</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Click-to-Pick Color</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>9 Background Styles</div>
           <div class="feat-item"><div class="feat-ico">✓</div>Custom BG Image</div>
           <div class="feat-item"><div class="feat-ico">✓</div>Edge Feathering</div>
           <div class="feat-item"><div class="feat-ico">✓</div>AI Drop Shadow</div>
-          <div class="feat-item"><div class="feat-ico">✓</div>PNG / JPG / WEBP Export</div>
-          <div class="feat-item"><div class="feat-ico">✓</div>100% Browser — No Upload</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>PNG / JPG / WEBP</div>
+          <div class="feat-item"><div class="feat-ico">✓</div>Copy to Clipboard</div>
         </div>
       </div>
 
     </div>
   </div>
 
-</div><!-- /main -->
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let model=null,uploadedImg=null,bgImgEl=null,customColor='#3b82f6';
-let segData=null,zoomLevel=1;
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+let model = null;
+let uploadedImg = null;
+let bgImgEl = null;
+let customBgColor = '#3b82f6';
+let segData = null;
+let zoomLevel = 1;
+let currentMode = 'body'; // 'body' | 'color'
+let keyColor = {r:0,g:255,b:0}; // default green screen
+let isPicking = false;
 
-// ════ MODEL LOAD ════
+// ════════════════════════════════════
+// MODEL LOAD
+// ════════════════════════════════════
 async function loadModel(){
   setProc(true,'Loading TensorFlow...',10);
-  try{
+  setProg(10,'Loading TensorFlow.js...');
+  try {
     await tf.ready();
     setProc(true,'Loading BodyPix Model...',40);
-    model=await bodyPix.load({
-      architecture:'MobileNetV1',
-      outputStride:16,
-      multiplier:.75,
-      quantBytes:2
+    setProg(40,'Downloading BodyPix model...');
+    model = await bodyPix.load({
+      architecture: 'MobileNetV1',
+      outputStride: 16,
+      multiplier: 0.75,
+      quantBytes: 2
     });
     setProc(false,'',100);
-    const ms=document.getElementById('modelStatus');
-    ms.className='model-status ready';
-    document.getElementById('modelStatusText').textContent='AI Model Ready ✓';
-    setProg(100,'AI Model loaded — ready to process');
-    showToast('✅ AI Model ready!');
+    const ms = document.getElementById('modelStatus');
+    ms.className = 'model-status ready';
+    document.getElementById('modelTxt').textContent = 'AI Model Ready ✓';
+    setProg(100,'BodyPix model ready!');
+    toast('✅ AI Model loaded!');
     setTimeout(()=>setProg(0,'Upload an image to begin'),2000);
-  }catch(e){
+    if(uploadedImg) document.getElementById('processBtn').disabled = false;
+  } catch(e) {
+    const ms = document.getElementById('modelStatus');
+    ms.className = 'model-status err';
+    document.getElementById('modelTxt').textContent = 'Model load failed';
     setProc(false,'',0);
-    document.getElementById('modelStatusText').textContent='Model Load Failed';
-    setProg(0,'Error loading model — check console');
-    showToast('❌ Model load failed');
+    setProg(0,'Model error — color mode still works');
+    toast('⚠️ BodyPix failed to load. Color Key mode still works!');
+    // Still allow color mode
+    document.getElementById('processBtn').disabled = (currentMode === 'body');
   }
 }
 
-// ════ UPLOAD ════
+// ════════════════════════════════════
+// MODE
+// ════════════════════════════════════
+function setMode(m){
+  currentMode = m;
+  document.getElementById('modeBodyBtn').classList.toggle('active', m==='body');
+  document.getElementById('modeColorBtn').classList.toggle('active', m==='color');
+  document.getElementById('bodyOpts').style.display = m==='body'?'block':'none';
+  document.getElementById('colorOpts').style.display = m==='color'?'block':'none';
+  const hint = document.getElementById('pickHint');
+  hint.classList.toggle('show', m==='color');
+  document.getElementById('iMode').textContent = m==='body'?'Person AI':'Color Key';
+  document.getElementById('iModel').textContent = m==='body'?'BodyPix v2':'Canvas Color';
+  document.getElementById('iHair').textContent = m==='body'?'✓ Enabled':'N/A';
+
+  const modeInfoEl = document.getElementById('modeInfo');
+  if(m === 'body'){
+    modeInfoEl.innerHTML = '<strong>Person / Body AI</strong>TensorFlow BodyPix — best for portraits & human photos. Detects fine hair edges.';
+    document.getElementById('processBtn').disabled = !model || !uploadedImg;
+  } else {
+    modeInfoEl.innerHTML = '<strong>Color Key / Object</strong>Remove solid background colors (green screen, white, logos). Click image to pick color, then remove.';
+    document.getElementById('processBtn').disabled = !uploadedImg;
+  }
+}
+
+// ════════════════════════════════════
+// UPLOAD
+// ════════════════════════════════════
 document.getElementById('imgInput').addEventListener('change',function(e){
-  const f=e.target.files[0];if(!f)return;
-  loadImage(f);
+  const f = e.target.files[0]; if(!f) return;
+  loadFile(f);
 });
 
-// Drag & Drop
-const uz=document.getElementById('uploadZone');
-uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag-over')});
-uz.addEventListener('dragleave',()=>uz.classList.remove('drag-over'));
-uz.addEventListener('drop',e=>{
-  e.preventDefault();uz.classList.remove('drag-over');
-  const f=e.dataTransfer.files[0];
-  if(f&&f.type.startsWith('image/'))loadImage(f);
+const uz = document.getElementById('uploadZone');
+uz.addEventListener('dragover', e=>{e.preventDefault();uz.classList.add('drag-over');});
+uz.addEventListener('dragleave', ()=>uz.classList.remove('drag-over'));
+uz.addEventListener('drop', e=>{
+  e.preventDefault(); uz.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if(f && f.type.startsWith('image/')) loadFile(f);
 });
 
-function loadImage(f){
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    uploadedImg=new Image();
-    uploadedImg.onload=()=>{
+function loadFile(f){
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedImg = new Image();
+    uploadedImg.onload = () => {
       // Show original
-      const oi=document.getElementById('origImg');
-      oi.src=uploadedImg.src;
-      oi.style.display='block';
-      document.getElementById('origStage').querySelector('.img-placeholder').style.display='none';
-      document.getElementById('origBadge').textContent='READY';
-      document.getElementById('origBadge').className='pb-badge ok';
-      // Update upload zone
-      uz.classList.add('has-image');
-      document.getElementById('uzIcon').textContent='✅';
-      document.getElementById('uzTitle').textContent='Image loaded!';
-      document.getElementById('uzSub').textContent='Click to change';
-      document.getElementById('uzName').textContent=f.name;
+      const oi = document.getElementById('origImg');
+      oi.src = uploadedImg.src;
+      oi.style.display = 'block';
+      document.getElementById('origPh').style.display = 'none';
+      document.getElementById('origBadge').textContent = 'READY';
+      document.getElementById('origBadge').className = 'pb-badge ok';
+
+      // Upload zone feedback
+      uz.classList.add('has-img');
+      document.getElementById('uzIcon').textContent = '✅';
+      document.getElementById('uzTitle').textContent = 'Image loaded!';
+      document.getElementById('uzSub').textContent = 'Click to change';
+      document.getElementById('uzName').textContent = f.name;
+
       // Info
-      document.getElementById('infoRes').textContent=uploadedImg.width+'×'+uploadedImg.height;
-      document.getElementById('infoSize').textContent=fmtSize(f.size);
-      document.getElementById('infoFmt').textContent=f.type.split('/')[1].toUpperCase();
-      document.getElementById('infoAR').textContent=gcd(uploadedImg.width,uploadedImg.height,uploadedImg.width/uploadedImg.height);
-      document.getElementById('imgSizeLabel').textContent=uploadedImg.width+'×'+uploadedImg.height+'px';
-      document.getElementById('processBtn').disabled=!model;
-      segData=null;
+      document.getElementById('iRes').textContent = uploadedImg.width+'×'+uploadedImg.height;
+      document.getElementById('iSize').textContent = fmtBytes(f.size);
+      document.getElementById('iFmt').textContent = f.type.split('/')[1].toUpperCase();
+      const g = (a,b)=>b?g(b,a%b):a;
+      const d = g(uploadedImg.width,uploadedImg.height);
+      document.getElementById('iAR').textContent = (uploadedImg.width/d)+':'+(uploadedImg.height/d);
+      document.getElementById('imgSizeLbl').textContent = uploadedImg.width+'×'+uploadedImg.height+'px';
+
+      // Enable buttons
+      document.getElementById('processBtn').disabled = (currentMode==='body' && !model);
+      segData = null;
+
       // Reset output
-      const oc=document.getElementById('outCanvas');
-      oc.style.display='none';
-      document.getElementById('outPlaceholder').style.display='flex';
-      document.getElementById('outBadge').textContent='WAITING';
-      document.getElementById('outBadge').className='pb-badge idle';
+      document.getElementById('outCanvas').style.display = 'none';
+      document.getElementById('outPh').style.display = 'flex';
+      document.getElementById('outBadge').textContent = 'WAITING';
+      document.getElementById('outBadge').className = 'pb-badge idle';
       disableDL(true);
-      document.getElementById('reapplyBtn').disabled=true;
-      setProg(0,'Image loaded — click Remove Background');
+      document.getElementById('reapplyBtn').disabled = true;
+      setProg(0,'Image ready — click Remove Background');
     };
-    uploadedImg.src=ev.target.result;
+    uploadedImg.src = ev.target.result;
   };
   reader.readAsDataURL(f);
 }
 
-// ════ PROCESS ════
-async function processImage(){
-  if(!uploadedImg||!model){showToast('Upload an image first');return}
-  document.getElementById('processBtn').disabled=true;
-  document.getElementById('reapplyBtn').disabled=true;
+// ════════════════════════════════════
+// COLOR PICKER (click on original img)
+// ════════════════════════════════════
+document.getElementById('origImg').addEventListener('click', function(e){
+  if(currentMode !== 'color') return;
+  const img = this;
+  const rect = img.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) / rect.width * uploadedImg.width;
+  const sy = (e.clientY - rect.top) / rect.height * uploadedImg.height;
+
+  // Draw to temp canvas to sample color
+  const tmp = document.createElement('canvas');
+  tmp.width = uploadedImg.width;
+  tmp.height = uploadedImg.height;
+  const tCtx = tmp.getContext('2d');
+  tCtx.drawImage(uploadedImg, 0, 0);
+  const px = tCtx.getImageData(Math.round(sx), Math.round(sy), 1, 1).data;
+  keyColor = {r:px[0], g:px[1], b:px[2]};
+  const hex = '#'+[px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.getElementById('keyColorPreview').style.background = hex;
+  document.getElementById('keyColorHex').textContent = hex;
+  toast(`🎨 Color picked: ${hex}`);
+});
+
+function setKeyColor(hex){
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  keyColor = {r,g,b};
+  document.getElementById('keyColorPreview').style.background = hex;
+  document.getElementById('keyColorHex').textContent = hex;
+}
+
+// ════════════════════════════════════
+// MAIN PROCESS
+// ════════════════════════════════════
+async function process(){
+  if(!uploadedImg){ toast('⚠️ Upload an image first'); return; }
+  if(currentMode === 'body' && !model){ toast('⚠️ AI model not loaded'); return; }
+
+  document.getElementById('processBtn').disabled = true;
+  document.getElementById('reapplyBtn').disabled = true;
   disableDL(true);
+  document.getElementById('outBadge').textContent = 'PROCESSING';
+  document.getElementById('outBadge').className = 'pb-badge proc';
 
-  setProc(true,'Analyzing Image...',15);
-  setProg(15,'Analyzing image...');
-
-  const quality=document.getElementById('qualitySel').value;
-  const internalRes=quality==='ultra'?513:quality==='high'?353:257;
-
-  try{
-    setProc(true,'AI Segmentation...',35);
-    setProg(35,'Running AI segmentation...');
-
-    segData=await model.segmentPerson(uploadedImg,{
-      internalResolution:internalRes,
-      segmentationThreshold:0.7,
-      maxDetections:1,
-    });
-
-    setProc(true,'Removing Background...',70);
-    setProg(70,'Removing background...');
-
-    renderResult();
-
-    setProc(false,'',100);
-    setProg(100,'Background removed!');
-    document.getElementById('outBadge').textContent='DONE ✓';
-    document.getElementById('outBadge').className='pb-badge ok';
-    disableDL(false);
-    document.getElementById('reapplyBtn').disabled=false;
-    showToast('✨ Background removed!');
-    setTimeout(()=>setProg(0,'Done — download your image below'),2000);
-  }catch(e){
-    setProc(false,'',0);
-    setProg(0,'Error: '+e.message);
-    showToast('❌ Processing failed');
-  }finally{
-    document.getElementById('processBtn').disabled=false;
+  if(currentMode === 'body'){
+    await processBodyAI();
+  } else {
+    processColorKey();
   }
 }
 
-function renderResult(){
-  if(!segData||!uploadedImg)return;
-  const canvas=document.getElementById('outCanvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=uploadedImg.width;
-  canvas.height=uploadedImg.height;
+// ────── BODY AI ──────
+async function processBodyAI(){
+  setProc(true,'Analyzing image...',15);
+  setProg(15,'Analyzing image...');
 
-  // Draw original
+  // FIXED: correct internalResolution values
+  const qualMap = {low:'low', medium:'medium', high:'high'};
+  const qual = qualMap[document.getElementById('qualitySel').value] || 'medium';
+  const thresh = parseInt(document.getElementById('threshRange').value) / 100;
+
+  try {
+    setProc(true,'Running AI segmentation...',40);
+    setProg(40,'Running BodyPix segmentation...');
+
+    segData = await model.segmentPerson(uploadedImg, {
+      internalResolution: qual,        // ✅ FIXED: 'low'|'medium'|'high' not number
+      segmentationThreshold: thresh,
+      maxDetections: 5,
+      scoreThreshold: 0.2,
+      nmsRadius: 20,
+    });
+
+    setProc(true,'Compositing...',75);
+    setProg(75,'Compositing result...');
+    renderFromSegData();
+    finishProcess();
+  } catch(e) {
+    setProc(false,'',0);
+    setProg(0,'Error: '+e.message);
+    document.getElementById('outBadge').textContent = 'ERROR';
+    document.getElementById('outBadge').className = 'pb-badge err';
+    toast('❌ Error: '+e.message);
+    document.getElementById('processBtn').disabled = false;
+  }
+}
+
+function renderFromSegData(){
+  if(!segData || !uploadedImg) return;
+  const canvas = document.getElementById('outCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = uploadedImg.width;
+  canvas.height = uploadedImg.height;
+
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(uploadedImg,0,0);
 
-  // Get pixel data
-  const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const px=imgData.data;
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const px = imgData.data;
+  const feather = parseInt(document.getElementById('featherRange').value);
+  const W = canvas.width, H = canvas.height;
 
-  // Apply feathering
-  const feather=parseInt(document.getElementById('featherRange').value);
-
-  for(let i=0;i<px.length;i+=4){
-    if(segData.data[i/4]===0){
-      px[i+3]=0; // transparent
-    } else if(feather>0){
-      // Check nearby pixels for edge feathering
-      const x=(i/4)%canvas.width,y=Math.floor((i/4)/canvas.width);
-      let edgeDist=feather;
-      for(let dx=-feather;dx<=feather;dx++){
-        for(let dy=-feather;dy<=feather;dy++){
-          const nx=x+dx,ny=y+dy;
-          if(nx>=0&&nx<canvas.width&&ny>=0&&ny<canvas.height){
-            const ni=ny*canvas.width+nx;
-            if(segData.data[ni]===0){edgeDist=Math.min(edgeDist,Math.sqrt(dx*dx+dy*dy))}
+  for(let i = 0; i < segData.data.length; i++){
+    if(segData.data[i] === 0){
+      // Background pixel — apply feather
+      if(feather > 0){
+        const x = i % W, y = Math.floor(i / W);
+        let minDist = feather + 1;
+        const r = Math.min(feather, 3); // limit search radius for perf
+        for(let dx = -r; dx <= r && minDist > 0; dx++){
+          for(let dy = -r; dy <= r && minDist > 0; dy++){
+            const nx = x+dx, ny = y+dy;
+            if(nx>=0&&nx<W&&ny>=0&&ny<H){
+              if(segData.data[ny*W+nx] === 1){
+                minDist = Math.min(minDist, Math.sqrt(dx*dx+dy*dy));
+              }
+            }
           }
         }
+        const alpha = minDist <= feather ? Math.round(255 * (minDist / feather)) : 0;
+        px[i*4+3] = alpha;
+      } else {
+        px[i*4+3] = 0;
       }
-      if(edgeDist<feather){px[i+3]=Math.round(px[i+3]*(edgeDist/feather))}
     }
   }
   ctx.putImageData(imgData,0,0);
-
-  // Apply background
-  applyBg(canvas,ctx);
-
-  // Shadow
-  const shadowVal=parseInt(document.getElementById('shadowRange').value);
-  if(shadowVal>0)applyShadow(canvas,ctx,shadowVal);
-
-  // Show canvas
-  canvas.style.display='block';
-  document.getElementById('outPlaceholder').style.display='none';
-
-  // Zoom
-  canvas.style.transform=`scale(${zoomLevel})`;
-  canvas.style.transformOrigin='center center';
+  applyBackground(canvas,ctx);
+  applyShadow(canvas,ctx);
+  showCanvas();
 }
 
-function applyBg(canvas,ctx){
-  const type=document.getElementById('bgType').value;
-  if(type==='transparent')return;
+// ────── COLOR KEY ──────
+function processColorKey(){
+  setProg(20,'Removing color key...');
+  setProc(true,'Removing color...',30);
 
-  // Save current (person only) data
-  const personData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const canvas = document.getElementById('outCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = uploadedImg.width;
+  canvas.height = uploadedImg.height;
 
-  ctx.globalCompositeOperation='destination-over';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(uploadedImg,0,0);
 
-  if(type==='white'){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height)}
-  else if(type==='black'){ctx.fillStyle='#000000';ctx.fillRect(0,0,canvas.width,canvas.height)}
-  else if(type==='gradient1'){
-    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    g.addColorStop(0,'#0ea5e9');g.addColorStop(1,'#7c3aed');
-    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-  }else if(type==='gradient2'){
-    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    g.addColorStop(0,'#f97316');g.addColorStop(1,'#ec4899');
-    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-  }else if(type==='gradient3'){
-    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    g.addColorStop(0,'#10b981');g.addColorStop(1,'#065f46');
-    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-  }else if(type==='color'){
-    ctx.fillStyle=customColor;ctx.fillRect(0,0,canvas.width,canvas.height);
-  }else if(type==='blur'){
-    // Draw blurred original behind
-    ctx.filter='blur(20px)';ctx.drawImage(uploadedImg,0,0);ctx.filter='none';
-  }else if(type==='custom'&&bgImgEl){
-    ctx.drawImage(bgImgEl,0,0,canvas.width,canvas.height);
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const px = imgData.data;
+  const tol = parseInt(document.getElementById('toleranceRange').value);
+  const feather = parseInt(document.getElementById('featherRange').value);
+  const {r:kr, g:kg, b:kb} = keyColor;
+
+  setProg(50,'Applying transparency...');
+
+  for(let i = 0; i < px.length; i += 4){
+    const dist = Math.sqrt(
+      (px[i]-kr)**2 + (px[i+1]-kg)**2 + (px[i+2]-kb)**2
+    );
+    if(dist <= tol){
+      if(feather > 0){
+        const alpha = Math.round(255 * Math.max(0, (dist - (tol - feather)) / feather));
+        px[i+3] = Math.min(px[i+3], alpha);
+      } else {
+        px[i+3] = 0;
+      }
+    }
   }
 
+  ctx.putImageData(imgData,0,0);
+  segData = {colorKey: true}; // mark as processed
+  applyBackground(canvas,ctx);
+  applyShadow(canvas,ctx);
+  showCanvas();
+  finishProcess();
+}
+
+// ────── SHARED COMPOSITING ──────
+function applyBackground(canvas, ctx){
+  const type = document.getElementById('bgType').value;
+  if(type === 'transparent') return;
+
+  const W = canvas.width, H = canvas.height;
+  ctx.globalCompositeOperation = 'destination-over';
+
+  if(type === 'white'){ctx.fillStyle='#ffffff';}
+  else if(type === 'black'){ctx.fillStyle='#000000';}
+  else if(type === 'g1'){
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#0ea5e9');g.addColorStop(1,'#7c3aed');
+    ctx.fillStyle=g;
+  } else if(type === 'g2'){
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#f97316');g.addColorStop(1,'#ec4899');
+    ctx.fillStyle=g;
+  } else if(type === 'g3'){
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#10b981');g.addColorStop(1,'#065f46');
+    ctx.fillStyle=g;
+  } else if(type === 'g4'){
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#0f172a');g.addColorStop(1,'#1e1b4b');
+    ctx.fillStyle=g;
+  } else if(type === 'color'){
+    ctx.fillStyle = customBgColor;
+  } else if(type === 'blur'){
+    ctx.filter='blur(18px) brightness(0.85)';
+    ctx.drawImage(uploadedImg,0,0,W,H);
+    ctx.filter='none';
+    ctx.globalCompositeOperation='source-over';
+    return;
+  } else if(type === 'custom' && bgImgEl){
+    ctx.drawImage(bgImgEl,0,0,W,H);
+    ctx.globalCompositeOperation='source-over';
+    return;
+  }
+
+  ctx.fillRect(0,0,W,H);
   ctx.globalCompositeOperation='source-over';
 }
 
-function applyShadow(canvas,ctx,val){
-  // Create shadow by drawing dark silhouette slightly offset
-  const opacity=val/200;
-  const tempC=document.createElement('canvas');
-  tempC.width=canvas.width;tempC.height=canvas.height;
-  const tCtx=tempC.getContext('2d');
-  tCtx.drawImage(canvas,0,0);
-
-  ctx.globalCompositeOperation='destination-over';
-  ctx.shadowColor=`rgba(0,0,0,${opacity})`;
-  ctx.shadowBlur=val/3;
-  ctx.shadowOffsetY=val/4;
-  ctx.shadowOffsetX=val/8;
+function applyShadow(canvas, ctx){
+  const val = parseInt(document.getElementById('shadowRange').value);
+  if(val === 0) return;
+  const intensity = val / 100;
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.shadowColor = `rgba(0,0,0,${intensity * 0.7})`;
+  ctx.shadowBlur = val * 0.4;
+  ctx.shadowOffsetY = val * 0.25;
+  ctx.shadowOffsetX = val * 0.08;
   ctx.drawImage(canvas,0,0);
   ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
   ctx.globalCompositeOperation='source-over';
 }
 
-function reapplyBackground(){
-  if(!segData)return;
-  renderResult();
-  showToast('🔄 Background re-applied!');
+function showCanvas(){
+  const canvas = document.getElementById('outCanvas');
+  canvas.style.display='block';
+  canvas.style.transform=`scale(${zoomLevel})`;
+  canvas.style.transformOrigin='center center';
+  document.getElementById('outPh').style.display='none';
 }
 
-// ════ BG TYPE CHANGE ════
-function onBgTypeChange(){
-  const t=document.getElementById('bgType').value;
-  document.getElementById('colorPickerWrap').style.display=t==='color'?'block':'none';
-  document.getElementById('bgImgWrap').style.display=t==='custom'?'block':'none';
+function finishProcess(){
+  setProc(false,'',100);
+  setProg(100,'Done! Download below.');
+  document.getElementById('outBadge').textContent='DONE ✓';
+  document.getElementById('outBadge').className='pb-badge ok';
+  disableDL(false);
+  document.getElementById('reapplyBtn').disabled=false;
+  document.getElementById('processBtn').disabled=false;
+  toast('✨ Background removed!');
+  setTimeout(()=>setProg(0,'Done — download below'),2500);
 }
 
-function setSwatchColor(el){
-  if(el.dataset.color==='custom')return;
-  document.querySelectorAll('.bg-swatch').forEach(s=>s.classList.remove('active'));
+// ════════════════════════════════════
+// RE-APPLY (change bg/shadow only)
+// ════════════════════════════════════
+function reapply(){
+  if(!segData){ toast('⚠️ Process image first'); return; }
+  if(currentMode === 'body' && segData.colorKey !== true){
+    renderFromSegData();
+  } else {
+    processColorKey();
+  }
+  toast('🔄 Background re-applied!');
+}
+
+// ════════════════════════════════════
+// BG CONTROLS
+// ════════════════════════════════════
+function onBgChange(){
+  const t = document.getElementById('bgType').value;
+  document.getElementById('colorSwatches').style.display = t==='color'?'block':'none';
+  document.getElementById('bgImgWrap').style.display = t==='custom'?'block':'none';
+}
+
+function setBgColor(el){
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
-  customColor=el.dataset.color;
+  if(el.dataset.c && el.dataset.c !== 'gradient-custom') customBgColor = el.dataset.c;
 }
-function onCustomColor(v){customColor=v}
 
-function loadBgImage(input){
-  const f=input.files[0];if(!f)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    bgImgEl=new Image();bgImgEl.src=ev.target.result;
-    document.getElementById('bgImgName').textContent=f.name;
-    document.getElementById('bgImgName').style.display='block';
-    showToast('Background image loaded');
+function loadBgImg(input){
+  const f = input.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    bgImgEl = new Image();
+    bgImgEl.src = ev.target.result;
+    document.getElementById('bgImgName').textContent = f.name;
+    document.getElementById('bgImgName').style.display = 'block';
+    toast('✅ BG image loaded');
   };
   reader.readAsDataURL(f);
 }
 
-// ════ DOWNLOAD ════
-function download(fmt){
-  const canvas=document.getElementById('outCanvas');
-  if(canvas.style.display==='none'){showToast('Process image first');return}
-  const a=document.createElement('a');
-  if(fmt==='png'){a.href=canvas.toDataURL('image/png');a.download='KJSynthora-nobg.png'}
-  else if(fmt==='jpg'){
-    // Create white bg version for JPG
-    const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
-    const tc=tmp.getContext('2d');tc.fillStyle='#fff';tc.fillRect(0,0,tmp.width,tmp.height);tc.drawImage(canvas,0,0);
-    a.href=tmp.toDataURL('image/jpeg',0.95);a.download='KJSynthora-nobg.jpg';
-  }else{a.href=canvas.toDataURL('image/webp',0.9);a.download='KJSynthora-nobg.webp'}
-  a.click();showToast('💾 Downloaded as '+fmt.toUpperCase()+'!');
+// ════════════════════════════════════
+// DOWNLOAD
+// ════════════════════════════════════
+function dl(fmt){
+  const canvas = document.getElementById('outCanvas');
+  if(canvas.style.display==='none'){ toast('⚠️ Process image first'); return; }
+  const a = document.createElement('a');
+  if(fmt==='png'){
+    a.href=canvas.toDataURL('image/png');
+    a.download='kjsynthora-nobg.png';
+  } else if(fmt==='jpg'){
+    const tmp=document.createElement('canvas');
+    tmp.width=canvas.width;tmp.height=canvas.height;
+    const tc=tmp.getContext('2d');
+    tc.fillStyle='#ffffff';tc.fillRect(0,0,tmp.width,tmp.height);
+    tc.drawImage(canvas,0,0);
+    a.href=tmp.toDataURL('image/jpeg',0.95);
+    a.download='kjsynthora-nobg.jpg';
+  } else {
+    a.href=canvas.toDataURL('image/webp',0.9);
+    a.download='kjsynthora-nobg.webp';
+  }
+  a.click();
+  toast('💾 Downloaded as '+fmt.toUpperCase()+'!');
 }
 
-async function copyCanvas(){
-  const canvas=document.getElementById('outCanvas');
+async function copyImg(){
+  const canvas = document.getElementById('outCanvas');
   try{
     canvas.toBlob(async blob=>{
       await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-      showToast('📋 Image copied to clipboard!');
+      toast('📋 Copied to clipboard!');
     });
-  }catch{showToast('❌ Copy not supported in this browser')}
+  } catch{ toast('❌ Copy not supported in this browser'); }
 }
 
-// ════ ZOOM ════
+// ════════════════════════════════════
+// ZOOM
+// ════════════════════════════════════
 function zoom(delta){
-  zoomLevel=Math.min(3,Math.max(0.3,zoomLevel+delta));
+  zoomLevel=Math.min(3,Math.max(0.25,zoomLevel+delta));
   const canvas=document.getElementById('outCanvas');
   canvas.style.transform=`scale(${zoomLevel})`;
+  canvas.style.transformOrigin='center center';
   document.getElementById('zoomVal').textContent=Math.round(zoomLevel*100)+'%';
 }
-function resetZoom(){zoomLevel=1;zoom(0)}
+function resetZoom(){zoomLevel=1;zoom(0);}
 
-// ════ CLEAR ════
+// ════════════════════════════════════
+// CLEAR
+// ════════════════════════════════════
 function clearAll(){
   uploadedImg=null;segData=null;bgImgEl=null;
   document.getElementById('origImg').style.display='none';
-  document.getElementById('origImg').src='';
-  document.getElementById('origStage').querySelector('.img-placeholder').style.display='flex';
+  document.getElementById('origPh').style.display='flex';
   document.getElementById('origBadge').textContent='WAITING';
   document.getElementById('origBadge').className='pb-badge idle';
   document.getElementById('outCanvas').style.display='none';
-  document.getElementById('outPlaceholder').style.display='flex';
+  document.getElementById('outPh').style.display='flex';
   document.getElementById('outBadge').textContent='WAITING';
   document.getElementById('outBadge').className='pb-badge idle';
   document.getElementById('imgInput').value='';
-  uz.classList.remove('has-image');
+  uz.classList.remove('has-img');
   document.getElementById('uzIcon').textContent='☁️';
-  document.getElementById('uzTitle').textContent='Drop image here';
+  document.getElementById('uzTitle').textContent='Drop or click to upload';
   document.getElementById('uzSub').textContent='JPG, PNG, WEBP — up to 20MB';
   document.getElementById('uzName').textContent='';
   document.getElementById('processBtn').disabled=true;
   document.getElementById('reapplyBtn').disabled=true;
   disableDL(true);
-  ['infoRes','infoSize','infoFmt','infoAR'].forEach(id=>document.getElementById(id).textContent='—');
-  document.getElementById('imgSizeLabel').textContent='';
+  ['iRes','iSize','iFmt','iAR'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('imgSizeLbl').textContent='';
   setProg(0,'Upload an image to begin');
   resetZoom();
-  showToast('🗑️ Cleared!');
+  toast('🗑️ Cleared!');
 }
 
-// ════ HELPERS ════
-function setProc(show,label,pct){
-  const ov=document.getElementById('procOverlay');
+// ════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════
+function setProc(show, label, pct){
+  const ov = document.getElementById('procOverlay');
   ov.classList.toggle('show',show);
-  if(label)document.getElementById('procLabel').textContent=label;
-  if(pct!==undefined)document.getElementById('procBar').style.width=pct+'%';
+  if(label) document.getElementById('procLbl').textContent=label;
+  if(pct!==undefined) document.getElementById('procBar').style.width=pct+'%';
 }
 function setProg(pct,text){
-  document.getElementById('progBar').style.width=pct+'%';
-  if(text)document.getElementById('progText').textContent=text;
+  document.getElementById('progFill').style.width=pct+'%';
+  if(text) document.getElementById('progTxt').textContent=text;
 }
 function disableDL(v){
   ['dlPng','dlJpg','dlWebp','dlCopy'].forEach(id=>document.getElementById(id).disabled=v);
 }
-function fmtSize(b){return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB'}
-function gcd(a,b,ar){
-  const g=(x,y)=>y?g(y,x%y):x;
-  const d=g(a,b);return(a/d)+':'+(b/d);
+function fmtBytes(b){
+  return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB';
 }
-function showToast(msg){
+function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2700);
 }
 
-// Start loading model
+// Init
 loadModel();
 </script>
 </body>
