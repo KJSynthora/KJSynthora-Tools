@@ -1,1048 +1,956 @@
-<!-- =========================
-KJSYNTHORA INSTAGRAM LOGO STUDIO V3
-Production Grade Advanced Tool
-File: /tools/instagram-logo-maker.html
-========================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>KJSynthora Instagram Logo Studio V3</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KJSynthora Instagram Logo Studio V4</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=Pacifico&family=Orbitron:wght@700;900&family=Dancing+Script:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#04040e;--surface:#0a0a1a;--s2:#0f1628;--s3:#151e35;
+  --border:rgba(120,100,255,0.2);--accent:#818cf8;--accent2:#7c5cfc;
+  --cyan:#38bdf8;--green:#22c55e;--text:#e2e8f0;--muted:#4a5568;
 }
-
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-background:#020b33;
-min-height:100vh;
-color:white;
-overflow-x:hidden;
+  background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+  min-height:100vh;overflow-x:hidden;
 }
-
 body::before{
-content:'';
-position:fixed;
-width:700px;
-height:700px;
-background:radial-gradient(circle,#7b2ff744 0%,transparent 70%);
-top:-250px;
-left:-250px;
-z-index:-1;
+  content:'';position:fixed;width:700px;height:700px;
+  background:radial-gradient(circle,rgba(124,92,252,0.12) 0%,transparent 65%);
+  top:-250px;left:-250px;filter:blur(80px);z-index:0;pointer-events:none;
 }
-
 body::after{
-content:'';
-position:fixed;
-width:600px;
-height:600px;
-background:radial-gradient(circle,#00c6ff22 0%,transparent 70%);
-bottom:-250px;
-right:-250px;
-z-index:-1;
+  content:'';position:fixed;width:600px;height:600px;
+  background:radial-gradient(circle,rgba(56,189,248,0.07) 0%,transparent 65%);
+  bottom:-200px;right:-200px;filter:blur(70px);z-index:0;pointer-events:none;
 }
 
-.main{
-width:100%;
-max-width:1700px;
-margin:auto;
-padding:25px;
+/* HEADER */
+.header{text-align:center;padding:28px 20px 20px;position:relative;z-index:1;}
+.header h1{
+  font-family:'Syne',sans-serif;font-size:42px;font-weight:800;
+  background:linear-gradient(90deg,#33cfff,#8a5cff,#ff4fd8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
 }
+.header p{color:var(--muted);font-size:13px;}
 
-.title{
-text-align:center;
-font-size:55px;
-font-weight:800;
-background:linear-gradient(90deg,#33cfff,#8a5cff,#ff4fd8);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:10px;
-}
-
-.sub{
-text-align:center;
-opacity:.8;
-margin-bottom:30px;
-font-size:14px;
-}
-
+/* LAYOUT */
 .layout{
-display:grid;
-grid-template-columns:340px 1fr 330px;
-gap:20px;
+  display:grid;grid-template-columns:300px 1fr 280px;
+  gap:18px;padding:0 20px 40px;max-width:1700px;margin:0 auto;
+  position:relative;z-index:1;
 }
+@media(max-width:1300px){.layout{grid-template-columns:280px 1fr;}}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}}
 
 .panel{
-background:#081744;
-border-radius:25px;
-padding:22px;
-border:1px solid rgba(255,255,255,.06);
-box-shadow:0 0 25px rgba(0,0,0,.35);
+  background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);
+  height:fit-content;
 }
 
-.left-panel{
-height:fit-content;
-}
-
+/* LEFT CONTROLS */
 .section-title{
-font-size:18px;
-font-weight:700;
-margin-bottom:15px;
-color:#7dd3fc;
+  font-size:13px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:0.08em;font-weight:600;margin-bottom:12px;margin-top:16px;
+}
+.section-title:first-child{margin-top:0;}
+
+.ctrl-group{margin-bottom:12px;}
+.ctrl-group label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;}
+.ctrl-input{
+  width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:13px;outline:none;
+  font-family:'DM Sans',sans-serif;transition:border-color 0.2s;
+}
+.ctrl-input:focus{border-color:var(--accent);}
+.ctrl-input option{background:var(--s2);}
+input[type=range].ctrl-input{padding:4px 0;cursor:pointer;accent-color:var(--accent);}
+.range-row{display:flex;align-items:center;gap:8px;}
+.range-val{
+  min-width:36px;text-align:right;font-size:12px;font-weight:600;color:var(--accent);
 }
 
-.control-group{
-margin-bottom:18px;
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.color-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;}
+.color-field-inner{
+  display:flex;align-items:center;gap:7px;
+  background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:6px 10px;
 }
+.color-field-inner input[type=color]{width:24px;height:24px;border:none;background:none;padding:0;cursor:pointer;border-radius:4px;}
+.color-hex{font-size:11px;color:var(--muted);font-family:monospace;}
 
-label{
-display:block;
-font-size:13px;
-margin-bottom:8px;
-opacity:.9;
+/* PRESET SWATCHES */
+.swatches{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.swatch{
+  width:28px;height:28px;border-radius:8px;cursor:pointer;
+  border:2px solid transparent;transition:all 0.2s;
 }
+.swatch:hover{transform:scale(1.12);border-color:white;}
 
-input,
-select{
-width:100%;
-padding:14px;
-border:none;
-outline:none;
-border-radius:14px;
-background:#13265f;
-color:white;
-font-size:14px;
-}
-
-input[type="range"]{
-padding:0;
-}
-
-.tabs{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:18px;
-}
-
-.tab-btn{
-padding:12px 18px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-font-weight:600;
-background:#13265f;
-color:white;
-transition:.3s;
-}
-
-.tab-btn.active{
-background:linear-gradient(90deg,#33cfff,#8a5cff);
-}
-
-.tab-content{
-display:none;
-animation:fade .3s ease;
-}
-
-.tab-content.active{
-display:block;
-}
-
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(10px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-.canvas-wrap{
-background:#0e1f5b;
-border-radius:22px;
-padding:25px;
-min-height:760px;
-position:relative;
-overflow:hidden;
-}
-
-.logo-stage{
-height:600px;
-display:flex;
-align-items:center;
-justify-content:center;
-position:relative;
-}
-
-#logoBox{
-width:360px;
-height:360px;
-border-radius:90px;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-position:relative;
-transition:.4s;
-overflow:hidden;
-}
-
-.logo-glow{
-position:absolute;
-inset:-20px;
-filter:blur(35px);
-opacity:.7;
-z-index:-1;
-}
-
-#logoIcon{
-font-size:90px;
-margin-bottom:15px;
-}
-
-#logoName{
-font-size:55px;
-font-weight:800;
-line-height:1;
-}
-
-#logoTag{
-font-size:15px;
-margin-top:12px;
-opacity:.9;
-}
-
-.preview-grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:20px;
-}
-
-.preview-item{
-background:#13265f;
-padding:20px;
-border-radius:20px;
-text-align:center;
-}
-
-.preview-circle{
-width:90px;
-height:90px;
-border-radius:50%;
-margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:700;
-font-size:24px;
-margin-bottom:10px;
-}
-
-.analytics-card{
-background:#13265f;
-padding:18px;
-border-radius:18px;
-margin-bottom:18px;
-}
-
-.analytics-card h4{
-margin-bottom:12px;
-color:#67e8f9;
-}
-
-.metric{
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
-font-size:14px;
-}
-
-.theme-colors{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:10px;
-}
-
-.color-btn{
-width:38px;
-height:38px;
-border-radius:12px;
-cursor:pointer;
-border:3px solid transparent;
-transition:.3s;
-}
-
-.color-btn:hover{
-transform:scale(1.08);
-}
-
+/* ACTION BUTTONS */
 .action-btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
-margin-top:12px;
-font-weight:700;
-cursor:pointer;
-color:white;
-transition:.3s;
+  width:100%;padding:11px;border:none;border-radius:11px;margin-top:8px;
+  font-weight:700;cursor:pointer;color:white;transition:all 0.25s;
+  font-family:'DM Sans',sans-serif;font-size:13px;position:relative;overflow:hidden;
+}
+.action-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.1);opacity:0;transition:0.2s;}
+.action-btn:hover::before{opacity:1;}
+.action-btn:hover{transform:translateY(-1px);}
+.btn-generate{background:linear-gradient(135deg,#7c5cfc,#4f46e5);}
+.btn-png{background:linear-gradient(135deg,#059669,#10b981);}
+.btn-svg{background:linear-gradient(135deg,#dc2626,#f87171);}
+.btn-random{background:linear-gradient(135deg,#d97706,#f59e0b);}
+.btn-copy{background:linear-gradient(135deg,#0284c7,#38bdf8);}
+
+/* TOGGLE ROW */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.toggle-label{font-size:12px;color:var(--muted);}
+.toggle{
+  width:36px;height:20px;background:var(--s3);border-radius:999px;cursor:pointer;
+  position:relative;transition:background 0.3s;border:1px solid var(--border);
+}
+.toggle.on{background:var(--accent2);}
+.toggle::after{
+  content:'';position:absolute;width:14px;height:14px;background:white;
+  border-radius:50%;top:2px;left:2px;transition:transform 0.3s;
+}
+.toggle.on::after{transform:translateX(16px);}
+
+/* CENTER — TABS + CANVAS */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.tab-btn{
+  padding:8px 16px;border:1px solid var(--border);border-radius:9px;
+  background:var(--s2);color:var(--muted);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;border-color:transparent;}
+.tab-content{display:none;}
+.tab-content.active{display:block;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* CANVAS WRAP */
+.canvas-wrap{
+  background:var(--s2);border:1px solid var(--border);border-radius:18px;
+  min-height:600px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:30px;position:relative;overflow:hidden;
+}
+.canvas-bg-dots{
+  position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px);
+  background-size:28px 28px;pointer-events:none;
 }
 
-.generate-btn{
-background:linear-gradient(90deg,#33cfff,#8a5cff);
+/* LOGO BOX */
+#logoBox{
+  width:380px;height:380px;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  position:relative;transition:all 0.35s ease;cursor:pointer;
+  flex-shrink:0;
 }
-
-.download-btn{
-background:linear-gradient(90deg,#00c853,#00e676);
+.logo-glow-el{
+  position:absolute;inset:-30px;filter:blur(40px);opacity:0.5;z-index:0;
+  border-radius:50%;transition:all 0.35s;pointer-events:none;
 }
-
-.export-btn{
-background:linear-gradient(90deg,#ff512f,#dd2476);
+.logo-inner{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  width:100%;height:100%;
 }
+#logoIcon{font-size:90px;line-height:1;margin-bottom:10px;transition:font-size 0.3s;user-select:none;}
+#logoName{font-weight:800;line-height:1;transition:all 0.3s;user-select:none;text-align:center;}
+#logoTag{margin-top:10px;opacity:0.85;transition:all 0.3s;text-align:center;user-select:none;}
 
-.reset-btn{
-background:linear-gradient(90deg,#ff9800,#ff5722);
+/* INSTAGRAM PREVIEW GRID */
+.ig-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;}
+.ig-item{background:var(--s3);border-radius:16px;padding:16px;text-align:center;}
+.ig-circle{
+  width:80px;height:80px;border-radius:50%;margin:0 auto 10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:20px;overflow:hidden;flex-shrink:0;
 }
+.ig-label{font-size:11px;color:var(--muted);}
+.ig-circle canvas{width:100%;height:100%;border-radius:50%;}
 
-.home-btn{
-display:block;
-text-align:center;
-margin-top:18px;
-color:#7dd3fc;
-text-decoration:none;
-font-weight:600;
+/* LAYER CARDS */
+.layer-card{
+  background:var(--s3);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;display:flex;
+  align-items:center;justify-content:space-between;
 }
-
-.logo-shape-circle{
-border-radius:50%;
+.layer-name{font-size:13px;font-weight:500;}
+.layer-actions{display:flex;gap:8px;align-items:center;}
+.layer-vis{
+  padding:4px 10px;border-radius:6px;background:var(--s2);
+  font-size:11px;cursor:pointer;border:1px solid var(--border);color:var(--muted);
+  transition:all 0.2s;
 }
+.layer-vis.visible{color:var(--green);border-color:rgba(34,197,94,0.3);}
 
-.logo-shape-square{
-border-radius:35px;
+/* TEMPLATES GRID */
+.tmpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;}
+.tmpl-card{
+  background:var(--s3);border:1px solid var(--border);border-radius:14px;
+  padding:14px;text-align:center;cursor:pointer;transition:all 0.25s;
 }
-
-.logo-shape-hex{
-clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0% 50%);
+.tmpl-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.tmpl-preview{
+  width:60px;height:60px;border-radius:16px;margin:0 auto 8px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
 }
+.tmpl-name{font-size:12px;font-weight:600;}
 
-.logo-shape-diamond{
-clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+/* RIGHT PANEL STATS */
+.stat-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:14px;
+  padding:14px;margin-bottom:10px;
 }
+.stat-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-weight:600;}
+.stat-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{color:var(--muted);}
+.stat-val{font-weight:700;color:var(--green);}
+.stat-val.blue{color:var(--accent);}
+.stat-val.cyan{color:var(--cyan);}
 
-.logo-shape-star{
-clip-path:polygon(
-50% 0%,
-61% 35%,
-98% 35%,
-68% 57%,
-79% 91%,
-50% 70%,
-21% 91%,
-32% 57%,
-2% 35%,
-39% 35%
-);
+/* TOAST */
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--s2);border:1px solid var(--green);color:var(--green);
+  padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;
+  z-index:999;opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none;
 }
+.toast.show{opacity:1;transform:translateY(0);}
 
-textarea{
-width:100%;
-height:120px;
-background:#13265f;
-border:none;
-border-radius:15px;
-padding:15px;
-color:white;
-resize:none;
+/* BRAND IDEAS */
+.brand-ideas{width:100%;}
+.idea-card{
+  background:var(--s3);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:10px;
 }
+.idea-card h4{font-size:13px;color:var(--accent);margin-bottom:6px;}
+.idea-card p{font-size:12px;color:var(--muted);line-height:1.6;}
 
-@media(max-width:1450px){
-
-.layout{
-grid-template-columns:1fr;
+a.home-link{
+  display:block;text-align:center;margin-top:10px;
+  color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;
 }
-
-.logo-stage{
-height:auto;
-padding:50px 0;
-}
-
-}
-
+a.home-link:hover{color:var(--accent);}
 </style>
 </head>
-
 <body>
 
-<div class="main">
-
-<div class="title">
-KJSynthora Instagram Logo Studio V3
-</div>
-
-<div class="sub">
-AI Branding • Dynamic Shapes • Realtime Preview • SVG Ready • Instagram Safe Zone
+<div class="header">
+  <h1>KJSynthora Instagram Logo Studio V4</h1>
+  <p>AI Branding · Dynamic Shapes · Real SVG Export · Instagram Safe Zone · Full Layer Control</p>
 </div>
 
 <div class="layout">
 
-<!-- LEFT -->
-<div class="panel left-panel">
-
-<div class="section-title">
-Brand Controls
-</div>
-
-<div class="control-group">
-<label>Brand Name</label>
-<input type="text" id="brandName" value="kj">
-</div>
-
-<div class="control-group">
-<label>Brand Subtitle</label>
-<input type="text" id="brandTag" value="think better way to live">
-</div>
-
-<div class="control-group">
-<label>Brand Niche</label>
-<select id="brandTheme">
-<option value="tech">Tech</option>
-<option value="gaming">Gaming</option>
-<option value="luxury">Luxury</option>
-<option value="fashion">Fashion</option>
-<option value="food">Food</option>
-<option value="music">Music</option>
-<option value="crypto">Crypto</option>
-</select>
-</div>
-
-<div class="control-group">
-<label>Logo Shape</label>
-<select id="logoShape">
-<option value="circle">Circle</option>
-<option value="square">Square</option>
-<option value="hex">Hexagon</option>
-<option value="diamond">Diamond</option>
-<option value="star">Star</option>
-</select>
-</div>
-
-<div class="control-group">
-<label>Icon</label>
-<select id="logoIconSelect">
-<option>⚡</option>
-<option>🚀</option>
-<option>🔥</option>
-<option>🎮</option>
-<option>💎</option>
-<option>🎵</option>
-<option>📸</option>
-<option>🧠</option>
-<option>🛡️</option>
-<option>🌎</option>
-</select>
-</div>
-
-<div class="control-group">
-<label>Font Style</label>
-<select id="fontStyle">
-<option value="'Poppins',sans-serif">Poppins</option>
-<option value="cursive">Cursive</option>
-<option value="monospace">Monospace</option>
-<option value="fantasy">Fantasy</option>
-</select>
-</div>
-
-<div class="control-group">
-<label>Logo Size</label>
-<input type="range" id="logoSize" min="220" max="520" value="360">
-</div>
-
-<div class="control-group">
-<label>Glow Strength</label>
-<input type="range" id="glowStrength" min="0" max="100" value="60">
-</div>
-
-<div class="control-group">
-<label>Rotation</label>
-<input type="range" id="rotation" min="-180" max="180" value="0">
-</div>
-
-<div class="control-group">
-<label>Border Radius</label>
-<input type="range" id="radius" min="0" max="100" value="90">
-</div>
-
-<div class="control-group">
-<label>Gradient Colors</label>
-
-<div class="theme-colors">
-
-<div class="color-btn" style="background:linear-gradient(45deg,#00c6ff,#8a5cff)" onclick="setTheme('#00c6ff','#8a5cff')"></div>
-
-<div class="color-btn" style="background:linear-gradient(45deg,#ff512f,#dd2476)" onclick="setTheme('#ff512f','#dd2476')"></div>
-
-<div class="color-btn" style="background:linear-gradient(45deg,#00e676,#00bfa5)" onclick="setTheme('#00e676','#00bfa5')"></div>
-
-<div class="color-btn" style="background:linear-gradient(45deg,#ff9800,#ffc107)" onclick="setTheme('#ff9800','#ffc107')"></div>
-
-<div class="color-btn" style="background:linear-gradient(45deg,#7f00ff,#e100ff)" onclick="setTheme('#7f00ff','#e100ff')"></div>
-
-<div class="color-btn" style="background:linear-gradient(45deg,#00f0ff,#ff00ea)" onclick="setTheme('#00f0ff','#ff00ea')"></div>
-
-</div>
-
-</div>
-
-<button class="action-btn generate-btn" onclick="generateLogo()">
-Generate AI Logo
-</button>
-
-<button class="action-btn download-btn" onclick="downloadLogo()">
-Download PNG
-</button>
-
-<button class="action-btn export-btn" onclick="exportSVG()">
-Export SVG
-</button>
-
-<button class="action-btn reset-btn" onclick="randomizeLogo()">
-Random Style
-</button>
-
-<a href="/" class="home-btn">
-← Return Home
-</a>
-
-</div>
-
-<!-- CENTER -->
-<div class="panel">
-
-<div class="tabs">
-
-<button class="tab-btn active" data-tab="editor">
-Editor
-</button>
-
-<button class="tab-btn" data-tab="preview">
-Instagram Preview
-</button>
-
-<button class="tab-btn" data-tab="branding">
-Brand AI
-</button>
-
-<button class="tab-btn" data-tab="layers">
-Layers
-</button>
-
-<button class="tab-btn" data-tab="templates">
-Templates
-</button>
-
-</div>
-
-<!-- EDITOR -->
-<div class="tab-content active" id="editor">
-
-<div class="canvas-wrap">
-
-<div class="logo-stage">
-
-<div id="logoBox">
-
-<div class="logo-glow" id="logoGlow"></div>
-
-<div id="logoIcon">
-⚡
-</div>
-
-<div id="logoName">
-kj
-</div>
-
-<div id="logoTag">
-think better way to live
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- PREVIEW -->
-<div class="tab-content" id="preview">
-
-<div class="canvas-wrap">
-
-<h2 style="margin-bottom:20px;">
-Instagram Live Mockups
-</h2>
-
-<div class="preview-grid">
-
-<div class="preview-item">
-<div class="preview-circle" id="p1"></div>
-Instagram Profile
-</div>
-
-<div class="preview-item">
-<div class="preview-circle" id="p2"></div>
-Story Highlight
-</div>
-
-<div class="preview-item">
-<div class="preview-circle" id="p3"></div>
-DM Avatar
-</div>
-
-<div class="preview-item">
-<div class="preview-circle" id="p4"></div>
-Watermark
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- BRAND AI -->
-<div class="tab-content" id="branding">
-
-<div class="canvas-wrap">
-
-<h2 style="margin-bottom:20px;">
-AI Brand Suggestions
-</h2>
-
-<textarea id="brandIdeas">
-AI will generate brand positioning ideas here...
-</textarea>
-
-<button class="action-btn generate-btn" onclick="generateBrandIdeas()">
-Generate Brand Strategy
-</button>
-
-</div>
-
-</div>
-
-<!-- LAYERS -->
-<div class="tab-content" id="layers">
-
-<div class="canvas-wrap">
-
-<h2 style="margin-bottom:20px;">
-Layer System
-</h2>
-
-<div class="analytics-card">
-<h4>Editable Layers</h4>
-
-<div class="metric">
-<span>Background Gradient</span>
-<span>Visible</span>
-</div>
-
-<div class="metric">
-<span>Glow Engine</span>
-<span>Visible</span>
-</div>
-
-<div class="metric">
-<span>Icon Layer</span>
-<span>Visible</span>
-</div>
-
-<div class="metric">
-<span>Typography Layer</span>
-<span>Visible</span>
-</div>
-
-<div class="metric">
-<span>Subtitle Layer</span>
-<span>Visible</span>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- TEMPLATES -->
-<div class="tab-content" id="templates">
-
-<div class="canvas-wrap">
-
-<h2 style="margin-bottom:20px;">
-Realtime Templates
-</h2>
-
-<div class="preview-grid">
-
-<div class="preview-item" onclick="loadTemplate('gaming')">
-🎮 Gaming
-</div>
-
-<div class="preview-item" onclick="loadTemplate('luxury')">
-💎 Luxury
-</div>
-
-<div class="preview-item" onclick="loadTemplate('crypto')">
-🪙 Crypto
-</div>
-
-<div class="preview-item" onclick="loadTemplate('music')">
-🎵 Music
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-<div class="panel">
-
-<div class="analytics-card">
-
-<h4>Realtime Analytics</h4>
-
-<div class="metric">
-<span>Instagram Ready</span>
-<span>YES</span>
-</div>
-
-<div class="metric">
-<span>SVG Export</span>
-<span>Enabled</span>
-</div>
-
-<div class="metric">
-<span>Dark Mode Safe</span>
-<span>YES</span>
-</div>
-
-<div class="metric">
-<span>Glow Engine</span>
-<span>Realtime</span>
-</div>
-
-<div class="metric">
-<span>Profile Crop Safe</span>
-<span>YES</span>
-</div>
-
-</div>
-
-<div class="analytics-card">
-
-<h4>AI Features</h4>
-
-<div class="metric">
-<span>AI Monogram</span>
-<span>Active</span>
-</div>
-
-<div class="metric">
-<span>Gradient AI</span>
-<span>Enabled</span>
-</div>
-
-<div class="metric">
-<span>Instagram Preview</span>
-<span>Live</span>
-</div>
-
-<div class="metric">
-<span>Vector Export</span>
-<span>Ready</span>
-</div>
-
-<div class="metric">
-<span>Auto Branding</span>
-<span>Enabled</span>
-</div>
-
-</div>
-
-<div class="analytics-card">
-
-<h4>Instagram Optimization</h4>
-
-<div class="metric">
-<span>Story Safe-Zone</span>
-<span>YES</span>
-</div>
-
-<div class="metric">
-<span>Reels Watermark Safe</span>
-<span>YES</span>
-</div>
-
-<div class="metric">
-<span>Highlight Cover Ready</span>
-<span>YES</span>
-</div>
-
-<div class="metric">
-<span>Profile Picture Ready</span>
-<span>YES</span>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+  <!-- ===== LEFT PANEL ===== -->
+  <div class="panel">
+
+    <div class="section-title">Brand Text</div>
+    <div class="ctrl-group">
+      <label>Brand Name</label>
+      <input class="ctrl-input" type="text" id="brandName" value="KJ" oninput="liveUpdate()">
+    </div>
+    <div class="ctrl-group">
+      <label>Subtitle / Tagline</label>
+      <input class="ctrl-input" type="text" id="brandTag" value="think better" oninput="liveUpdate()">
+    </div>
+
+    <div class="section-title">Icon & Shape</div>
+    <div class="ctrl-group">
+      <label>Icon (emoji or text)</label>
+      <input class="ctrl-input" type="text" id="logoIcon" value="⚡" oninput="liveUpdate()" placeholder="⚡ or any emoji">
+    </div>
+    <div class="ctrl-group">
+      <label>Shape</label>
+      <select class="ctrl-input" id="logoShape" onchange="liveUpdate()">
+        <option value="circle">Circle</option>
+        <option value="rounded" selected>Rounded Square</option>
+        <option value="square">Sharp Square</option>
+        <option value="hex">Hexagon</option>
+        <option value="diamond">Diamond</option>
+        <option value="star">Star</option>
+        <option value="shield">Shield</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Custom Border Radius (Rounded only)</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="customRadius" min="0" max="50" value="22" oninput="liveUpdate();document.getElementById('rvRadius').textContent=this.value+'%'">
+        <span class="range-val" id="rvRadius">22%</span>
+      </div>
+    </div>
+
+    <div class="section-title">Typography</div>
+    <div class="ctrl-group">
+      <label>Font</label>
+      <select class="ctrl-input" id="fontStyle" onchange="liveUpdate()">
+        <option value="'Syne',sans-serif">Syne (Modern)</option>
+        <option value="'DM Sans',sans-serif">DM Sans (Clean)</option>
+        <option value="'Orbitron',sans-serif">Orbitron (Tech)</option>
+        <option value="'Pacifico',cursive">Pacifico (Friendly)</option>
+        <option value="'Dancing Script',cursive">Dancing Script (Elegant)</option>
+        <option value="'Bebas Neue',sans-serif">Bebas Neue (Bold)</option>
+        <option value="monospace">Monospace (Code)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Name Font Size</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="nameFontSize" min="18" max="90" value="52" oninput="liveUpdate();document.getElementById('rvNameSize').textContent=this.value+'px'">
+        <span class="range-val" id="rvNameSize">52px</span>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label>Tag Font Size</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="tagFontSize" min="8" max="32" value="13" oninput="liveUpdate();document.getElementById('rvTagSize').textContent=this.value+'px'">
+        <span class="range-val" id="rvTagSize">13px</span>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label>Icon Size</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="iconSize" min="20" max="140" value="80" oninput="liveUpdate();document.getElementById('rvIconSize').textContent=this.value+'px'">
+        <span class="range-val" id="rvIconSize">80px</span>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label>Text Color</label>
+      <div class="color-field-inner">
+        <input type="color" id="textColor" value="#ffffff" oninput="liveUpdate()">
+        <span class="color-hex" id="textColorHex">#ffffff</span>
+      </div>
+    </div>
+
+    <div class="section-title">Background</div>
+    <div class="color-row">
+      <div class="color-field">
+        <label>Color 1</label>
+        <div class="color-field-inner">
+          <input type="color" id="color1" value="#7c5cfc" oninput="liveUpdate();updateHex('color1','hex1')">
+          <span class="color-hex" id="hex1">#7c5cfc</span>
+        </div>
+      </div>
+      <div class="color-field">
+        <label>Color 2</label>
+        <div class="color-field-inner">
+          <input type="color" id="color2" value="#38bdf8" oninput="liveUpdate();updateHex('color2','hex2')">
+          <span class="color-hex" id="hex2">#38bdf8</span>
+        </div>
+      </div>
+    </div>
+    <div class="ctrl-group" style="margin-top:8px;">
+      <label>Gradient Angle</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="gradAngle" min="0" max="360" value="135" oninput="liveUpdate();document.getElementById('rvAngle').textContent=this.value+'°'">
+        <span class="range-val" id="rvAngle">135°</span>
+      </div>
+    </div>
+
+    <!-- PRESET SWATCHES -->
+    <div class="swatches">
+      <div class="swatch" style="background:linear-gradient(45deg,#7c5cfc,#38bdf8)" onclick="setSwatch('#7c5cfc','#38bdf8')" title="Purple Cyan"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#ff512f,#dd2476)" onclick="setSwatch('#ff512f','#dd2476')" title="Hot Pink"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#059669,#34d399)" onclick="setSwatch('#059669','#34d399')" title="Emerald"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#d97706,#fbbf24)" onclick="setSwatch('#d97706','#fbbf24')" title="Gold"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#7f00ff,#e100ff)" onclick="setSwatch('#7f00ff','#e100ff')" title="Neon Purple"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#00f2fe,#4facfe)" onclick="setSwatch('#00f2fe','#4facfe')" title="Sky Blue"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#f43f5e,#fb923c)" onclick="setSwatch('#f43f5e','#fb923c')" title="Sunset"></div>
+      <div class="swatch" style="background:linear-gradient(45deg,#1a1a2e,#16213e)" onclick="setSwatch('#1a1a2e','#16213e')" title="Dark"></div>
+    </div>
+
+    <div class="section-title">Effects</div>
+    <div class="ctrl-group">
+      <label>Logo Size</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="logoSize" min="200" max="500" value="380" oninput="liveUpdate();document.getElementById('rvSize').textContent=this.value+'px'">
+        <span class="range-val" id="rvSize">380px</span>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label>Glow Strength</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="glowStrength" min="0" max="100" value="55" oninput="liveUpdate();document.getElementById('rvGlow').textContent=this.value+'%'">
+        <span class="range-val" id="rvGlow">55%</span>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <label>Rotation</label>
+      <div class="range-row">
+        <input class="ctrl-input" type="range" id="rotation" min="-180" max="180" value="0" oninput="liveUpdate();document.getElementById('rvRot').textContent=this.value+'°'">
+        <span class="range-val" id="rvRot">0°</span>
+      </div>
+    </div>
+
+    <div class="section-title">Layer Visibility</div>
+    <div class="toggle-row"><span class="toggle-label">Show Icon</span><div class="toggle on" id="togIcon" onclick="toggleLayer(this,'logoIconEl')"></div></div>
+    <div class="toggle-row"><span class="toggle-label">Show Name</span><div class="toggle on" id="togName" onclick="toggleLayer(this,'logoNameEl')"></div></div>
+    <div class="toggle-row"><span class="toggle-label">Show Subtitle</span><div class="toggle on" id="togTag" onclick="toggleLayer(this,'logoTagEl')"></div></div>
+    <div class="toggle-row"><span class="toggle-label">Show Glow</span><div class="toggle on" id="togGlow" onclick="toggleLayer(this,'glowEl')"></div></div>
+
+    <div class="section-title" style="margin-top:14px;">Actions</div>
+    <button class="action-btn btn-generate" onclick="liveUpdate()">⚡ Apply Changes</button>
+    <button class="action-btn btn-png" onclick="downloadPNG()">⬇ Download PNG</button>
+    <button class="action-btn btn-svg" onclick="exportSVG()">⬇ Export SVG</button>
+    <button class="action-btn btn-copy" onclick="copySVG()">⎘ Copy SVG Code</button>
+    <button class="action-btn btn-random" onclick="randomize()">🎲 Random Style</button>
+    <a class="home-link" href="../index.html">← Return Home</a>
+  </div>
+
+  <!-- ===== CENTER PANEL ===== -->
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tabEditor">Editor</button>
+      <button class="tab-btn" data-tab="tabPreview">Instagram Preview</button>
+      <button class="tab-btn" data-tab="tabTemplates">Templates</button>
+      <button class="tab-btn" data-tab="tabBrand">Brand AI</button>
+    </div>
+
+    <!-- EDITOR TAB -->
+    <div class="tab-content active" id="tabEditor">
+      <div class="canvas-wrap" id="canvasWrap">
+        <div class="canvas-bg-dots"></div>
+        <div id="logoBox">
+          <div class="logo-glow-el" id="glowEl"></div>
+          <div class="logo-inner">
+            <div id="logoIconEl">⚡</div>
+            <div id="logoNameEl">KJ</div>
+            <div id="logoTagEl">think better</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTAGRAM PREVIEW TAB -->
+    <div class="tab-content" id="tabPreview">
+      <div class="canvas-wrap" style="justify-content:flex-start;align-items:flex-start;">
+        <div style="width:100%;">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;">📱 Instagram Live Mockups</div>
+          <div class="ig-grid">
+            <div class="ig-item">
+              <div class="ig-circle" id="igProfile" style="width:80px;height:80px;"></div>
+              <div class="ig-label">Profile Picture</div>
+            </div>
+            <div class="ig-item">
+              <div class="ig-circle" id="igHighlight" style="width:70px;height:70px;border:3px solid;border-image:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888) 1;border-radius:50%;"></div>
+              <div class="ig-label">Story Highlight</div>
+            </div>
+            <div class="ig-item">
+              <div class="ig-circle" id="igDM" style="width:56px;height:56px;"></div>
+              <div class="ig-label">DM Avatar</div>
+            </div>
+            <div class="ig-item">
+              <div class="ig-circle" id="igSmall" style="width:42px;height:42px;"></div>
+              <div class="ig-label">Comment</div>
+            </div>
+          </div>
+
+          <!-- MOCK IG PROFILE PAGE -->
+          <div style="background:var(--s3);border-radius:18px;padding:20px;margin-top:18px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Profile Page Preview</div>
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px;">
+              <div class="ig-circle" id="igProfileBig" style="width:86px;height:86px;flex-shrink:0;"></div>
+              <div>
+                <div id="igUsername" style="font-weight:700;font-size:16px;margin-bottom:4px;">kjsynthora</div>
+                <div id="igBio" style="font-size:12px;color:var(--muted);line-height:1.5;">think better way to live</div>
+                <div style="display:flex;gap:14px;margin-top:8px;font-size:12px;">
+                  <span><strong>128</strong> posts</span>
+                  <span><strong>4.2K</strong> followers</span>
+                  <span><strong>312</strong> following</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES TAB -->
+    <div class="tab-content" id="tabTemplates">
+      <div class="canvas-wrap" style="justify-content:flex-start;align-items:flex-start;">
+        <div style="width:100%;">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;">🎨 Instant Templates</div>
+          <div class="tmpl-grid">
+            <div class="tmpl-card" onclick="loadTemplate('gaming')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#ff0055,#7f00ff);">🎮</div>
+              <div class="tmpl-name">Gaming</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('luxury')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#b8860b,#ffd700);">💎</div>
+              <div class="tmpl-name">Luxury</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('crypto')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#00f260,#0575e6);">🪙</div>
+              <div class="tmpl-name">Crypto / Web3</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('music')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#fc00ff,#00dbde);">🎵</div>
+              <div class="tmpl-name">Music</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('tech')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">🚀</div>
+              <div class="tmpl-name">Tech / SaaS</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('dark')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">🌑</div>
+              <div class="tmpl-name">Dark Minimal</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('food')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#f43f5e,#fb923c);">🍕</div>
+              <div class="tmpl-name">Food & Lifestyle</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('fitness')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#059669,#34d399);">💪</div>
+              <div class="tmpl-name">Fitness</div>
+            </div>
+            <div class="tmpl-card" onclick="loadTemplate('fashion')">
+              <div class="tmpl-preview" style="background:linear-gradient(135deg,#9d174d,#f472b6);">👗</div>
+              <div class="tmpl-name">Fashion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRAND AI TAB -->
+    <div class="tab-content" id="tabBrand">
+      <div class="canvas-wrap" style="justify-content:flex-start;align-items:flex-start;">
+        <div class="brand-ideas" id="brandIdeasContainer">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:14px;">🧠 AI Brand Strategy</div>
+          <div id="brandIdeasContent">
+            <div style="color:var(--muted);font-size:13px;">Enter your brand name and niche, then click generate.</div>
+          </div>
+          <div style="margin-top:16px;">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Brand Niche</label>
+            <select class="ctrl-input" id="brandNiche" style="margin-bottom:10px;">
+              <option value="tech">Tech / SaaS</option>
+              <option value="gaming">Gaming</option>
+              <option value="luxury">Luxury / Premium</option>
+              <option value="music">Music / Creator</option>
+              <option value="food">Food & Lifestyle</option>
+              <option value="fitness">Fitness & Health</option>
+              <option value="crypto">Crypto / Web3</option>
+              <option value="fashion">Fashion & Beauty</option>
+              <option value="education">Education</option>
+            </select>
+            <button class="action-btn btn-generate" onclick="generateBrandIdeas()" style="margin-top:0;">🧠 Generate Brand Strategy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIGHT PANEL ===== -->
+  <div class="panel" style="min-width:0;">
+    <div class="stat-card">
+      <div class="stat-title">Live Specs</div>
+      <div class="stat-row"><span class="stat-label">Canvas Size</span><span class="stat-val cyan" id="specSize">380×380</span></div>
+      <div class="stat-row"><span class="stat-label">Shape</span><span class="stat-val blue" id="specShape">Rounded</span></div>
+      <div class="stat-row"><span class="stat-label">Font</span><span class="stat-val blue" id="specFont">Syne</span></div>
+      <div class="stat-row"><span class="stat-label">Glow</span><span class="stat-val" id="specGlow">55%</span></div>
+      <div class="stat-row"><span class="stat-label">Export</span><span class="stat-val">PNG + SVG</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Instagram Ready</div>
+      <div class="stat-row"><span class="stat-label">Profile Pic</span><span class="stat-val">✅ YES</span></div>
+      <div class="stat-row"><span class="stat-label">Story Highlight</span><span class="stat-val">✅ YES</span></div>
+      <div class="stat-row"><span class="stat-label">Reels Watermark</span><span class="stat-val">✅ YES</span></div>
+      <div class="stat-row"><span class="stat-label">Safe Zone</span><span class="stat-val">✅ YES</span></div>
+      <div class="stat-row"><span class="stat-label">Dark Mode</span><span class="stat-val">✅ YES</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Export Capabilities</div>
+      <div class="stat-row"><span class="stat-label">PNG (High Res)</span><span class="stat-val">✅</span></div>
+      <div class="stat-row"><span class="stat-label">SVG (Vector)</span><span class="stat-val">✅</span></div>
+      <div class="stat-row"><span class="stat-label">SVG Copy</span><span class="stat-val">✅</span></div>
+      <div class="stat-row"><span class="stat-label">Scale-Infinite</span><span class="stat-val">✅</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Layer Status</div>
+      <div class="stat-row"><span class="stat-label">Background</span><span class="stat-val blue" id="lsBackground">Visible</span></div>
+      <div class="stat-row"><span class="stat-label">Glow Engine</span><span class="stat-val" id="lsGlow">Visible</span></div>
+      <div class="stat-row"><span class="stat-label">Icon</span><span class="stat-val" id="lsIcon">Visible</span></div>
+      <div class="stat-row"><span class="stat-label">Name Text</span><span class="stat-val" id="lsName">Visible</span></div>
+      <div class="stat-row"><span class="stat-label">Subtitle</span><span class="stat-val" id="lsTag">Visible</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+// ===== STATE =====
+let c1='#7c5cfc', c2='#38bdf8';
 
-const logoBox = document.getElementById('logoBox');
-const logoName = document.getElementById('logoName');
-const logoTag = document.getElementById('logoTag');
-const logoIcon = document.getElementById('logoIcon');
-const logoGlow = document.getElementById('logoGlow');
-
-let color1 = '#00c6ff';
-let color2 = '#8a5cff';
-
-function generateLogo(){
-
-const brandName = document.getElementById('brandName').value;
-const brandTag = document.getElementById('brandTag').value;
-const icon = document.getElementById('logoIconSelect').value;
-const shape = document.getElementById('logoShape').value;
-const size = document.getElementById('logoSize').value;
-const glow = document.getElementById('glowStrength').value;
-const rotation = document.getElementById('rotation').value;
-const radius = document.getElementById('radius').value;
-const font = document.getElementById('fontStyle').value;
-
-logoName.innerText = brandName;
-logoTag.innerText = brandTag;
-logoIcon.innerText = icon;
-
-logoBox.style.width = size + 'px';
-logoBox.style.height = size + 'px';
-
-logoBox.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
-
-logoGlow.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
-
-logoGlow.style.opacity = glow / 100;
-
-logoBox.style.transform = `rotate(${rotation}deg)`;
-
-logoName.style.fontFamily = font;
-logoTag.style.fontFamily = font;
-
-logoBox.className = '';
-
-if(shape === 'circle'){
-logoBox.classList.add('logo-shape-circle');
-}
-
-if(shape === 'square'){
-logoBox.classList.add('logo-shape-square');
-logoBox.style.borderRadius = radius + 'px';
-}
-
-if(shape === 'hex'){
-logoBox.classList.add('logo-shape-hex');
-}
-
-if(shape === 'diamond'){
-logoBox.classList.add('logo-shape-diamond');
-}
-
-if(shape === 'star'){
-logoBox.classList.add('logo-shape-star');
-}
-
-updatePreview();
-
-}
-
-function setTheme(c1,c2){
-
-color1 = c1;
-color2 = c2;
-
-generateLogo();
-
-}
-
-function updatePreview(){
-
-const previews = ['p1','p2','p3','p4'];
-
-previews.forEach(id=>{
-
-const el = document.getElementById(id);
-
-el.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
-
-el.innerHTML = document.getElementById('brandName').value.substring(0,2);
-
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='tabPreview') updateIGPreview();
+  });
 });
 
+function g(id){return document.getElementById(id);}
+
+function updateHex(inputId, hexId){
+  g(hexId).textContent=g(inputId).value;
 }
 
-function randomizeLogo(){
-
-const shapes = ['circle','square','hex','diamond','star'];
-
-const icons = ['⚡','🚀','🔥','💎','🎮','🎵','🧠'];
-
-const gradients = [
-['#00c6ff','#8a5cff'],
-['#ff512f','#dd2476'],
-['#00e676','#00bfa5'],
-['#7f00ff','#e100ff']
-];
-
-const randomShape = shapes[Math.floor(Math.random()*shapes.length)];
-const randomIcon = icons[Math.floor(Math.random()*icons.length)];
-const randomGradient = gradients[Math.floor(Math.random()*gradients.length)];
-
-document.getElementById('logoShape').value = randomShape;
-document.getElementById('logoIconSelect').value = randomIcon;
-
-color1 = randomGradient[0];
-color2 = randomGradient[1];
-
-generateLogo();
-
+function setSwatch(a,b){
+  c1=a;c2=b;
+  g('color1').value=a;g('color2').value=b;
+  g('hex1').textContent=a;g('hex2').textContent=b;
+  liveUpdate();
 }
 
-function generateBrandIdeas(){
+function liveUpdate(){
+  c1=g('color1').value;
+  c2=g('color2').value;
+  const name=g('brandName').value||'KJ';
+  const tag=g('brandTag').value||'';
+  const icon=g('logoIcon').value||'⚡';
+  const shape=g('logoShape').value;
+  const size=parseInt(g('logoSize').value);
+  const glow=parseInt(g('glowStrength').value)/100;
+  const rot=parseInt(g('rotation').value);
+  const nameSize=g('nameFontSize').value;
+  const tagSize=g('tagFontSize').value;
+  const iconSz=g('iconSize').value;
+  const font=g('fontStyle').value;
+  const angle=g('gradAngle').value;
+  const textClr=g('textColor').value;
+  const customR=g('customRadius').value;
 
-const niche = document.getElementById('brandTheme').value;
+  // Update text hex
+  g('textColorHex').textContent=textClr;
 
-const ideas = {
-tech:'Modern futuristic technology brand with neon AI visual identity.',
-gaming:'Competitive gaming brand focused on energetic bold visual identity.',
-luxury:'Minimal premium luxury branding with elite gradients and gold feel.',
-food:'Friendly social-first food brand with colorful emotional identity.',
-music:'Creative music creator brand optimized for reels and streaming.',
-crypto:'Web3 crypto identity with futuristic trust-focused visuals.'
-};
+  const box=g('logoBox');
+  const glowEl=g('glowEl');
+  const nameEl=g('logoNameEl');
+  const tagEl=g('logoTagEl');
+  const iconEl=g('logoIconEl');
 
-document.getElementById('brandIdeas').value = ideas[niche];
+  // SIZE
+  box.style.width=size+'px';
+  box.style.height=size+'px';
 
+  // GRADIENT BG
+  box.style.background=`linear-gradient(${angle}deg,${c1},${c2})`;
+
+  // GLOW
+  glowEl.style.background=`linear-gradient(135deg,${c1},${c2})`;
+  glowEl.style.opacity=glow;
+
+  // ROTATION (box only, inner text stays upright)
+  box.style.transform=`rotate(${rot}deg)`;
+
+  // SHAPE
+  box.style.clipPath='';
+  box.style.borderRadius='0';
+  if(shape==='circle'){box.style.borderRadius='50%';}
+  else if(shape==='rounded'){box.style.borderRadius=customR+'%';}
+  else if(shape==='square'){box.style.borderRadius='12px';}
+  else if(shape==='hex'){box.style.clipPath='polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0% 50%)';}
+  else if(shape==='diamond'){box.style.clipPath='polygon(50% 0%,100% 50%,50% 100%,0% 50%)';}
+  else if(shape==='star'){box.style.clipPath='polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';}
+  else if(shape==='shield'){box.style.clipPath='polygon(0% 0%,100% 0%,100% 70%,50% 100%,0% 70%)';}
+
+  // TYPOGRAPHY
+  nameEl.style.fontFamily=font;
+  tagEl.style.fontFamily=font;
+  nameEl.style.fontSize=nameSize+'px';
+  tagEl.style.fontSize=tagSize+'px';
+  iconEl.style.fontSize=iconSz+'px';
+  nameEl.style.color=textClr;
+  tagEl.style.color=textClr;
+  iconEl.style.color=textClr;
+
+  // TEXT COUNTER-ROTATE so text stays readable
+  const inner=box.querySelector('.logo-inner');
+  inner.style.transform=`rotate(${-rot}deg)`;
+
+  // CONTENT
+  nameEl.textContent=name;
+  tagEl.textContent=tag;
+  iconEl.textContent=icon;
+
+  // UPDATE RIGHT PANEL SPECS
+  g('specSize').textContent=size+'×'+size;
+  g('specShape').textContent=shape.charAt(0).toUpperCase()+shape.slice(1);
+  const fName=g('fontStyle').options[g('fontStyle').selectedIndex].text.split(' ')[0];
+  g('specFont').textContent=fName;
+  g('specGlow').textContent=Math.round(glow*100)+'%';
+
+  // IG USERNAME
+  g('igUsername').textContent=name.toLowerCase().replace(/\s+/g,'');
+  g('igBio').textContent=tag||'Your brand tagline here';
+
+  updateIGPreview();
 }
 
-function downloadLogo(){
+function updateIGPreview(){
+  // Render the logo box to canvas for IG previews
+  const ids=['igProfile','igHighlight','igDM','igSmall','igProfileBig'];
+  const grad=`linear-gradient(135deg,${c1},${c2})`;
+  const name=g('brandName').value||'KJ';
+  const icon=g('logoIcon').value||'⚡';
+  ids.forEach(id=>{
+    const el=g(id);
+    el.style.background=grad;
+    el.style.display='flex';
+    el.style.alignItems='center';
+    el.style.justifyContent='center';
+    el.style.flexDirection='column';
+    el.style.color='white';
+    el.style.fontFamily=g('fontStyle').value;
+    el.style.fontWeight='800';
+    const sz=parseInt(el.style.width||'80px');
+    const iconSz=sz*0.3;
+    const nameSz=sz*0.25;
+    el.innerHTML=`<div style="font-size:${iconSz}px;line-height:1;">${icon}</div><div style="font-size:${nameSz}px;line-height:1.2;">${name.substring(0,4)}</div>`;
+  });
+}
 
-html2canvas(document.querySelector("#logoBox")).then(canvas => {
+function toggleLayer(toggle,elId){
+  toggle.classList.toggle('on');
+  const el=g(elId);
+  el.style.display=toggle.classList.contains('on')?'':'none';
+  // update right panel
+  const map={glowEl:'lsGlow',logoIconEl:'lsIcon',logoNameEl:'lsName',logoTagEl:'lsTag'};
+  if(map[elId]){
+    g(map[elId]).textContent=toggle.classList.contains('on')?'Visible':'Hidden';
+    g(map[elId]).style.color=toggle.classList.contains('on')?'var(--green)':'var(--muted)';
+  }
+}
 
-const link = document.createElement('a');
+// ===== DOWNLOAD PNG =====
+async function downloadPNG(){
+  showToast('📸 Rendering PNG...');
+  const box=g('logoBox');
+  const size=parseInt(g('logoSize').value);
 
-link.download = 'kjsynthora-logo.png';
+  try{
+    const canvas=await html2canvas(box,{
+      scale:3,
+      backgroundColor:null,
+      useCORS:true,
+      allowTaint:true,
+      width:size,height:size,
+      logging:false,
+    });
+    const link=document.createElement('a');
+    link.download='kjsynthora-logo.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ PNG downloaded!');
+  }catch(e){
+    showToast('❌ Error: '+e.message);
+  }
+}
 
-link.href = canvas.toDataURL();
+// ===== EXPORT SVG (real) =====
+function buildSVG(){
+  const size=parseInt(g('logoSize').value);
+  const name=g('brandName').value||'KJ';
+  const tag=g('brandTag').value||'';
+  const icon=g('logoIcon').value||'⚡';
+  const shape=g('logoShape').value;
+  const angle=parseInt(g('gradAngle').value);
+  const nameSize=g('nameFontSize').value;
+  const tagSize=g('tagFontSize').value;
+  const iconSz=g('iconSize').value;
+  const font=g('fontStyle').value.split("'")[1]||'sans-serif';
+  const textClr=g('textColor').value;
+  const customR=parseInt(g('customRadius').value);
+  const rot=parseInt(g('rotation').value);
 
-link.click();
+  // Convert angle to gradient coords
+  const rad=(angle-90)*Math.PI/180;
+  const x1=50+50*Math.cos(rad+Math.PI);
+  const y1=50+50*Math.sin(rad+Math.PI);
+  const x2=50+50*Math.cos(rad);
+  const y2=50+50*Math.sin(rad);
 
-});
+  // Shape path
+  let shapePath='';
+  if(shape==='circle') shapePath=`<circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="url(#grad)"/>`;
+  else if(shape==='rounded') shapePath=`<rect x="0" y="0" width="${size}" height="${size}" rx="${size*customR/100}" fill="url(#grad)"/>`;
+  else if(shape==='square') shapePath=`<rect x="0" y="0" width="${size}" height="${size}" rx="12" fill="url(#grad)"/>`;
+  else if(shape==='hex'){
+    const p=[[25,6],[75,6],[100,50],[75,94],[25,94],[0,50]];
+    const pts=p.map(([x,y])=>((x/100)*size)+','+((y/100)*size)).join(' ');
+    shapePath=`<polygon points="${pts}" fill="url(#grad)"/>`;
+  } else if(shape==='diamond'){
+    const p=[[50,0],[100,50],[50,100],[0,50]];
+    const pts=p.map(([x,y])=>((x/100)*size)+','+((y/100)*size)).join(' ');
+    shapePath=`<polygon points="${pts}" fill="url(#grad)"/>`;
+  } else if(shape==='star'){
+    const p=[[50,0],[61,35],[98,35],[68,57],[79,91],[50,70],[21,91],[32,57],[2,35],[39,35]];
+    const pts=p.map(([x,y])=>((x/100)*size)+','+((y/100)*size)).join(' ');
+    shapePath=`<polygon points="${pts}" fill="url(#grad)"/>`;
+  } else if(shape==='shield'){
+    const p=[[0,0],[100,0],[100,70],[50,100],[0,70]];
+    const pts=p.map(([x,y])=>((x/100)*size)+','+((y/100)*size)).join(' ');
+    shapePath=`<polygon points="${pts}" fill="url(#grad)"/>`;
+  }
 
+  const cx=size/2, cy=size/2;
+  const iconY=cy-parseInt(nameSize)/2-10;
+  const nameY=cy+parseInt(iconSz)*0.5+10;
+  const tagY=nameY+parseInt(nameSize)*0.6+parseInt(tagSize)+6;
+
+  const svg=`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  <defs>
+    <linearGradient id="grad" x1="${x1}%" y1="${y1}%" x2="${x2}%" y2="${y2}%">
+      <stop offset="0%" stop-color="${c1}"/>
+      <stop offset="100%" stop-color="${c2}"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(${rot},${cx},${cy})">
+    ${shapePath}
+  </g>
+  <text x="${cx}" y="${iconY}" text-anchor="middle" dominant-baseline="middle"
+    font-size="${iconSz}" fill="${textClr}">${icon}</text>
+  <text x="${cx}" y="${nameY}" text-anchor="middle" dominant-baseline="middle"
+    font-family="${font},sans-serif" font-size="${nameSize}" font-weight="800"
+    fill="${textClr}">${name}</text>
+  ${tag?`<text x="${cx}" y="${tagY}" text-anchor="middle" dominant-baseline="middle"
+    font-family="${font},sans-serif" font-size="${tagSize}" fill="${textClr}" opacity="0.85">${tag}</text>`:''}
+</svg>`;
+  return svg;
 }
 
 function exportSVG(){
-
-alert('SVG Export Engine Ready');
-
+  const svg=buildSVG();
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='kjsynthora-logo.svg';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  showToast('✅ SVG exported!');
 }
+
+function copySVG(){
+  navigator.clipboard.writeText(buildSVG()).then(()=>showToast('⎘ SVG code copied!'));
+}
+
+// ===== TEMPLATES =====
+const TEMPLATES={
+  gaming:{c1:'#ff0055',c2:'#7f00ff',icon:'🎮',name:'GAMER',tag:'level up',font:"'Orbitron',sans-serif",shape:'square'},
+  luxury:{c1:'#b8860b',c2:'#ffd700',icon:'💎',name:'LUXE',tag:'premium quality',font:"'DM Sans',sans-serif",shape:'circle'},
+  crypto:{c1:'#00f260',c2:'#0575e6',icon:'🪙',name:'WEB3',tag:'decentralized',font:"'Orbitron',sans-serif",shape:'hex'},
+  music:{c1:'#fc00ff',c2:'#00dbde',icon:'🎵',name:'BEATS',tag:'feel the rhythm',font:"'Pacifico',cursive",shape:'circle'},
+  tech:{c1:'#4facfe',c2:'#00f2fe',icon:'🚀',name:'TECH',tag:'build the future',font:"'Orbitron',sans-serif",shape:'rounded'},
+  dark:{c1:'#1a1a2e',c2:'#16213e',icon:'🌑',name:'DARK',tag:'minimal vibes',font:"'Syne',sans-serif",shape:'rounded'},
+  food:{c1:'#f43f5e',c2:'#fb923c',icon:'🍕',name:'TASTY',tag:'eat well live well',font:"'Pacifico',cursive",shape:'circle'},
+  fitness:{c1:'#059669',c2:'#34d399',icon:'💪',name:'FIT',tag:'grind every day',font:"'Bebas Neue',sans-serif",shape:'shield'},
+  fashion:{c1:'#9d174d',c2:'#f472b6',icon:'👗',name:'CHIC',tag:'wear your story',font:"'Dancing Script',cursive",shape:'circle'},
+};
 
 function loadTemplate(type){
-
-if(type==='gaming'){
-setTheme('#ff0055','#7f00ff');
-document.getElementById('logoIconSelect').value='🎮';
+  const t=TEMPLATES[type];if(!t)return;
+  setSwatch(t.c1,t.c2);
+  g('logoIcon').value=t.icon;
+  g('brandName').value=t.name;
+  g('brandTag').value=t.tag;
+  g('fontStyle').value=t.font;
+  g('logoShape').value=t.shape;
+  liveUpdate();
+  // Switch to editor tab
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector('[data-tab="tabEditor"]').classList.add('active');
+  g('tabEditor').classList.add('active');
+  showToast('✅ Template loaded!');
 }
 
-if(type==='luxury'){
-setTheme('#f7971e','#ffd200');
-document.getElementById('logoIconSelect').value='💎';
+// ===== RANDOM =====
+const RAND_ICONS=['⚡','🚀','🔥','💎','🎮','🎵','🧠','🛡️','🌎','⚔️','🎯','🦋','🌊','💫'];
+const RAND_SWATCHES=[['#7c5cfc','#38bdf8'],['#ff512f','#dd2476'],['#059669','#34d399'],['#d97706','#fbbf24'],['#7f00ff','#e100ff'],['#00f2fe','#4facfe'],['#f43f5e','#fb923c'],['#fc00ff','#00dbde']];
+const RAND_SHAPES=['circle','rounded','hex','diamond','star','shield'];
+const RAND_FONTS=["'Syne',sans-serif","'Orbitron',sans-serif","'Pacifico',cursive","'Bebas Neue',sans-serif","'Dancing Script',cursive"];
+
+function randomize(){
+  const sw=RAND_SWATCHES[Math.floor(Math.random()*RAND_SWATCHES.length)];
+  setSwatch(sw[0],sw[1]);
+  g('logoIcon').value=RAND_ICONS[Math.floor(Math.random()*RAND_ICONS.length)];
+  g('logoShape').value=RAND_SHAPES[Math.floor(Math.random()*RAND_SHAPES.length)];
+  g('fontStyle').value=RAND_FONTS[Math.floor(Math.random()*RAND_FONTS.length)];
+  g('glowStrength').value=30+Math.floor(Math.random()*60);
+  g('gradAngle').value=Math.floor(Math.random()*360);
+  g('rotation').value=0;
+  liveUpdate();
+  showToast('🎲 Random style applied!');
 }
 
-if(type==='crypto'){
-setTheme('#00f260','#0575e6');
-document.getElementById('logoIconSelect').value='🪙';
+// ===== BRAND AI =====
+const BRAND_DB={
+  tech:{positioning:'Futuristic & trustworthy tech brand for builders and innovators.',colors:'Deep blues and electric cyans — project authority and innovation.',typography:'Bold geometric sans-serif — conveys precision and modernity.',taglines:['Build the impossible.','Code. Create. Conquer.','Technology, simplified.'],hashtags:'#TechBrand #Innovation #SaaS #BuildersOfTwitter',audience:'Software developers, startup founders, tech enthusiasts 18–35.'},
+  gaming:{positioning:'Aggressive and energetic gaming identity for competitive players.',colors:'Electric purples and neon reds — project power and adrenaline.',typography:'Orbitron or bold display fonts — conveys dominance and urgency.',taglines:['Level up or go home.','Born to play. Built to win.','GG. Every time.'],hashtags:'#GamingBrand #Esports #GamerLife #LevelUp',audience:'Competitive gamers, streamers, esports fans 16–28.'},
+  luxury:{positioning:'Premium, exclusive, aspirational brand for high-net-worth audiences.',colors:'Gold, champagne, and deep blacks — convey wealth and taste.',typography:'Elegant serif or clean minimal fonts — timeless sophistication.',taglines:['Crafted for the exceptional.','Only the finest.','Where elegance begins.'],hashtags:'#LuxuryBrand #Premium #Exclusive #HighEnd',audience:'Affluent professionals, fashion lovers, collectors 25–45.'},
+  music:{positioning:'Authentic creator brand built for sound, emotion and virality.',colors:'Neon magentas and teals — high energy, emotionally resonant.',typography:'Pacifico or handwritten fonts — warm, personal, approachable.',taglines:['Feel every beat.','Music without borders.','Your sound. Your story.'],hashtags:'#MusicBrand #Creator #SoundCloud #NewMusic',audience:'Music listeners, artists, content creators 18–30.'},
+  food:{positioning:'Joyful, social-first food brand built for Instagram virality.',colors:'Warm oranges and pinks — appetite-stimulating and friendly.',typography:'Rounded playful fonts — approachable and fun.',taglines:['Eat well. Live better.','Good food. Good vibes.','Every bite is a story.'],hashtags:'#FoodBrand #FoodPhotography #FoodieLife #Yum',audience:'Food enthusiasts, home cooks, lifestyle followers 22–40.'},
+  fitness:{positioning:'High-performance fitness brand for athletes who never settle.',colors:'Electric greens and dark blacks — energy, health, dominance.',typography:'Bebas Neue or bold condensed fonts — power and determination.',taglines:['Grind today. Shine tomorrow.','No excuses.','Built different.'],hashtags:'#FitnessBrand #GymLife #Athlete #NoExcuses',audience:'Fitness enthusiasts, gym-goers, athletes 18–35.'},
+  crypto:{positioning:'Web3-native brand built for trust, innovation and decentralization.',colors:'Crypto-blues and emerald greens — technology meets money.',typography:'Orbitron or geometric monospace — futuristic and precise.',taglines:['Decentralize everything.','The future of value.','Own your assets.'],hashtags:'#CryptoBrand #Web3 #DeFi #BlockchainLife',audience:'Crypto investors, developers, Web3 believers 20–40.'},
+  fashion:{positioning:'Creative fashion brand with a strong visual Instagram presence.',colors:'Deep pinks and magenta — feminine strength and bold expression.',typography:'Dancing Script or elegant display — graceful and distinctive.',taglines:['Wear your story.','Style is identity.','Fashion forward, always.'],hashtags:'#FashionBrand #OOTDStyle #Aesthetic #FashionBlogger',audience:'Fashion-forward millennials, Gen Z, style influencers 18–32.'},
+  education:{positioning:'Inspiring and accessible brand making learning desirable.',colors:'Blues and warm yellows — trustworthy and optimistic.',typography:'Clean sans-serif fonts — clear, approachable, credible.',taglines:['Learn without limits.','Knowledge is your superpower.','Grow every day.'],hashtags:'#EducationBrand #LearnEveryday #Skilling #KnowledgeSharing',audience:'Students, lifelong learners, educators, professionals 18–45.'},
+};
+
+function generateBrandIdeas(){
+  const niche=g('brandNiche').value;
+  const brand=g('brandName').value||'Your Brand';
+  const d=BRAND_DB[niche]||BRAND_DB['tech'];
+  const html=`
+    <div class="idea-card">
+      <h4>🎯 Brand Positioning</h4>
+      <p>${d.positioning}</p>
+    </div>
+    <div class="idea-card">
+      <h4>🎨 Color Psychology</h4>
+      <p>${d.colors}</p>
+    </div>
+    <div class="idea-card">
+      <h4>✏️ Typography Strategy</h4>
+      <p>${d.typography}</p>
+    </div>
+    <div class="idea-card">
+      <h4>💬 Suggested Taglines for "${brand}"</h4>
+      <p>${d.taglines.map(t=>`• ${t}`).join('<br>')}</p>
+    </div>
+    <div class="idea-card">
+      <h4>📱 Hashtag Strategy</h4>
+      <p>${d.hashtags}</p>
+    </div>
+    <div class="idea-card">
+      <h4>👥 Target Audience</h4>
+      <p>${d.audience}</p>
+    </div>`;
+  g('brandIdeasContent').innerHTML=html;
+  showToast('🧠 Brand strategy generated!');
 }
 
-if(type==='music'){
-setTheme('#fc00ff','#00dbde');
-document.getElementById('logoIconSelect').value='🎵';
+function showToast(msg){
+  const t=g('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
 }
 
-generateLogo();
-
-}
-
-/* TABS FIX */
-
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-
-btn.addEventListener('click',()=>{
-
-document.querySelectorAll('.tab-btn').forEach(b=>{
-b.classList.remove('active');
-});
-
-document.querySelectorAll('.tab-content').forEach(tab=>{
-tab.classList.remove('active');
-});
-
-btn.classList.add('active');
-
-const target = btn.getAttribute('data-tab');
-
-document.getElementById(target).classList.add('active');
-
-});
-
-});
-
-/* LIVE UPDATE */
-
-document.querySelectorAll('input,select').forEach(el=>{
-
-el.addEventListener('input',generateLogo);
-
-});
-
-generateLogo();
-
+// INIT
+liveUpdate();
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 </body>
 </html>
