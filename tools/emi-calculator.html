@@ -1,932 +1,662 @@
-<!-- ========================================= -->
-<!-- GLOBAL AI FINANCIAL ENGINE - FULL VERSION -->
-<!-- ========================================= -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>Global AI Financial Engine</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<title>Global AI Financial Engine — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;
+  --red:#ef4444;--yellow:#f59e0b;--orange:#f97316;
+  --text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
 }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 5% 5%,rgba(79,142,247,0.06),transparent),
+  radial-gradient(ellipse 50% 35% at 95% 90%,rgba(139,92,246,0.06),transparent);
+  pointer-events:none;z-index:0}
 
-body{
-background:#020b44;
-color:white;
-padding:14px;
-}
+/* HEADER */
+.header{position:relative;z-index:10;background:var(--s1);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.brand-name{font-size:18px;font-weight:800;background:linear-gradient(135deg,#fff 40%,var(--a1) 70%,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-sub{font-size:11px;color:var(--muted2);margin-top:1px}
+.header-badges{display:flex;gap:7px;flex-wrap:wrap}
+.hbadge{padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:600;background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.18);color:var(--a1)}
+.hbadge.g{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.18);color:var(--a4)}
+.hbadge.p{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.18);color:var(--a2)}
 
-.container{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-}
+/* MAIN GRID */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:360px 1fr;gap:0;max-width:1600px;margin:0 auto;min-height:calc(100vh - 68px)}
 
-.card{
-background:#081b73;
-border-radius:18px;
-padding:16px;
-box-shadow:0 0 20px rgba(0,0,0,0.3);
-}
+/* LEFT PANEL */
+.left{background:var(--s1);border-right:1px solid var(--border);overflow-y:auto;height:calc(100vh - 68px);position:sticky;top:68px}
+.left::-webkit-scrollbar{width:3px}
+.left::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
 
-h1{
-font-size:40px;
-font-weight:700;
-background:linear-gradient(90deg,#3dcfff,#ff4cf0);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:10px;
-}
+.form-section{padding:14px 18px;border-bottom:1px solid var(--border)}
+.fs-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.fs-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-.sub{
-opacity:.8;
-margin-bottom:14px;
-font-size:13px;
-}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px}
+input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s,background .2s}
+input:focus,select:focus{border-color:rgba(79,142,247,0.45);background:rgba(255,255,255,0.06)}
+select{-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:28px}
+select option{background:#0e1220}
+input[type=range]{padding:0;height:4px;border:none;background:rgba(255,255,255,0.08);border-radius:4px;accent-color:var(--a1);cursor:pointer;margin-top:6px}
+.range-val{font-size:13px;font-weight:700;color:var(--a1);font-family:'DM Mono',monospace;margin-top:4px;text-align:right}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-.hero{
-width:100%;
-height:240px;
-border-radius:18px;
-object-fit:cover;
-margin-bottom:15px;
-}
+/* CALCULATE BUTTON */
+.calc-btn{width:calc(100% - 36px);margin:14px 18px;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(79,142,247,0.3);letter-spacing:.3px}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(79,142,247,0.45)}
+.calc-btn:active{transform:none}
 
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-bottom:15px;
-}
+.action-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 18px 16px}
+.act-btn{padding:10px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,0.04);color:var(--muted2);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.act-btn:hover{background:rgba(255,255,255,0.09);color:var(--text)}
 
-.badge{
-background:#102b9b;
-padding:7px 12px;
-border-radius:30px;
-font-size:12px;
-}
+/* RIGHT PANEL */
+.right{overflow-y:auto;height:calc(100vh - 68px);padding:20px}
+.right::-webkit-scrollbar{width:4px}
+.right::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
 
-.form-group{
-margin-bottom:14px;
-}
+/* METRICS ROW */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.metric-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.metric-card.highlight::before{background:linear-gradient(135deg,rgba(79,142,247,0.06),rgba(139,92,246,0.06));opacity:1}
+.mc-label{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.mc-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;color:var(--text)}
+.mc-val.green{color:var(--a4)}
+.mc-val.blue{color:var(--a1)}
+.mc-val.purple{color:var(--a2)}
+.mc-val.red{color:var(--red)}
+.mc-val.yellow{color:var(--yellow)}
+.mc-sub{font-size:10.5px;color:var(--muted2);margin-top:4px}
+.mc-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:10px}
+.mc-bar-fill{height:100%;background:linear-gradient(90deg,var(--a1),var(--a2));border-radius:3px;transition:width .8s ease}
 
-label{
-display:block;
-margin-bottom:7px;
-font-size:13px;
-font-weight:600;
-}
+/* INSIGHT STRIP */
+.insight-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.insight-box{background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.ib-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ib-icon.blue{background:rgba(79,142,247,0.12)}
+.ib-icon.green{background:rgba(16,185,129,0.12)}
+.ib-icon.yellow{background:rgba(245,158,11,0.12)}
+.ib-icon.red{background:rgba(239,68,68,0.12)}
+.ib-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ib-val{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
+.ib-sub{font-size:10.5px;color:var(--muted2);margin-top:1px;line-height:1.4}
 
-input,
-select{
-width:100%;
-padding:12px;
-background:#04114f;
-border:none;
-border-radius:10px;
-color:white;
-font-size:14px;
-}
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.chart-card{background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:16px}
+.cc-title{font-size:12px;font-weight:700;color:var(--muted2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.cc-title .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2))}
 
-.range{
-width:100%;
-}
+/* TABLES */
+.table-card{background:var(--s2);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-bottom:14px}
+.table-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.table-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.table-badge{padding:3px 9px;border-radius:20px;background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.18);font-size:10px;font-weight:600;color:var(--a1)}
+.table-wrap{overflow-x:auto;max-height:340px;overflow-y:auto}
+.table-wrap::-webkit-scrollbar{width:3px;height:3px}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:rgba(255,255,255,0.04);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);white-space:nowrap;position:sticky;top:0}
+tbody td{padding:9px 14px;border-bottom:1px solid var(--border2);color:var(--muted2);white-space:nowrap}
+tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
+tbody tr:last-child td{border:none}
+.best-row td{color:var(--a4)!important;background:rgba(16,185,129,0.04)!important}
+.td-bank{font-weight:600;color:var(--text)!important}
+.td-emi{font-family:'DM Mono',monospace;font-weight:600}
+.td-good{color:var(--a4)!important}
+.td-warn{color:var(--yellow)!important}
+.td-bad{color:var(--red)!important}
+.amort-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
 
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:12px;
-font-size:15px;
-font-weight:700;
-cursor:pointer;
-color:white;
-margin-top:10px;
-background:linear-gradient(90deg,#2bc0ff,#f035ff);
-}
+/* DISCLAIMER */
+.disclaimer{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:11px 14px;font-size:11.5px;color:var(--muted2);line-height:1.6;margin-bottom:14px;display:flex;gap:8px}
 
-.metrics{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-margin-top:15px;
-}
+/* RISK BADGE */
+.risk-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.risk-pill.low{background:rgba(16,185,129,0.12);color:var(--a4)}
+.risk-pill.med{background:rgba(245,158,11,0.12);color:var(--yellow)}
+.risk-pill.high{background:rgba(239,68,68,0.12);color:var(--red)}
 
-.metric{
-background:#102381;
-padding:14px;
-border-radius:14px;
-text-align:center;
-}
-
-.metric h3{
-font-size:12px;
-margin-bottom:8px;
-opacity:.8;
-}
-
-.metric p{
-font-size:24px;
-font-weight:700;
-color:#54ff9c;
-}
-
-.info-box{
-margin-top:10px;
-background:#0e226f;
-padding:12px;
-border-radius:10px;
-font-size:13px;
-}
-
-.table-wrap{
-overflow:auto;
-max-height:420px;
-margin-top:15px;
-border-radius:12px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-font-size:12px;
-}
-
-th{
-background:#2b46ff;
-padding:10px;
-}
-
-td{
-padding:9px;
-border-bottom:1px solid rgba(255,255,255,0.08);
-text-align:center;
-}
-
-.action-buttons{
-display:grid;
-grid-template-columns:1fr 1fr 1fr;
-gap:10px;
-margin-top:15px;
-}
-
-.small-btn{
-padding:13px;
-border-radius:12px;
-border:none;
-font-weight:700;
-cursor:pointer;
-background:linear-gradient(90deg,#2bc0ff,#f035ff);
-color:white;
-}
-
-canvas{
-max-height:420px !important;
-}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:11px 18px;background:var(--s2);border:1px solid var(--border);border-radius:12px;font-size:12.5px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
 
 @media(max-width:1100px){
-
-.container{
-grid-template-columns:1fr;
+  .app{grid-template-columns:1fr}
+  .left{position:relative;height:auto}
+  .right{height:auto}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .insight-strip{grid-template-columns:1fr 1fr}
+  .charts-row{grid-template-columns:1fr}
 }
-
-.metrics{
-grid-template-columns:repeat(2,1fr);
+@media(max-width:600px){
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .insight-strip{grid-template-columns:1fr}
+  .header-badges{display:none}
 }
-
-.action-buttons{
-grid-template-columns:1fr;
-}
-
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<!-- LEFT -->
-
-<div class="card">
-
-<h1>Global AI Financial Engine</h1>
-
-<p class="sub">
-Advanced worldwide mortgage intelligence, AI affordability analytics,
-multi-country banking simulator and real-time EMI forecasting platform.
-</p>
-
-<img
-class="hero"
-src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200"
->
-
-<div class="badges">
-<div class="badge">🌍 Global Banks</div>
-<div class="badge">📈 AI Forecast</div>
-<div class="badge">💱 Multi Currency</div>
-<div class="badge">⚡ Real-time Ready</div>
-<div class="badge">🏦 Repo Linked</div>
-<div class="badge">🤖 AI Insights</div>
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">
+    <div class="brand-icon">🏦</div>
+    <div>
+      <div class="brand-name">Global AI Financial Engine</div>
+      <div class="brand-sub">Advanced mortgage intelligence & multi-country EMI forecasting</div>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="hbadge">🌍 8 Countries</span>
+    <span class="hbadge g">📈 AI Forecast</span>
+    <span class="hbadge p">💱 Multi Currency</span>
+    <span class="hbadge">⚡ Live Calc</span>
+    <span class="hbadge g">🏦 50+ Banks</span>
+    <span class="hbadge p">📊 Amortization</span>
+  </div>
 </div>
 
-<!-- COUNTRY -->
+<div class="app">
 
-<div class="form-group">
-<label>🌍 Country</label>
-<select id="country" onchange="loadBanks()">
+<!-- ===== LEFT PANEL ===== -->
+<div class="left">
 
-<option>India</option>
-<option>USA</option>
-<option>UAE</option>
-<option>UK</option>
-<option>Canada</option>
-<option>Australia</option>
-<option>Singapore</option>
-<option>Eurozone</option>
+  <!-- LOCATION -->
+  <div class="form-section">
+    <div class="fs-title">🌍 Country & Bank</div>
+    <div class="frow">
+      <div class="field"><label>Country</label>
+        <select id="country" onchange="loadBanks()">
+          <option>India</option><option>USA</option><option>UAE</option>
+          <option>UK</option><option>Canada</option><option>Australia</option>
+          <option>Singapore</option><option>Eurozone</option>
+        </select>
+      </div>
+      <div class="field"><label>Bank</label>
+        <select id="bank" onchange="syncBankRate()"></select>
+      </div>
+    </div>
+  </div>
 
-</select>
-</div>
+  <!-- LOAN CONFIG -->
+  <div class="form-section">
+    <div class="fs-title">🏠 Loan Configuration</div>
+    <div class="frow">
+      <div class="field"><label>Loan Type</label>
+        <select id="loanType">
+          <option>Home Loan</option><option>Personal Loan</option>
+          <option>Auto Loan</option><option>Education Loan</option><option>Business Loan</option>
+        </select>
+      </div>
+      <div class="field"><label>Interest Type</label>
+        <select id="interestType">
+          <option>Fixed</option><option>Floating</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Credit Tier</label>
+        <select id="creditTier">
+          <option>Excellent (800+)</option><option>Good (750–799)</option>
+          <option>Average (650–749)</option><option>Risky (&lt;650)</option>
+        </select>
+      </div>
+      <div class="field"><label>Employment</label>
+        <select id="empType">
+          <option>Salaried</option><option>Self Employed</option>
+          <option>Business Owner</option><option>Freelancer</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-<!-- BANK -->
+  <!-- CREDIT SCORE -->
+  <div class="form-section">
+    <div class="fs-title">📈 Credit Score</div>
+    <div class="field">
+      <label>CIBIL / Credit Score</label>
+      <input type="range" id="creditScore" min="300" max="900" value="760" oninput="onScoreChange()">
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span style="font-size:10px;color:var(--muted)">300 — Poor</span>
+        <span class="range-val" id="scoreDisplay">760</span>
+        <span style="font-size:10px;color:var(--muted)">900 — Excellent</span>
+      </div>
+    </div>
+  </div>
 
-<div class="form-group">
-<label>🏦 Bank</label>
-<select id="bank" onchange="syncBankRate()"></select>
-</div>
+  <!-- LOAN DETAILS -->
+  <div class="form-section">
+    <div class="fs-title">💰 Loan Details</div>
+    <div class="frow">
+      <div class="field"><label>Loan Amount</label><input type="number" id="loanAmount" value="5000000" oninput="liveCalc()"></div>
+      <div class="field"><label>Interest Rate (%)</label><input type="number" id="interestRate" value="8.4" step="0.05" oninput="liveCalc()"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Tenure (Years)</label><input type="number" id="loanTenure" value="20" oninput="liveCalc()"></div>
+      <div class="field"><label>Down Payment</label><input type="number" id="downPayment" value="1000000" oninput="liveCalc()"></div>
+    </div>
+  </div>
 
-<!-- LOAN TYPE -->
+  <!-- PROPERTY & INCOME -->
+  <div class="form-section">
+    <div class="fs-title">🏡 Property & Income</div>
+    <div class="frow">
+      <div class="field"><label>Property Value</label><input type="number" id="propertyValue" value="8000000" oninput="liveCalc()"></div>
+      <div class="field"><label>Monthly Salary</label><input type="number" id="monthlySalary" value="120000" oninput="liveCalc()"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Prepayment / yr</label><input type="number" id="prepayment" value="100000" oninput="liveCalc()"></div>
+      <div class="field"><label>Processing Fee (%)</label><input type="number" id="procFee" value="0.5" step="0.05" oninput="liveCalc()"></div>
+    </div>
+  </div>
 
-<div class="form-group">
-<label>🏠 Loan Type</label>
+  <button class="calc-btn" onclick="calculateEMI()">🚀 Generate Smart Forecast</button>
 
-<select id="loanType">
-<option>Home Loan</option>
-<option>Personal Loan</option>
-<option>Auto Loan</option>
-<option>Education Loan</option>
-<option>Business Loan</option>
-</select>
-
-</div>
-
-<!-- INTEREST TYPE -->
-
-<div class="form-group">
-<label>📊 Interest Type</label>
-
-<select id="interestType">
-<option>Fixed</option>
-<option>Floating</option>
-</select>
-
-</div>
-
-<!-- CREDIT TIER -->
-
-<div class="form-group">
-<label>⭐ Credit Tier</label>
-
-<select id="creditTier">
-<option>Excellent</option>
-<option>Good</option>
-<option>Average</option>
-<option>Risky</option>
-</select>
-
-</div>
-
-<!-- EMPLOYMENT -->
-
-<div class="form-group">
-<label>💼 Employment Type</label>
-
-<select id="employmentType">
-<option>Salaried</option>
-<option>Self Employed</option>
-<option>Business Owner</option>
-<option>Freelancer</option>
-</select>
-
-</div>
-
-<!-- CREDIT SCORE -->
-
-<div class="form-group">
-<label>📈 CIBIL / Credit Score</label>
-
-<input
-type="range"
-min="300"
-max="900"
-value="785"
-id="creditScore"
-class="range"
-oninput="creditValue.innerHTML=this.value"
->
-
-<div id="creditValue">785</div>
+  <div class="action-row">
+    <button class="act-btn" onclick="window.print()">🖨 Print</button>
+    <button class="act-btn" onclick="exportData()">📥 Export</button>
+    <button class="act-btn" onclick="window.location.href='../index.html'">🏠 Home</button>
+  </div>
 
 </div>
 
-<!-- LOAN -->
+<!-- ===== RIGHT PANEL ===== -->
+<div class="right">
 
-<div class="form-group">
-<label>💰 Loan Amount</label>
+  <!-- METRICS -->
+  <div class="metrics-grid">
+    <div class="metric-card highlight">
+      <div class="mc-label">Monthly EMI</div>
+      <div class="mc-val blue" id="mEMI">—</div>
+      <div class="mc-sub" id="mEMIsub">Generate forecast</div>
+      <div class="mc-bar"><div class="mc-bar-fill" id="mEMIbar" style="width:0%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Total Interest</div>
+      <div class="mc-val red" id="mInt">—</div>
+      <div class="mc-sub" id="mIntSub">—</div>
+      <div class="mc-bar"><div class="mc-bar-fill" id="mIntBar" style="width:0%;background:linear-gradient(90deg,var(--red),var(--orange))"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Total Payment</div>
+      <div class="mc-val purple" id="mTotal">—</div>
+      <div class="mc-sub" id="mTotalSub">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Processing Fees</div>
+      <div class="mc-val yellow" id="mFees">—</div>
+      <div class="mc-sub" id="mFeesSub">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">LTV Ratio</div>
+      <div class="mc-val" id="mLTV">—</div>
+      <div class="mc-sub" id="mLTVSub">Loan-to-Value</div>
+      <div class="mc-bar"><div class="mc-bar-fill" id="mLTVBar" style="width:0%;background:linear-gradient(90deg,var(--a3),var(--a4))"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">EMI Burden</div>
+      <div class="mc-val" id="mBurden">—</div>
+      <div class="mc-sub" id="mBurdenSub">% of monthly income</div>
+      <div class="mc-bar"><div class="mc-bar-fill" id="mBurdenBar" style="width:0%;background:linear-gradient(90deg,var(--yellow),var(--red))"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Loan Risk</div>
+      <div class="mc-val" id="mRisk">—</div>
+      <div class="mc-sub" id="mRiskSub">Credit assessment</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Eligibility</div>
+      <div class="mc-val green" id="mElig">—</div>
+      <div class="mc-sub" id="mEligSub">Based on income</div>
+    </div>
+  </div>
 
-<input
-type="number"
-id="loanAmount"
-value="5000000"
->
-</div>
+  <!-- INSIGHT STRIP -->
+  <div class="insight-strip">
+    <div class="insight-box">
+      <div class="ib-icon blue">🏡</div>
+      <div><div class="ib-label">Property Forecast (5yr)</div><div class="ib-val" id="iPropForecast">—</div><div class="ib-sub">Estimated value appreciation</div></div>
+    </div>
+    <div class="insight-box">
+      <div class="ib-icon green">💰</div>
+      <div><div class="ib-label">Prepayment Savings</div><div class="ib-val" id="iSavings">—</div><div class="ib-sub">Interest saved via prepayment</div></div>
+    </div>
+    <div class="insight-box">
+      <div class="ib-icon yellow">⏱</div>
+      <div><div class="ib-label">Break-Even Point</div><div class="ib-val" id="iBreakEven">—</div><div class="ib-sub">Equity > interest paid</div></div>
+    </div>
+  </div>
 
-<!-- INTEREST -->
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="cc-title"><div class="dot"></div>Payment Breakdown</div>
+      <canvas id="donutChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title"><div class="dot" style="background:linear-gradient(135deg,var(--a3),var(--a4))"></div>Balance Over Time</div>
+      <canvas id="lineChart" height="200"></canvas>
+    </div>
+  </div>
 
-<div class="form-group">
-<label>📉 Interest Rate (%)</label>
+  <!-- BANK COMPARISON TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">🏦 Bank Comparison <span id="countryLabel" style="color:var(--muted2);font-weight:400;font-size:12px"></span></div>
+      <div class="table-badge" id="bankCount">0 banks</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Bank</th><th>Rate</th><th>Monthly EMI</th><th>Total Interest</th><th>Total Cost</th><th>vs Best</th><th>Status</th></tr></thead>
+        <tbody id="bankTable"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Generate forecast to see comparison</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
-<input
-type="number"
-id="interestRate"
-step="0.01"
-value="8.4"
->
-</div>
+  <!-- AMORTIZATION TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">📑 Amortization Schedule</div>
+      <div style="display:flex;gap:7px">
+        <div class="table-badge" id="amortCount">0 months</div>
+        <select id="amortView" style="padding:3px 10px;font-size:11px;width:auto;border-radius:6px" onchange="renderAmort()">
+          <option value="all">All Months</option>
+          <option value="year">Yearly View</option>
+          <option value="first24">First 24 Months</option>
+          <option value="last12">Last 12 Months</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th><th>% Paid</th></tr></thead>
+        <tbody id="amortBody"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">Generate forecast to see schedule</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
-<!-- TENURE -->
-
-<div class="form-group">
-<label>📅 Loan Tenure (Years)</label>
-
-<input
-type="number"
-id="loanTenure"
-value="20"
->
-</div>
-
-<!-- PROPERTY -->
-
-<div class="form-group">
-<label>🏡 Property Value</label>
-
-<input
-type="number"
-id="propertyValue"
-value="8000000"
->
-</div>
-
-<!-- SALARY -->
-
-<div class="form-group">
-<label>💵 Monthly Salary</label>
-
-<input
-type="number"
-id="monthlySalary"
-value="120000"
->
-</div>
-
-<!-- DOWN PAYMENT -->
-
-<div class="form-group">
-<label>🏦 Down Payment</label>
-
-<input
-type="number"
-id="downPayment"
-value="1000000"
->
-</div>
-
-<!-- PREPAYMENT -->
-
-<div class="form-group">
-<label>💸 Prepayment Amount</label>
-
-<input
-type="number"
-id="prepayment"
-value="100000"
->
-</div>
-
-<button onclick="calculateEMI()">
-🚀 Generate Smart Forecast
-</button>
-
-<!-- METRICS -->
-
-<div class="metrics">
-
-<div class="metric">
-<h3>Monthly EMI</h3>
-<p id="monthlyEMI">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Total Interest</h3>
-<p id="totalInterest">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Total Payment</h3>
-<p id="totalPayment">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Hidden Fees</h3>
-<p id="hiddenFees">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Savings</h3>
-<p id="savings">₹0</p>
-</div>
-
-<div class="metric">
-<h3>Risk</h3>
-<p id="risk">LOW</p>
-</div>
-
-<div class="metric">
-<h3>Eligibility</h3>
-<p id="eligibility">Eligible</p>
-</div>
-
-<div class="metric">
-<h3>LTV Ratio</h3>
-<p id="ltvRatio">0%</p>
-</div>
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <span>⚠️</span>
+    <span>Estimates are illustrative only. Actual rates depend on underwriting policies, credit tier, country regulations, and central bank benchmarks. Always consult a certified financial advisor before making loan decisions.</span>
+  </div>
 
 </div>
-
-<div class="info-box" id="forecast"></div>
-<div class="info-box" id="emiBurden"></div>
-<div class="info-box" id="repoInfo"></div>
-<div class="info-box" id="updated"></div>
-
-<div class="info-box">
-⚠ Amortisation estimates are illustrative only.
-Actual rates depend on underwriting, credit tier,
-country regulations and central bank benchmarks.
 </div>
 
-<div class="action-buttons">
-
-<button class="small-btn" onclick="returnHome()">
-🏠 Return Home
-</button>
-
-<button class="small-btn" onclick="window.print()">
-🖨 Print
-</button>
-
-<button class="small-btn" onclick="downloadPDF()">
-📄 Download PDF
-</button>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="card">
-
-<h2 style="margin-bottom:15px;">
-📊 EMI Forecast Analytics
-</h2>
-
-<canvas id="emiChart"></canvas>
-
-<div class="table-wrap">
-
-<h3 style="margin:10px 0;">
-🏦 Global Bank Comparison
-</h3>
-
-<table>
-
-<thead>
-<tr>
-<th>Bank</th>
-<th>Rate</th>
-<th>EMI</th>
-<th>Interest</th>
-<th>Total</th>
-</tr>
-</thead>
-
-<tbody id="bankTable"></tbody>
-
-</table>
-
-</div>
-
-<div class="table-wrap">
-
-<h3 style="margin:10px 0;">
-📑 Amortization Schedule
-</h3>
-
-<table>
-
-<thead>
-<tr>
-<th>Month</th>
-<th>EMI</th>
-<th>Principal</th>
-<th>Interest</th>
-<th>Balance</th>
-</tr>
-</thead>
-
-<tbody id="amortizationBody"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-
-// =======================================
-// BANK DATABASE
-// =======================================
-
-const bankData = {
-
-India: [
-{name:"SBI",rate:8.4},
-{name:"HDFC",rate:8.55},
-{name:"ICICI",rate:8.7},
-{name:"Axis",rate:8.8},
-{name:"Kotak",rate:8.65},
-{name:"Canara",rate:8.5},
-{name:"Union Bank",rate:8.45},
-{name:"PNB",rate:8.6},
-{name:"Bank of Baroda",rate:8.5},
-{name:"IDFC",rate:8.75},
-{name:"IDBI",rate:8.7},
-{name:"Central Bank",rate:8.8},
-{name:"Indian Bank",rate:8.65},
-{name:"Yes Bank",rate:9.1}
-],
-
-USA: [
-{name:"Chase",rate:6.5},
-{name:"Bank of America",rate:6.6},
-{name:"Wells Fargo",rate:6.7},
-{name:"Citi",rate:6.8},
-{name:"Capital One",rate:6.9},
-{name:"US Bank",rate:6.8},
-{name:"PNC",rate:6.75},
-{name:"Truist",rate:6.9},
-{name:"Goldman Sachs",rate:6.4},
-{name:"Morgan Stanley",rate:6.55}
-],
-
-UAE: [
-{name:"Emirates NBD",rate:4.2},
-{name:"ADCB",rate:4.4},
-{name:"FAB",rate:4.5},
-{name:"Mashreq",rate:4.6},
-{name:"Dubai Islamic Bank",rate:4.7},
-{name:"Abu Dhabi Islamic Bank",rate:4.75},
-{name:"RAKBANK",rate:4.9}
-],
-
-UK: [
-{name:"Barclays",rate:5.7},
-{name:"HSBC",rate:5.6},
-{name:"Lloyds",rate:5.8},
-{name:"NatWest",rate:5.9},
-{name:"Santander UK",rate:5.75},
-{name:"Standard Chartered",rate:5.85},
-{name:"Virgin Money",rate:5.95}
-],
-
-Canada: [
-{name:"RBC",rate:5.1},
-{name:"TD Bank",rate:5.2},
-{name:"Scotiabank",rate:5.25},
-{name:"BMO",rate:5.3},
-{name:"CIBC",rate:5.4}
-],
-
-Australia: [
-{name:"CBA",rate:5.4},
-{name:"Westpac",rate:5.5},
-{name:"NAB",rate:5.45},
-{name:"ANZ",rate:5.35},
-{name:"Macquarie",rate:5.6}
-],
-
-Singapore: [
-{name:"DBS",rate:3.2},
-{name:"OCBC",rate:3.3},
-{name:"UOB",rate:3.4}
-],
-
-Eurozone: [
-{name:"BNP Paribas",rate:4.5},
-{name:"Deutsche Bank",rate:4.7},
-{name:"Santander",rate:4.6},
-{name:"ING",rate:4.55},
-{name:"HSBC France",rate:4.65}
-]
-
+// ============ BANK DB ============
+const BANKS = {
+  India:    {sym:"₹", locale:"en-IN",  banks:[{n:"SBI",r:8.4},{n:"HDFC Bank",r:8.55},{n:"ICICI Bank",r:8.7},{n:"Axis Bank",r:8.8},{n:"Kotak Mahindra",r:8.65},{n:"Canara Bank",r:8.5},{n:"Union Bank",r:8.45},{n:"PNB",r:8.6},{n:"Bank of Baroda",r:8.5},{n:"IDFC First",r:8.75},{n:"IDBI Bank",r:8.7},{n:"Yes Bank",r:9.1},{n:"Indian Bank",r:8.65},{n:"Central Bank",r:8.8}]},
+  USA:      {sym:"$", locale:"en-US",  banks:[{n:"Chase",r:6.5},{n:"Bank of America",r:6.6},{n:"Wells Fargo",r:6.7},{n:"Citibank",r:6.8},{n:"Capital One",r:6.9},{n:"US Bank",r:6.8},{n:"PNC Bank",r:6.75},{n:"Truist",r:6.9},{n:"Goldman Sachs",r:6.4},{n:"Morgan Stanley",r:6.55}]},
+  UAE:      {sym:"AED", locale:"ar-AE",banks:[{n:"Emirates NBD",r:4.2},{n:"ADCB",r:4.4},{n:"First Abu Dhabi",r:4.5},{n:"Mashreq Bank",r:4.6},{n:"Dubai Islamic",r:4.7},{n:"ADIB",r:4.75},{n:"RAKBANK",r:4.9}]},
+  UK:       {sym:"£", locale:"en-GB",  banks:[{n:"Barclays",r:5.7},{n:"HSBC",r:5.6},{n:"Lloyds Bank",r:5.8},{n:"NatWest",r:5.9},{n:"Santander UK",r:5.75},{n:"Standard Chartered",r:5.85},{n:"Virgin Money",r:5.95}]},
+  Canada:   {sym:"C$", locale:"en-CA", banks:[{n:"RBC",r:5.1},{n:"TD Bank",r:5.2},{n:"Scotiabank",r:5.25},{n:"BMO",r:5.3},{n:"CIBC",r:5.4}]},
+  Australia:{sym:"A$", locale:"en-AU", banks:[{n:"Commonwealth Bank",r:5.4},{n:"Westpac",r:5.5},{n:"NAB",r:5.45},{n:"ANZ",r:5.35},{n:"Macquarie",r:5.6}]},
+  Singapore:{sym:"S$", locale:"en-SG", banks:[{n:"DBS Bank",r:3.2},{n:"OCBC",r:3.3},{n:"UOB",r:3.4}]},
+  Eurozone: {sym:"€", locale:"de-DE",  banks:[{n:"BNP Paribas",r:4.5},{n:"Deutsche Bank",r:4.7},{n:"Santander",r:4.6},{n:"ING",r:4.55},{n:"HSBC France",r:4.65}]}
 };
 
-// =======================================
-// FORMAT
-// =======================================
+let donutChart=null, lineChart=null, amortData=[], currentSym="₹";
 
-function formatMoney(value){
-
-return new Intl.NumberFormat('en-IN',{
-maximumFractionDigits:0
-}).format(value);
-
+function fmt(val, sym){
+  const s=sym||currentSym;
+  if(val>=10000000) return s+""+(val/10000000).toFixed(2)+"Cr";
+  if(val>=100000) return s+""+(val/100000).toFixed(2)+"L";
+  if(val>=1000) return s+""+Math.round(val).toLocaleString("en-IN");
+  return s+""+Math.round(val);
 }
-
-// =======================================
-// LOAD BANKS
-// =======================================
+function fmtFull(val, sym){
+  const s=sym||currentSym;
+  return s+""+Math.round(val).toLocaleString();
+}
+function calcEMI(P,r,n){ const mr=r/12/100; return mr===0?P/n:(P*mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1); }
 
 function loadBanks(){
-
-const country=document.getElementById("country").value;
-
-const bank=document.getElementById("bank");
-
-bank.innerHTML="";
-
-bankData[country].forEach(b=>{
-
-bank.innerHTML+=`
-<option value="${b.rate}">
-${b.name} (${b.rate}%)
-</option>
-`;
-
-});
-
-syncBankRate();
-
+  const c=document.getElementById("country").value;
+  const cfg=BANKS[c]; currentSym=cfg.sym;
+  const sel=document.getElementById("bank"); sel.innerHTML="";
+  cfg.banks.forEach(b=>{ const o=document.createElement("option"); o.value=b.r; o.textContent=`${b.n} (${b.r}%)`; sel.appendChild(o); });
+  document.getElementById("countryLabel").textContent=`— ${c}`;
+  syncBankRate();
 }
-
-// =======================================
-// SYNC RATE
-// =======================================
 
 function syncBankRate(){
-
-const rate=document.getElementById("bank").value;
-
-document.getElementById("interestRate").value=rate;
-
-calculateEMI();
-
+  document.getElementById("interestRate").value=parseFloat(document.getElementById("bank").value);
+  liveCalc();
 }
 
-// =======================================
-// EMI
-// =======================================
+function onScoreChange(){
+  document.getElementById("scoreDisplay").textContent=document.getElementById("creditScore").value;
+  liveCalc();
+}
 
-let chart;
+let liveTimer=null;
+function liveCalc(){ clearTimeout(liveTimer); liveTimer=setTimeout(calculateEMI,300); }
 
 function calculateEMI(){
+  const P=parseFloat(document.getElementById("loanAmount").value)||0;
+  const r=parseFloat(document.getElementById("interestRate").value)||0;
+  const yr=parseFloat(document.getElementById("loanTenure").value)||1;
+  const prop=parseFloat(document.getElementById("propertyValue").value)||P;
+  const sal=parseFloat(document.getElementById("monthlySalary").value)||1;
+  const dn=parseFloat(document.getElementById("downPayment").value)||0;
+  const pre=parseFloat(document.getElementById("prepayment").value)||0;
+  const fee=parseFloat(document.getElementById("procFee").value)||0;
+  const score=parseInt(document.getElementById("creditScore").value);
+  const country=document.getElementById("country").value;
+  const cfg=BANKS[country]; currentSym=cfg.sym;
 
-const amount=parseFloat(document.getElementById("loanAmount").value);
+  const n=yr*12;
+  const emi=calcEMI(P,r,n);
+  const total=emi*n;
+  const interest=total-P;
+  const procFees=P*(fee/100);
+  const burden=(emi/sal)*100;
+  const ltv=((P-dn)/prop)*100;
+  const propForecast=prop*Math.pow(1.06,5);
+  const savings=pre>0?(pre*(r/100)*yr*0.4):0;
+  const breakEven=Math.ceil(n*(P/(total)));
 
-const rate=parseFloat(document.getElementById("interestRate").value);
+  // Risk logic
+  let risk="LOW",riskClass="low";
+  if(score<700||burden>45||ltv>80){risk="MEDIUM";riskClass="med";}
+  if(score<640||burden>60||ltv>90){risk="HIGH";riskClass="high";}
 
-const years=parseFloat(document.getElementById("loanTenure").value);
+  let elig="✓ Eligible",eligClass="green";
+  if(burden>50){elig="⚠ Borderline";eligClass="";}
+  if(burden>65){elig="✗ Risky";eligClass="red";}
 
-const property=parseFloat(document.getElementById("propertyValue").value);
+  // METRICS
+  function setMC(id,val,sub,barId,barPct){
+    document.getElementById(id).textContent=val;
+    if(sub!==null) document.getElementById(id+"Sub"||id.replace("m","m")+"Sub")?.textContent && (document.getElementById(id.replace("mEMI","mEMIsub").replace("mInt","mIntSub").replace("mTotal","mTotalSub").replace("mFees","mFeesSub").replace("mLTV","mLTVSub").replace("mBurden","mBurdenSub").replace("mRisk","mRiskSub").replace("mElig","mEligSub")).textContent=sub);
+    if(barId) document.getElementById(barId).style.width=Math.min(100,barPct)+"%";
+  }
 
-const salary=parseFloat(document.getElementById("monthlySalary").value);
+  document.getElementById("mEMI").textContent=fmt(emi);
+  document.getElementById("mEMIsub").textContent=`Every month for ${yr} years`;
+  document.getElementById("mEMIbar").style.width=Math.min(100,(burden/60)*100)+"%";
+  document.getElementById("mInt").textContent=fmt(interest);
+  document.getElementById("mIntSub").textContent=`${((interest/P)*100).toFixed(0)}% of principal`;
+  document.getElementById("mIntBar").style.width=Math.min(100,(interest/total)*100)+"%";
+  document.getElementById("mTotal").textContent=fmt(total);
+  document.getElementById("mTotalSub").textContent=`${n} payments × ${fmt(emi)}`;
+  document.getElementById("mFees").textContent=fmt(procFees);
+  document.getElementById("mFeesSub").textContent=`${fee}% of loan amount`;
+  document.getElementById("mLTV").textContent=ltv.toFixed(1)+"%";
+  document.getElementById("mLTVSub").textContent=ltv<=80?"✓ Good LTV":"⚠ High LTV — review";
+  document.getElementById("mLTVBar").style.width=Math.min(100,ltv)+"%";
+  document.getElementById("mBurden").textContent=burden.toFixed(1)+"%";
+  document.getElementById("mBurdenSub").textContent=burden<=40?"✓ Manageable burden":"⚠ High income burden";
+  document.getElementById("mBurdenBar").style.width=Math.min(100,burden)+"%";
+  document.getElementById("mRisk").innerHTML=`<span class="risk-pill ${riskClass}">${risk}</span>`;
+  document.getElementById("mRiskSub").textContent=`Score: ${score} | Burden: ${burden.toFixed(0)}%`;
+  document.getElementById("mElig").textContent=elig;
+  document.getElementById("mElig").className="mc-val "+eligClass;
+  document.getElementById("mEligSub").textContent=burden<=40?"Well within limits":"Review income vs EMI";
 
-const down=parseFloat(document.getElementById("downPayment").value);
+  // INSIGHTS
+  document.getElementById("iPropForecast").textContent=fmt(propForecast);
+  document.getElementById("iSavings").textContent=fmt(savings);
+  document.getElementById("iBreakEven").textContent=breakEven+" months";
 
-const prepay=parseFloat(document.getElementById("prepayment").value);
+  // CHARTS
+  renderDonut(P,interest,procFees);
+  renderLine(P,r,n,emi);
 
-const score=parseFloat(document.getElementById("creditScore").value);
+  // BANK TABLE
+  renderBankTable(P,r,n,country,cfg);
 
-const country=document.getElementById("country").value;
+  // AMORT
+  buildAmort(P,r,n,emi);
+  renderAmort();
 
-const monthlyRate=rate/12/100;
-
-const months=years*12;
-
-const emi=
-(amount*monthlyRate*Math.pow(1+monthlyRate,months))/
-(Math.pow(1+monthlyRate,months)-1);
-
-const total=emi*months;
-
-const interest=total-amount;
-
-const hidden=amount*0.01;
-
-const savings=prepay*0.05;
-
-const burden=((emi/salary)*100).toFixed(1);
-
-const ltv=((amount-down)/property*100).toFixed(1);
-
-const forecast=property*1.8;
-
-let risk="LOW";
-
-if(score<700) risk="MEDIUM";
-
-if(score<650) risk="HIGH";
-
-let eligibility="Eligible";
-
-if(burden>50) eligibility="Risky";
-
-if(burden>70) eligibility="Rejected";
-
-// OUTPUT
-
-document.getElementById("monthlyEMI").innerHTML=
-"₹"+formatMoney(emi);
-
-document.getElementById("totalInterest").innerHTML=
-"₹"+formatMoney(interest);
-
-document.getElementById("totalPayment").innerHTML=
-"₹"+formatMoney(total);
-
-document.getElementById("hiddenFees").innerHTML=
-"₹"+formatMoney(hidden);
-
-document.getElementById("savings").innerHTML=
-"₹"+formatMoney(savings);
-
-document.getElementById("risk").innerHTML=risk;
-
-document.getElementById("eligibility").innerHTML=eligibility;
-
-document.getElementById("ltvRatio").innerHTML=ltv+"%";
-
-document.getElementById("forecast").innerHTML=
-"🏡 Property Forecast: ₹"+formatMoney(forecast);
-
-document.getElementById("emiBurden").innerHTML=
-"⚠ EMI Burden: "+burden+"% of salary";
-
-document.getElementById("repoInfo").innerHTML=
-"🏦 Repo Linked Rate: "+country+" benchmark active";
-
-document.getElementById("updated").innerHTML=
-"🕒 Last Updated: "+new Date().toLocaleString();
-
-// BANK TABLE
-
-let rows="";
-
-bankData[country].forEach(b=>{
-
-const rr=b.rate/12/100;
-
-const be=
-(amount*rr*Math.pow(1+rr,months))/
-(Math.pow(1+rr,months)-1);
-
-const bt=be*months;
-
-const bi=bt-amount;
-
-rows+=`
-<tr>
-<td>${b.name}</td>
-<td>${b.rate}%</td>
-<td>₹${formatMoney(be)}</td>
-<td>₹${formatMoney(bi)}</td>
-<td>₹${formatMoney(bt)}</td>
-</tr>
-`;
-
-});
-
-document.getElementById("bankTable").innerHTML=rows;
-
-// AMORTIZATION
-
-let balance=amount;
-
-let amortRows="";
-
-for(let i=1;i<=months;i++){
-
-const intr=balance*monthlyRate;
-
-const principal=emi-intr;
-
-balance-=principal;
-
-amortRows+=`
-<tr>
-<td>${i}</td>
-<td>₹${formatMoney(emi)}</td>
-<td>₹${formatMoney(principal)}</td>
-<td>₹${formatMoney(intr)}</td>
-<td>₹${formatMoney(Math.abs(balance))}</td>
-</tr>
-`;
-
+  document.getElementById("bankCount").textContent=cfg.banks.length+" banks";
+  toast("✓ Forecast updated");
 }
 
-document.getElementById("amortizationBody").innerHTML=amortRows;
-
-// CHART
-
-if(chart) chart.destroy();
-
-chart=new Chart(document.getElementById("emiChart"),{
-
-type:"doughnut",
-
-data:{
-labels:["Principal","Interest","Savings"],
-
-datasets:[{
-data:[amount,interest,savings],
-backgroundColor:["#3dcfff","#ff5c8a","#59ff9f"]
-}]
-},
-
-options:{
-plugins:{
-legend:{
-labels:{
-color:"#fff"
-}
-}
-}
+function renderDonut(P,interest,fees){
+  const ctx=document.getElementById("donutChart");
+  if(donutChart){donutChart.destroy();}
+  donutChart=new Chart(ctx,{
+    type:"doughnut",
+    data:{
+      labels:["Principal","Interest","Fees"],
+      datasets:[{data:[P,interest,fees],backgroundColor:["#4f8ef7","#ef4444","#f59e0b"],borderColor:"transparent",borderWidth:0,hoverOffset:8}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,cutout:"68%",
+      plugins:{legend:{labels:{color:"#8899b4",font:{family:"Plus Jakarta Sans",size:12},boxWidth:12,padding:16}},
+      tooltip:{callbacks:{label:opt=>" "+opt.label+": "+fmt(opt.raw)}}}}
+  });
 }
 
-});
-
+function renderLine(P,r,n,emi){
+  const mr=r/12/100;
+  const labels=[],balData=[],intData=[],prinData=[];
+  let bal=P;
+  for(let i=1;i<=n;i+=Math.max(1,Math.floor(n/24))){
+    labels.push("M"+i);
+    const intr=bal*mr;
+    const prin=emi-intr;
+    bal=Math.max(0,bal-prin);
+    balData.push(Math.round(bal));
+    intData.push(Math.round(intr));
+    prinData.push(Math.round(prin));
+  }
+  const ctx=document.getElementById("lineChart");
+  if(lineChart){lineChart.destroy();}
+  lineChart=new Chart(ctx,{
+    type:"line",
+    data:{labels,datasets:[
+      {label:"Balance",data:balData,borderColor:"#4f8ef7",backgroundColor:"rgba(79,142,247,0.1)",fill:true,tension:.4,pointRadius:0,borderWidth:2},
+      {label:"Principal",data:prinData,borderColor:"#10b981",backgroundColor:"transparent",tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[4,4]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      scales:{x:{ticks:{color:"#5a6a85",maxTicksLimit:8,font:{size:10}},grid:{color:"rgba(255,255,255,0.03)"}},y:{ticks:{color:"#5a6a85",maxTicksLimit:6,callback:v=>fmt(v),font:{size:10}},grid:{color:"rgba(255,255,255,0.04)"}}},
+      plugins:{legend:{labels:{color:"#8899b4",font:{family:"Plus Jakarta Sans",size:11},boxWidth:10,padding:12}},tooltip:{callbacks:{label:opt=>" "+opt.dataset.label+": "+fmt(opt.raw)}}}}
+  });
 }
 
-// =======================================
-// RETURN HOME
-// =======================================
-
-function returnHome(){
-
-window.location.href="../index.html";
-
+function renderBankTable(P,r,n,country,cfg){
+  const banks=cfg.banks;
+  const emin=Math.min(...banks.map(b=>calcEMI(P,b.r,n)));
+  let rows="";
+  banks.forEach(b=>{
+    const e=calcEMI(P,b.r,n);
+    const tot=e*n;
+    const intr=tot-P;
+    const diff=e-emin;
+    const isBest=e===emin;
+    const diffStr=diff>0?`+${fmt(diff)}/mo`:"—";
+    const rateClass=b.r<=r?"td-good":(b.r<=r+0.5?"":"td-warn");
+    rows+=`<tr class="${isBest?"best-row":""}">
+      <td class="td-bank">${isBest?"⭐ ":""}${b.n}</td>
+      <td class="${rateClass}">${b.r}%</td>
+      <td class="td-emi">${fmt(e)}</td>
+      <td>${fmt(intr)}</td>
+      <td>${fmt(tot)}</td>
+      <td style="color:${diff>0?"var(--red)":"var(--a4)"}">${diffStr}</td>
+      <td>${isBest?'<span class="risk-pill low">Best</span>':diff<500?'<span class="risk-pill low">Good</span>':'<span class="risk-pill med">Higher</span>'}</td>
+    </tr>`;
+  });
+  document.getElementById("bankTable").innerHTML=rows;
 }
 
-// =======================================
-// PDF
-// =======================================
-
-function downloadPDF(){
-
-window.print();
-
+function buildAmort(P,r,n,emi){
+  const mr=r/12/100;
+  let bal=P; amortData=[];
+  for(let i=1;i<=n;i++){
+    const intr=bal*mr;
+    const prin=emi-intr;
+    bal=Math.max(0,bal-prin);
+    amortData.push({m:i,emi,prin,intr,bal,pct:((P-bal)/P)*100});
+  }
+  document.getElementById("amortCount").textContent=n+" months";
 }
 
-// =======================================
+function renderAmort(){
+  const view=document.getElementById("amortView").value;
+  let rows=amortData;
+  if(view==="year"){
+    rows=[];
+    for(let y=1;y<=Math.ceil(amortData.length/12);y++){
+      const chunk=amortData.slice((y-1)*12,y*12);
+      const last=chunk[chunk.length-1];
+      const totPrin=chunk.reduce((s,r)=>s+r.prin,0);
+      const totIntr=chunk.reduce((s,r)=>s+r.intr,0);
+      rows.push({m:"Year "+y,emi:last.emi,prin:totPrin,intr:totIntr,bal:last.bal,pct:last.pct});
+    }
+  } else if(view==="first24"){ rows=amortData.slice(0,24);
+  } else if(view==="last12"){ rows=amortData.slice(-12); }
+
+  let html="";
+  rows.forEach(r=>{
+    const pctColor=r.pct>75?"var(--a4)":r.pct>50?"var(--a3)":r.pct>25?"var(--yellow)":"var(--muted2)";
+    html+=`<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${r.m}</td>
+      <td class="td-emi">${fmt(r.emi)}</td>
+      <td style="color:var(--a4)">${fmt(r.prin)}</td>
+      <td style="color:var(--red)">${fmt(r.intr)}</td>
+      <td class="td-emi">${fmt(r.bal)}</td>
+      <td><span class="amort-badge" style="color:${pctColor};background:${pctColor}22">${r.pct.toFixed(1)}%</span></td>
+    </tr>`;
+  });
+  document.getElementById("amortBody").innerHTML=html||"<tr><td colspan='6' style='text-align:center;color:var(--muted);padding:20px'>No data</td></tr>";
+}
+
+function exportData(){
+  const P=parseFloat(document.getElementById("loanAmount").value)||0;
+  const emiVal=document.getElementById("mEMI").textContent;
+  const text=`KJSynthora Financial Engine Export\n========================\nCountry: ${document.getElementById("country").value}\nBank: ${document.getElementById("bank").options[document.getElementById("bank").selectedIndex]?.text}\nLoan Amount: ${P}\nMonthly EMI: ${emiVal}\nTotal Interest: ${document.getElementById("mInt").textContent}\nTotal Payment: ${document.getElementById("mTotal").textContent}\nLTV Ratio: ${document.getElementById("mLTV").textContent}\nEMI Burden: ${document.getElementById("mBurden").textContent}\nRisk: ${document.getElementById("mRisk").innerText}\nGenerated: ${new Date().toLocaleString()}`;
+  const blob=new Blob([text],{type:"text/plain"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="emi-forecast.txt"; a.click();
+}
+
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2000);}
+
 // INIT
-// =======================================
-
 loadBanks();
-
 calculateEMI();
-
 </script>
-
 </body>
 </html>
