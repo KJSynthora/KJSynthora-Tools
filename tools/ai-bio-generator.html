@@ -1,1041 +1,1097 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>Global AI Bio Engine</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Bio Engine | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#06070f;--bg2:#090b18;--surface:#0d1020;--surface2:#111426;
+  --surface3:#161b30;--border:#1b2038;--border2:#212844;
+  --p:#7c3aed;--p2:#a855f7;--p3:#c084fc;
+  --acc:#06b6d4;--acc2:#22d3ee;
+  --success:#10b981;--warn:#f59e0b;--danger:#ef4444;
+  --text:#e4e8ff;--text2:#6b78a8;--text3:#2e3a5e;
+  --mono:'JetBrains Mono',monospace;
 }
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 0%,rgba(124,58,237,0.09),transparent 55%),radial-gradient(ellipse 40% 40% at 80% 100%,rgba(6,182,212,0.06),transparent 55%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
 
-body{
-background:
-linear-gradient(135deg,#02052b 0%, #12003d 45%, #8b168d 100%);
-min-height:100vh;
-overflow:hidden;
-color:white;
-}
+/* ── APP LAYOUT ── */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:340px 1fr 260px;height:100vh;overflow:hidden;}
 
-.main-grid{
-display:grid;
-grid-template-columns:320px 1fr 230px;
-gap:14px;
-padding:14px;
-height:100vh;
-}
+/* ── TOPBAR (inside layout) - removed, inline header per panel ── */
 
-/* LEFT PANEL */
+/* ── SIDEBAR LEFT ── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:0;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-.left-panel{
-background:#0d1452;
-border-radius:18px;
-padding:18px;
-overflow-y:auto;
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 25px rgba(0,0,0,.4);
-}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.brand-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--p),var(--acc));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 16px rgba(124,58,237,0.35);flex-shrink:0;}
+.brand-name{font-size:14px;font-weight:800;line-height:1.2;color:var(--text);}
+.brand-name small{display:block;font-size:10px;font-weight:400;color:var(--text3);}
 
-.logo{
-font-size:20px;
-font-weight:900;
-line-height:1.1;
-margin-bottom:10px;
-background:linear-gradient(90deg,#42c4ff,#ff4fd8);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
+.groq-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.groq-pill{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:6px 12px;border-radius:999px;font-size:11px;font-weight:600;color:var(--success);cursor:pointer;transition:all 0.2s;flex:1;margin-right:8px;}
+.groq-pill:hover{background:rgba(16,185,129,0.18);}
+.gdot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-.desc{
-font-size:11px;
-line-height:1.6;
-opacity:.8;
-margin-bottom:16px;
-}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin:14px 0 8px;display:flex;align-items:center;gap:7px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sec-lbl:first-of-type{margin-top:0;}
 
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:7px;
-margin-bottom:20px;
-}
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;letter-spacing:0.2px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;resize:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3);}
+.field select option{background:var(--surface2);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 
-.badge{
-padding:5px 10px;
-font-size:10px;
-border-radius:30px;
-background:rgba(255,255,255,.08);
-}
+/* Skill tags */
+.skill-input-wrap{position:relative;margin-bottom:8px;}
+.skill-input-wrap input{padding-right:60px;}
+.skill-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text3);font-family:var(--mono);}
+.tags-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.tag{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.25);color:var(--p3);}
+.tag:hover{border-color:var(--danger);color:var(--danger);}
+.tag .tag-x{font-size:10px;color:var(--text3);}
 
-.section-title{
-font-size:12px;
-margin-bottom:8px;
-margin-top:18px;
-font-weight:700;
-}
+/* Tone chips */
+.tone-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.tone-chip{padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.tone-chip.active{background:rgba(124,58,237,0.15);border-color:var(--p);color:var(--p3);}
+.tone-chip:hover:not(.active){border-color:var(--border2);color:var(--text);}
 
-.input,
-.select,
-.textarea{
-width:100%;
-background:#18236d;
-border:none;
-border-radius:12px;
-padding:12px;
-color:white;
-font-size:12px;
-outline:none;
-}
+/* Gen button */
+.gen-btn{width:100%;padding:13px;border-radius:11px;background:linear-gradient(135deg,var(--p),var(--acc));border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;margin:14px 0 10px;box-shadow:0 4px 18px rgba(124,58,237,0.35);display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(124,58,237,0.45);}
+.gen-btn:disabled{opacity:0.5;pointer-events:none;}
 
-.textarea{
-min-height:90px;
-resize:none;
-}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.act-btn{padding:9px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.act-btn:hover{border-color:var(--p);color:var(--p3);}
 
-.skills-wrap{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-top:10px;
-}
+.home-link{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text2);text-decoration:none;font-size:12px;font-weight:600;transition:all 0.15s;margin-top:4px;}
+.home-link:hover{border-color:var(--border2);color:var(--text);}
 
-.skill-tag{
-padding:7px 11px;
-border-radius:30px;
-font-size:11px;
-cursor:pointer;
-transition:.3s;
-background:#2636b8;
-}
+/* ── CENTER PANEL ── */
+.center{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 
-.skill-tag:hover{
-transform:scale(1.05);
-}
+/* Platform tabs */
+.platform-bar{display:flex;gap:6px;padding:14px 18px 0;flex-shrink:0;}
+.ptab{padding:8px 16px;border-radius:9px 9px 0 0;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);border-bottom:none;color:var(--text2);background:var(--surface);display:flex;align-items:center;gap:6px;position:relative;}
+.ptab.active{background:var(--surface2);border-color:var(--p);color:var(--text);}
+.ptab .char-badge{position:absolute;top:-6px;right:-6px;background:var(--warn);color:#000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:999px;display:none;}
+.ptab.over-limit .char-badge{display:block;}
 
-.skill-tag.active{
-background:linear-gradient(90deg,#34c7ff,#ff4fd8);
-}
+.center-body{flex:1;overflow-y:auto;padding:18px;}
+.center-body::-webkit-scrollbar{width:4px;}
+.center-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-.tone-grid{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-top:10px;
-}
+/* Platform info strip */
+.platform-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.pi-left{display:flex;align-items:center;gap:10px;}
+.pi-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.pi-name{font-size:13px;font-weight:700;color:var(--text);}
+.pi-sub{font-size:10px;color:var(--text3);}
+.pi-limit{font-family:var(--mono);font-size:12px;font-weight:600;}
+.pi-limit.ok{color:var(--success);}
+.pi-limit.warn{color:var(--warn);}
+.pi-limit.over{color:var(--danger);}
 
-.tone{
-padding:8px 11px;
-font-size:11px;
-border-radius:12px;
-background:#24318f;
-cursor:pointer;
-}
+/* Bio variants */
+.bio-variants{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
 
-.tone.active{
-background:linear-gradient(90deg,#39d0ff,#ff3fc8);
-}
+.bio-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s;}
+.bio-card:hover{border-color:var(--border2);}
+.bio-card.selected{border-color:var(--p);box-shadow:0 0 0 2px rgba(124,58,237,0.15);}
 
-.generate-btn{
-width:100%;
-margin-top:18px;
-padding:14px;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#37c8ff,#ff42cb);
-font-weight:800;
-color:white;
-cursor:pointer;
-}
+.bio-card-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.bio-variant-name{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;}
+.bio-variant-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.bv-actions{display:flex;gap:5px;}
+.bv-btn{padding:4px 10px;border-radius:6px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:10px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Outfit',sans-serif;}
+.bv-btn:hover{border-color:var(--p);color:var(--p3);}
+.bv-btn.copy-done{border-color:var(--success);color:var(--success);}
 
-.action-row{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin-top:10px;
-}
+.bio-text-wrap{padding:14px;}
+.bio-text{font-size:14px;line-height:1.75;color:var(--text);min-height:60px;outline:none;border:none;background:transparent;width:100%;resize:none;font-family:'Outfit',sans-serif;cursor:text;}
+.bio-text:focus{outline:2px solid rgba(124,58,237,0.2);border-radius:6px;}
 
-.action-btn{
-padding:11px;
-border:none;
-border-radius:12px;
-background:#2637aa;
-color:white;
-font-size:11px;
-cursor:pointer;
-}
+.bio-char-row{display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px;font-size:10px;color:var(--text3);}
+.char-count{font-family:var(--mono);font-weight:600;}
+.char-count.ok{color:var(--success);}
+.char-count.warn{color:var(--warn);}
+.char-count.over{color:var(--danger);}
+.char-bar-bg{height:3px;background:var(--surface3);border-radius:99px;flex:1;margin:0 10px;overflow:hidden;}
+.char-bar-fill{height:100%;border-radius:99px;transition:width 0.3s,background 0.3s;}
 
-.home-btn{
-margin-top:12px;
-width:100%;
-padding:13px;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#3dcfff,#8d61ff);
-color:white;
-font-weight:800;
-cursor:pointer;
-}
+/* Loading skeleton */
+.skeleton{background:var(--surface2);border-radius:8px;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{opacity:0.5;}50%{opacity:1;}100%{opacity:0.5;}}
 
-/* CENTER */
+/* Platform previews */
+.preview-section{margin-bottom:18px;}
+.preview-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.preview-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-.center-panel{
-background:#0d1452;
-border-radius:20px;
-padding:14px;
-display:flex;
-flex-direction:column;
-border:1px solid rgba(255,255,255,.08);
-position:relative;
-overflow:hidden;
-}
+.lk-preview{background:#fff;border-radius:12px;padding:16px;color:#000;}
+.lk-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+.lk-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--acc));flex-shrink:0;}
+.lk-name{font-size:16px;font-weight:800;color:#000;margin-bottom:2px;}
+.lk-title{font-size:13px;color:#666;}
+.lk-location{font-size:12px;color:#888;}
+.lk-bio{font-size:14px;line-height:1.7;color:#333;border-top:1px solid #eee;padding-top:12px;}
 
-.platform-tabs{
-display:flex;
-gap:8px;
-margin-bottom:12px;
-flex-wrap:wrap;
-}
+.ig-preview{background:#fff;border-radius:12px;overflow:hidden;color:#000;}
+.ig-header{display:flex;align-items:center;gap:14px;padding:14px;}
+.ig-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);flex-shrink:0;}
+.ig-handle{font-size:14px;font-weight:800;margin-bottom:2px;}
+.ig-stats{display:flex;gap:16px;font-size:12px;color:#666;margin-bottom:10px;}
+.ig-bio-text{font-size:13px;line-height:1.65;color:#333;padding:0 14px 14px;}
 
-.platform-tab{
-padding:9px 14px;
-border-radius:12px;
-background:#2535a7;
-font-size:11px;
-cursor:pointer;
-transition:.3s;
-}
+.tw-preview{background:#000;border-radius:12px;padding:16px;color:#fff;}
+.tw-header{display:flex;gap:12px;margin-bottom:12px;}
+.tw-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--acc));flex-shrink:0;}
+.tw-name{font-size:15px;font-weight:800;margin-bottom:2px;}
+.tw-handle{font-size:13px;color:#71767b;}
+.tw-bio{font-size:14px;line-height:1.65;color:#e7e9ea;}
 
-.platform-tab.active{
-background:linear-gradient(90deg,#3dcfff,#ff43cf);
-}
+/* Typing animation */
+.typing-dots{display:inline-flex;gap:3px;align-items:center;}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--p);animation:bounce 1.1s infinite;}
+.tdot:nth-child(2){animation-delay:0.15s;}
+.tdot:nth-child(3){animation-delay:0.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
 
-.workspace{
-background:#f5f5f7;
-border-radius:18px;
-padding:22px;
-height:100%;
-overflow-y:auto;
-color:#111;
-position:relative;
-}
+/* ── RIGHT PANEL ── */
+.right{background:var(--bg2);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.right::-webkit-scrollbar{width:4px;}
+.right::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-.workspace-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;}
+.score-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.score-lbl{font-size:11px;color:var(--text2);min-width:80px;}
+.score-bar-bg{flex:1;height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p),var(--acc));transition:width 0.8s cubic-bezier(.34,1.56,.64,1);}
+.score-num{font-family:var(--mono);font-size:11px;font-weight:600;min-width:34px;text-align:right;}
+.score-num.high{color:var(--success);}
+.score-num.mid{color:var(--warn);}
+.score-num.low{color:var(--danger);}
 
-.workspace-title{
-font-size:20px;
-font-weight:900;
-}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;}
+.insight-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.insight-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:11px;color:var(--text2);line-height:1.55;}
+.insight-item:last-child{margin-bottom:0;}
+.insight-icon{flex-shrink:0;margin-top:1px;}
+.insight-item strong{color:var(--text);}
 
-.live-badge{
-padding:8px 14px;
-border-radius:30px;
-background:#d9ffe7;
-font-size:11px;
-font-weight:700;
-color:#00a74f;
-}
+.keyword-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;}
+.kw-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.kw-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.kw-tag{padding:4px 9px;border-radius:999px;font-size:10px;font-weight:600;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);color:var(--p3);}
+.kw-tag.trending{background:rgba(6,182,212,0.1);border-color:rgba(6,182,212,0.2);color:var(--acc2);}
 
-.preview-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;}
+.chart-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.chart-wrap{height:180px;position:relative;}
 
-.bio-card{
-background:white;
-border-radius:16px;
-padding:18px;
-border:1px solid rgba(0,0,0,.07);
-min-height:170px;
-position:relative;
-transition:.3s;
-}
+.overall-score{text-align:center;margin-bottom:6px;}
+.os-num{font-family:var(--mono);font-size:36px;font-weight:700;color:var(--p3);}
+.os-lbl{font-size:11px;color:var(--text3);}
 
-.bio-card:hover{
-transform:translateY(-3px);
-}
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:18px;padding:24px;max-width:420px;width:90%;transform:translateY(14px);transition:transform 0.3s;box-shadow:0 24px 80px rgba(0,0,0,0.6);}
+.overlay.open .modal{transform:translateY(0);}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+.modal p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.modal-input{width:100%;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-bottom:10px;}
+.modal-input:focus{border-color:var(--p);}
+.modal-note{font-size:11px;color:var(--text3);background:var(--surface3);border-radius:8px;padding:9px 11px;margin-bottom:14px;line-height:1.6;}
+.modal-btns{display:flex;gap:8px;}
+.m-save{flex:1;padding:11px;border-radius:9px;background:var(--p);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.m-save:hover{background:#8b5cf6;}
+.m-cancel{padding:11px 16px;border-radius:9px;background:var(--surface3);border:1px solid var(--border);color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;}
 
-.card-title{
-font-size:14px;
-font-weight:800;
-margin-bottom:10px;
-}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--p);color:var(--text);padding:11px 16px;border-radius:11px;font-size:13px;font-weight:500;transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.toast.show{transform:translateY(0);opacity:1;}
 
-.card-text{
-font-size:14px;
-line-height:1.7;
-}
-
-.keyword{
-background:yellow;
-padding:1px 5px;
-border-radius:5px;
-}
-
-.mockup{
-margin-top:15px;
-background:#eef1f7;
-border-radius:14px;
-padding:14px;
-}
-
-.profile-head{
-display:flex;
-gap:12px;
-align-items:center;
-margin-bottom:10px;
-}
-
-.avatar{
-width:52px;
-height:52px;
-border-radius:50%;
-background:linear-gradient(135deg,#33ccff,#ff46d2);
-}
-
-.bottom-actions{
-display:flex;
-gap:10px;
-margin-top:14px;
-flex-wrap:wrap;
-}
-
-.bottom-btn{
-padding:12px 18px;
-border:none;
-border-radius:12px;
-background:linear-gradient(90deg,#39cfff,#ff44cd);
-color:white;
-font-weight:700;
-font-size:12px;
-cursor:pointer;
-}
-
-/* RIGHT */
-
-.right-panel{
-background:#0d1452;
-border-radius:18px;
-padding:14px;
-overflow-y:auto;
-border:1px solid rgba(255,255,255,.08);
-}
-
-.metric-card{
-background:#1b2680;
-border-radius:14px;
-padding:14px;
-margin-bottom:12px;
-}
-
-.metric-title{
-font-size:10px;
-opacity:.7;
-margin-bottom:8px;
-}
-
-.metric-value{
-font-size:18px;
-font-weight:900;
-color:#56ff9d;
-}
-
-.progress{
-height:8px;
-border-radius:20px;
-background:#111c63;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progress-fill{
-height:100%;
-background:linear-gradient(90deg,#37cfff,#ff4ed3);
-width:82%;
-animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
-0%{opacity:1}
-50%{opacity:.5}
-100%{opacity:1}
-}
-
-.insight{
-background:#1a278d;
-padding:14px;
-border-radius:14px;
-margin-bottom:12px;
-font-size:12px;
-line-height:1.7;
-}
-
-.chart-box{
-background:#18236d;
-padding:12px;
-border-radius:14px;
-}
-
-.typing{
-border-right:2px solid black;
-animation:blink .7s infinite;
-}
-
-@keyframes blink{
-0%,100%{border-color:transparent}
-50%{border-color:black}
-}
-
-::-webkit-scrollbar{
-width:7px;
-}
-
-::-webkit-scrollbar-thumb{
-background:#4453d8;
-border-radius:20px;
-}
-
+/* Responsive */
 @media(max-width:1200px){
-
-.main-grid{
-grid-template-columns:1fr;
-height:auto;
-overflow:auto;
+  .app{grid-template-columns:1fr;height:auto;overflow:auto;}
+  .sidebar,.center,.right{max-height:none;height:auto;}
+  body{overflow:auto;}
 }
-
-body{
-overflow:auto;
-}
-
-.preview-grid{
-grid-template-columns:1fr;
-}
-
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="main-grid">
-
-<!-- LEFT -->
-
-<div class="left-panel">
-
-<div class="logo">
-Global AI<br>
-Bio Engine
-</div>
-
-<div class="desc">
-Enterprise AI personal branding engine with SEO optimization,
-recruiter attraction intelligence, and viral positioning systems.
-</div>
-
-<div class="badges">
-<div class="badge">🔥 Viral AI</div>
-<div class="badge">📈 SEO</div>
-<div class="badge">⚡ Live</div>
-<div class="badge">🎯 Branding</div>
-</div>
-
-<div class="section-title">Industry / Niche</div>
-
-<select class="select" id="industry">
-<option>Marketing</option>
-<option>Technology</option>
-<option>Finance</option>
-<option>Creator Economy</option>
-<option>Service Desk</option>
-<option>Cloud Engineer</option>
-<option>Data Analyst</option>
-<option>AI Engineer</option>
-</select>
-
-<div class="section-title">Core Skills</div>
-
-<input type="text" class="input" id="skillInput" placeholder="Type skill and press enter">
-
-<div class="skills-wrap" id="skillsWrap">
-
-<div class="skill-tag active">AI</div>
-<div class="skill-tag active">Power BI</div>
-<div class="skill-tag active">Azure</div>
-<div class="skill-tag active">Branding</div>
-
-</div>
-
-<div class="section-title">Achievement Highlights</div>
-
-<textarea class="textarea" id="achievements">5+ Years Experience, 10M+ Views, Built SaaS Products</textarea>
-
-<div class="section-title">Target Audience</div>
-
-<select class="select" id="audience">
-<option>Recruiters</option>
-<option>Clients</option>
-<option>Investors</option>
-<option>Creators</option>
-</select>
-
-<div class="section-title">Reference Profile URL</div>
-
-<input class="input" placeholder="Paste LinkedIn or Twitter URL">
-
-<div class="section-title">Language Style</div>
-
-<select class="select">
-<option>Professional English</option>
-<option>Creative Hinglish</option>
-<option>Minimal Founder Tone</option>
-</select>
-
-<div class="section-title">Emoji Density</div>
-
-<select class="select" id="emoji">
-<option>No Emojis</option>
-<option>Minimal Emojis</option>
-<option>Creator Style</option>
-</select>
-
-<div class="section-title">Tone Persona</div>
-
-<div class="tone-grid">
-
-<div class="tone active">Authority</div>
-<div class="tone">Minimal</div>
-<div class="tone">Founder</div>
-<div class="tone">Bold</div>
-<div class="tone">Creator</div>
-
-</div>
-
-<button class="generate-btn" onclick="generateBio()">
-🚀 Generate AI Bio
-</button>
-
-<div class="action-row">
-
-<button class="action-btn" onclick="copyBio()">
-📋 Copy
-</button>
-
-<button class="action-btn">
-📄 Export
-</button>
-
-<button class="action-btn">
-⚡ Rewrite
-</button>
-
-<button class="action-btn">
-📈 Analyze
-</button>
-
-</div>
-
-<button class="home-btn" onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-</div>
-
-<!-- CENTER -->
-
-<div class="center-panel">
-
-<div class="platform-tabs">
-
-<div class="platform-tab active">LinkedIn</div>
-<div class="platform-tab">Instagram</div>
-<div class="platform-tab">X/Twitter</div>
-<div class="platform-tab">TikTok</div>
-<div class="platform-tab">Founder</div>
-
-</div>
-
-<div class="workspace">
-
-<div class="workspace-header">
-
-<div>
-<div class="workspace-title">
-AI Bio Studio
-</div>
-
-<div style="font-size:12px;opacity:.6;">
-Realtime personal branding & SEO intelligence engine
-</div>
-</div>
-
-<div class="live-badge">
-🟢 LIVE AI
-</div>
-
-</div>
-
-<div class="preview-grid">
-
-<div class="bio-card">
-
-<div class="card-title">
-🔥 The Authority Bio
-</div>
-
-<div class="card-text typing" id="bio1" contenteditable="true">
-Helping brands scale with <span class="keyword">AI</span>,
-analytics and digital transformation.
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="card-title">
-🚀 The Creator Bio
-</div>
-
-<div class="card-text" id="bio2" contenteditable="true">
-Creator building AI-powered products and scalable ecosystems.
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="card-title">
-⚡ The Minimalist Bio
-</div>
-
-<div class="card-text" id="bio3" contenteditable="true">
-AI • Branding • SaaS • Growth
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="card-title">
-🎯 The Hook Bio
-</div>
-
-<div class="card-text" id="bio4" contenteditable="true">
-From support desk to building scalable AI ecosystems ⚡
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="card-title">
-💼 LinkedIn Preview
-</div>
-
-<div class="mockup">
-
-<div class="profile-head">
-
-<div class="avatar"></div>
-
-<div>
-<div style="font-weight:800;">
-Prasanna K
-</div>
-
-<div style="font-size:12px;opacity:.7;">
-AI Strategist
-</div>
-</div>
-
-</div>
-
-<div style="font-size:13px;line-height:1.6;">
-Helping brands scale with <span class="keyword">AI</span>,
-analytics and SaaS transformation.
-</div>
-
-</div>
-
-</div>
-
-<div class="bio-card">
-
-<div class="card-title">
-📸 Instagram Preview
-</div>
-
-<div class="mockup">
-
-<div class="profile-head">
-
-<div class="avatar"></div>
-
-<div>
-<div style="font-weight:800;">
-@global.creator
-</div>
-
-<div style="font-size:12px;opacity:.7;">
-Creator
-</div>
-</div>
-
-</div>
-
-<div style="font-size:13px;line-height:1.6;">
-⚡ Creator building AI-powered products & digital experiences.
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="bottom-actions">
-
-<button class="bottom-btn">📋 Copy Clean</button>
-<button class="bottom-btn">📄 Export TXT</button>
-<button class="bottom-btn">📦 Export JSON</button>
-<button class="bottom-btn">⚡ Generate More</button>
-<button class="bottom-btn">💾 Save Workspace</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="right-panel">
-
-<div class="metric-card">
-
-<div class="metric-title">
-PROFILE STRENGTH
-</div>
-
-<div class="metric-value" id="strength">
-82%
-</div>
-
-<div class="progress">
-<div class="progress-fill"></div>
-</div>
-
-</div>
-
-<div class="metric-card">
-
-<div class="metric-title">
-SEO DISCOVERABILITY
-</div>
-
-<div class="metric-value" id="seo">
-83%
-</div>
-
-<div class="progress">
-<div class="progress-fill"></div>
-</div>
-
-</div>
-
-<div class="metric-card">
-
-<div class="metric-title">
-RECRUITER ATTRACTION
-</div>
-
-<div class="metric-value" id="recruiter">
-85%
-</div>
-
-<div class="progress">
-<div class="progress-fill"></div>
-</div>
-
-</div>
-
-<div class="metric-card">
-
-<div class="metric-title">
-READABILITY INDEX
-</div>
-
-<div class="metric-value">
-81%
-</div>
-
-<div class="progress">
-<div class="progress-fill"></div>
-</div>
-
-</div>
-
-<div class="insight">
-
-✅ Strong AI & branding keywords detected.<br><br>
-
-⚡ CTA optimized for recruiter conversion.<br><br>
-
-🚫 Avoid buzzwords:
-“Ninja”, “Guru”, “Rockstar”.
-
-</div>
-
-<div class="insight">
-
-🔥 Trending Keywords
-
-<br><br>
-
-#AI<br>
-#CreatorEconomy<br>
-#Branding<br>
-#SaaS<br>
-#GrowthStrategy
-
-</div>
-
-<div class="chart-box">
-
-<canvas id="radarChart"></canvas>
-
-</div>
-
-</div>
-
-</div>
+<div class="app">
+
+<!-- ══ LEFT SIDEBAR ══ -->
+<aside class="sidebar">
+
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div class="brand-name">KJSynthora · Bio Engine<small>AI-powered personal branding</small></div>
+  </div>
+
+  <div class="groq-row">
+    <div class="groq-pill" onclick="openModal()">
+      <div class="gdot"></div>
+      <span id="groqStatus">Groq AI · Set Key</span>
+    </div>
+  </div>
+
+  <!-- PROFILE INFO -->
+  <div class="sec-lbl">Your Profile</div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="fullName" placeholder="Prasanna Kumar" value="Prasanna Kumar">
+    </div>
+    <div class="field">
+      <label>Job Title</label>
+      <input type="text" id="jobTitle" placeholder="AI Engineer" value="AI Engineer">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Industry</label>
+      <select id="industry">
+        <option>Technology</option>
+        <option>Marketing</option>
+        <option>Finance</option>
+        <option>Creator Economy</option>
+        <option>Data & Analytics</option>
+        <option>Cloud Engineering</option>
+        <option>AI & Machine Learning</option>
+        <option>Product Management</option>
+        <option>Design & UX</option>
+        <option>Entrepreneurship</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Target Audience</label>
+      <select id="audience">
+        <option>Recruiters</option>
+        <option>Clients & Customers</option>
+        <option>Investors</option>
+        <option>Content Followers</option>
+        <option>Collaborators</option>
+        <option>General Public</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Username / Handle</label>
+    <input type="text" id="handle" placeholder="@prasanna.ai" value="@prasanna.ai">
+  </div>
+
+  <div class="field">
+    <label>Location</label>
+    <input type="text" id="location" placeholder="Hyderabad, India" value="Hyderabad, India">
+  </div>
+
+  <!-- SKILLS -->
+  <div class="sec-lbl">Skills & Expertise</div>
+
+  <div class="skill-input-wrap">
+    <input type="text" id="skillInput" placeholder="Type skill, press Enter" style="width:100%;padding:9px 50px 9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+    <span class="skill-hint">↵ Add</span>
+  </div>
+  <div class="tags-wrap" id="tagsWrap">
+    <div class="tag" onclick="removeTag(this)">Python <span class="tag-x">×</span></div>
+    <div class="tag" onclick="removeTag(this)">Machine Learning <span class="tag-x">×</span></div>
+    <div class="tag" onclick="removeTag(this)">Power BI <span class="tag-x">×</span></div>
+    <div class="tag" onclick="removeTag(this)">Azure <span class="tag-x">×</span></div>
+    <div class="tag" onclick="removeTag(this)">LLM Apps <span class="tag-x">×</span></div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="sec-lbl">Key Achievements</div>
+  <div class="field">
+    <textarea id="achievements" rows="3" placeholder="5+ years experience, built 10+ AI tools, 50K LinkedIn followers, ₹10Cr revenue generated...">5+ years in AI & data, built 10+ production AI tools, 50K+ LinkedIn followers, worked with Fortune 500 clients</textarea>
+  </div>
+
+  <!-- PERSONA & STYLE -->
+  <div class="sec-lbl">Tone Persona</div>
+  <div class="tone-wrap" id="toneWrap">
+    <div class="tone-chip active" onclick="selectTone(this)">⚡ Authority</div>
+    <div class="tone-chip" onclick="selectTone(this)">🧘 Minimal</div>
+    <div class="tone-chip" onclick="selectTone(this)">🚀 Founder</div>
+    <div class="tone-chip" onclick="selectTone(this)">🔥 Bold</div>
+    <div class="tone-chip" onclick="selectTone(this)">🎨 Creative</div>
+    <div class="tone-chip" onclick="selectTone(this)">💼 Corporate</div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Language Style</label>
+      <select id="langStyle">
+        <option>Professional English</option>
+        <option>Casual & Friendly</option>
+        <option>Founder Speak</option>
+        <option>Academic Formal</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Emoji Density</label>
+      <select id="emojiDensity">
+        <option value="none">No Emojis</option>
+        <option value="light">Light (1-2)</option>
+        <option value="medium">Medium</option>
+        <option value="heavy">Creator Style</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generateBios()">
+    <span>✦</span> Generate AI Bios
+  </button>
+
+  <div class="action-grid">
+    <button class="act-btn" onclick="copyAll()">📋 Copy All</button>
+    <button class="act-btn" onclick="exportTXT()">📄 Export TXT</button>
+    <button class="act-btn" onclick="exportJSON()">📦 Export JSON</button>
+    <button class="act-btn" onclick="generateBios()">⚡ Regenerate</button>
+  </div>
+
+  <a class="home-link" href="../index.html">🏠 Back to Home</a>
+
+</aside>
+
+<!-- ══ CENTER PANEL ══ -->
+<div class="center">
+
+  <!-- Platform tabs -->
+  <div class="platform-bar">
+    <div class="ptab active" onclick="switchPlatform('linkedin',this)" data-platform="linkedin">
+      💼 LinkedIn
+      <span class="char-badge" id="badge-linkedin">!</span>
+    </div>
+    <div class="ptab" onclick="switchPlatform('instagram',this)" data-platform="instagram">
+      📸 Instagram
+      <span class="char-badge" id="badge-instagram">!</span>
+    </div>
+    <div class="ptab" onclick="switchPlatform('twitter',this)" data-platform="twitter">
+      𝕏 Twitter/X
+      <span class="char-badge" id="badge-twitter">!</span>
+    </div>
+    <div class="ptab" onclick="switchPlatform('github',this)" data-platform="github">
+      🐙 GitHub
+      <span class="char-badge" id="badge-github">!</span>
+    </div>
+    <div class="ptab" onclick="switchPlatform('founder',this)" data-platform="founder">
+      🚀 Founder/Portfolio
+      <span class="char-badge" id="badge-founder">!</span>
+    </div>
+  </div>
+
+  <div class="center-body">
+
+    <!-- Platform info -->
+    <div class="platform-info">
+      <div class="pi-left">
+        <div class="pi-icon" id="piIcon">💼</div>
+        <div>
+          <div class="pi-name" id="piName">LinkedIn</div>
+          <div class="pi-sub" id="piSub">Professional network · Recruiters & peers</div>
+        </div>
+      </div>
+      <div>
+        <div class="pi-limit" id="piLimit">0 / 220 chars</div>
+      </div>
+    </div>
+
+    <!-- Bio variants -->
+    <div class="bio-variants" id="bioVariants">
+      <div style="text-align:center;padding:40px;color:var(--text3);">
+        <div style="font-size:32px;margin-bottom:12px;">✦</div>
+        <div style="font-size:14px;font-weight:600;">Set your Groq API key and click Generate AI Bios</div>
+        <div style="font-size:12px;margin-top:6px;">Or click Generate for template-based bios</div>
+      </div>
+    </div>
+
+    <!-- Live Platform Preview -->
+    <div class="preview-section">
+      <div class="preview-label">Live Preview</div>
+      <div id="platformPreview"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RIGHT PANEL ══ -->
+<aside class="right">
+
+  <!-- Overall score -->
+  <div class="score-card">
+    <div class="score-title">
+      <span>Profile Strength</span>
+      <span id="overallScore" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--p3);">—</span>
+    </div>
+    <div class="score-row">
+      <span class="score-lbl">SEO Score</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="bar-seo" style="width:0%;"></div></div>
+      <span class="score-num" id="num-seo">—</span>
+    </div>
+    <div class="score-row">
+      <span class="score-lbl">Recruiter Pull</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="bar-rec" style="width:0%;"></div></div>
+      <span class="score-num" id="num-rec">—</span>
+    </div>
+    <div class="score-row">
+      <span class="score-lbl">Clarity</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="bar-cla" style="width:0%;"></div></div>
+      <span class="score-num" id="num-cla">—</span>
+    </div>
+    <div class="score-row">
+      <span class="score-lbl">Authority</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="bar-aut" style="width:0%;"></div></div>
+      <span class="score-num" id="num-aut">—</span>
+    </div>
+    <div class="score-row">
+      <span class="score-lbl">Trust Index</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="bar-tru" style="width:0%;"></div></div>
+      <span class="score-num" id="num-tru">—</span>
+    </div>
+  </div>
+
+  <!-- Radar chart -->
+  <div class="chart-card">
+    <div class="chart-title">AI Metrics Radar</div>
+    <div class="chart-wrap">
+      <canvas id="radarChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="insight-card">
+    <div class="insight-title">AI Insights</div>
+    <div id="insightsList">
+      <div class="insight-item"><span class="insight-icon">💡</span><span>Generate bios to see AI-powered insights.</span></div>
+    </div>
+  </div>
+
+  <!-- Keywords -->
+  <div class="keyword-card">
+    <div class="kw-title">Detected Keywords</div>
+    <div class="kw-tags" id="kwTags">
+      <span style="font-size:11px;color:var(--text3);">Generate to see keywords</span>
+    </div>
+  </div>
+
+</aside>
+
+</div><!-- /app -->
+
+<!-- GROQ MODAL -->
+<div class="overlay" id="apiOverlay">
+  <div class="modal">
+    <h3>🔑 Groq API Key</h3>
+    <p>Required for AI-generated bios. Free at console.groq.com — no credit card needed. Key stays in your browser only.</p>
+    <input type="password" class="modal-input" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
+    <div class="modal-note">
+      ✅ 100% Free · Get key at <strong>console.groq.com</strong><br>
+      🔒 Stored only in browser localStorage<br>
+      ⚡ Uses Llama-3.1-8b-instant — ultra fast
+    </div>
+    <div class="modal-btns">
+      <button class="m-save" onclick="saveKey()">💾 Save Key</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+// ════════════════════════════════════
+// PLATFORM CONFIG
+// ════════════════════════════════════
+const PLATFORMS = {
+  linkedin: {name:'LinkedIn', icon:'💼', sub:'Professional network · Recruiters & peers', limit:220, color:'#0077b5'},
+  instagram: {name:'Instagram', sub:'Creative platform · Visual storytelling', icon:'📸', limit:150, color:'#e1306c'},
+  twitter: {name:'Twitter / X', sub:'Microblogging · Thought leadership', icon:'𝕏', limit:160, color:'#1da1f2'},
+  github: {name:'GitHub', sub:'Developer profile · Open source', icon:'🐙', limit:160, color:'#6e40c9'},
+  founder: {name:'Founder / Portfolio', sub:'Long-form personal bio', icon:'🚀', limit:500, color:'#7c3aed'},
+};
 
-const tones = document.querySelectorAll('.tone');
-
-tones.forEach(t => {
-
-t.addEventListener('click',()=>{
-
-tones.forEach(x=>x.classList.remove('active'));
-
-t.classList.add('active');
-
-});
-
-});
-
-const platformTabs = document.querySelectorAll('.platform-tab');
-
-platformTabs.forEach(tab=>{
-
-tab.addEventListener('click',()=>{
-
-platformTabs.forEach(t=>t.classList.remove('active'));
-
-tab.classList.add('active');
-
-});
-
-});
-
-function generateBio(){
-
-const industry = document.getElementById('industry').value;
-
-const achievements = document.getElementById('achievements').value;
-
-const audience = document.getElementById('audience').value;
-
-const activeTone =
-document.querySelector('.tone.active').innerText;
-
-const emojis = document.getElementById('emoji').value;
-
-let emojiPrefix = "";
-
-if(emojis === "Creator Style"){
-emojiPrefix = "⚡🔥 ";
-}
-
-if(emojis === "Minimal Emojis"){
-emojiPrefix = "⚡ ";
-}
-
-const bio =
-`${emojiPrefix}Helping ${audience.toLowerCase()}
-through scalable ${industry} systems,
-AI-driven execution and growth innovation.`;
-
-typeEffect(document.getElementById('bio1'), bio);
-
-document.getElementById('bio2').innerHTML =
-`${emojiPrefix}${activeTone} creator building
-enterprise-grade digital ecosystems.`;
-
-document.getElementById('bio3').innerHTML =
-`${industry} • AI • Branding • Growth`;
-
-document.getElementById('bio4').innerHTML =
-`${emojiPrefix}From execution to leadership —
-building scalable impact ecosystems.`;
-
-updateScores();
-
-}
-
-function typeEffect(element, text){
-
-element.innerHTML = "";
-
-let i=0;
-
-const interval = setInterval(()=>{
-
-if(i < text.length){
-
-element.innerHTML += text.charAt(i);
-
-i++;
-
-}else{
-clearInterval(interval);
-}
-
-},20);
-
-}
-
-function updateScores(){
-
-document.getElementById('strength').innerText =
-Math.floor(Math.random()*15 + 82) + "%";
-
-document.getElementById('seo').innerText =
-Math.floor(Math.random()*10 + 84) + "%";
-
-document.getElementById('recruiter').innerText =
-Math.floor(Math.random()*8 + 86) + "%";
-
-chart.data.datasets[0].data = [
-
-Math.random()*20+75,
-Math.random()*20+70,
-Math.random()*20+80,
-Math.random()*20+72,
-Math.random()*20+76
-
+const BIO_VARIANTS = [
+  {id:'authority', name:'⚡ Authority Bio', icon:'⚡', bg:'rgba(245,158,11,0.1)', desc:'Establishes expertise'},
+  {id:'creator', name:'🔥 Creator Bio', icon:'🔥', bg:'rgba(239,68,68,0.1)', desc:'Engagement-focused'},
+  {id:'minimal', name:'🧘 Minimalist Bio', icon:'🧘', bg:'rgba(99,102,241,0.1)', desc:'Clean & elegant'},
+  {id:'hook', name:'🎯 Hook Bio', icon:'🎯', bg:'rgba(16,185,129,0.1)', desc:'Story-driven opener'},
 ];
 
-chart.update();
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+let currentPlatform = 'linkedin';
+let generatedBios = {}; // {platform: {authority:'', creator:'', minimal:'', hook:''}}
+let radarChart;
 
+// ════════════════════════════════════
+// UTILS
+// ════════════════════════════════════
+function showToast(msg, type='info'){
+  const c = {info:'var(--p)',success:'var(--success)',error:'var(--danger)',warn:'var(--warn)'};
+  const t = document.getElementById('toast');
+  t.style.borderColor = c[type]||c.info;
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
-document.getElementById('skillInput')
-.addEventListener('keypress',function(e){
-
-if(e.key === 'Enter'){
-
-e.preventDefault();
-
-const val = this.value.trim();
-
-if(!val) return;
-
-const tag = document.createElement('div');
-
-tag.className = 'skill-tag active';
-
-tag.innerText = val;
-
-document.getElementById('skillsWrap').appendChild(tag);
-
-this.value = '';
-
+function getSkills(){
+  return [...document.querySelectorAll('#tagsWrap .tag')].map(t=>t.textContent.trim().replace('×','').trim());
 }
 
+function getActiveTone(){
+  const el = document.querySelector('.tone-chip.active');
+  return el ? el.textContent.trim() : 'Authority';
+}
+
+function selectTone(el){
+  document.querySelectorAll('.tone-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function removeTag(el){ el.remove(); }
+
+function addSkillTag(name){
+  const wrap = document.getElementById('tagsWrap');
+  const div = document.createElement('div');
+  div.className = 'tag';
+  div.onclick = ()=>div.remove();
+  div.innerHTML = `${name} <span class="tag-x">×</span>`;
+  wrap.appendChild(div);
+}
+
+document.getElementById('skillInput').addEventListener('keypress',function(e){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    const v = this.value.trim();
+    if(v){ addSkillTag(v); this.value=''; }
+  }
 });
 
-const ctx =
-document.getElementById('radarChart');
-
-const chart = new Chart(ctx,{
-
-type:'radar',
-
-data:{
-labels:[
-'SEO',
-'Clarity',
-'Authority',
-'Growth',
-'Trust'
-],
-
-datasets:[{
-
-label:'AI Metrics',
-
-data:[82,83,86,80,85],
-
-backgroundColor:'rgba(70,190,255,.25)',
-
-borderColor:'#42c8ff',
-
-pointBackgroundColor:'#ff46d3'
-
-}]
-},
-
-options:{
-
-plugins:{
-legend:{
-labels:{
-color:'white'
-}
-}
-},
-
-scales:{
-r:{
-angleLines:{
-color:'rgba(255,255,255,.1)'
-},
-grid:{
-color:'rgba(255,255,255,.08)'
-},
-pointLabels:{
-color:'white'
-},
-ticks:{
-display:false
-}
-}
+// ════════════════════════════════════
+// PLATFORM SWITCH
+// ════════════════════════════════════
+function switchPlatform(platform, tabEl){
+  currentPlatform = platform;
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const cfg = PLATFORMS[platform];
+  document.getElementById('piIcon').textContent = cfg.icon;
+  document.getElementById('piName').textContent = cfg.name;
+  document.getElementById('piSub').textContent = cfg.sub;
+  updatePiLimit();
+  renderBioVariants();
+  renderPreview();
 }
 
+function updatePiLimit(){
+  const cfg = PLATFORMS[currentPlatform];
+  // Use first non-empty bio length
+  const bios = generatedBios[currentPlatform];
+  const len = bios ? Math.max(...Object.values(bios).map(b=>b.length)) : 0;
+  const el = document.getElementById('piLimit');
+  el.textContent = `${len} / ${cfg.limit} chars`;
+  el.className = 'pi-limit '+(len > cfg.limit ? 'over' : len > cfg.limit * 0.8 ? 'warn' : 'ok');
 }
 
+// ════════════════════════════════════
+// GENERATE BIOS — GROQ AI
+// ════════════════════════════════════
+async function generateBios(){
+  const name = document.getElementById('fullName').value || 'Professional';
+  const title = document.getElementById('jobTitle').value || 'Expert';
+  const industry = document.getElementById('industry').value;
+  const audience = document.getElementById('audience').value;
+  const handle = document.getElementById('handle').value || '@user';
+  const location = document.getElementById('location').value || '';
+  const achievements = document.getElementById('achievements').value;
+  const skills = getSkills();
+  const tone = getActiveTone();
+  const langStyle = document.getElementById('langStyle').value;
+  const emojiDensity = document.getElementById('emojiDensity').value;
+  const key = localStorage.getItem('groq_key');
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Generating...';
+
+  // Show loading state
+  const container = document.getElementById('bioVariants');
+  container.innerHTML = BIO_VARIANTS.map(v=>`
+    <div class="bio-card">
+      <div class="bio-card-header">
+        <div class="bio-variant-name">${v.name}</div>
+      </div>
+      <div class="bio-text-wrap">
+        <div class="skeleton" style="height:20px;width:90%;margin-bottom:6px;border-radius:5px;"></div>
+        <div class="skeleton" style="height:20px;width:75%;margin-bottom:6px;border-radius:5px;"></div>
+        <div class="skeleton" style="height:20px;width:60%;border-radius:5px;"></div>
+      </div>
+    </div>`).join('');
+
+  const emojiInstr = {none:'Use NO emojis at all.',light:'Use at most 1-2 emojis total.',medium:'Use 2-4 emojis strategically.',heavy:'Use emojis creatively throughout like a social media creator.'}[emojiDensity]||'No emojis.';
+  const limitInfo = Object.entries(PLATFORMS).map(([k,v])=>`${v.name}: max ${v.limit} chars`).join(', ');
+
+  const prompt = `You are an expert personal branding copywriter. Create professional social media bios for this person.
+
+PROFILE:
+- Name: ${name}
+- Title: ${title}
+- Industry: ${industry}
+- Skills: ${skills.join(', ')}
+- Achievements: ${achievements}
+- Target Audience: ${audience}
+- Location: ${location}
+- Handle: ${handle}
+- Tone: ${tone}
+- Language Style: ${langStyle}
+- Emoji Rules: ${emojiInstr}
+
+CHARACTER LIMITS (STRICTLY FOLLOW): ${limitInfo}
+
+For EACH platform AND EACH variant style, write bios that are:
+1. Within character limits (count carefully)
+2. Optimized for that specific platform's culture and audience
+3. Include relevant keywords for SEO/discoverability
+4. Authentic and compelling
+
+Respond ONLY with valid JSON (no markdown, no preamble):
+{
+  "linkedin": {"authority":"...","creator":"...","minimal":"...","hook":"..."},
+  "instagram": {"authority":"...","creator":"...","minimal":"...","hook":"..."},
+  "twitter": {"authority":"...","creator":"...","minimal":"...","hook":"..."},
+  "github": {"authority":"...","creator":"...","minimal":"...","hook":"..."},
+  "founder": {"authority":"...","creator":"...","minimal":"...","hook":"..."},
+  "scores": {"seo":85,"recruiter":80,"clarity":90,"authority":88,"trust":82},
+  "keywords": ["AI","Machine Learning","Data","Cloud","Innovation"],
+  "insights": [
+    {"icon":"✅","text":"Strong expertise keywords detected in bios"},
+    {"icon":"⚡","text":"Action-oriented language increases recruiter clicks"},
+    {"icon":"🎯","text":"Add measurable metrics like % or numbers for more impact"},
+    {"icon":"📈","text":"Use trending hashtags on Instagram for discoverability"}
+  ]
+}`;
+
+  try {
+    let responseText = '';
+
+    if(key) {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'llama-3.1-8b-instant',
+          messages:[{role:'user',content:prompt}],
+          max_tokens:2500,temperature:0.75
+        })
+      });
+      if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error');}
+      const data = await res.json();
+      responseText = data.choices[0].message.content.trim().replace(/```json|```/g,'').trim();
+    } else {
+      // Fallback: smart template generation
+      responseText = generateTemplates(name, title, industry, skills, achievements, tone, emojiDensity, location);
+    }
+
+    const parsed = JSON.parse(responseText);
+    generatedBios = parsed;
+
+    renderBioVariants();
+    renderPreview();
+    updateScores(parsed.scores||{seo:75,recruiter:78,clarity:80,authority:76,trust:74});
+    renderInsights(parsed.insights||[]);
+    renderKeywords(parsed.keywords||skills);
+    updatePiLimit();
+
+    showToast(key?'✨ AI bios generated!':'✅ Bios generated (template mode)','success');
+
+  } catch(e) {
+    container.innerHTML = `<div class="bio-card" style="padding:20px;"><div style="color:var(--danger);font-size:13px;">❌ ${e.message}</div></div>`;
+    showToast('❌ '+e.message,'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>✦</span> Generate AI Bios';
+}
+
+// ════════════════════════════════════
+// TEMPLATE FALLBACK (no API key)
+// ════════════════════════════════════
+function generateTemplates(name, title, industry, skills, achievements, tone, emojiDensity, location){
+  const top3 = skills.slice(0,3).join(' · ');
+  const emoji = {none:'',light:'⚡ ',medium:'⚡🚀 ',heavy:'⚡🔥🚀 '}[emojiDensity]||'';
+  const loc = location ? ` | ${location}` : '';
+
+  const bios = {
+    linkedin:{
+      authority:`${emoji}${title} specializing in ${industry}. ${achievements}. Passionate about scalable ${skills[0]||'tech'} solutions that drive real-world impact${loc}.`,
+      creator:`${emoji}Building the future of ${industry} | ${top3} | ${achievements} | Let's connect and create something extraordinary.`,
+      minimal:`${title} · ${top3}${loc}`,
+      hook:`${emoji}From curiosity to expertise — I help teams solve hard problems with ${skills[0]||'technology'}. ${achievements}.`
+    },
+    instagram:{
+      authority:`${emoji}${title} | ${industry}\n${achievements}\n📍 ${location||'Global'}`,
+      creator:`${emoji}${title} building with ${top3}\n${achievements}\n✉️ DMs open`,
+      minimal:`${title} · ${skills.slice(0,2).join(' · ')}`,
+      hook:`${emoji}Turning ideas into ${industry} solutions\n${achievements}`
+    },
+    twitter:{
+      authority:`${emoji}${title} | ${industry} | ${top3} | ${achievements}`,
+      creator:`${emoji}Building in public | ${top3} | ${achievements}`,
+      minimal:`${title} · ${top3}`,
+      hook:`${emoji}${achievements} | Working on the future of ${industry}`
+    },
+    github:{
+      authority:`${title} · ${top3} · ${achievements}`,
+      creator:`Building open-source tools for ${industry} | ${top3}`,
+      minimal:`${title} | ${top3}`,
+      hook:`${achievements} | Passionate about ${skills[0]||'code'}`
+    },
+    founder:{
+      authority:`${emoji}I'm ${name}, a ${title} with deep expertise in ${industry}. ${achievements}. My work focuses on building scalable, AI-powered solutions that solve meaningful problems at the intersection of ${top3}. Based in ${location||'India'}, I collaborate with teams globally to create lasting impact through technology and innovation.`,
+      creator:`${emoji}Hey! I'm ${name} — ${title}, ${industry} enthusiast, and someone who genuinely loves building things that matter. ${achievements}. I write, build, and share everything about ${top3}. If you're into ${industry}, let's connect!`,
+      minimal:`${name} · ${title} · ${top3}`,
+      hook:`${emoji}I didn't start as a ${title}. I started as someone obsessed with solving problems. Today, ${achievements}. My journey through ${industry} taught me one thing: ${skills[0]||'technology'} changes everything when used right.`
+    },
+    scores:{seo:72,recruiter:75,clarity:80,authority:70,trust:73},
+    keywords:skills.slice(0,6),
+    insights:[
+      {icon:'💡',text:'Add measurable achievements (%, numbers, revenue) for higher recruiter interest'},
+      {icon:'🔍',text:`"${skills[0]||'AI'}" is a high-search keyword — great choice!`},
+      {icon:'⚡',text:'Hook Bio performs 3x better for profile click-throughs'},
+      {icon:'📊',text:'LinkedIn bios with location get 40% more recruiter views'}
+    ]
+  };
+  return JSON.stringify(bios);
+}
+
+// ════════════════════════════════════
+// RENDER BIO VARIANTS
+// ════════════════════════════════════
+function renderBioVariants(){
+  const container = document.getElementById('bioVariants');
+  const bios = generatedBios[currentPlatform];
+  const cfg = PLATFORMS[currentPlatform];
+
+  if(!bios){ container.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:20px;">No bios for this platform yet. Click Generate!</div>'; return; }
+
+  container.innerHTML = BIO_VARIANTS.map((v,i)=>{
+    const text = bios[v.id]||'';
+    const len = text.length;
+    const pct = Math.min(100, (len/cfg.limit)*100);
+    const cls = len > cfg.limit ? 'over' : len > cfg.limit*0.85 ? 'warn' : 'ok';
+    return `<div class="bio-card" id="card-${v.id}" style="animation:fadeUp ${0.1+i*0.07}s ease both;">
+      <div class="bio-card-header" style="background:${v.bg}20;">
+        <div class="bio-variant-name">
+          <div class="bio-variant-icon" style="background:${v.bg};">${v.icon}</div>
+          ${v.name}
+          <span style="font-size:10px;color:var(--text3);font-weight:400;">${v.desc}</span>
+        </div>
+        <div class="bv-actions">
+          <button class="bv-btn" onclick="copyBio('${v.id}',this)">📋 Copy</button>
+          <button class="bv-btn" onclick="selectCard('${v.id}')">★ Use</button>
+        </div>
+      </div>
+      <div class="bio-text-wrap">
+        <textarea class="bio-text" id="bio-${v.id}" rows="3" oninput="onBioEdit('${v.id}',this)">${text}</textarea>
+      </div>
+      <div class="bio-char-row">
+        <span class="char-count ${cls}">${len} / ${cfg.limit}</span>
+        <div class="char-bar-bg"><div class="char-bar-fill" style="width:${pct}%;background:${cls==='over'?'var(--danger)':cls==='warn'?'var(--warn)':'var(--success)'}"></div></div>
+        <span style="font-size:10px;color:var(--text3);">${cfg.name}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function onBioEdit(variantId, textarea){
+  if(!generatedBios[currentPlatform]) return;
+  generatedBios[currentPlatform][variantId] = textarea.value;
+  const len = textarea.value.length;
+  const cfg = PLATFORMS[currentPlatform];
+  const cls = len > cfg.limit ? 'over' : len > cfg.limit*0.85 ? 'warn' : 'ok';
+  const row = textarea.closest('.bio-card').querySelector('.bio-char-row');
+  if(row){
+    const countEl = row.querySelector('.char-count');
+    if(countEl){ countEl.textContent = `${len} / ${cfg.limit}`; countEl.className = `char-count ${cls}`; }
+    const fill = row.querySelector('.char-bar-fill');
+    if(fill){ fill.style.width = Math.min(100,(len/cfg.limit)*100)+'%'; fill.style.background = cls==='over'?'var(--danger)':cls==='warn'?'var(--warn)':'var(--success)'; }
+  }
+  renderPreview();
+}
+
+function selectCard(id){
+  document.querySelectorAll('.bio-card').forEach(c=>c.classList.remove('selected'));
+  const el = document.getElementById('card-'+id);
+  if(el) el.classList.add('selected');
+  renderPreview(id);
+  showToast('★ Bio selected as primary','info');
+}
+
+async function copyBio(variantId, btn){
+  const text = generatedBios[currentPlatform]?.[variantId]||'';
+  if(!text){showToast('⚠️ No bio to copy','warn');return;}
+  await navigator.clipboard.writeText(text);
+  btn.textContent = '✓ Copied!';
+  btn.classList.add('copy-done');
+  setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('copy-done');},2000);
+  showToast('📋 Copied!','success');
+}
+
+// ════════════════════════════════════
+// PLATFORM PREVIEW
+// ════════════════════════════════════
+function renderPreview(preferVariant){
+  const el = document.getElementById('platformPreview');
+  const name = document.getElementById('fullName').value||'Your Name';
+  const title = document.getElementById('jobTitle').value||'Professional';
+  const handle = document.getElementById('handle').value||'@user';
+  const location = document.getElementById('location').value||'';
+  const bios = generatedBios[currentPlatform];
+  const bioText = bios ? (bios[preferVariant||'authority']||Object.values(bios)[0]||'') : '';
+
+  const previews = {
+    linkedin:`<div class="lk-preview">
+      <div class="lk-header">
+        <div class="lk-avatar"></div>
+        <div>
+          <div class="lk-name">${name}</div>
+          <div class="lk-title">${title}</div>
+          <div class="lk-location">📍 ${location||'Location'}</div>
+        </div>
+      </div>
+      <div class="lk-bio">${bioText||'<span style="color:#999;font-style:italic;">Bio will appear here after generating...</span>'}</div>
+    </div>`,
+    instagram:`<div class="ig-preview">
+      <div class="ig-header">
+        <div class="ig-avatar"></div>
+        <div>
+          <div class="ig-handle">${handle.replace('@','') || 'username'}</div>
+          <div class="ig-stats"><span><strong>0</strong> posts</span><span><strong>50K</strong> followers</span><span><strong>500</strong> following</span></div>
+        </div>
+      </div>
+      <div class="ig-bio-text">${(bioText||'Bio here...').replace(/\n/g,'<br>')}</div>
+    </div>`,
+    twitter:`<div class="tw-preview">
+      <div class="tw-header">
+        <div class="tw-avatar"></div>
+        <div>
+          <div class="tw-name">${name}</div>
+          <div class="tw-handle">${handle}</div>
+        </div>
+      </div>
+      <div class="tw-bio">${(bioText||'Bio here...').replace(/\n/g,'<br>')}</div>
+      <div style="font-size:12px;color:#71767b;margin-top:8px;">📍 ${location||'Location'}</div>
+    </div>`,
+    github:`<div style="background:#0d1117;border-radius:12px;padding:16px;color:#e6edf3;font-family:'JetBrains Mono',monospace;">
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--acc));flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:2px;">${name}</div>
+          <div style="font-size:12px;color:#8b949e;margin-bottom:8px;">${handle}</div>
+          <div style="font-size:13px;line-height:1.65;color:#c9d1d9;">${bioText||'Bio here...'}</div>
+          <div style="font-size:11px;color:#8b949e;margin-top:8px;">📍 ${location||'Location'}</div>
+        </div>
+      </div>
+    </div>`,
+    founder:`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;">
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;">
+        <div style="width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--p),var(--acc));flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:3px;">${name}</div>
+          <div style="font-size:14px;color:var(--p3);margin-bottom:4px;">${title}</div>
+          <div style="font-size:12px;color:var(--text3);">📍 ${location||'Location'}</div>
+        </div>
+      </div>
+      <div style="font-size:14px;line-height:1.8;color:var(--text2);">${(bioText||'Your founder bio will appear here...').replace(/\n/g,'<br>')}</div>
+    </div>`,
+  };
+
+  el.innerHTML = previews[currentPlatform]||'';
+}
+
+// ════════════════════════════════════
+// SCORES & RIGHT PANEL
+// ════════════════════════════════════
+function updateScores(scores){
+  const s = scores||{};
+  const metrics = [
+    {bar:'seo',num:'seo',val:s.seo||0},
+    {bar:'rec',num:'rec',val:s.recruiter||0},
+    {bar:'cla',num:'cla',val:s.clarity||0},
+    {bar:'aut',num:'aut',val:s.authority||0},
+    {bar:'tru',num:'tru',val:s.trust||0},
+  ];
+  let total = 0;
+  metrics.forEach(m=>{
+    const bar = document.getElementById('bar-'+m.bar);
+    const num = document.getElementById('num-'+m.bar);
+    if(bar) bar.style.width = m.val+'%';
+    if(num){
+      num.textContent = m.val+'%';
+      num.className = 'score-num '+(m.val>=80?'high':m.val>=65?'mid':'low');
+    }
+    total += m.val;
+  });
+  const avg = Math.round(total/metrics.length);
+  document.getElementById('overallScore').textContent = avg+'%';
+
+  // Update radar
+  if(radarChart){
+    radarChart.data.datasets[0].data = [s.seo||0, s.clarity||0, s.authority||0, s.trust||0, s.recruiter||0];
+    radarChart.update();
+  }
+}
+
+function renderInsights(insights){
+  const list = document.getElementById('insightsList');
+  list.innerHTML = insights.map(i=>`
+    <div class="insight-item"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>
+  `).join('');
+}
+
+function renderKeywords(kws){
+  const el = document.getElementById('kwTags');
+  el.innerHTML = kws.map((k,i)=>`<span class="kw-tag ${i<3?'trending':''}">${i<3?'🔥 ':''}${k}</span>`).join('');
+}
+
+// ════════════════════════════════════
+// RADAR CHART
+// ════════════════════════════════════
+function initRadar(){
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['SEO','Clarity','Authority','Trust','Recruiter'],
+      datasets:[{
+        label:'Score',
+        data:[0,0,0,0,0],
+        backgroundColor:'rgba(124,58,237,0.18)',
+        borderColor:'#a855f7',
+        pointBackgroundColor:'#06b6d4',
+        pointRadius:4,
+        borderWidth:2,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{r:{
+        angleLines:{color:'rgba(255,255,255,0.06)'},
+        grid:{color:'rgba(255,255,255,0.06)'},
+        pointLabels:{color:'#6b78a8',font:{size:10,family:'Outfit'}},
+        ticks:{display:false},
+        min:0,max:100
+      }}
+    }
+  });
+}
+
+// ════════════════════════════════════
+// EXPORT & COPY ALL
+// ════════════════════════════════════
+async function copyAll(){
+  if(!Object.keys(generatedBios).length){showToast('⚠️ Generate bios first','warn');return;}
+  const bios = generatedBios[currentPlatform];
+  if(!bios){showToast('⚠️ No bios for current platform','warn');return;}
+  const txt = Object.entries(bios).map(([k,v])=>`${k.toUpperCase()}:\n${v}`).join('\n\n---\n\n');
+  await navigator.clipboard.writeText(txt);
+  showToast('📋 All bios copied!','success');
+}
+
+function exportTXT(){
+  if(!Object.keys(generatedBios).length){showToast('⚠️ Generate first','warn');return;}
+  let txt = `KJSynthora AI Bio Engine Export\n${'='.repeat(40)}\n\n`;
+  const name = document.getElementById('fullName').value;
+  const title = document.getElementById('jobTitle').value;
+  txt += `Name: ${name}\nTitle: ${title}\n\n`;
+  Object.entries(generatedBios).forEach(([platform,bios])=>{
+    if(typeof bios !== 'object' || !bios.authority) return;
+    txt += `\n${'─'.repeat(30)}\n${PLATFORMS[platform]?.name||platform}\n${'─'.repeat(30)}\n`;
+    Object.entries(bios).forEach(([variant,text])=>{
+      txt += `\n[${variant.toUpperCase()}]\n${text}\n`;
+    });
+  });
+  const blob = new Blob([txt],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download='kjsynthora-bios.txt'; a.click();
+  showToast('📄 Exported TXT!','success');
+}
+
+function exportJSON(){
+  if(!Object.keys(generatedBios).length){showToast('⚠️ Generate first','warn');return;}
+  const data = {
+    generated: new Date().toISOString(),
+    profile:{
+      name:document.getElementById('fullName').value,
+      title:document.getElementById('jobTitle').value,
+      industry:document.getElementById('industry').value,
+      skills:getSkills()
+    },
+    bios: Object.fromEntries(
+      Object.entries(generatedBios).filter(([k,v])=>typeof v==='object'&&v.authority)
+    )
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download='kjsynthora-bios.json'; a.click();
+  showToast('📦 Exported JSON!','success');
+}
+
+// ════════════════════════════════════
+// MODAL
+// ════════════════════════════════════
+function openModal(){
+  document.getElementById('apiKeyInput').value = localStorage.getItem('groq_key')||'';
+  document.getElementById('apiOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('apiOverlay').classList.remove('open'); }
+function saveKey(){
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if(!k.startsWith('gsk_')){showToast('⚠️ Key must start with gsk_','warn');return;}
+  localStorage.setItem('groq_key',k);
+  document.getElementById('groqStatus').textContent = 'Groq AI · Connected ✓';
+  closeModal();
+  showToast('✅ API key saved!','success');
+}
+
+// Close modal on overlay click
+document.getElementById('apiOverlay').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
 });
 
+// ════════════════════════════════════
+// INIT
+// ════════════════════════════════════
+if(localStorage.getItem('groq_key')){
+  document.getElementById('groqStatus').textContent = 'Groq AI · Connected ✓';
+}
+initRadar();
+renderPreview();
 </script>
-
 </body>
 </html>
