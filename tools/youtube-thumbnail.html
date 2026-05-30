@@ -1,1066 +1,1166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8"/>
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KJSynthora AI Thumbnail Studio</title>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet"
-/>
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
-
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#020509;--panel:#070d18;--card:#0c1525;--card2:#101d30;
+  --border:rgba(99,179,237,0.1);--accent:#63b3ed;--accent2:#9f7aea;
+  --accent3:#68d391;--accent4:#f6ad55;--red:#fc8181;
+  --text:#e2e8f0;--muted:#4a6080;--mono:'JetBrains Mono',monospace;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#1a3050;border-radius:10px;}
 
-body{
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 
-background:
-linear-gradient(
-135deg,
-#020617,
-#071126,
-#020617
-);
+/* BG */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 40% 30% at 5% 5%,rgba(99,179,237,0.04),transparent 60%),
+             radial-gradient(ellipse 30% 40% at 95% 95%,rgba(159,122,234,0.04),transparent 60%);}
 
-color:white;
-overflow-x:hidden;
-
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:0 16px;height:50px;
+  background:rgba(7,13,24,0.98);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;position:relative;z-index:100;
 }
+.logo{font-size:14px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
+.live-dot{display:inline-block;width:6px;height:6px;background:#68d391;border-radius:50%;animation:blink 1.5s infinite;margin-right:4px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.topbar-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;flex-wrap:wrap;}
+.tb-btn{padding:6px 12px;border:1px solid rgba(255,255,255,0.08);border-radius:7px;background:rgba(255,255,255,0.04);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;white-space:nowrap;}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,0.08);}
+.tb-btn.danger:hover{border-color:var(--red);color:var(--red);}
+.tb-btn.primary{background:linear-gradient(135deg,#1a4a7a,#4a2080);border-color:rgba(99,179,237,0.2);}
+.tb-btn.primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(99,179,237,0.2);}
+.size-sel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:5px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;cursor:pointer;}
+.size-sel option{background:#070d18;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.ctr-badge{padding:4px 10px;border-radius:100px;background:rgba(104,211,145,0.1);border:1px solid rgba(104,211,145,0.2);font-size:11px;color:var(--accent3);font-family:var(--mono);white-space:nowrap;}
 
-body::before{
+/* ── MAIN AREA ── */
+.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1;}
 
-content:'';
-
-position:fixed;
-
-width:850px;
-height:850px;
-
-background:
-radial-gradient(
-circle,
-#2563eb33,
-#9333ea22,
-transparent
-);
-
-top:-250px;
-left:-250px;
-
-filter:blur(120px);
-
-z-index:-1;
-
-animation:glow 8s infinite alternate;
-
+/* ── LEFT PANEL ── */
+.left-panel{
+  width:240px;flex-shrink:0;
+  background:rgba(7,13,24,0.98);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  display:flex;flex-direction:column;
 }
+.tabs{display:flex;border-bottom:1px solid var(--border);}
+.ptab{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;}
+.ptab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
+.ptab-content{display:none;padding:12px;flex:1;}
+.ptab-content.active{display:block;}
 
-@keyframes glow{
+/* SEC LABEL */
+.sec{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-family:var(--mono);margin-bottom:6px;margin-top:14px;}
 
-from{
-transform:translateY(0px);
+/* CONTROLS */
+.ctrl{margin-bottom:8px;}
+.ctrl label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.ctrl input,.ctrl select,.ctrl textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.2s;}
+.ctrl input:focus,.ctrl select:focus{border-color:var(--accent);}
+.ctrl select option{background:#07131f;}
+.ctrl input[type=color]{height:36px;padding:2px 4px;cursor:pointer;}
+.ctrl input[type=range]{padding:4px 0;accent-color:var(--accent);}
+
+/* FONT GRID */
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.font-chip{padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.font-chip:hover,.font-chip.active{background:rgba(99,179,237,0.12);border-color:rgba(99,179,237,0.3);color:var(--accent);}
+
+/* BG PRESETS */
+.bg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.bg-chip{width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.bg-chip:hover,.bg-chip.active{border-color:var(--accent);transform:scale(1.1);}
+
+/* GRADIENT PRESETS */
+.grad-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.grad-chip{height:32px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.grad-chip:hover,.grad-chip.active{border-color:var(--accent);transform:scale(1.02);}
+
+/* STICKER GRID */
+.sticker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+.sticker{font-size:22px;cursor:pointer;text-align:center;padding:4px;border-radius:6px;transition:all 0.15s;}
+.sticker:hover{background:rgba(255,255,255,0.08);transform:scale(1.2);}
+
+/* SHAPE BUTTONS */
+.shape-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.shape-btn{padding:8px 4px;border-radius:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;font-size:11px;text-align:center;color:var(--text);transition:all 0.2s;font-family:'Space Grotesk',sans-serif;}
+.shape-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,0.06);}
+
+/* ACTION BUTTONS */
+.act-btn{width:100%;padding:9px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-bottom:6px;font-family:'Space Grotesk',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;}
+.act-btn.grad{background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(147,51,234,0.2));border:1px solid rgba(99,179,237,0.2);color:var(--text);}
+.act-btn.grad:hover{transform:translateY(-1px);background:linear-gradient(135deg,rgba(14,165,233,0.3),rgba(147,51,234,0.3));}
+.act-btn.green{background:rgba(104,211,145,0.1);border:1px solid rgba(104,211,145,0.2);color:var(--accent3);}
+.act-btn.red{background:rgba(252,129,129,0.1);border:1px solid rgba(252,129,129,0.2);color:var(--red);}
+.act-btn.amber{background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);color:var(--accent4);}
+
+/* ── CANVAS AREA ── */
+.canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#020509;position:relative;}
+.canvas-toolbar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(7,13,24,0.95);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.tool-btn{width:32px;height:32px;border:1px solid rgba(255,255,255,0.08);border-radius:7px;background:rgba(255,255,255,0.04);color:var(--muted);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;}
+.tool-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,0.06);}
+.tool-btn.active{background:rgba(99,179,237,0.15);border-color:var(--accent);color:var(--accent);}
+.tool-sep{width:1px;height:22px;background:rgba(255,255,255,0.08);}
+.zoom-display{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:50px;text-align:center;}
+
+.canvas-scroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;}
+#canvas-wrapper{position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 20px 60px rgba(0,0,0,0.7);}
+#canvas-wrapper .guide-h,.guide-v{position:absolute;pointer-events:none;z-index:10;}
+
+/* PREVIEW STRIP */
+.preview-strip{flex-shrink:0;border-top:1px solid var(--border);background:rgba(7,13,24,0.95);padding:10px 14px;display:flex;gap:12px;align-items:center;overflow-x:auto;}
+.prev-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+.prev-label{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.prev-img{border-radius:4px;border:1px solid rgba(255,255,255,0.08);object-fit:cover;}
+.prev-yt{width:120px;height:68px;}
+.prev-shorts{width:38px;height:68px;}
+.prev-search{width:168px;height:95px;}
+
+/* ── RIGHT PANEL ── */
+.right-panel{
+  width:220px;flex-shrink:0;
+  background:rgba(7,13,24,0.98);
+  border-left:1px solid var(--border);
+  overflow-y:auto;padding:12px;
 }
+.rp-title{font-size:11px;font-weight:700;letter-spacing:0.05em;margin-bottom:10px;color:var(--text);}
 
-to{
-transform:translateY(100px);
+/* LAYER ITEM */
+.layer-item{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 8px;border-radius:7px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  margin-bottom:4px;cursor:pointer;
+  transition:all 0.15s;
+  user-select:none;
 }
-
-}
-
-.container{
-
-width:96%;
-max-width:1900px;
-
-margin:auto;
-
-padding:35px 0 80px;
-
-}
-
-.header{
-
-text-align:center;
-margin-bottom:35px;
-
-}
-
-.header h1{
-
-font-size:60px;
-font-weight:800;
-
-background:
-linear-gradient(
-90deg,
-#38bdf8,
-#8b5cf6
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.header p{
-
-margin-top:15px;
-
-font-size:18px;
-
-color:#cbd5e1;
-
-}
-
-.live-badge{
-
-display:inline-block;
-
-margin-top:20px;
-
-padding:12px 24px;
-
-border-radius:999px;
-
-background:#16a34a;
-
-font-size:13px;
-font-weight:700;
-
-}
-
-.main-grid{
-
-display:grid;
-
-grid-template-columns:
-0.9fr 1.5fr 0.8fr;
-
-gap:24px;
-
-}
-
-.panel{
-
-background:#0f172a;
-
-border:1px solid rgba(255,255,255,.05);
-
-padding:24px;
-
-border-radius:28px;
-
-}
-
-.section-title{
-
-font-size:28px;
-
-margin-bottom:22px;
-
-}
-
-.upload-box{
-
-border:2px dashed #38bdf8;
-
-background:#111827;
-
-padding:40px;
-
-border-radius:24px;
-
-text-align:center;
-
-cursor:pointer;
-
-transition:.3s;
-
-}
-
-.upload-box:hover{
-
-background:#1e293b;
-
-}
-
-.upload-box i{
-
-font-size:55px;
-
-color:#38bdf8;
-
-margin-bottom:18px;
-
-}
-
-input[type=file]{
-
-display:none;
-
-}
-
-.control-group{
-
-margin-top:20px;
-
-}
-
-.control-group label{
-
-display:block;
-
-margin-bottom:10px;
-
-font-size:14px;
-
-color:#cbd5e1;
-
-}
-
-.input-box,
-.select-box{
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-border-radius:14px;
-
-background:#111827;
-
-color:white;
-
-}
-
-.action-btn{
-
-width:100%;
-
-padding:16px;
-
-margin-top:16px;
-
-border:none;
-
-border-radius:16px;
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.3s;
-
-}
-
-.action-btn:hover{
-
-transform:translateY(-2px);
-
-}
-
-.canvas-container{
-
-background:#111827;
-
-border-radius:24px;
-
-padding:20px;
-
-overflow:auto;
-
-}
-
-#thumbnailCanvas{
-
-border-radius:18px;
-
-background:#000;
-
-}
-
-.analytics-box{
-
-background:#111827;
-
-padding:18px;
-
-border-radius:18px;
-
-margin-bottom:18px;
-
-line-height:2;
-
-}
-
-.preview-grid{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:15px;
-
-margin-top:18px;
-
-}
-
-.preview-card{
-
-background:#111827;
-
-padding:14px;
-
-border-radius:14px;
-
-text-align:center;
-
-}
-
-.preview-card img{
-
-width:100%;
-border-radius:12px;
-
-margin-top:10px;
-
-}
-
-.footer-buttons{
-
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-
-margin-top:40px;
-
-}
-
-.footer-buttons a{
-
-padding:16px 28px;
-
-border-radius:14px;
-
-font-weight:700;
-
-text-decoration:none;
-
-}
-
-.primary-btn{
-
-background:
-linear-gradient(
-90deg,
-#0ea5e9,
-#9333ea
-);
-
-color:white;
-
-}
-
-.secondary-btn{
-
-background:#111827;
-
-color:white;
-
-}
-
-@media(max-width:1500px){
-
-.main-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
+.layer-item:hover,.layer-item.active{background:rgba(99,179,237,0.08);border-color:rgba(99,179,237,0.2);}
+.layer-icon{font-size:13px;flex-shrink:0;}
+.layer-name{font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);}
+.layer-vis{font-size:11px;color:var(--muted);cursor:pointer;transition:color 0.15s;}
+.layer-vis:hover{color:var(--accent);}
+.layer-lock{font-size:11px;color:var(--muted);cursor:pointer;}
+
+/* CTR METER */
+.ctr-meter{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;}
+.ctr-val{font-size:28px;font-weight:800;font-family:var(--mono);background:linear-gradient(90deg,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ctr-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:100px;margin:6px 0;overflow:hidden;}
+.ctr-bar-fill{height:100%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80);border-radius:100px;transition:width 0.5s ease;}
+.ctr-tip{font-size:10px;color:var(--muted);line-height:1.6;margin-top:6px;}
+
+/* AI REC */
+.ai-rec{background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.12);border-radius:8px;padding:10px;margin-bottom:6px;font-size:11px;line-height:1.6;}
+.ai-rec.warn{background:rgba(252,129,129,0.06);border-color:rgba(252,129,129,0.15);color:#fca5a5;}
+.ai-rec.ok{background:rgba(104,211,145,0.06);border-color:rgba(104,211,145,0.15);color:#6ee7b7;}
+
+/* OBJECT PROPS */
+.prop-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;}
+.prop-row:last-child{border-bottom:none;}
+.pk{color:var(--muted);}
+.pv{font-family:var(--mono);color:var(--accent);}
+
+/* KEYBOARD HINTS */
+.kb-row{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;}
+.kb-key{background:rgba(255,255,255,0.06);border-radius:3px;padding:1px 5px;font-family:var(--mono);color:var(--muted);}
+.kb-desc{color:var(--muted);}
+
+/* FILTER SLIDERS */
+.fslider{margin-bottom:8px;}
+.fslider-row{display:flex;justify-content:space-between;margin-bottom:3px;}
+.fslider-label{font-size:10px;color:var(--muted);}
+.fslider-val{font-size:10px;font-family:var(--mono);color:var(--accent);}
+.fslider input{width:100%;accent-color:var(--accent);}
+
+/* CONTEXT MENU */
+.ctx-menu{position:fixed;background:rgba(10,18,32,0.98);border:1px solid var(--border);border-radius:10px;padding:4px;z-index:1000;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,0.6);display:none;}
+.ctx-item{padding:8px 12px;border-radius:6px;font-size:12px;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;gap:8px;}
+.ctx-item:hover{background:rgba(99,179,237,0.1);}
+.ctx-sep{height:1px;background:rgba(255,255,255,0.06);margin:3px 0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(10,18,32,0.95);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:13px;z-index:2000;transition:transform 0.3s;pointer-events:none;font-family:var(--mono);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:1200px){.left-panel{width:200px;}.right-panel{width:180px;}}
+@media(max-width:900px){.right-panel{display:none;}}
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctxMenu">
+  <div class="ctx-item" onclick="ctxAct('bringFront')">⬆ Bring to Front</div>
+  <div class="ctx-item" onclick="ctxAct('sendBack')">⬇ Send to Back</div>
+  <div class="ctx-item" onclick="ctxAct('bringFwd')">↑ Bring Forward</div>
+  <div class="ctx-item" onclick="ctxAct('sendBkwd')">↓ Send Backward</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAct('duplicate')">⧉ Duplicate</div>
+  <div class="ctx-item" onclick="ctxAct('group')">⊞ Group</div>
+  <div class="ctx-item" onclick="ctxAct('ungroup')">⊟ Ungroup</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAct('flipH')">↔ Flip Horizontal</div>
+  <div class="ctx-item" onclick="ctxAct('flipV')">↕ Flip Vertical</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAct('center')">⊕ Center on Canvas</div>
+  <div class="ctx-item" onclick="ctxAct('delete')" style="color:var(--red);">🗑 Delete</div>
+</div>
+<div class="toast" id="toast"></div>
 
-<div class="header">
-
-<h1>KJSynthora AI Thumbnail Studio</h1>
-
-<p>
-Realtime AI-powered viral thumbnail operating system
-</p>
-
-<div class="live-badge">
-● YOUTUBE CTR AI ACTIVE
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo"><span class="live-dot"></span>KJSynthora Thumbnail Studio</div>
+  <div class="topbar-center">
+    <select class="size-sel" id="sizePreset" onchange="changeSize()">
+      <option value="1280,720">YT Standard 1280×720</option>
+      <option value="1920,1080">YT HD 1920×1080</option>
+      <option value="1080,1920">YT Shorts 1080×1920</option>
+      <option value="1200,628">Twitter / FB 1200×628</option>
+      <option value="1080,1080">Instagram Square</option>
+      <option value="1200,900">LinkedIn 1200×900</option>
+      <option value="2560,1440">Channel Art 2560×1440</option>
+    </select>
+    <button class="tb-btn" onclick="undo()" title="Ctrl+Z">↩ Undo</button>
+    <button class="tb-btn" onclick="redo()" title="Ctrl+Y">↪ Redo</button>
+    <button class="tb-btn" onclick="selectAll()">⬚ Select All</button>
+    <button class="tb-btn" onclick="deselect()">☐ Deselect</button>
+    <button class="tb-btn" onclick="toggleGrid()">⊞ Grid</button>
+    <button class="tb-btn" onclick="toggleSnap()">⊙ Snap</button>
+    <button class="tb-btn danger" onclick="clearCanvas()">🗑 Clear</button>
+  </div>
+  <div class="topbar-right">
+    <div class="ctr-badge">CTR: <span id="topCtr">8.7</span>/10</div>
+    <button class="tb-btn primary" onclick="exportThumbnail(1)">⬇ Export 1x</button>
+    <button class="tb-btn primary" onclick="exportThumbnail(2)">⬇ 2x</button>
+    <a href="../index.html" class="tb-btn">🏠 Home</a>
+  </div>
 </div>
 
+<!-- MAIN -->
+<div class="main">
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="tabs">
+    <button class="ptab active" onclick="switchLTab('add',this)">Add</button>
+    <button class="ptab" onclick="switchLTab('text',this)">Text</button>
+    <button class="ptab" onclick="switchLTab('bg',this)">BG</button>
+    <button class="ptab" onclick="switchLTab('fx',this)">FX</button>
+  </div>
+
+  <!-- ADD TAB -->
+  <div class="ptab-content active" id="lt-add">
+    <div class="sec">Upload Image / Asset</div>
+    <label style="display:block;border:2px dashed rgba(99,179,237,0.2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(99,179,237,0.03);" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='rgba(99,179,237,0.2)'">
+      <div style="font-size:28px;margin-bottom:6px;">📁</div>
+      <div style="font-size:12px;color:var(--muted);">Click or drop image</div>
+      <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
+    </label>
+
+    <div class="sec">Shapes</div>
+    <div class="shape-grid">
+      <button class="shape-btn" onclick="addShape('rect')">▬ Rect</button>
+      <button class="shape-btn" onclick="addShape('circle')">● Circle</button>
+      <button class="shape-btn" onclick="addShape('triangle')">▲ Tri</button>
+      <button class="shape-btn" onclick="addShape('line')">— Line</button>
+      <button class="shape-btn" onclick="addShape('star')">★ Star</button>
+      <button class="shape-btn" onclick="addShape('arrow')">➜ Arrow</button>
+      <button class="shape-btn" onclick="addShape('badge')">🏷 Badge</button>
+      <button class="shape-btn" onclick="addShape('burst')">💥 Burst</button>
+    </div>
+
+    <div class="sec">Stickers & Emojis</div>
+    <div class="sticker-grid" id="stickerGrid"></div>
+
+    <div class="sec">Actions</div>
+    <button class="act-btn grad" onclick="addText()">✦ Add Text Block</button>
+    <button class="act-btn grad" onclick="addWatermark()">🔖 Add Logo / Watermark</button>
+    <button class="act-btn amber" onclick="addSubscribeBadge()">🔴 Subscribe Badge</button>
+    <button class="act-btn green" onclick="autoCompose()">⚡ Auto Compose</button>
+  </div>
+
+  <!-- TEXT TAB -->
+  <div class="ptab-content" id="lt-text">
+    <div class="sec">Text Content</div>
+    <div class="ctrl"><label>Title Text</label><input type="text" id="txtTitle" placeholder="Enter viral title..." value="THIS CHANGED EVERYTHING"></div>
+    <div class="ctrl"><label>Sub Text</label><input type="text" id="txtSub" placeholder="Sub-text..." value="WATCH TILL END"></div>
+    <div class="ctrl"><label>Text Color</label><input type="color" id="txtColor" value="#ffffff"></div>
+    <div class="ctrl"><label>Font Size: <span id="fszLabel">72</span>px</label><input type="range" id="fsz" min="12" max="200" value="72" oninput="document.getElementById('fszLabel').textContent=this.value"></div>
+    <div class="ctrl"><label>Letter Spacing: <span id="lsLabel">0</span></label><input type="range" id="ls" min="-5" max="30" value="0" oninput="document.getElementById('lsLabel').textContent=this.value"></div>
+    <div class="ctrl"><label>Stroke Width: <span id="swLabel">3</span></label><input type="range" id="sw" min="0" max="20" value="3" oninput="document.getElementById('swLabel').textContent=this.value"></div>
+    <div class="ctrl"><label>Stroke Color</label><input type="color" id="strokeColor" value="#000000"></div>
+    <div class="ctrl"><label>Shadow Color</label><input type="color" id="shadowColor" value="#000000"></div>
+
+    <div class="sec">Font Family</div>
+    <div class="font-grid" id="fontGrid"></div>
+
+    <div class="sec">Text Effects</div>
+    <button class="act-btn grad" onclick="addStyledText('title')">▶ Add Title Text</button>
+    <button class="act-btn grad" onclick="addStyledText('sub')">▷ Add Sub Text</button>
+    <button class="act-btn amber" onclick="addGradientText()">🌈 Gradient Text</button>
+    <button class="act-btn green" onclick="addNeonText()">💡 Neon Glow Text</button>
+    <button class="act-btn grad" onclick="addOutlineText()">⬜ Outline Only Text</button>
+  </div>
+
+  <!-- BG TAB -->
+  <div class="ptab-content" id="lt-bg">
+    <div class="sec">Solid Backgrounds</div>
+    <div class="bg-grid" id="bgGrid"></div>
+
+    <div class="sec">Gradient Backgrounds</div>
+    <div class="grad-grid" id="gradGrid"></div>
+
+    <div class="ctrl" style="margin-top:10px;"><label>Custom BG Color</label><input type="color" id="customBg" value="#000000" onchange="setBgColor(this.value)"></div>
+
+    <div class="sec">Overlay Opacity: <span id="ovOpLabel">0</span>%</div>
+    <div class="ctrl"><input type="range" id="ovOp" min="0" max="100" value="0" oninput="document.getElementById('ovOpLabel').textContent=this.value;applyOverlay()"></div>
+    <div class="ctrl"><label>Overlay Color</label><input type="color" id="ovColor" value="#000000" onchange="applyOverlay()"></div>
+
+    <div class="sec">Video Thumbnail Styles</div>
+    <button class="act-btn grad" onclick="applyBgStyle('gaming')">🎮 Gaming Dark</button>
+    <button class="act-btn grad" onclick="applyBgStyle('finance')">💰 Finance Gold</button>
+    <button class="act-btn grad" onclick="applyBgStyle('tech')">🔵 Tech Cyber</button>
+    <button class="act-btn grad" onclick="applyBgStyle('reaction')">😮 Reaction Red</button>
+    <button class="act-btn grad" onclick="applyBgStyle('education')">📚 Education Blue</button>
+    <button class="act-btn grad" onclick="applyBgStyle('vlog')">🌅 Vlog Warm</button>
+    <button class="act-btn grad" onclick="applyBgStyle('dark')">🌑 Cinematic Dark</button>
+  </div>
+
+  <!-- FX TAB -->
+  <div class="ptab-content" id="lt-fx">
+    <div class="sec">Glow & Effects</div>
+    <button class="act-btn amber" onclick="addGlow()">✨ Add Neon Glow</button>
+    <button class="act-btn grad" onclick="addDrop()">💧 Drop Shadow</button>
+    <button class="act-btn green" onclick="addArrowFx()">➜ Attention Arrow</button>
+    <button class="act-btn grad" onclick="addExplosionFx()">💥 Explosion Lines</button>
+    <button class="act-btn amber" onclick="addLightBeam()">☀ Light Beam</button>
+    <button class="act-btn grad" onclick="addBorderFx()">⬜ Glow Border</button>
+
+    <div class="sec">Image Filters (Selected)</div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Brightness</span><span class="fslider-val" id="flBright">0</span></div><input type="range" min="-1" max="1" step="0.05" value="0" oninput="applyFilter('brightness',this.value,this)"></div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Contrast</span><span class="fslider-val" id="flCont">0</span></div><input type="range" min="-1" max="1" step="0.05" value="0" oninput="applyFilter('contrast',this.value,this)"></div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Saturation</span><span class="fslider-val" id="flSat">0</span></div><input type="range" min="-1" max="1" step="0.05" value="0" oninput="applyFilter('saturation',this.value,this)"></div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Blur</span><span class="fslider-val" id="flBlur">0</span></div><input type="range" min="0" max="20" step="1" value="0" oninput="applyFilter('blur',this.value,this)"></div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Pixelate</span><span class="fslider-val" id="flPix">1</span></div><input type="range" min="1" max="20" step="1" value="1" oninput="applyFilter('pixelate',this.value,this)"></div>
+    <div class="fslider"><div class="fslider-row"><span class="fslider-label">Opacity</span><span class="fslider-val" id="flOp">100</span>%</div><input type="range" min="0" max="100" step="1" value="100" oninput="setOpacity(this.value,this)"></div>
+
+    <div class="sec">Blend Mode (Selected)</div>
+    <div class="ctrl"><select id="blendMode" onchange="setBlend()">
+      <option value="">Normal</option><option value="multiply">Multiply</option>
+      <option value="screen">Screen</option><option value="overlay">Overlay</option>
+      <option value="darken">Darken</option><option value="lighten">Lighten</option>
+      <option value="color-dodge">Color Dodge</option><option value="color-burn">Color Burn</option>
+      <option value="hard-light">Hard Light</option><option value="soft-light">Soft Light</option>
+      <option value="difference">Difference</option><option value="exclusion">Exclusion</option>
+    </select></div>
+  </div>
 </div>
 
-<div class="main-grid">
+<!-- CANVAS AREA -->
+<div class="canvas-area">
+  <div class="canvas-toolbar">
+    <button class="tool-btn active" id="tool-select" onclick="setTool('select')" title="Select (V)">↖</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" title="Zoom In (+)" onclick="zoomIn()">🔍</button>
+    <button class="tool-btn" title="Zoom Out (-)" onclick="zoomOut()">🔎</button>
+    <button class="tool-btn" title="Fit to Screen (0)" onclick="zoomFit()">⊡</button>
+    <div class="zoom-display" id="zoomDisplay">100%</div>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" title="Align Left" onclick="alignObj('left')">⫷</button>
+    <button class="tool-btn" title="Align Center H" onclick="alignObj('centerH')">⊕H</button>
+    <button class="tool-btn" title="Align Right" onclick="alignObj('right')">⫸</button>
+    <button class="tool-btn" title="Align Top" onclick="alignObj('top')">⫸</button>
+    <button class="tool-btn" title="Align Center V" onclick="alignObj('centerV')">⊕V</button>
+    <button class="tool-btn" title="Align Bottom" onclick="alignObj('bottom')">⫷</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" title="Bring Front" onclick="ctxAct('bringFront')">↑↑</button>
+    <button class="tool-btn" title="Send Back" onclick="ctxAct('sendBack')">↓↓</button>
+    <button class="tool-btn" title="Duplicate (Ctrl+D)" onclick="ctxAct('duplicate')">⧉</button>
+    <button class="tool-btn" title="Delete (Del)" onclick="deleteSelected()">🗑</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" title="Safe Zones" onclick="toggleSafeZones()" id="szBtn">⬚SZ</button>
+    <button class="tool-btn" title="Rulers" onclick="toggleRulers()" id="rulerBtn">📏</button>
+  </div>
 
-<!-- LEFT -->
+  <div class="canvas-scroll" id="canvasScroll">
+    <div id="canvas-wrapper">
+      <canvas id="thumbnailCanvas"></canvas>
+    </div>
+  </div>
 
-<div class="panel">
-
-<div class="section-title">
-AI Controls
+  <!-- PREVIEW STRIP -->
+  <div class="preview-strip">
+    <span style="font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;">Live Preview:</span>
+    <div class="prev-item"><div class="prev-label">YT Standard</div><img class="prev-img prev-yt" id="pvYT"></div>
+    <div class="prev-item"><div class="prev-label">YT Search</div><img class="prev-img prev-search" id="pvSearch"></div>
+    <div class="prev-item"><div class="prev-label">Shorts</div><img class="prev-img prev-shorts" id="pvShorts"></div>
+    <div class="prev-item"><div class="prev-label">Mobile</div><img class="prev-img prev-yt" id="pvMobile"></div>
+    <div class="prev-item"><div class="prev-label">Dark BG</div><img class="prev-img prev-yt" id="pvDark" style="background:#111;"></div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+      <span style="font-size:10px;color:var(--muted);">A/B</span>
+      <img class="prev-img prev-yt" id="pvAB" style="opacity:0.5;border-style:dashed;">
+      <button class="tb-btn" onclick="setABCompare()" style="font-size:10px;padding:4px 8px;">Set A/B</button>
+    </div>
+  </div>
 </div>
 
-<label class="upload-box">
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <!-- CTR METER -->
+  <div class="rp-title">🎯 CTR Score</div>
+  <div class="ctr-meter">
+    <div class="ctr-val" id="ctrVal">8.7</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:2px;">/ 10 — <span id="ctrLabel" style="color:var(--accent3);">Excellent</span></div>
+    <div class="ctr-bar-track"><div class="ctr-bar-fill" id="ctrBar" style="width:87%;"></div></div>
+    <div class="ctr-tip" id="ctrTips">Upload image, add text, apply style to increase CTR score</div>
+  </div>
 
-<i class="fa-solid fa-cloud-arrow-up"></i>
+  <!-- AI RECS -->
+  <div class="rp-title" style="margin-top:10px;">🧠 AI Recommendations</div>
+  <div id="aiRecList"></div>
 
-<h2>
-Upload Assets
-</h2>
+  <!-- OBJECT PROPERTIES -->
+  <div class="rp-title" style="margin-top:10px;">🔧 Object Properties</div>
+  <div id="objProps" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;color:var(--muted);">Select an object</div>
 
-<p>
-Images / Faces / Logos
-</p>
+  <!-- LAYERS -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;margin-bottom:6px;">
+    <div class="rp-title" style="margin:0;">📂 Layers</div>
+    <div style="display:flex;gap:4px;">
+      <button class="tool-btn" style="width:22px;height:22px;font-size:10px;" onclick="ctxAct('bringFront')">↑</button>
+      <button class="tool-btn" style="width:22px;height:22px;font-size:10px;" onclick="ctxAct('sendBack')">↓</button>
+    </div>
+  </div>
+  <div id="layerList"></div>
 
-<input
-type="file"
-id="imageUpload"
-accept="image/*"
-/>
-
-</label>
-
-<div class="control-group">
-
-<label>
-Thumbnail Title
-</label>
-
-<input
-type="text"
-id="thumbnailText"
-class="input-box"
-placeholder="Enter Viral Title"
-/>
-
+  <!-- SHORTCUTS -->
+  <div class="rp-title" style="margin-top:10px;">⌨ Shortcuts</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;">
+    <div class="kb-row"><span class="kb-key">Ctrl+Z</span><span class="kb-desc">Undo</span></div>
+    <div class="kb-row"><span class="kb-key">Ctrl+D</span><span class="kb-desc">Duplicate</span></div>
+    <div class="kb-row"><span class="kb-key">Del</span><span class="kb-desc">Delete</span></div>
+    <div class="kb-row"><span class="kb-key">Ctrl+A</span><span class="kb-desc">Select All</span></div>
+    <div class="kb-row"><span class="kb-key">± </span><span class="kb-desc">Zoom</span></div>
+    <div class="kb-row"><span class="kb-key">Arrow</span><span class="kb-desc">Nudge 1px</span></div>
+  </div>
 </div>
 
-<div class="control-group">
-
-<label>
-Thumbnail Style
-</label>
-
-<select
-id="styleSelect"
-class="select-box"
->
-
-<option value="gaming">
-Gaming
-</option>
-
-<option value="finance">
-Finance
-</option>
-
-<option value="tech">
-Tech
-</option>
-
-<option value="reaction">
-Reaction
-</option>
-
-<option value="education">
-Education
-</option>
-
-</select>
-
-</div>
-
-<div class="control-group">
-
-<label>
-Text Color
-</label>
-
-<input
-type="color"
-id="textColor"
-class="input-box"
-value="#ffffff"
-/>
-
-</div>
-
-<div class="control-group">
-
-<label>
-Background Preset
-</label>
-
-<select
-id="backgroundPreset"
-class="select-box"
->
-
-<option value="#000000">
-Dark Studio
-</option>
-
-<option value="#0f172a">
-Cyber Blue
-</option>
-
-<option value="#7c3aed">
-Neon Purple
-</option>
-
-<option value="#b91c1c">
-Viral Red
-</option>
-
-</select>
-
-</div>
-
-<button
-class="action-btn"
-onclick="addText()"
->
-Add Viral Text
-</button>
-
-<button
-class="action-btn"
-onclick="addGlowEffect()"
->
-Add Neon Glow
-</button>
-
-<button
-class="action-btn"
-onclick="addArrow()"
->
-Add Attention Arrow
-</button>
-
-<button
-class="action-btn"
-onclick="applyStyle()"
->
-Apply AI Style
-</button>
-
-<button
-class="action-btn"
-onclick="downloadThumbnail()"
->
-Download Thumbnail
-</button>
-
-<button
-class="action-btn"
-onclick="clearCanvas()"
->
-Clear Canvas
-</button>
-
-</div>
-
-<!-- CENTER -->
-
-<div class="panel">
-
-<div class="section-title">
-Realtime Thumbnail Canvas
-</div>
-
-<div class="canvas-container">
-
-<canvas
-id="thumbnailCanvas"
-width="1280"
-height="720"
-></canvas>
-
-</div>
-
-<div class="preview-grid">
-
-<div class="preview-card">
-
-Desktop Preview
-
-<img
-id="desktopPreview"
-/>
-
-</div>
-
-<div class="preview-card">
-
-Mobile Preview
-
-<img
-id="mobilePreview"
-/>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- RIGHT -->
-
-<div class="panel">
-
-<div class="section-title">
-AI Analytics
-</div>
-
-<div class="analytics-box">
-
-AI CTR Score:
-<strong id="ctrScore">
-8.7 / 10
-</strong>
-
-<br>
-
-Thumbnail Visibility:
-<strong>
-Excellent
-</strong>
-
-<br>
-
-Mobile Optimization:
-<strong>
-Active
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-Safe Zones:
-<strong>
-Enabled
-</strong>
-
-<br>
-
-Realtime Rendering:
-<strong>
-WebGPU Ready
-</strong>
-
-</div>
-
-<div class="analytics-box">
-
-AI Recommendations
-
-<ul style="margin-left:18px; line-height:2;">
-
-<li>Increase face size</li>
-<li>Add stronger contrast</li>
-<li>Use shorter text</li>
-<li>Improve emotional intensity</li>
-
-</ul>
-
-</div>
-
-<div class="analytics-box">
-
-Professional Features
-
-<ul style="margin-left:18px; line-height:2;">
-
-<li>AI Face Cutout Ready</li>
-<li>Live YouTube Preview</li>
-<li>Multi-Language Fonts</li>
-<li>Gaming Presets</li>
-<li>CTR Simulation</li>
-<li>Shorts Support</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="footer-buttons">
-
-<a
-href="../index.html"
-class="primary-btn"
->
-← Return Home
-</a>
-
-<a
-href="../index.html"
-class="secondary-btn"
->
-More Tools
-</a>
-
-</div>
-
-</div>
+</div><!-- /main -->
 
 <script>
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+let canvasW=1280,canvasH=720;
+const CANVAS_SCALE=0.55;
+let gridEnabled=false,snapEnabled=false,safeZonesEnabled=false;
+let undoStack=[],redoStack=[];
+let abSnapshot=null;
+let currentZoom=CANVAS_SCALE;
 
-const canvas =
-new fabric.Canvas(
-'thumbnailCanvas'
-);
+const canvas=new fabric.Canvas('thumbnailCanvas',{
+  width:canvasW,height:canvasH,
+  preserveObjectStacking:true,
+  selection:true,
+  backgroundColor:'#000000'
+});
 
-canvas.setBackgroundColor(
-'#000',
-canvas.renderAll.bind(canvas)
-);
+// Scale canvas display
+function scaleCanvas(){
+  const wrap=document.getElementById('canvas-wrapper');
+  wrap.style.width=(canvasW*currentZoom)+'px';
+  wrap.style.height=(canvasH*currentZoom)+'px';
+  canvas.setZoom(currentZoom);
+  canvas.setWidth(canvasW*currentZoom);
+  canvas.setHeight(canvasH*currentZoom);
+  document.getElementById('zoomDisplay').textContent=Math.round(currentZoom*100)+'%';
+}
+scaleCanvas();
 
-const desktopPreview =
-document.getElementById('desktopPreview');
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const FONTS=['Impact','Arial Black','Tahoma','Oswald','Bebas Neue','Montserrat','Roboto','Anton','Exo','Rajdhani','Orbitron','Press Start 2P','VT323','Space Grotesk','Outfit','Poppins','Lato','Open Sans','Playfair Display','Merriweather'];
+const STICKERS=['🔥','💥','⚡','🎯','😱','🤯','💰','🏆','❤️','⭐','👑','🚀','💎','🎮','📱','🍕','🌟','✅','❌','⚠️','👆','👇','🙌','💪','🤝','🎁','🎉','🔑','🌈','💡'];
+const BG_COLORS=['#000000','#0f172a','#111827','#1e1b4b','#7c2d12','#064e3b','#1a1a1a','#2d1b69','#0a0a0a','#1c1c2e','#16213e','#0d0d0d'];
+const GRADIENTS=[
+  ['#000000','#1a0533'],['#0f0c29','#302b63'],
+  ['#0f172a','#1e3a5f'],['#1a1a2e','#16213e'],
+  ['#0d1117','#238636'],['#111','#7c2d12'],
+  ['#020817','#0ea5e9'],['#0a0a0a','#6d28d9'],
+];
 
-const mobilePreview =
-document.getElementById('mobilePreview');
+// ══════════════════════════════════════════
+// BUILD UI
+// ══════════════════════════════════════════
+function buildUI(){
+  // fonts
+  const fg=document.getElementById('fontGrid');
+  FONTS.slice(0,12).forEach(f=>{
+    const d=document.createElement('div');
+    d.className='font-chip';d.textContent=f;d.title=f;
+    d.style.fontFamily=f;
+    d.onclick=()=>{document.querySelectorAll('.font-chip').forEach(c=>c.classList.remove('active'));d.classList.add('active');};
+    fg.appendChild(d);
+  });
 
-// ==========================
+  // stickers
+  const sg=document.getElementById('stickerGrid');
+  STICKERS.forEach(s=>{
+    const d=document.createElement('div');d.className='sticker';d.textContent=s;
+    d.onclick=()=>addSticker(s);sg.appendChild(d);
+  });
+
+  // bg colors
+  const bg=document.getElementById('bgGrid');
+  BG_COLORS.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='bg-chip';d.style.background=c;
+    d.onclick=()=>setBgColor(c);bg.appendChild(d);
+  });
+
+  // gradients
+  const gg=document.getElementById('gradGrid');
+  GRADIENTS.forEach(([c1,c2])=>{
+    const d=document.createElement('div');
+    d.className='grad-chip';
+    d.style.background=`linear-gradient(135deg,${c1},${c2})`;
+    d.onclick=()=>setBgGradient(c1,c2);gg.appendChild(d);
+  });
+
+  // AI recs
+  updateAIRecs();
+}
+buildUI();
+
+// ══════════════════════════════════════════
+// CANVAS EVENTS
+// ══════════════════════════════════════════
+canvas.on('object:added',()=>{saveHistory();updateAll();});
+canvas.on('object:modified',()=>{saveHistory();updateAll();});
+canvas.on('object:removed',()=>{saveHistory();updateAll();});
+canvas.on('selection:created',updateObjProps);
+canvas.on('selection:updated',updateObjProps);
+canvas.on('selection:cleared',()=>{document.getElementById('objProps').innerHTML='<span style="color:var(--muted)">Select an object</span>';});
+
+// Right click context menu
+document.getElementById('thumbnailCanvas').addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const m=document.getElementById('ctxMenu');
+  m.style.display='block';
+  m.style.left=e.clientX+'px';
+  m.style.top=e.clientY+'px';
+});
+document.addEventListener('click',()=>document.getElementById('ctxMenu').style.display='none');
+
+// Snap to grid
+canvas.on('object:moving',function(e){
+  if(!snapEnabled) return;
+  const obj=e.target,step=20;
+  obj.set({left:Math.round(obj.left/step)*step,top:Math.round(obj.top/step)*step});
+});
+
+// ══════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════
+let _saving=false;
+function saveHistory(){
+  if(_saving) return;_saving=true;
+  undoStack.push(JSON.stringify(canvas));
+  if(undoStack.length>30) undoStack.shift();
+  redoStack=[];
+  setTimeout(()=>{_saving=false;},10);
+}
+function undo(){
+  if(undoStack.length<2){toast('Nothing to undo');return;}
+  redoStack.push(undoStack.pop());
+  _saving=true;
+  canvas.loadFromJSON(undoStack[undoStack.length-1],()=>{canvas.renderAll();updateAll();_saving=false;});
+}
+function redo(){
+  if(!redoStack.length){toast('Nothing to redo');return;}
+  _saving=true;
+  const state=redoStack.pop();undoStack.push(state);
+  canvas.loadFromJSON(state,()=>{canvas.renderAll();updateAll();_saving=false;});
+}
+
+// ══════════════════════════════════════════
+// TOOLS
+// ══════════════════════════════════════════
+function setTool(t){
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tool-'+t)?.classList.add('active');
+}
+function zoomIn(){currentZoom=Math.min(currentZoom+0.1,2);scaleCanvas();}
+function zoomOut(){currentZoom=Math.max(currentZoom-0.1,0.2);scaleCanvas();}
+function zoomFit(){currentZoom=CANVAS_SCALE;scaleCanvas();}
+function toggleGrid(){
+  gridEnabled=!gridEnabled;
+  document.getElementById('thumbnailCanvas').style.backgroundImage=gridEnabled?`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23ffffff08' stroke-width='1'/%3E%3C/svg%3E")`:'';
+  toast(gridEnabled?'Grid ON':'Grid OFF');
+}
+function toggleSnap(){snapEnabled=!snapEnabled;toast(snapEnabled?'Snap ON':'Snap OFF');}
+function toggleSafeZones(){
+  safeZonesEnabled=!safeZonesEnabled;
+  const existing=canvas.getObjects().filter(o=>o._isSafeZone);
+  if(!safeZonesEnabled){existing.forEach(o=>canvas.remove(o));canvas.renderAll();return;}
+  // YT safe zone
+  [[60,40,canvasW-120,canvasH-80]].forEach(([l,t,w,h])=>{
+    const r=new fabric.Rect({left:l,top:t,width:w,height:h,fill:'transparent',stroke:'rgba(255,255,0,0.5)',strokeWidth:2,strokeDashArray:[10,5],selectable:false,evented:false,_isSafeZone:true});
+    canvas.add(r);canvas.bringToFront(r);
+  });
+  // Subscribe zone
+  const sub=new fabric.Rect({left:canvasW-200,top:canvasH-80,width:180,height:60,fill:'rgba(255,0,0,0.2)',stroke:'red',strokeWidth:1,strokeDashArray:[5,3],selectable:false,evented:false,_isSafeZone:true});
+  canvas.add(sub);canvas.renderAll();
+  toast('Safe zones shown');
+}
+function toggleRulers(){toast('Rulers: coming soon');}
+function selectAll(){canvas.discardActiveObject();const sel=new fabric.ActiveSelection(canvas.getObjects(),{canvas});canvas.setActiveObject(sel);canvas.requestRenderAll();}
+function deselect(){canvas.discardActiveObject();canvas.requestRenderAll();}
+function deleteSelected(){
+  const obj=canvas.getActiveObjects();
+  if(!obj.length){toast('Select object first');return;}
+  obj.forEach(o=>canvas.remove(o));canvas.discardActiveObject();canvas.renderAll();
+}
+
+// ══════════════════════════════════════════
 // UPLOAD IMAGE
-// ==========================
-
-document
-.getElementById('imageUpload')
-.addEventListener(
-'change',
-function(e){
-
-const file =
-e.target.files[0];
-
-if(!file) return;
-
-const reader =
-new FileReader();
-
-reader.onload = function(f){
-
-fabric.Image.fromURL(
-f.target.result,
-function(img){
-
-img.scaleToWidth(500);
-
-img.set({
-left:200,
-top:120,
-cornerColor:'#38bdf8',
-borderColor:'#38bdf8'
-});
-
-canvas.add(img);
-
-updatePreview();
-
-});
-
-};
-
-reader.readAsDataURL(file);
-
-});
-
-// ==========================
-// ADD TEXT
-// ==========================
-
-function addText(){
-
-const text =
-document.getElementById(
-'thumbnailText'
-).value;
-
-const color =
-document.getElementById(
-'textColor'
-).value;
-
-const textbox =
-new fabric.Textbox(
-text,
-{
-
-left:120,
-top:500,
-
-fontSize:70,
-
-fontWeight:'800',
-
-fill:color,
-
-stroke:'#000',
-
-strokeWidth:3,
-
-fontFamily:'Poppins',
-
-shadow:
-'0 0 20px rgba(0,0,0,0.8)',
-
-width:900
-
+// ══════════════════════════════════════════
+function uploadImage(e){
+  const file=e.target.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    fabric.Image.fromURL(ev.target.result,function(img){
+      const scale=Math.min((canvasW*0.7)/img.width,(canvasH*0.9)/img.height);
+      img.set({scaleX:scale,scaleY:scale,left:canvasW/2,top:canvasH/2,originX:'center',originY:'center'});
+      canvas.add(img);canvas.setActiveObject(img);canvas.renderAll();
+      updateAll();toast('Image added!');
+    });
+  };
+  reader.readAsDataURL(file);
 }
 
-);
-
-canvas.add(textbox);
-
-updatePreview();
-
+// ══════════════════════════════════════════
+// SHAPES
+// ══════════════════════════════════════════
+function addShape(type){
+  let obj;
+  const opts={left:canvasW/2,top:canvasH/2,originX:'center',originY:'center',fill:'rgba(99,179,237,0.4)',stroke:'#63b3ed',strokeWidth:2};
+  if(type==='rect') obj=new fabric.Rect({...opts,width:300,height:160,rx:10,ry:10});
+  else if(type==='circle') obj=new fabric.Circle({...opts,radius:100});
+  else if(type==='triangle') obj=new fabric.Triangle({...opts,width:200,height:180});
+  else if(type==='line') obj=new fabric.Line([100,300,1100,300],{stroke:'#63b3ed',strokeWidth:4,strokeLineCap:'round'});
+  else if(type==='star') obj=makeStar(canvasW/2,canvasH/2,5,100,50);
+  else if(type==='arrow') obj=makeArrow();
+  else if(type==='badge') obj=makeBadge();
+  else if(type==='burst') obj=makeBurst();
+  if(obj){canvas.add(obj);canvas.setActiveObject(obj);canvas.renderAll();updateAll();}
 }
 
-// ==========================
-// ADD GLOW
-// ==========================
-
-function addGlowEffect(){
-
-const active =
-canvas.getActiveObject();
-
-if(!active){
-
-alert('Select object first');
-return;
-
+function makeStar(cx,cy,pts,outer,inner){
+  const path=[];
+  for(let i=0;i<pts*2;i++){
+    const r=i%2===0?outer:inner;
+    const a=(i*Math.PI/pts)-Math.PI/2;
+    if(i===0) path.push('M',cx+r*Math.cos(a),cy+r*Math.sin(a));
+    else path.push('L',cx+r*Math.cos(a),cy+r*Math.sin(a));
+  }
+  path.push('Z');
+  return new fabric.Path(path.join(' '),{fill:'#f6ad55',stroke:'#f59e0b',strokeWidth:2});
+}
+function makeArrow(){
+  const p=new fabric.Path('M 0 0 L 200 0 L 180 -30 M 200 0 L 180 30',{stroke:'#fc8181',strokeWidth:8,fill:'transparent',strokeLineCap:'round',strokeLineJoin:'round',left:canvasW/2-100,top:canvasH/2});
+  return p;
+}
+function makeBadge(){
+  const r=new fabric.Rect({width:200,height:70,rx:35,ry:35,fill:'#ef4444',left:canvasW/2-100,top:canvasH/2-35});
+  const t=new fabric.Text('NEW',{left:canvasW/2,top:canvasH/2,originX:'center',originY:'center',fontSize:36,fontWeight:'900',fill:'#fff',fontFamily:'Impact'});
+  const g=new fabric.Group([r,t]);return g;
+}
+function makeBurst(){
+  const paths=[];
+  for(let i=0;i<16;i++){
+    const a=(i/16)*Math.PI*2;
+    const x1=Math.cos(a)*20,y1=Math.sin(a)*20;
+    const x2=Math.cos(a)*120,y2=Math.sin(a)*120;
+    paths.push(new fabric.Line([x1,y1,x2,y2],{stroke:'#fbbf24',strokeWidth:3,originX:'center',originY:'center'}));
+  }
+  const g=new fabric.Group(paths,{left:canvasW/2,top:canvasH/2,originX:'center',originY:'center'});
+  return g;
 }
 
-active.set({
+// ══════════════════════════════════════════
+// TEXT
+// ══════════════════════════════════════════
+function getFont(){const a=document.querySelector('.font-chip.active');return a?a.title:'Impact';}
+function addStyledText(type){
+  const isTitle=type==='title';
+  const txt=isTitle?document.getElementById('txtTitle').value||'YOUR TITLE HERE':document.getElementById('txtSub').value||'SUB TEXT';
+  const color=document.getElementById('txtColor').value;
+  const fsz=parseInt(document.getElementById('fsz').value);
+  const sw=parseInt(document.getElementById('sw').value);
+  const sc=document.getElementById('strokeColor').value;
+  const ls=parseInt(document.getElementById('ls').value);
+  const shCol=document.getElementById('shadowColor').value;
+  const t=new fabric.Textbox(txt,{
+    left:canvasW/2,top:isTitle?canvasH*0.7:canvasH*0.88,
+    originX:'center',originY:'center',
+    width:canvasW*0.9,
+    fontSize:fsz,fontWeight:'900',
+    fontFamily:getFont(),
+    fill:color,stroke:sc,strokeWidth:sw,
+    charSpacing:ls*10,
+    shadow:`${shCol} 3px 3px 12px`,
+    textAlign:'center'
+  });
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();updateAll();toast('Text added');
+}
+function addText(){addStyledText('title');}
 
-shadow:
-'0 0 30px #38bdf8'
-
-});
-
-canvas.renderAll();
-
-updatePreview();
-
+function addGradientText(){
+  const txt=document.getElementById('txtTitle').value||'GRADIENT TEXT';
+  const t=new fabric.Textbox(txt,{
+    left:canvasW/2,top:canvasH*0.75,originX:'center',originY:'center',
+    width:canvasW*0.9,fontSize:90,fontWeight:'900',fontFamily:getFont(),
+    fill:new fabric.Gradient({type:'linear',gradientUnits:'percentage',coords:{x1:0,y1:0,x2:1,y2:0},colorStops:[{offset:0,color:'#38bdf8'},{offset:0.5,color:'#c084fc'},{offset:1,color:'#f87171'}]}),
+    strokeWidth:3,stroke:'#000',textAlign:'center'
+  });
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();updateAll();
+}
+function addNeonText(){
+  const txt=document.getElementById('txtTitle').value||'NEON TEXT';
+  const t=new fabric.Textbox(txt,{
+    left:canvasW/2,top:canvasH*0.75,originX:'center',originY:'center',
+    width:canvasW*0.9,fontSize:90,fontWeight:'900',fontFamily:getFont(),
+    fill:'#ffffff',
+    shadow:'0 0 40px #38bdf8, 0 0 80px #38bdf8, 0 0 5px #fff',
+    textAlign:'center',stroke:'#38bdf8',strokeWidth:1
+  });
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();updateAll();
+}
+function addOutlineText(){
+  const txt=document.getElementById('txtTitle').value||'OUTLINE';
+  const t=new fabric.Textbox(txt,{
+    left:canvasW/2,top:canvasH*0.75,originX:'center',originY:'center',
+    width:canvasW*0.9,fontSize:110,fontWeight:'900',fontFamily:getFont(),
+    fill:'transparent',stroke:'#ffffff',strokeWidth:6,textAlign:'center'
+  });
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();updateAll();
+}
+function addSticker(s){
+  const t=new fabric.Text(s,{left:canvasW/2,top:canvasH/2,originX:'center',originY:'center',fontSize:80});
+  canvas.add(t);canvas.setActiveObject(t);canvas.renderAll();updateAll();
+}
+function addWatermark(){
+  const t=new fabric.Text('KJSYNTHORA',{left:canvasW-20,top:canvasH-20,originX:'right',originY:'bottom',fontSize:20,fontFamily:'Space Grotesk',fill:'rgba(255,255,255,0.3)',fontWeight:'700'});
+  canvas.add(t);canvas.renderAll();updateAll();toast('Watermark added');
+}
+function addSubscribeBadge(){
+  const r=new fabric.Rect({width:260,height:70,rx:35,ry:35,fill:'#ef4444',shadow:'0 0 20px #ef4444'});
+  const t1=new fabric.Text('▶ SUBSCRIBE',{originX:'center',originY:'center',fontSize:26,fontWeight:'900',fill:'#fff',fontFamily:'Impact'});
+  const g=new fabric.Group([r,t1],{left:canvasW/2,top:canvasH*0.12,originX:'center',originY:'center'});
+  canvas.add(g);canvas.setActiveObject(g);canvas.renderAll();updateAll();
 }
 
-// ==========================
-// ADD ARROW
-// ==========================
-
-function addArrow(){
-
-const arrow =
-new fabric.Triangle({
-
-width:80,
-height:120,
-
-fill:'#ff0000',
-
-left:1000,
-top:120,
-
-angle:90,
-
-shadow:
-'0 0 20px red'
-
-});
-
-canvas.add(arrow);
-
-updatePreview();
-
+// ══════════════════════════════════════════
+// BACKGROUND
+// ══════════════════════════════════════════
+function setBgColor(c){
+  canvas.setBackgroundColor(c,canvas.renderAll.bind(canvas));
+  updatePreviews();updateCTR();
+}
+function setBgGradient(c1,c2){
+  const grad=new fabric.Gradient({type:'linear',gradientUnits:'pixels',coords:{x1:0,y1:0,x2:canvasW,y2:canvasH},colorStops:[{offset:0,color:c1},{offset:1,color:c2}]});
+  canvas.setBackgroundColor(grad,canvas.renderAll.bind(canvas));
+  updatePreviews();updateCTR();toast('Gradient applied');
+}
+function applyOverlay(){
+  const existing=canvas.getObjects().filter(o=>o._isOverlay);
+  existing.forEach(o=>canvas.remove(o));
+  const op=parseInt(document.getElementById('ovOp').value)/100;
+  if(op===0){canvas.renderAll();return;}
+  const col=document.getElementById('ovColor').value;
+  const r=new fabric.Rect({left:0,top:0,width:canvasW,height:canvasH,fill:col,opacity:op,selectable:false,evented:false,_isOverlay:true});
+  canvas.add(r);canvas.sendToBack(r);canvas.renderAll();
+}
+function applyBgStyle(style){
+  const styles={
+    gaming:{from:'#0a0010',to:'#1a0050'},
+    finance:{from:'#0a0800',to:'#1a1000'},
+    tech:{from:'#000d1a',to:'#001a33'},
+    reaction:{from:'#1a0000',to:'#330000'},
+    education:{from:'#001a33',to:'#002b55'},
+    vlog:{from:'#1a0a00',to:'#331500'},
+    dark:{from:'#000000',to:'#0a0a14'},
+  };
+  const s=styles[style]||styles.dark;
+  setBgGradient(s.from,s.to);
+  toast(style+' style applied');
 }
 
-// ==========================
-// APPLY STYLE
-// ==========================
-
-function applyStyle(){
-
-const style =
-document.getElementById(
-'styleSelect'
-).value;
-
-const bg =
-document.getElementById(
-'backgroundPreset'
-).value;
-
-canvas.setBackgroundColor(
-bg,
-canvas.renderAll.bind(canvas)
-);
-
-if(style === 'gaming'){
-
-canvas.backgroundColor='#0f172a';
-
+// ══════════════════════════════════════════
+// EFFECTS
+// ══════════════════════════════════════════
+function addGlow(){
+  const obj=canvas.getActiveObject();
+  if(!obj){toast('Select object first');return;}
+  obj.set({shadow:'0 0 30px #38bdf8, 0 0 60px #38bdf8'});
+  canvas.renderAll();updateAll();toast('Neon glow added');
+}
+function addDrop(){
+  const obj=canvas.getActiveObject();
+  if(!obj){toast('Select object first');return;}
+  obj.set({shadow:'5px 8px 20px rgba(0,0,0,0.9)'});
+  canvas.renderAll();updateAll();
+}
+function addArrowFx(){
+  const arrow=new fabric.Path('M 0 0 L 150 0 L 130 -25 M 150 0 L 130 25',{
+    stroke:'#fc8181',strokeWidth:10,fill:'transparent',strokeLineCap:'round',
+    left:canvasW*0.6,top:canvasH*0.5,shadow:'0 0 15px #fc8181'
+  });
+  canvas.add(arrow);canvas.setActiveObject(arrow);canvas.renderAll();updateAll();
+}
+function addExplosionFx(){
+  const lines=[];
+  for(let i=0;i<20;i++){
+    const a=(i/20)*Math.PI*2;
+    const l=100+Math.random()*200;
+    lines.push(new fabric.Line([0,0,Math.cos(a)*l,Math.sin(a)*l],{stroke:'#fbbf24',strokeWidth:2+Math.random()*4,opacity:0.7}));
+  }
+  const g=new fabric.Group(lines,{left:canvasW/2,top:canvasH/2,originX:'center',originY:'center'});
+  canvas.add(g);canvas.setActiveObject(g);canvas.renderAll();updateAll();
+}
+function addLightBeam(){
+  const p=new fabric.Path('M 640 0 L 400 720 L 880 720 Z',{fill:'rgba(255,240,150,0.08)',selectable:true});
+  canvas.add(p);canvas.sendToBack(p);canvas.renderAll();updateAll();toast('Light beam added');
+}
+function addBorderFx(){
+  const r=new fabric.Rect({left:20,top:20,width:canvasW-40,height:canvasH-40,fill:'transparent',stroke:'#38bdf8',strokeWidth:6,shadow:'0 0 20px #38bdf8, inset 0 0 20px #38bdf8',selectable:false,evented:false,rx:20,ry:20});
+  canvas.add(r);canvas.bringToFront(r);canvas.renderAll();updateAll();
 }
 
-if(style === 'finance'){
-
-canvas.backgroundColor='#064e3b';
-
+function applyFilter(type,val,slider){
+  const obj=canvas.getActiveObject();
+  if(!obj||obj.type!=='image'){toast('Select image first');return;}
+  const labels={brightness:'flBright',contrast:'flCont',saturation:'flSat',blur:'flBlur',pixelate:'flPix'};
+  if(labels[type]) document.getElementById(labels[type]).textContent=val;
+  // Remove existing of same type
+  const idx=obj.filters.findIndex(f=>f&&f.type&&f.type.toLowerCase()===type);
+  if(idx>-1) obj.filters.splice(idx,1);
+  if(type==='brightness') obj.filters.push(new fabric.Image.filters.Brightness({brightness:parseFloat(val)}));
+  else if(type==='contrast') obj.filters.push(new fabric.Image.filters.Contrast({contrast:parseFloat(val)}));
+  else if(type==='saturation') obj.filters.push(new fabric.Image.filters.Saturation({saturation:parseFloat(val)}));
+  else if(type==='blur'&&parseFloat(val)>0) obj.filters.push(new fabric.Image.filters.Blur({blur:parseFloat(val)/20}));
+  else if(type==='pixelate'&&parseFloat(val)>1) obj.filters.push(new fabric.Image.filters.Pixelate({blocksize:parseInt(val)}));
+  obj.applyFilters();canvas.renderAll();updatePreviews();
+}
+function setOpacity(val,slider){
+  document.getElementById('flOp').textContent=val;
+  const obj=canvas.getActiveObject();
+  if(!obj) return;
+  obj.set({opacity:parseFloat(val)/100});canvas.renderAll();
+}
+function setBlend(){
+  const obj=canvas.getActiveObject();if(!obj) return;
+  obj.set({globalCompositeOperation:document.getElementById('blendMode').value||'source-over'});
+  canvas.renderAll();
 }
 
-if(style === 'tech'){
-
-canvas.backgroundColor='#111827';
-
+// ══════════════════════════════════════════
+// AUTO COMPOSE
+// ══════════════════════════════════════════
+function autoCompose(){
+  clearCanvas(true);
+  setBgGradient('#000000','#0f0030');
+  const title=new fabric.Textbox('YOUR VIRAL TITLE',{
+    left:canvasW/2,top:canvasH*0.65,originX:'center',originY:'center',
+    width:canvasW*0.85,fontSize:95,fontWeight:'900',fontFamily:'Impact',
+    fill:'#fff',stroke:'#000',strokeWidth:4,
+    shadow:'0 0 30px #38bdf8',textAlign:'center'
+  });
+  const sub=new fabric.Textbox('WATCH TILL THE END! 🔥',{
+    left:canvasW/2,top:canvasH*0.88,originX:'center',originY:'center',
+    width:canvasW*0.7,fontSize:42,fontWeight:'700',fontFamily:'Impact',
+    fill:'#fbbf24',stroke:'#000',strokeWidth:2,textAlign:'center'
+  });
+  addBorderFx();
+  canvas.add(title);canvas.add(sub);
+  canvas.setActiveObject(title);canvas.renderAll();updateAll();
+  toast('Auto composed!');
 }
 
-if(style === 'reaction'){
-
-canvas.backgroundColor='#7f1d1d';
-
+// ══════════════════════════════════════════
+// CONTEXT MENU ACTIONS
+// ══════════════════════════════════════════
+function ctxAct(act){
+  const obj=canvas.getActiveObject();if(!obj) return;
+  if(act==='bringFront') canvas.bringToFront(obj);
+  else if(act==='sendBack') canvas.sendToBack(obj);
+  else if(act==='bringFwd') canvas.bringForward(obj);
+  else if(act==='sendBkwd') canvas.sendBackwards(obj);
+  else if(act==='duplicate'){
+    obj.clone(clone=>{clone.set({left:obj.left+20,top:obj.top+20});canvas.add(clone);canvas.setActiveObject(clone);canvas.renderAll();});
+  }
+  else if(act==='group'){
+    const sel=canvas.getActiveObjects();
+    if(sel.length<2){toast('Select multiple objects');return;}
+    canvas.discardActiveObject();
+    const g=new fabric.Group(sel,{canvas});
+    sel.forEach(o=>canvas.remove(o));
+    canvas.add(g);canvas.setActiveObject(g);
+  }
+  else if(act==='ungroup'){
+    if(!obj.type==='group') return;
+    const items=obj._objects;
+    canvas.remove(obj);
+    items.forEach(i=>{canvas.add(i);});
+  }
+  else if(act==='flipH') obj.set({flipX:!obj.flipX});
+  else if(act==='flipV') obj.set({flipY:!obj.flipY});
+  else if(act==='center') obj.center();
+  else if(act==='delete') canvas.remove(obj);
+  canvas.renderAll();updateAll();
 }
 
-if(style === 'education'){
-
-canvas.backgroundColor='#1e3a8a';
-
+// ══════════════════════════════════════════
+// ALIGNMENT
+// ══════════════════════════════════════════
+function alignObj(dir){
+  const obj=canvas.getActiveObject();if(!obj) return;
+  if(dir==='left') obj.set({left:0,originX:'left'});
+  else if(dir==='right') obj.set({left:canvasW,originX:'right'});
+  else if(dir==='centerH') obj.set({left:canvasW/2,originX:'center'});
+  else if(dir==='top') obj.set({top:0,originY:'top'});
+  else if(dir==='bottom') obj.set({top:canvasH,originY:'bottom'});
+  else if(dir==='centerV') obj.set({top:canvasH/2,originY:'center'});
+  canvas.renderAll();updateAll();
 }
 
-canvas.renderAll();
-
-updatePreview();
-
+// ══════════════════════════════════════════
+// SIZE CHANGE
+// ══════════════════════════════════════════
+function changeSize(){
+  const [w,h]=document.getElementById('sizePreset').value.split(',').map(Number);
+  canvasW=w;canvasH=h;
+  canvas.setWidth(canvasW);canvas.setHeight(canvasH);
+  scaleCanvas();canvas.renderAll();toast(w+'×'+h+' applied');
 }
 
-// ==========================
-// UPDATE PREVIEWS
-// ==========================
-
-function updatePreview(){
-
-const data =
-canvas.toDataURL({
-format:'png'
-});
-
-desktopPreview.src = data;
-mobilePreview.src = data;
-
+// ══════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════
+function exportThumbnail(multiplier){
+  const savedZoom=currentZoom;
+  canvas.setZoom(1);canvas.setWidth(canvasW);canvas.setHeight(canvasH);
+  const data=canvas.toDataURL({format:'png',multiplier});
+  canvas.setZoom(savedZoom);canvas.setWidth(canvasW*savedZoom);canvas.setHeight(canvasH*savedZoom);
+  const link=document.createElement('a');
+  link.download=`KJSynthora-thumbnail-${canvasW}x${canvasH}-${multiplier}x.png`;
+  link.href=data;link.click();
+  toast('Exported at '+multiplier+'x!');
 }
 
-// ==========================
-// DOWNLOAD
-// ==========================
-
-function downloadThumbnail(){
-
-const link =
-document.createElement('a');
-
-link.download =
-'KJSynthora-Thumbnail.png';
-
-link.href =
-canvas.toDataURL({
-format:'png'
-});
-
-link.click();
-
-}
-
-// ==========================
+// ══════════════════════════════════════════
 // CLEAR
-// ==========================
-
-function clearCanvas(){
-
-canvas.clear();
-
-canvas.setBackgroundColor(
-'#000',
-canvas.renderAll.bind(canvas)
-);
-
-updatePreview();
-
+// ══════════════════════════════════════════
+function clearCanvas(silent){
+  const objs=canvas.getObjects().filter(o=>!o._isSafeZone);
+  objs.forEach(o=>canvas.remove(o));
+  canvas.setBackgroundColor('#000000',canvas.renderAll.bind(canvas));
+  if(!silent) toast('Canvas cleared');
+  updateAll();
 }
 
-// ==========================
-// SAFE ZONE
-// ==========================
+// ══════════════════════════════════════════
+// PREVIEWS
+// ══════════════════════════════════════════
+function updatePreviews(){
+  const savedZoom=currentZoom;
+  canvas.setZoom(1);canvas.setWidth(canvasW);canvas.setHeight(canvasH);
+  const data=canvas.toDataURL({format:'jpeg',quality:0.8});
+  canvas.setZoom(savedZoom);canvas.setWidth(canvasW*savedZoom);canvas.setHeight(canvasH*savedZoom);
+  ['pvYT','pvSearch','pvShorts','pvMobile','pvDark'].forEach(id=>{
+    const el=document.getElementById(id);if(el) el.src=data;
+  });
+}
 
-const safeZone =
-new fabric.Rect({
+// ══════════════════════════════════════════
+// LAYERS
+// ══════════════════════════════════════════
+function updateLayers(){
+  const list=document.getElementById('layerList');
+  const objs=[...canvas.getObjects()].reverse().filter(o=>!o._isSafeZone&&!o._isOverlay);
+  list.innerHTML='';
+  objs.forEach((obj,i)=>{
+    const icon=obj.type==='image'?'🖼':obj.type==='textbox'||obj.type==='text'?'T':'⬚';
+    const name=obj.type==='textbox'||obj.type==='text'?(obj.text||'').substring(0,14):obj.type;
+    const div=document.createElement('div');
+    div.className='layer-item'+(canvas.getActiveObject()===obj?' active':'');
+    div.innerHTML=`<span class="layer-icon">${icon}</span><span class="layer-name">${name||('Layer '+(objs.length-i))}</span><span class="layer-vis" onclick="event.stopPropagation();toggleVis(event,${i})">${obj.visible!==false?'👁':'🚫'}</span>`;
+    div.onclick=()=>{canvas.setActiveObject(obj);canvas.renderAll();updateLayers();};
+    list.appendChild(div);
+  });
+}
+function toggleVis(e,i){
+  const objs=[...canvas.getObjects()].reverse().filter(o=>!o._isSafeZone&&!o._isOverlay);
+  const obj=objs[i];
+  obj.set({visible:obj.visible===false?true:false});
+  canvas.renderAll();updateLayers();
+}
 
-left:1080,
-top:620,
+// ══════════════════════════════════════════
+// OBJECT PROPS
+// ══════════════════════════════════════════
+function updateObjProps(){
+  const obj=canvas.getActiveObject();if(!obj) return;
+  const el=document.getElementById('objProps');
+  el.innerHTML=`
+    <div class="prop-row"><span class="pk">Type</span><span class="pv">${obj.type}</span></div>
+    <div class="prop-row"><span class="pk">Left</span><span class="pv">${Math.round(obj.left)}px</span></div>
+    <div class="prop-row"><span class="pk">Top</span><span class="pv">${Math.round(obj.top)}px</span></div>
+    <div class="prop-row"><span class="pk">Width</span><span class="pv">${Math.round(obj.getScaledWidth())}px</span></div>
+    <div class="prop-row"><span class="pk">Height</span><span class="pv">${Math.round(obj.getScaledHeight())}px</span></div>
+    <div class="prop-row"><span class="pk">Angle</span><span class="pv">${Math.round(obj.angle||0)}°</span></div>
+    <div class="prop-row"><span class="pk">Opacity</span><span class="pv">${Math.round((obj.opacity||1)*100)}%</span></div>
+    ${obj.fontSize?`<div class="prop-row"><span class="pk">Font Size</span><span class="pv">${obj.fontSize}px</span></div>`:''}
+  `;
+}
 
-width:180,
-height:80,
+// ══════════════════════════════════════════
+// CTR SCORE
+// ══════════════════════════════════════════
+function updateCTR(){
+  const objs=canvas.getObjects().filter(o=>!o._isSafeZone&&!o._isOverlay);
+  let score=2;
+  const hasImage=objs.some(o=>o.type==='image');
+  const hasText=objs.some(o=>o.type==='textbox'||o.type==='text');
+  const hasBg=canvas.backgroundColor&&canvas.backgroundColor!=='#000000';
+  if(hasImage) score+=2.5;
+  if(hasText) score+=2;
+  if(hasBg) score+=0.8;
+  if(objs.length>=3) score+=0.5;
+  if(objs.length>=5) score+=0.3;
+  score=Math.min(10,score);
+  const pct=score*10;
+  document.getElementById('ctrVal').textContent=score.toFixed(1);
+  document.getElementById('topCtr').textContent=score.toFixed(1);
+  document.getElementById('ctrBar').style.width=pct+'%';
+  const label=score>=8?'Excellent':score>=6?'Good':score>=4?'Average':'Poor';
+  const lc=score>=8?'var(--accent3)':score>=6?'var(--accent4)':score>=4?'var(--accent)':'var(--red)';
+  document.getElementById('ctrLabel').textContent=label;
+  document.getElementById('ctrLabel').style.color=lc;
+  updateAIRecs(hasImage,hasText,hasBg,score);
+}
 
-fill:'rgba(255,0,0,0.25)',
+function updateAIRecs(hasImage,hasText,hasBg,score){
+  const recs=[];
+  if(!hasImage) recs.push({type:'warn',msg:'⚠️ Add a high-contrast face or image — faces boost CTR by 38%'});
+  else recs.push({type:'ok',msg:'✅ Image detected — face image gets best CTR'});
+  if(!hasText) recs.push({type:'warn',msg:'⚠️ Add text! Thumbnails with text get 2× clicks'});
+  else recs.push({type:'ok',msg:'✅ Text present — keep it under 5 words'});
+  if(!hasBg) recs.push({type:'warn',msg:'⚠️ Plain black bg reduces visibility in search'});
+  else recs.push({type:'ok',msg:'✅ Custom background applied'});
+  recs.push({type:'info',msg:'💡 Use high contrast colors — red/yellow/white performs best'});
+  recs.push({type:'info',msg:'💡 Place main subject in left 2/3 of frame'});
+  document.getElementById('aiRecList').innerHTML=recs.slice(0,4).map(r=>`<div class="ai-rec ${r.type==='warn'?'warn':r.type==='ok'?'ok':''}">${r.msg}</div>`).join('');
+}
 
-selectable:false,
-evented:false
+function updateAll(){
+  updatePreviews();updateLayers();updateCTR();
+}
 
+// ══════════════════════════════════════════
+// A/B COMPARE
+// ══════════════════════════════════════════
+function setABCompare(){
+  const savedZoom=currentZoom;
+  canvas.setZoom(1);canvas.setWidth(canvasW);canvas.setHeight(canvasH);
+  abSnapshot=canvas.toDataURL({format:'jpeg',quality:0.8});
+  canvas.setZoom(savedZoom);canvas.setWidth(canvasW*savedZoom);canvas.setHeight(canvasH*savedZoom);
+  document.getElementById('pvAB').src=abSnapshot;
+  document.getElementById('pvAB').style.opacity='1';
+  toast('A/B snapshot saved!');
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+// ══════════════════════════════════════════
+// LEFT PANEL TABS
+// ══════════════════════════════════════════
+function switchLTab(id,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ptab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('lt-'+id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+  if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}
+  else if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo();}
+  else if(e.ctrlKey&&e.key==='d'){e.preventDefault();ctxAct('duplicate');}
+  else if(e.ctrlKey&&e.key==='a'){e.preventDefault();selectAll();}
+  else if(e.key==='Delete'||e.key==='Backspace'){deleteSelected();}
+  else if(e.key==='+'||e.key==='='){zoomIn();}
+  else if(e.key==='-'){zoomOut();}
+  else if(e.key==='0'){zoomFit();}
+  else if(e.key==='ArrowLeft'){const o=canvas.getActiveObject();if(o){o.set({left:o.left-1});canvas.renderAll();}}
+  else if(e.key==='ArrowRight'){const o=canvas.getActiveObject();if(o){o.set({left:o.left+1});canvas.renderAll();}}
+  else if(e.key==='ArrowUp'){const o=canvas.getActiveObject();if(o){o.set({top:o.top-1});canvas.renderAll();}}
+  else if(e.key==='ArrowDown'){const o=canvas.getActiveObject();if(o){o.set({top:o.top+1});canvas.renderAll();}}
 });
 
-canvas.add(safeZone);
+// Drag & drop on canvas
+document.getElementById('canvas-wrapper').addEventListener('dragover',e=>{e.preventDefault();});
+document.getElementById('canvas-wrapper').addEventListener('drop',e=>{
+  e.preventDefault();
+  const file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith('image/')) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    fabric.Image.fromURL(ev.target.result,img=>{
+      const scale=Math.min((canvasW*0.7)/img.width,(canvasH*0.9)/img.height);
+      img.set({scaleX:scale,scaleY:scale,left:canvasW/2,top:canvasH/2,originX:'center',originY:'center'});
+      canvas.add(img);canvas.setActiveObject(img);canvas.renderAll();updateAll();toast('Image dropped!');
+    });
+  };
+  reader.readAsDataURL(file);
+});
 
-canvas.sendToBack(safeZone);
-
-updatePreview();
-
+// ══════════════════════════════════════════
+// INIT CANVAS
+// ══════════════════════════════════════════
+saveHistory();
+updateAll();
+toast('🎬 Studio ready! Drag images or click Add to start.');
 </script>
-
 </body>
 </html>
