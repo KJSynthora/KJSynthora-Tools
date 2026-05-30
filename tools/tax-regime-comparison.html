@@ -1,1137 +1,1177 @@
-<!-- =========================================================
-GLOBAL AI TAX ENGINE - ULTRA ENTERPRISE VERSION
-File: tools/tax-regime-comparison.html
-FULLY UPDATED END-TO-END VERSION
-========================================================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global AI Tax Engine</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<title>Global AI Tax Engine | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060910;--bg2:#090d1a;--surface:#0d1220;--surface2:#111829;
+  --surface3:#16203a;--border:#1a2540;--border2:#1f2d4e;
+  --accent:#6366f1;--accent2:#06b6d4;--accent3:#8b5cf6;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+  --text:#dde6ff;--text2:#6b7fa8;--text3:#2e3d5e;
+  --mono:'JetBrains Mono',monospace;
 }
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 0%,rgba(99,102,241,0.07),transparent 60%),radial-gradient(ellipse 50% 40% at 90% 100%,rgba(139,92,246,0.05),transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
 
-body{
-background:
-linear-gradient(135deg,#020617,#08114f,#581c87);
-min-height:100vh;
-padding:25px;
-color:white;
-}
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(6,9,16,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px rgba(99,102,241,0.3);}
+.brand-name{font-size:15px;font-weight:700;color:var(--text);}
+.brand-name span{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.groq-badge{display:flex;align-items:center;gap:7px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:7px 14px;border-radius:999px;font-size:12px;font-weight:600;color:var(--success);cursor:pointer;transition:all 0.2s;}
+.groq-badge:hover{background:rgba(16,185,129,0.18);}
+.groq-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.top-btn{padding:8px 16px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.top-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-.container{
-max-width:1700px;
-margin:auto;
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:22px;
-}
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:420px 1fr;min-height:calc(100vh - 65px);}
 
-.card{
-background:#0f1f74;
-border-radius:26px;
-padding:24px;
-box-shadow:0 0 35px rgba(0,0,0,.45);
-}
+/* ── SIDEBAR ── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:20px 18px;overflow-y:auto;max-height:calc(100vh - 65px);position:sticky;top:65px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
-.title{
-font-size:42px;
-font-weight:700;
-background:linear-gradient(to right,#38bdf8,#c084fc);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-margin-bottom:12px;
-}
+.sec-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin:18px 0 12px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sec-label:first-child{margin-top:0;}
 
-.subtitle{
-font-size:14px;
-line-height:1.8;
-opacity:.9;
-margin-bottom:20px;
-}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;letter-spacing:0.3px;}
+.field input,.field select{width:100%;padding:10px 13px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+.field input::placeholder{color:var(--text3);}
+.field select option{background:var(--surface2);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-.badges{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:22px;
-}
+.pfx-wrap{position:relative;}
+.pfx-wrap span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;font-family:var(--mono);pointer-events:none;}
+.pfx-wrap input{padding-left:28px;}
 
-.badge{
-padding:8px 14px;
-border-radius:999px;
-background:#1d2e8b;
-font-size:12px;
-}
+/* Toggle chips */
+.toggle-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.toggle-chip{padding:6px 13px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.toggle-chip.active{background:rgba(99,102,241,0.15);border-color:var(--accent);color:var(--accent);}
 
-.form-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-}
+/* ── GENERATE BTN ── */
+.gen-btn{width:100%;padding:13px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:18px;box-shadow:0 4px 18px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(99,102,241,0.4);}
 
-.input-group{
-display:flex;
-flex-direction:column;
-gap:7px;
-}
+/* ── SIDEBAR METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px;}
+.metric-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.metric-value{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text);line-height:1;}
+.metric-value.green{color:var(--success);}
+.metric-value.red{color:var(--danger);}
+.metric-value.blue{color:var(--accent2);}
+.metric-value.yellow{color:var(--warning);}
+.metric-value.purple{color:var(--accent3);}
+.metric-sub{font-size:9px;color:var(--text3);margin-top:3px;}
 
-label{
-font-size:13px;
-font-weight:500;
-}
+/* score bar */
+.score-wrap{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px;margin-bottom:14px;}
+.score-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.score-title{font-size:11px;font-weight:600;color:var(--text2);}
+.score-num{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--success);}
+.score-bg{height:7px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--success),var(--accent));border-radius:99px;width:0%;transition:width 0.9s cubic-bezier(.34,1.56,.64,1);}
 
-input,select{
-height:54px;
-background:#08144f;
-border:none;
-border-radius:14px;
-padding:0 15px;
-color:white;
-font-size:15px;
-outline:none;
-}
+/* Verdict box */
+.verdict{border-radius:12px;padding:14px;margin-bottom:14px;display:none;}
+.verdict.show{display:block;}
+.verdict.old{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);}
+.verdict.new{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);}
+.verdict-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.verdict-body{font-size:12px;color:var(--text2);line-height:1.65;}
 
-button{
-height:58px;
-border:none;
-border-radius:16px;
-background:linear-gradient(to right,#38bdf8,#d946ef);
-color:white;
-font-size:16px;
-font-weight:700;
-cursor:pointer;
-transition:.3s;
-}
+/* Timeline */
+.timeline-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.tl-item{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;}
+.tl-month{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);min-width:36px;padding-top:2px;}
+.tl-text{font-size:11px;color:var(--text2);line-height:1.55;}
 
-button:hover{
-transform:translateY(-2px);
-}
+/* slider */
+.slider-wrap{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:14px;}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.slider-lbl{font-size:11px;font-weight:600;color:var(--text2);}
+.slider-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;background:var(--surface3);border-radius:99px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(99,102,241,0.5);cursor:pointer;border:2px solid rgba(255,255,255,0.15);}
 
-.main-btn{
-margin-top:18px;
-width:100%;
-}
+/* sidebar footer */
+.sidebar-footer{display:flex;gap:8px;flex-wrap:wrap;}
+.s-btn{flex:1;padding:9px;border-radius:9px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;}
+.s-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-.metrics{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:22px;
-}
+/* ── MAIN CONTENT ── */
+.main{padding:22px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
 
-.metric{
-background:#182983;
-padding:20px;
-border-radius:18px;
-text-align:center;
-}
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.card-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:9px;}
+.card-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.ci-blue{background:rgba(99,102,241,0.12);}
+.ci-green{background:rgba(16,185,129,0.12);}
+.ci-yellow{background:rgba(245,158,11,0.12);}
+.ci-purple{background:rgba(139,92,246,0.12);}
+.ci-cyan{background:rgba(6,182,212,0.12);}
 
-.metric h4{
-font-size:12px;
-margin-bottom:10px;
-opacity:.8;
-}
+/* ── REGIME COMPARISON CARDS ── */
+.regime-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.regime-card{border-radius:14px;padding:18px;border:2px solid transparent;transition:border-color 0.3s;}
+.regime-card.old-card{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.15);}
+.regime-card.new-card{background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.15);}
+.regime-card.winner{border-color:var(--success) !important;box-shadow:0 0 20px rgba(16,185,129,0.12);}
+.regime-card.winner-new{border-color:var(--accent) !important;box-shadow:0 0 20px rgba(99,102,241,0.12);}
+.regime-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.winner-badge{background:var(--success);color:#000;font-size:9px;padding:2px 8px;border-radius:999px;font-weight:800;}
+.winner-badge.blue{background:var(--accent);}
+.regime-tax{font-family:var(--mono);font-size:30px;font-weight:700;margin-bottom:4px;}
+.old-card .regime-tax{color:var(--success);}
+.new-card .regime-tax{color:var(--accent);}
+.regime-eff{font-size:11px;color:var(--text2);}
 
-.metric p{
-font-size:28px;
-font-weight:700;
-color:#4ade80;
-}
+/* slab table inside card */
+.slab-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px;}
+.slab-table th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border);}
+.slab-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text2);}
+.slab-table tr:last-child td{border-bottom:none;}
+.slab-table td:first-child{font-weight:600;color:var(--text);}
+.slab-table .slab-tax{font-family:var(--mono);color:var(--danger);font-weight:600;}
+.slab-table .slab-zero{font-family:var(--mono);color:var(--text3);}
 
-.section{
-margin-top:24px;
-}
+/* ── SUMMARY CARDS ── */
+.summary-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.sum-card{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:16px;position:relative;overflow:hidden;}
+.sum-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 100% 0%,var(--glow,rgba(99,102,241,0.05)),transparent);pointer-events:none;}
+.sum-card.s-inc{--glow:rgba(16,185,129,0.07);}
+.sum-card.s-tax{--glow:rgba(239,68,68,0.07);}
+.sum-card.s-save{--glow:rgba(99,102,241,0.07);}
+.sum-card.s-eff{--glow:rgba(139,92,246,0.07);}
+.sum-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:10px;}
+.sum-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.sum-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);}
+.sum-card.s-inc .sum-val{color:var(--success);}
+.sum-card.s-tax .sum-val{color:var(--danger);}
+.sum-card.s-save .sum-val{color:var(--accent);}
+.sum-card.s-eff .sum-val{color:var(--accent3);}
+.sum-sub{font-size:10px;color:var(--text3);margin-top:3px;}
 
-.section-title{
-font-size:28px;
-margin-bottom:14px;
-font-weight:700;
-}
+/* ── CHARTS ── */
+.charts-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.chart-box{height:250px;position:relative;}
 
-.alert{
-padding:16px;
-border-radius:14px;
-margin-top:12px;
-font-weight:600;
-line-height:1.8;
-}
+/* ── DEDUCTIONS ── */
+.ded-list{display:flex;flex-direction:column;gap:8px;}
+.ded-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;}
+.ded-left{display:flex;align-items:center;gap:10px;}
+.ded-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--surface3);}
+.ded-name{font-size:12px;font-weight:600;color:var(--text);}
+.ded-limit{font-size:10px;color:var(--text3);}
+.ded-right{text-align:right;}
+.ded-val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--success);}
+.ded-pct{font-size:10px;color:var(--text3);}
+.ded-bar-wrap{flex:1;margin:0 14px;}
+.ded-bar-bg{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.ded-bar-fill{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(.34,1.56,.64,1);}
 
-.success{
-background:rgba(34,197,94,.18);
-border:1px solid rgba(34,197,94,.4);
-}
+/* ── TDS TABLE ── */
+.tds-table{width:100%;border-collapse:collapse;}
+.tds-table th{padding:9px 14px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);}
+.tds-table td{padding:9px 14px;font-size:12px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,0.03);}
+.tds-table td:first-child{font-weight:600;color:var(--text);}
+.tds-table .mono{font-family:var(--mono);}
+.tds-table tr:hover td{background:rgba(99,102,241,0.03);}
+.tds-table .good{color:var(--success);}
+.tds-table .warn{color:var(--warning);}
 
-.warning{
-background:rgba(251,191,36,.18);
-border:1px solid rgba(251,191,36,.4);
-}
+/* ── AI SECTION ── */
+.ai-section{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;}
+.ai-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.ai-status-txt{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.ask-btn{padding:8px 18px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;box-shadow:0 3px 12px rgba(99,102,241,0.25);}
+.ask-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(99,102,241,0.35);}
+.ask-btn:disabled{opacity:0.5;pointer-events:none;}
+.ai-cards{display:flex;flex-direction:column;gap:9px;}
+.ai-card{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:13px;animation:fadeUp 0.35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.ai-card-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ai-card-text{font-size:12px;color:var(--text2);line-height:1.65;}
+.ai-card-text strong{color:var(--text);}
+.typing-wrap{display:flex;align-items:center;gap:10px;padding:10px 0;color:var(--text3);font-size:13px;}
+.dots{display:flex;gap:4px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bounce 1.2s infinite;}
+.dot:nth-child(2){animation-delay:0.15s;}
+.dot:nth-child(3){animation-delay:0.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
 
-.danger{
-background:rgba(248,113,113,.18);
-border:1px solid rgba(248,113,113,.4);
-}
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:26px;max-width:440px;width:90%;transform:translateY(16px);transition:transform 0.3s;box-shadow:0 24px 80px rgba(0,0,0,0.6);}
+.overlay.open .modal{transform:translateY(0);}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:6px;}
+.modal p{font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:18px;}
+.modal-input{width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+.modal-input:focus{border-color:var(--accent);}
+.modal-note{font-size:11px;color:var(--text3);background:var(--surface3);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.6;}
+.modal-btns{display:flex;gap:9px;}
+.m-save{flex:1;padding:11px;border-radius:9px;background:var(--accent);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.m-save:hover{background:#7577f5;}
+.m-cancel{padding:11px 18px;border-radius:9px;background:var(--surface3);border:1px solid var(--border);color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;}
 
-.info{
-background:rgba(59,130,246,.18);
-border:1px solid rgba(59,130,246,.4);
-}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface2);border:1px solid var(--accent);color:var(--text);padding:11px 18px;border-radius:11px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);z-index:9999;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.toast.show{transform:translateY(0);opacity:1;}
 
-.chart-box{
-background:#182983;
-padding:18px;
-border-radius:18px;
-margin-top:18px;
-}
+/* Responsive */
+@media(max-width:1200px){.app{grid-template-columns:1fr;}.sidebar{position:relative;top:0;max-height:none;}.summary-4{grid-template-columns:1fr 1fr;}.charts-2{grid-template-columns:1fr;}.regime-row{grid-template-columns:1fr;}}
+@media(max-width:700px){.summary-4{grid-template-columns:1fr 1fr;}.topbar{padding:12px 16px;}.main{padding:14px;}}
 
-.table-wrapper{
-overflow:auto;
-max-height:450px;
-border-radius:18px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th{
-background:#3b4fff;
-padding:14px;
-font-size:13px;
-}
-
-td{
-padding:14px;
-text-align:center;
-background:#14246d;
-border-bottom:1px solid rgba(255,255,255,.08);
-font-size:13px;
-}
-
-.actions{
-display:flex;
-gap:14px;
-margin-top:20px;
-}
-
-.secondary-btn{
-background:#1e2d91;
-}
-
-.timeline{
-display:grid;
-gap:12px;
-}
-
-.timeline-item{
-background:#162775;
-padding:15px;
-border-radius:14px;
-}
-
-.progress{
-height:12px;
-background:#0f172a;
-border-radius:999px;
-overflow:hidden;
-margin-top:8px;
-}
-
-.progress span{
-display:block;
-height:100%;
-background:linear-gradient(to right,#38bdf8,#d946ef);
-}
-
-.footer-note{
-margin-top:20px;
-font-size:12px;
-opacity:.75;
-line-height:1.8;
-}
-
-.range-box{
-background:#182983;
-padding:18px;
-border-radius:18px;
-margin-top:20px;
-}
-
-.slider{
-width:100%;
-}
-
-@media(max-width:1200px){
-
-.container{
-grid-template-columns:1fr;
-}
-
-.metrics{
-grid-template-columns:repeat(2,1fr);
-}
-
-.form-grid{
-grid-template-columns:1fr;
-}
-
-}
-
+/* Comparison bar */
+.cmp-bar{height:12px;background:var(--surface3);border-radius:99px;overflow:hidden;margin:8px 0 4px;}
+.cmp-fill{height:100%;border-radius:99px;transition:width 0.8s cubic-bezier(.34,1.56,.64,1);}
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🧾</div>
+    <span class="brand-name">KJ<span>Synthora</span> · Tax Engine</span>
+  </div>
+  <div class="topbar-right">
+    <div class="groq-badge" onclick="openModal()">
+      <div class="groq-dot"></div>
+      <span id="groqStatus">Groq AI · Set Key</span>
+    </div>
+    <button class="top-btn" onclick="downloadJSON()">📥 Export JSON</button>
+    <button class="top-btn" onclick="window.print()">🖨 Print</button>
+  </div>
+</header>
 
-<!-- LEFT SIDE -->
+<div class="app">
 
-<div class="card">
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
 
-<div class="title">
-🌍 Global AI Tax Engine
+  <div class="sec-label">Profile & Income</div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Country</label>
+      <select id="country" onchange="onCountryChange()">
+        <option value="IN">🇮🇳 India</option>
+        <option value="US">🇺🇸 USA</option>
+        <option value="GB">🇬🇧 UK</option>
+        <option value="SG">🇸🇬 Singapore</option>
+        <option value="AE">🇦🇪 UAE</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Financial Year</label>
+      <select id="fy">
+        <option value="2526">FY 2025-26</option>
+        <option value="2425">FY 2024-25</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Age Group</label>
+      <select id="age">
+        <option value="below60">Below 60</option>
+        <option value="60to80">60 – 80 yrs</option>
+        <option value="above80">Above 80 yrs</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Employer Type</label>
+      <select id="employer">
+        <option value="private">Private Sector</option>
+        <option value="govt">Government</option>
+        <option value="self">Self Employed</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Annual Salary / CTC</label>
+    <div class="pfx-wrap">
+      <span id="symLabel">₹</span>
+      <input type="number" id="salary" value="2400000" oninput="liveCalc()">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Other Income</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="otherIncome" value="0" oninput="liveCalc()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Capital Gains (LTCG)</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="capitalGains" value="0" oninput="liveCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Old Regime Deductions</div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>80C Investments <span style="color:var(--text3);font-size:9px;">(max 1.5L)</span></label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="inv80c" value="150000" oninput="liveCalc()">
+      </div>
+    </div>
+    <div class="field">
+      <label>80D Medical Ins. <span style="color:var(--text3);font-size:9px;">(max 75K)</span></label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="med80d" value="25000" oninput="liveCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>NPS 80CCD(1B) <span style="color:var(--text3);font-size:9px;">(max 50K)</span></label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="nps" value="50000" oninput="liveCalc()">
+      </div>
+    </div>
+    <div class="field">
+      <label>HRA Exemption</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="hra" value="120000" oninput="liveCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Home Loan Interest <span style="color:var(--text3);font-size:9px;">(max 2L)</span></label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="homeLoan" value="200000" oninput="liveCalc()">
+      </div>
+    </div>
+    <div class="field">
+      <label>80G Donations</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="donations" value="0" oninput="liveCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>LTA Exemption</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="lta" value="0" oninput="liveCalc()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Education Loan 80E</label>
+      <div class="pfx-wrap"><span class="sym">₹</span>
+        <input type="number" id="edu80e" value="0" oninput="liveCalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Advance Tax Paid</label>
+    <div class="pfx-wrap"><span class="sym">₹</span>
+      <input type="number" id="advanceTax" value="0" oninput="liveCalc()">
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="calculateTax()">
+    🚀 Generate Full Tax Analysis
+  </button>
+
+  <!-- Sidebar slider -->
+  <div class="slider-wrap">
+    <div class="slider-header">
+      <span class="slider-lbl">Salary Simulator</span>
+      <span class="slider-val" id="sliderVal">₹24,00,000</span>
+    </div>
+    <input type="range" min="300000" max="30000000" step="100000" value="2400000" id="salSlider" oninput="onSlider(this.value)">
+    <div style="font-size:10px;color:var(--text3);margin-top:6px;">Drag to simulate salary scenarios</div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Old Regime Tax</div><div class="metric-value green" id="mOld">₹0</div></div>
+    <div class="metric-card"><div class="metric-label">New Regime Tax</div><div class="metric-value blue" id="mNew">₹0</div></div>
+    <div class="metric-card"><div class="metric-label">You Save</div><div class="metric-value yellow" id="mSave">₹0</div></div>
+    <div class="metric-card"><div class="metric-label">Effective Rate</div><div class="metric-value purple" id="mEff">0%</div></div>
+    <div class="metric-card"><div class="metric-label">Surcharge</div><div class="metric-value" id="mSurcharge">0%</div></div>
+    <div class="metric-card"><div class="metric-label">Cess (4%)</div><div class="metric-value red" id="mCess">₹0</div></div>
+    <div class="metric-card"><div class="metric-label">Refund Est.</div><div class="metric-value green" id="mRefund">₹0</div></div>
+    <div class="metric-card"><div class="metric-label">Audit Risk</div><div class="metric-value" id="mRisk">LOW</div></div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="score-wrap">
+    <div class="score-header">
+      <span class="score-title">Tax Optimization Score</span>
+      <span class="score-num" id="scoreNum">—</span>
+    </div>
+    <div class="score-bg"><div class="score-fill" id="scoreFill"></div></div>
+    <div style="font-size:10px;color:var(--text3);margin-top:5px;" id="scoreTip"></div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict" id="verdictBox">
+    <div class="verdict-title" id="verdictTitle"></div>
+    <div class="verdict-body" id="verdictBody"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="sec-label">Tax Calendar</div>
+  <div class="timeline-list" id="timelineList"></div>
+
+  <div class="sidebar-footer">
+    <button class="s-btn" onclick="downloadJSON()">📥 JSON</button>
+    <button class="s-btn" onclick="window.print()">🖨 Print</button>
+    <a href="../index.html" class="s-btn" style="text-decoration:none;">🏠 Home</a>
+  </div>
+
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-4">
+    <div class="sum-card s-inc">
+      <div class="sum-icon" style="background:rgba(16,185,129,0.1);">💰</div>
+      <div class="sum-label">Gross Total Income</div>
+      <div class="sum-val" id="sGross">₹24,00,000</div>
+      <div class="sum-sub" id="sGrossSub">Salary + Other sources</div>
+    </div>
+    <div class="sum-card s-tax">
+      <div class="sum-icon" style="background:rgba(239,68,68,0.1);">🧾</div>
+      <div class="sum-label">Best Regime Tax</div>
+      <div class="sum-val" id="sBestTax">₹0</div>
+      <div class="sum-sub" id="sBestSub">Including cess & surcharge</div>
+    </div>
+    <div class="sum-card s-save">
+      <div class="sum-icon" style="background:rgba(99,102,241,0.1);">💡</div>
+      <div class="sum-label">Total Deductions</div>
+      <div class="sum-val" id="sTotalDed">₹0</div>
+      <div class="sum-sub" id="sTotalDedSub">Old regime deductions</div>
+    </div>
+    <div class="sum-card s-eff">
+      <div class="sum-icon" style="background:rgba(139,92,246,0.1);">📊</div>
+      <div class="sum-label">In-Hand Monthly</div>
+      <div class="sum-val" id="sInHand">₹0</div>
+      <div class="sum-sub" id="sInHandSub">After best regime TDS</div>
+    </div>
+  </div>
+
+  <!-- REGIME COMPARISON -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-icon ci-blue">⚖️</div>Regime Comparison</div>
+      <span style="font-size:11px;color:var(--text3);">FY 2025-26 · Section 87A · Surcharge applied</span>
+    </div>
+    <div class="regime-row">
+      <div class="regime-card old-card" id="oldCard">
+        <div class="regime-label">
+          <span style="color:var(--success);">OLD REGIME</span>
+          <span class="winner-badge" id="oldWinner" style="display:none;">RECOMMENDED ✓</span>
+        </div>
+        <div class="regime-tax" id="rcOldTax">₹0</div>
+        <div class="regime-eff" id="rcOldEff">0.0% effective rate</div>
+        <div class="cmp-bar"><div class="cmp-fill" id="oldBar" style="width:0%;background:var(--success);"></div></div>
+        <div style="font-size:10px;color:var(--text3);" id="oldBarLbl"></div>
+        <table class="slab-table" id="oldSlabTable"></table>
+      </div>
+      <div class="regime-card new-card" id="newCard">
+        <div class="regime-label">
+          <span style="color:var(--accent);">NEW REGIME</span>
+          <span class="winner-badge blue" id="newWinner" style="display:none;">RECOMMENDED ✓</span>
+        </div>
+        <div class="regime-tax" id="rcNewTax">₹0</div>
+        <div class="regime-eff" id="rcNewEff">0.0% effective rate</div>
+        <div class="cmp-bar"><div class="cmp-fill" id="newBar" style="width:0%;background:var(--accent);"></div></div>
+        <div style="font-size:10px;color:var(--text3);" id="newBarLbl"></div>
+        <table class="slab-table" id="newSlabTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="card-icon ci-blue">🍩</div>Tax Breakdown</div>
+      </div>
+      <div class="chart-box"><canvas id="donutChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="card-icon ci-yellow">📊</div>Salary Scenario Comparison</div>
+      </div>
+      <div class="chart-box"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DEDUCTIONS OPTIMIZER -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-icon ci-green">🎯</div>Deduction Optimizer</div>
+      <span style="font-size:11px;color:var(--text3);">How well you're using each section</span>
+    </div>
+    <div class="ded-list" id="dedList"></div>
+  </div>
+
+  <!-- TDS TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-icon ci-cyan">📅</div>Monthly TDS Forecast</div>
+      <span style="font-size:11px;color:var(--text3);" id="tdsRegimeTag"></span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tds-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Monthly TDS</th>
+            <th>In-Hand Salary</th>
+            <th>Cumulative TDS</th>
+            <th>Eff. Rate</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tdsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPUTATION MATRIX -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-icon ci-purple">📋</div>Full Tax Computation</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tds-table" id="computationTable">
+        <thead>
+          <tr><th>Component</th><th>Old Regime</th><th>New Regime</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="computationBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- AI SECTION -->
+  <div class="ai-section">
+    <div class="ai-header">
+      <div class="card-title"><div class="card-icon ci-purple">🤖</div>AI Tax Advisor</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="ai-status-txt" id="aiStatusTxt">Powered by Groq · Llama 3.1</span>
+        <button class="ask-btn" id="askBtn" onclick="askGroq()">✨ Get AI Advice</button>
+      </div>
+    </div>
+    <div class="ai-cards" id="aiCards">
+      <div class="ai-card">
+        <div class="ai-card-icon" style="background:rgba(99,102,241,0.12);">💡</div>
+        <div class="ai-card-text">Set your <strong>Groq API key</strong> (free at console.groq.com) and click <strong>"Get AI Advice"</strong> for personalised tax optimization tips.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
 
-<div class="subtitle">
-Advanced AI-powered tax optimization platform with surcharge engine,
-marginal relief validation, smart deduction advisor, recursive analytics,
-salary restructuring intelligence and global tax compliance forecasting.
+<!-- GROQ MODAL -->
+<div class="overlay" id="apiOverlay">
+  <div class="modal">
+    <h3>🔑 Groq API Key</h3>
+    <p>Enter your free Groq key to enable AI-powered tax advice. Stored only in your browser.</p>
+    <input type="password" class="modal-input" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx">
+    <div class="modal-note">
+      ✅ Free at <strong>console.groq.com</strong> · No credit card needed<br>
+      🔒 Saved only in your browser's localStorage<br>
+      ⚡ Uses Llama-3.1-8b-instant — ultra fast
+    </div>
+    <div class="modal-btns">
+      <button class="m-save" onclick="saveKey()">💾 Save</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<div class="badges">
-
-<div class="badge">🌐 Global Tax</div>
-<div class="badge">🤖 AI Advisor</div>
-<div class="badge">📈 Real-Time Analytics</div>
-<div class="badge">🧾 OCR Ready</div>
-<div class="badge">💸 Refund Predictor</div>
-<div class="badge">⚡ Surcharge Engine</div>
-<div class="badge">📊 Drilldown Charts</div>
-
-</div>
-
-<div class="form-grid">
-
-<div class="input-group">
-<label>Country</label>
-<select id="country">
-<option>India</option>
-<option>USA</option>
-<option>UK</option>
-<option>Canada</option>
-<option>Australia</option>
-<option>Singapore</option>
-<option>UAE</option>
-</select>
-</div>
-
-<div class="input-group">
-<label>Financial Year</label>
-<select id="fy">
-<option>FY 2025-26</option>
-<option>FY 2024-25</option>
-</select>
-</div>
-
-<div class="input-group">
-<label>Annual Salary</label>
-<input type="number" id="salary" value="2400000">
-</div>
-
-<div class="input-group">
-<label>Other Income</label>
-<input type="number" id="otherIncome" value="0">
-</div>
-
-<div class="input-group">
-<label>80C Investments</label>
-<input type="number" id="investment80c" value="80000">
-</div>
-
-<div class="input-group">
-<label>80D Medical Insurance</label>
-<input type="number" id="medical80d" value="50000">
-</div>
-
-<div class="input-group">
-<label>NPS 80CCD(1B)</label>
-<input type="number" id="nps" value="50000">
-</div>
-
-<div class="input-group">
-<label>HRA Exemption</label>
-<input type="number" id="hra" value="180000">
-</div>
-
-<div class="input-group">
-<label>Home Loan Interest</label>
-<input type="number" id="homeLoan" value="200000">
-</div>
-
-<div class="input-group">
-<label>Donations 80G</label>
-<input type="number" id="donations" value="25000">
-</div>
-
-<div class="input-group">
-<label>Capital Gains</label>
-<input type="number" id="capitalGains" value="0">
-</div>
-
-<div class="input-group">
-<label>Advance Tax Paid</label>
-<input type="number" id="advanceTax" value="0">
-</div>
-
-</div>
-
-<button class="main-btn" onclick="calculateTax()">
-🚀 Generate AI Tax Analysis
-</button>
-
-<div class="metrics">
-
-<div class="metric">
-<h4>Old Regime</h4>
-<p id="oldTax">₹0</p>
-</div>
-
-<div class="metric">
-<h4>New Regime</h4>
-<p id="newTax">₹0</p>
-</div>
-
-<div class="metric">
-<h4>Total Savings</h4>
-<p id="savings">₹0</p>
-</div>
-
-<div class="metric">
-<h4>Expected Refund</h4>
-<p id="refund">₹0</p>
-</div>
-
-<div class="metric">
-<h4>Effective Tax</h4>
-<p id="effectiveTax">0%</p>
-</div>
-
-<div class="metric">
-<h4>Surcharge</h4>
-<p id="surcharge">0%</p>
-</div>
-
-<div class="metric">
-<h4>Audit Risk</h4>
-<p id="risk">LOW</p>
-</div>
-
-<div class="metric">
-<h4>AI Score</h4>
-<p id="aiScore">0%</p>
-</div>
-
-</div>
-
-<div class="section">
-
-<div class="section-title">
-🧠 AI Tax Optimization Advisor
-</div>
-
-<div id="advisor"></div>
-
-</div>
-
-<div class="range-box">
-
-<h3 style="margin-bottom:15px;">
-📊 Salary Regime Simulator
-</h3>
-
-<input
-type="range"
-min="300000"
-max="50000000"
-step="100000"
-value="2400000"
-class="slider"
-id="salarySlider">
-
-<p style="margin-top:15px;">
-Simulation Salary:
-<strong id="sliderValue">₹24,00,000</strong>
-</p>
-
-</div>
-
-<div class="section">
-
-<div class="section-title">
-📅 Smart Tax Timeline
-</div>
-
-<div class="timeline">
-
-<div class="timeline-item">
-July → Add ELSS investments for early tax planning.
-</div>
-
-<div class="timeline-item">
-October → Review HRA declarations and insurance optimization.
-</div>
-
-<div class="timeline-item">
-January → Increase NPS for additional deductions.
-</div>
-
-<div class="timeline-item">
-March → Final investment optimization window.
-</div>
-
-</div>
-
-</div>
-
-<div class="actions">
-
-<button
-class="secondary-btn"
-onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-<button onclick="window.print()">
-🖨 Print Report
-</button>
-
-<button onclick="downloadJSON()">
-📥 Export JSON
-</button>
-
-</div>
-
-<div class="footer-note">
-⚠ Advanced tax calculations include cess, surcharge, marginal relief,
-Section 87A validations and deduction forecasting.
-Actual taxation depends on government rules and professional audit review.
-</div>
-
-</div>
-
-<!-- RIGHT SIDE -->
-
-<div class="card">
-
-<div class="section-title">
-📈 Real-Time Tax Breakdown
-</div>
-
-<div class="chart-box">
-<canvas id="taxChart"></canvas>
-</div>
-
-<div class="chart-box">
-<canvas id="barChart"></canvas>
-</div>
-
-<div class="section">
-
-<div class="section-title">
-📅 Monthly TDS Forecast
-</div>
-
-<div class="table-wrapper">
-
-<table>
-
-<thead>
-
-<tr>
-<th>Month</th>
-<th>TDS</th>
-<th>In-Hand</th>
-<th>Tax %</th>
-</tr>
-
-</thead>
-
-<tbody id="tdsTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<div class="section">
-
-<div class="section-title">
-📋 Tax Computation Matrix
-</div>
-
-<div class="table-wrapper">
-
-<table>
-
-<thead>
-
-<tr>
-<th>Component</th>
-<th>Amount</th>
-</tr>
-
-</thead>
-
-<tbody id="summaryTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<div class="section">
-
-<div class="section-title">
-🤖 AI Tax Chat Insights
-</div>
-
-<div class="alert success">
-✅ AI indicates optimized tax profile.
-</div>
-
-<div class="alert warning">
-⚠ Consider increasing NPS contribution.
-</div>
-
-<div class="alert danger">
-🚨 Low 80C utilization detected.
-</div>
-
-<div class="alert info">
-ℹ Marginal relief and surcharge validation active.
-</div>
-
-</div>
-
-</div>
-
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
+// ════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════
+const SYM = {IN:'₹', US:'$', GB:'£', SG:'S$', AE:'AED '};
+let sym = '₹';
+let result = null;
+let donutChart, barChart;
 
-let taxChart;
-let barChart;
-
-function formatCurrency(value){
-
-return "₹" + Number(value)
-.toLocaleString('en-IN');
-
+// ════════════════════════════════════
+// UTILS
+// ════════════════════════════════════
+function fmt(v){ return sym + Math.round(v).toLocaleString('en-IN'); }
+function fmtL(v){
+  const n = Math.round(v);
+  if(n >= 10000000) return sym+(n/10000000).toFixed(2)+'Cr';
+  if(n >= 100000) return sym+(n/100000).toFixed(2)+'L';
+  if(n >= 1000) return sym+(n/1000).toFixed(1)+'K';
+  return sym+n.toLocaleString('en-IN');
+}
+function getVal(id){ return parseFloat(document.getElementById(id).value)||0; }
+function showToast(msg,type='info'){
+  const c = {info:'var(--accent)',success:'var(--success)',error:'var(--danger)',warn:'var(--warning)'};
+  const t = document.getElementById('toast');
+  t.style.borderColor = c[type]||c.info;
+  t.innerHTML = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
-function saveState(){
-
-const data = {};
-
-document.querySelectorAll("input,select")
-.forEach(el=>{
-
-data[el.id] = el.value;
-
-});
-
-localStorage.setItem(
-"taxEngineData",
-JSON.stringify(data)
-);
-
+function onCountryChange(){
+  const c = document.getElementById('country').value;
+  sym = SYM[c]||'₹';
+  document.getElementById('symLabel').textContent = sym;
+  document.querySelectorAll('.sym').forEach(el=>el.textContent=sym);
+  document.getElementById('sliderVal').textContent = fmt(getVal('salary'));
+  if(c !== 'IN'){
+    showToast('⚠️ Full slab calculation only for India. Other countries: simplified estimate.','warn');
+  }
+  calculateTax();
 }
 
-function loadState(){
+// ════════════════════════════════════
+// INDIA TAX SLABS — CORRECT FY2025-26
+// ════════════════════════════════════
+// OLD REGIME SLABS (below 60)
+function calcOldRegimeTax(taxable, age){
+  const slabs = age === 'above80'
+    ? [[0,500000,0],[500000,1000000,0.2],[1000000,Infinity,0.3]]
+    : age === '60to80'
+    ? [[0,300000,0],[300000,500000,0.05],[500000,1000000,0.2],[1000000,Infinity,0.3]]
+    : [[0,250000,0],[250000,500000,0.05],[500000,1000000,0.2],[1000000,Infinity,0.3]];
 
-const data =
-JSON.parse(
-localStorage.getItem("taxEngineData")
-);
-
-if(!data) return;
-
-Object.keys(data).forEach(key=>{
-
-const el =
-document.getElementById(key);
-
-if(el){
-el.value = data[key];
+  let tax = 0;
+  const breakdown = [];
+  for(const [lo,hi,rate] of slabs){
+    if(taxable <= lo) break;
+    const slice = Math.min(taxable, hi) - lo;
+    const sliceTax = slice * rate;
+    tax += sliceTax;
+    breakdown.push({range:`${fmtL(lo)} – ${hi===Infinity?'Above':fmtL(hi)}`, rate:`${rate*100}%`, income:fmt(slice), tax:sliceTax});
+  }
+  // 87A rebate: old regime — if taxable <= 5L, max rebate 12500
+  const rebate = taxable <= 500000 ? Math.min(tax, 12500) : 0;
+  tax -= rebate;
+  return {tax: Math.max(0, tax), rebate, breakdown};
 }
 
-});
-
+// NEW REGIME SLABS FY2025-26
+function calcNewRegimeTax(taxable){
+  const slabs = [
+    [0,400000,0],
+    [400000,800000,0.05],
+    [800000,1200000,0.10],
+    [1200000,1600000,0.15],
+    [1600000,2000000,0.20],
+    [2000000,2400000,0.25],
+    [2400000,Infinity,0.30]
+  ];
+  let tax = 0;
+  const breakdown = [];
+  for(const [lo,hi,rate] of slabs){
+    if(taxable <= lo) break;
+    const slice = Math.min(taxable, hi) - lo;
+    const sliceTax = slice * rate;
+    tax += sliceTax;
+    breakdown.push({range:`${fmtL(lo)} – ${hi===Infinity?'Above':fmtL(hi)}`, rate:`${rate*100}%`, income:fmt(slice), tax:sliceTax});
+  }
+  // 87A rebate: new regime FY25-26 — if taxable <= 12L, full rebate (tax=0)
+  const rebate = taxable <= 1200000 ? tax : 0;
+  tax -= rebate;
+  return {tax: Math.max(0, tax), rebate, breakdown};
 }
 
 function getSurcharge(income){
-
-if(income > 50000000) return 37;
-if(income > 20000000) return 25;
-if(income > 10000000) return 15;
-if(income > 5000000) return 10;
-
-return 0;
-
+  if(income > 50000000) return 0.37;
+  if(income > 20000000) return 0.25;
+  if(income > 10000000) return 0.15;
+  if(income > 5000000) return 0.10;
+  return 0;
 }
 
+// Marginal relief
+function applyMarginalRelief(tax, income, threshold){
+  const excessIncome = income - threshold;
+  if(excessIncome > 0 && tax > excessIncome){
+    return excessIncome; // you shouldn't pay more tax than your excess income
+  }
+  return tax;
+}
+
+function applyFull(baseTax, grossIncome){
+  const sc = getSurcharge(grossIncome);
+  let tax = baseTax * (1 + sc);
+  // marginal relief at 50L slab
+  if(grossIncome > 5000000 && grossIncome < 5500000){
+    tax = applyMarginalRelief(tax, grossIncome, 5000000);
+  }
+  const cess = tax * 0.04;
+  return {tax: Math.round(tax + cess), surcharge: sc, cess: Math.round(cess)};
+}
+
+// ════════════════════════════════════
+// MAIN CALCULATE
+// ════════════════════════════════════
 function calculateTax(){
+  const salary = getVal('salary');
+  const other = getVal('otherIncome');
+  const ltcg = getVal('capitalGains');
+  const inv80c = Math.min(getVal('inv80c'), 150000);
+  const med80d = Math.min(getVal('med80d'), 75000);
+  const nps = Math.min(getVal('nps'), 50000);
+  const hra = getVal('hra');
+  const homeLoan = Math.min(getVal('homeLoan'), 200000);
+  const donations = getVal('donations');
+  const lta = getVal('lta');
+  const edu80e = getVal('edu80e');
+  const advanceTax = getVal('advanceTax');
+  const age = document.getElementById('age').value;
+  const country = document.getElementById('country').value;
 
-saveState();
+  const grossIncome = salary + other + ltcg;
+  const stdDed = 75000; // FY25-26 standard deduction
 
-const salary =
-Number(document.getElementById("salary").value);
+  // OLD REGIME
+  const totalDed = inv80c + med80d + nps + hra + homeLoan + donations + lta + edu80e + stdDed;
+  const oldTaxable = Math.max(0, grossIncome - totalDed);
+  const oldBase = calcOldRegimeTax(oldTaxable, age);
+  const oldFull = applyFull(oldBase.tax, grossIncome);
 
-const otherIncome =
-Number(document.getElementById("otherIncome").value);
+  // NEW REGIME (only 75K std deduction, 80CCD(2) employer NPS not counted here)
+  const newTaxable = Math.max(0, grossIncome - stdDed);
+  const newBase = calcNewRegimeTax(newTaxable);
+  const newFull = applyFull(newBase.tax, grossIncome);
 
-const investment80c =
-Number(document.getElementById("investment80c").value);
+  const savings = Math.abs(oldFull.tax - newFull.tax);
+  const winner = oldFull.tax <= newFull.tax ? 'old' : 'new';
+  const bestTax = Math.min(oldFull.tax, newFull.tax);
+  const effRate = grossIncome > 0 ? (bestTax / grossIncome * 100).toFixed(1) : 0;
+  const refund = advanceTax > bestTax ? advanceTax - bestTax : 0;
+  const inHand = Math.round((salary / 12) - (bestTax / 12));
 
-const medical80d =
-Number(document.getElementById("medical80d").value);
+  // Score: deduction utilization
+  const maxDed = 150000 + 75000 + 50000 + 200000 + 200000; // 80C+80D+NPS+HRA+HomeLoan
+  const score = Math.min(100, Math.round((totalDed - stdDed) / maxDed * 100));
+  const risk = totalDed > 1000000 ? 'MEDIUM' : 'LOW';
 
-const nps =
-Number(document.getElementById("nps").value);
+  result = {
+    grossIncome, totalDed: totalDed - stdDed, oldTaxable, newTaxable,
+    oldTax: oldFull.tax, newTax: newFull.tax, oldBase, newBase, oldFull, newFull,
+    savings, winner, bestTax, effRate, refund, inHand, score, risk, surcharge: getSurcharge(grossIncome),
+    salary, other, ltcg, inv80c, med80d, nps, hra, homeLoan, donations, stdDed, advanceTax
+  };
 
-const hra =
-Number(document.getElementById("hra").value);
-
-const homeLoan =
-Number(document.getElementById("homeLoan").value);
-
-const donations =
-Number(document.getElementById("donations").value);
-
-const capitalGains =
-Number(document.getElementById("capitalGains").value);
-
-const advanceTax =
-Number(document.getElementById("advanceTax").value);
-
-const totalIncome =
-salary +
-otherIncome +
-capitalGains;
-
-const totalDeductions =
-investment80c +
-medical80d +
-nps +
-hra +
-homeLoan +
-donations;
-
-const oldTaxable =
-Math.max(
-0,
-totalIncome -
-totalDeductions -
-50000
-);
-
-const newTaxable =
-Math.max(
-0,
-totalIncome -
-75000
-);
-
-let oldTax =
-oldTaxable * 0.18;
-
-let newTax =
-newTaxable * 0.15;
-
-/* SECTION 87A */
-
-if(oldTaxable <= 500000){
-oldTax = 0;
+  updateUI(result);
+  renderCharts(result);
+  showToast('✅ Tax calculated!','success');
 }
 
-if(newTaxable <= 700000){
-newTax = 0;
+function liveCalc(){ if(result) calculateTax(); }
+
+// ════════════════════════════════════
+// UPDATE UI
+// ════════════════════════════════════
+function updateUI(r){
+  // Topbar metrics
+  document.getElementById('mOld').textContent = fmt(r.oldTax);
+  document.getElementById('mNew').textContent = fmt(r.newTax);
+  document.getElementById('mSave').textContent = fmt(r.savings);
+  document.getElementById('mEff').textContent = r.effRate+'%';
+  const scPct = Math.round(r.surcharge*100);
+  document.getElementById('mSurcharge').textContent = scPct+'%';
+  document.getElementById('mCess').textContent = fmt(r.winner==='old'?r.oldFull.cess:r.newFull.cess);
+  document.getElementById('mRefund').textContent = fmt(r.refund);
+  const riskEl = document.getElementById('mRisk');
+  riskEl.textContent = r.risk;
+  riskEl.className = 'metric-value '+(r.risk==='LOW'?'green':'yellow');
+
+  // Score
+  document.getElementById('scoreNum').textContent = r.score+'/100';
+  document.getElementById('scoreFill').style.width = r.score+'%';
+  const tips = r.score>=80?'Excellent deduction usage! 🎉':r.score>=60?'Good — but more savings possible 💪':r.score>=40?'Moderate — increase 80C, NPS ⚠️':'Low utilization — major savings possible 🚀';
+  document.getElementById('scoreTip').textContent = tips;
+
+  // Verdict
+  const vb = document.getElementById('verdictBox');
+  vb.className = 'verdict show '+(r.winner==='old'?'old':'new');
+  document.getElementById('verdictTitle').textContent = r.winner==='old'?'✅ Old Regime Recommended':'✅ New Regime Recommended';
+  document.getElementById('verdictBody').innerHTML = `You save <strong>${fmt(r.savings)}</strong> by choosing the ${r.winner === 'old' ? 'Old' : 'New'} Regime. Effective tax rate: <strong>${r.effRate}%</strong>. Annual in-hand: <strong>${fmt(r.inHand*12)}</strong>.`;
+
+  // Summary cards
+  document.getElementById('sGross').textContent = fmt(r.grossIncome);
+  document.getElementById('sGrossSub').textContent = `${fmt(r.salary)} salary + ${fmt(r.other)} other`;
+  document.getElementById('sBestTax').textContent = fmt(r.bestTax);
+  document.getElementById('sBestSub').textContent = `${r.winner==='old'?'Old':'New'} regime · incl. cess ${scPct>0?'+ surcharge':''}`;
+  document.getElementById('sTotalDed').textContent = fmt(r.totalDed);
+  document.getElementById('sTotalDedSub').textContent = `+ ₹75,000 std deduction`;
+  document.getElementById('sInHand').textContent = fmt(r.inHand);
+  document.getElementById('sInHandSub').textContent = `After ${r.winner==='old'?'Old':'New'} regime TDS`;
+
+  // Regime cards
+  document.getElementById('rcOldTax').textContent = fmt(r.oldTax);
+  document.getElementById('rcOldEff').textContent = (r.grossIncome>0?(r.oldTax/r.grossIncome*100).toFixed(1):0)+'% effective';
+  document.getElementById('rcNewTax').textContent = fmt(r.newTax);
+  document.getElementById('rcNewEff').textContent = (r.grossIncome>0?(r.newTax/r.grossIncome*100).toFixed(1):0)+'% effective';
+
+  // winner borders
+  document.getElementById('oldCard').classList.toggle('winner', r.winner==='old');
+  document.getElementById('oldCard').classList.toggle('winner-new', false);
+  document.getElementById('newCard').classList.toggle('winner-new', r.winner==='new');
+  document.getElementById('oldCard').classList.toggle('winner', r.winner==='old');
+  document.getElementById('oldWinner').style.display = r.winner==='old'?'':'none';
+  document.getElementById('newWinner').style.display = r.winner==='new'?'':'none';
+
+  const maxTax = Math.max(r.oldTax, r.newTax, 1);
+  document.getElementById('oldBar').style.width = (r.oldTax/maxTax*100)+'%';
+  document.getElementById('newBar').style.width = (r.newTax/maxTax*100)+'%';
+  document.getElementById('oldBarLbl').textContent = `Saves ${fmt(r.savings)} vs New Regime`;
+  document.getElementById('newBarLbl').textContent = `Saves ${fmt(r.savings)} vs Old Regime`;
+
+  // Slab tables
+  renderSlabTable('oldSlabTable', r.oldBase.breakdown, r.oldBase.rebate);
+  renderSlabTable('newSlabTable', r.newBase.breakdown, r.newBase.rebate);
+
+  // Deductions
+  renderDeductions(r);
+
+  // TDS
+  renderTDS(r);
+
+  // Computation matrix
+  renderComputation(r);
+
+  // Timeline
+  renderTimeline();
 }
 
-/* SURCHARGE */
-
-const surchargePercent =
-getSurcharge(totalIncome);
-
-oldTax += oldTax * surchargePercent/100;
-newTax += newTax * surchargePercent/100;
-
-/* CESS */
-
-oldTax += oldTax * 0.04;
-newTax += newTax * 0.04;
-
-/* MARGINAL RELIEF */
-
-if(totalIncome > 5000000 &&
-totalIncome < 5100000){
-
-const excessIncome =
-totalIncome - 5000000;
-
-if(oldTax > excessIncome + 1300000){
-oldTax = excessIncome + 1300000;
+function renderSlabTable(id, breakdown, rebate){
+  const el = document.getElementById(id);
+  el.innerHTML = `<tr><th>Slab</th><th>Rate</th><th>Income</th><th>Tax</th></tr>`
+    + breakdown.map(b=>`<tr>
+      <td style="font-size:10px;">${b.range}</td>
+      <td>${b.rate}</td>
+      <td style="font-family:var(--mono);font-size:11px;">${b.income}</td>
+      <td class="${b.tax>0?'slab-tax':'slab-zero'}">${b.tax>0?fmt(b.tax):'Nil'}</td>
+    </tr>`).join('')
+    + (rebate>0?`<tr><td colspan="3" style="color:var(--success);">87A Rebate</td><td class="slab-zero">-${fmt(rebate)}</td></tr>`:'');
 }
 
+function renderDeductions(r){
+  const items = [
+    {icon:'📦', name:'80C Investments', entered:r.inv80c, max:150000, note:'ELSS / PPF / LIC / FD'},
+    {icon:'🏥', name:'80D Medical Ins.', entered:r.med80d, max:75000, note:'Self + parents'},
+    {icon:'🎯', name:'NPS 80CCD(1B)', entered:r.nps, max:50000, note:'Additional NPS'},
+    {icon:'🏠', name:'HRA Exemption', entered:r.hra, max:300000, note:'Based on rent & city'},
+    {icon:'🏦', name:'Home Loan Int.', entered:r.homeLoan, max:200000, note:'Section 24(b)'},
+    {icon:'📚', name:'Standard Dedn.', entered:r.stdDed, max:75000, note:'Auto FY25-26'},
+  ];
+  const list = document.getElementById('dedList');
+  list.innerHTML = items.map(d=>{
+    const pct = Math.min(100, d.max > 0 ? (d.entered/d.max*100) : 100);
+    const color = pct>=100?'var(--success)':pct>=70?'var(--accent)':'var(--danger)';
+    return `<div class="ded-item">
+      <div class="ded-left">
+        <div class="ded-icon">${d.icon}</div>
+        <div><div class="ded-name">${d.name}</div><div class="ded-limit">${d.note}</div></div>
+      </div>
+      <div class="ded-bar-wrap">
+        <div class="ded-bar-bg"><div class="ded-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px;">${Math.round(pct)}% of max ${fmt(d.max)}</div>
+      </div>
+      <div class="ded-right">
+        <div class="ded-val">${fmt(d.entered)}</div>
+        <div class="ded-pct">${pct<100?`+${fmt(d.max-d.entered)} more`:'Maxed ✓'}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-/* REFUND */
+function renderTDS(r){
+  const bestTax = r.bestTax;
+  const monthlySalary = r.salary / 12;
+  const months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  const body = document.getElementById('tdsBody');
+  document.getElementById('tdsRegimeTag').textContent = r.winner==='old'?'Old Regime':'New Regime';
 
-const expectedRefund =
-advanceTax > Math.min(oldTax,newTax)
-? advanceTax - Math.min(oldTax,newTax)
-: 0;
-
-const savings =
-Math.abs(oldTax-newTax);
-
-const bestRegime =
-oldTax < newTax
-? "OLD REGIME"
-: "NEW REGIME";
-
-const effectiveTax =
-(
-(Math.min(oldTax,newTax)/totalIncome)*100
-).toFixed(1);
-
-const aiScore =
-Math.min(
-100,
-Math.round(
-(totalDeductions/500000)*100
-)
-);
-
-document.getElementById("oldTax").innerHTML =
-formatCurrency(oldTax);
-
-document.getElementById("newTax").innerHTML =
-formatCurrency(newTax);
-
-document.getElementById("savings").innerHTML =
-formatCurrency(savings);
-
-document.getElementById("refund").innerHTML =
-formatCurrency(expectedRefund);
-
-document.getElementById("effectiveTax").innerHTML =
-effectiveTax + "%";
-
-document.getElementById("surcharge").innerHTML =
-surchargePercent + "%";
-
-document.getElementById("aiScore").innerHTML =
-aiScore + "%";
-
-document.getElementById("risk").innerHTML =
-totalDeductions > 700000
-? "MEDIUM"
-: "LOW";
-
-document.getElementById("advisor").innerHTML =
-
-`
-<div class="alert success">
-🏆 Recommended:
-<strong>${bestRegime}</strong>
-<br>
-Estimated Savings:
-<strong>${formatCurrency(savings)}</strong>
-</div>
-
-<div class="alert info">
-💡 Add more investments under 80C and NPS to optimize taxes further.
-</div>
-
-<div class="alert warning">
-⚠ Effective Tax Rate:
-<strong>${effectiveTax}%</strong>
-</div>
-
-<div class="alert success">
-✅ Section 87A validation engine active.
-</div>
-
-<div class="alert info">
-📈 AI forecast suggests increasing long-term tax-saving instruments.
-</div>
-`;
-
-generateCharts(oldTax,newTax,savings);
-
-generateTDS(
-Math.min(oldTax,newTax),
-salary
-);
-
-generateSummary(
-totalIncome,
-totalDeductions,
-oldTax,
-newTax,
-savings,
-surchargePercent
-);
-
+  let cumTDS = 0;
+  body.innerHTML = months.map((m,i)=>{
+    const monthlyTDS = Math.round(bestTax / 12);
+    cumTDS += monthlyTDS;
+    const inHand = Math.round(monthlySalary - monthlyTDS);
+    const effR = (monthlyTDS / monthlySalary * 100).toFixed(1);
+    const isHigh = parseFloat(effR) > 25;
+    const status = parseFloat(effR) > 30 ? '🔴 High' : parseFloat(effR) > 20 ? '🟡 Moderate' : '🟢 Normal';
+    return `<tr>
+      <td>${m}</td>
+      <td class="mono ${isHigh?'warn':''}">${fmt(monthlyTDS)}</td>
+      <td class="mono good">${fmt(inHand)}</td>
+      <td class="mono">${fmt(cumTDS)}</td>
+      <td class="mono">${effR}%</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
 }
 
-function generateCharts(oldTax,newTax,savings){
+function renderComputation(r){
+  const rows = [
+    ['Gross Total Income', fmt(r.grossIncome), fmt(r.grossIncome), 'Salary + other + LTCG'],
+    ['Standard Deduction', fmt(r.stdDed), fmt(r.stdDed), 'FY2025-26: ₹75,000'],
+    ['80C Investments', fmt(r.inv80c), '—', 'Max ₹1.5L'],
+    ['80D Medical Ins.', fmt(r.med80d), '—', 'Max ₹75,000'],
+    ['NPS 80CCD(1B)', fmt(r.nps), '—', 'Max ₹50,000'],
+    ['HRA Exemption', fmt(r.hra), '—', 'Old regime only'],
+    ['Home Loan Interest', fmt(r.homeLoan), '—', 'Section 24(b) max ₹2L'],
+    ['Total Deductions', fmt(r.totalDed+r.stdDed), fmt(r.stdDed), ''],
+    ['Taxable Income', fmt(r.oldTaxable), fmt(r.newTaxable), 'After deductions'],
+    ['Base Tax (Before Cess)', fmt(r.oldBase.tax), fmt(r.newBase.tax), 'Slab rates applied'],
+    ['87A Rebate', r.oldBase.rebate>0?`-${fmt(r.oldBase.rebate)}`:'Nil', r.newBase.rebate>0?`-${fmt(r.newBase.rebate)}`:'Nil', ''],
+    ['Surcharge', `${Math.round(r.surcharge*100)}%`, `${Math.round(r.surcharge*100)}%`, 'On tax amount'],
+    ['Health & Ed. Cess', fmt(r.oldFull.cess), fmt(r.newFull.cess), '4% on tax+surcharge'],
+    ['TOTAL TAX PAYABLE', `<strong style="color:var(--success);">${fmt(r.oldTax)}</strong>`, `<strong style="color:var(--accent);">${fmt(r.newTax)}</strong>`, ''],
+  ];
 
-const ctx1 =
-document.getElementById("taxChart");
-
-if(taxChart){
-taxChart.destroy();
+  document.getElementById('computationBody').innerHTML = rows.map(([comp,old,nw,note])=>`<tr>
+    <td style="font-weight:600;color:var(--text);">${comp}</td>
+    <td class="mono">${old}</td>
+    <td class="mono">${nw}</td>
+    <td style="font-size:11px;color:var(--text3);">${note}</td>
+  </tr>`).join('');
 }
 
-taxChart = new Chart(ctx1,{
-
-type:'doughnut',
-
-data:{
-labels:[
-'Old Regime',
-'New Regime',
-'Savings'
-],
-
-datasets:[{
-
-data:[
-oldTax,
-newTax,
-savings
-],
-
-backgroundColor:[
-'#38bdf8',
-'#fb7185',
-'#4ade80'
-]
-
-}]
+function renderTimeline(){
+  const items = [
+    {month:'APR', text:'File Form 12BB with employer. Declare investments & HRA for TDS.'},
+    {month:'JUN', text:'Pay Advance Tax (15%) if total liability > ₹10,000.'},
+    {month:'JUL', text:'File ITR for previous FY. Invest in ELSS for 80C early.'},
+    {month:'SEP', text:'Pay Advance Tax (45%). Review HRA claims & 80D.'},
+    {month:'DEC', text:'Pay Advance Tax (75%). Maximize NPS 80CCD(1B) contributions.'},
+    {month:'JAN', text:'Submit actual proofs to employer. Last chance for regime switch.'},
+    {month:'MAR', text:'Final Advance Tax (100%). Last investment window for current FY.'},
+  ];
+  document.getElementById('timelineList').innerHTML = items.map(i=>`
+    <div class="tl-item">
+      <div class="tl-month">${i.month}</div>
+      <div class="tl-text">${i.text}</div>
+    </div>`).join('');
 }
 
-});
+// ════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════
+function renderCharts(r){
+  // Donut
+  if(donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('donutChart').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:['80C','80D','NPS','HRA','Home Loan','Std Dedn','Best Tax','Take Home'],
+      datasets:[{
+        data:[r.inv80c,r.med80d,r.nps,r.hra,r.homeLoan,r.stdDed,r.bestTax,Math.max(0,r.salary-r.bestTax)],
+        backgroundColor:['#6366f1','#06b6d4','#8b5cf6','#10b981','#f59e0b','#3b82f6','#ef4444','#22d3ee'],
+        borderWidth:0,hoverBorderWidth:3,hoverBorderColor:'rgba(255,255,255,0.2)',
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'65%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#6b7fa8',font:{size:10,family:'Outfit'},padding:8,boxWidth:8}},
+        tooltip:{callbacks:{label:ctx=>`${sym}${Math.round(ctx.parsed).toLocaleString('en-IN')}`}}
+      }
+    }
+  });
 
-ctx1.onclick = function(){
-
-alert(
-"Interactive Drilldown Activated"
-);
-
-};
-
-const ctx2 =
-document.getElementById("barChart");
-
-if(barChart){
-barChart.destroy();
+  // Bar — salary scenarios
+  if(barChart) barChart.destroy();
+  const salaries = [500000,1000000,1500000,2000000,3000000,5000000,10000000];
+  const oldTaxes = [], newTaxes = [];
+  salaries.forEach(s=>{
+    const ot = calcOldRegimeTax(Math.max(0,s-r.totalDed-r.stdDed), 'below60');
+    const nt = calcNewRegimeTax(Math.max(0,s-r.stdDed));
+    const of2 = applyFull(ot.tax, s);
+    const nf2 = applyFull(nt.tax, s);
+    oldTaxes.push(Math.round(of2.tax/100000));
+    newTaxes.push(Math.round(nf2.tax/100000));
+  });
+  barChart = new Chart(document.getElementById('barChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:salaries.map(s=>fmtL(s)),
+      datasets:[
+        {label:'Old Regime',data:oldTaxes,backgroundColor:'rgba(16,185,129,0.7)',borderRadius:6},
+        {label:'New Regime',data:newTaxes,backgroundColor:'rgba(99,102,241,0.7)',borderRadius:6}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#6b7fa8',font:{size:11,family:'Outfit'}}},
+        tooltip:{callbacks:{label:ctx=>`${sym}${ctx.parsed.y}L`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#3d5070',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#3d5070',font:{size:10},callback:v=>v+'L'}}
+      }
+    }
+  });
 }
 
-barChart = new Chart(ctx2,{
-
-type:'bar',
-
-data:{
-labels:[
-'Old',
-'New'
-],
-
-datasets:[{
-
-label:'Tax',
-
-data:[
-oldTax,
-newTax
-],
-
-backgroundColor:[
-'#38bdf8',
-'#d946ef'
-]
-
-}]
+// ════════════════════════════════════
+// SLIDER
+// ════════════════════════════════════
+function onSlider(v){
+  document.getElementById('salary').value = v;
+  document.getElementById('sliderVal').textContent = fmt(parseFloat(v));
+  calculateTax();
 }
 
-});
-
+// ════════════════════════════════════
+// GROQ AI
+// ════════════════════════════════════
+function openModal(){
+  document.getElementById('apiKeyInput').value = localStorage.getItem('groq_key')||'';
+  document.getElementById('apiOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('apiOverlay').classList.remove('open'); }
+function saveKey(){
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if(!k.startsWith('gsk_')){showToast('⚠️ Key must start with gsk_','warn');return;}
+  localStorage.setItem('groq_key',k);
+  document.getElementById('groqStatus').textContent = 'Groq AI · Connected ✓';
+  closeModal();
+  showToast('✅ API key saved!','success');
 }
 
-function generateTDS(tax,salary){
+async function askGroq(){
+  const key = localStorage.getItem('groq_key');
+  if(!key){openModal();return;}
+  if(!result){showToast('⚠️ Calculate tax first!','warn');return;}
 
-const tbody =
-document.getElementById("tdsTable");
+  const btn = document.getElementById('askBtn');
+  btn.disabled = true; btn.innerHTML = '⏳ Analyzing...';
 
-tbody.innerHTML = "";
+  const aiCards = document.getElementById('aiCards');
+  aiCards.innerHTML = `<div class="typing-wrap"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>Groq AI analyzing your tax profile...</div>`;
+  document.getElementById('aiStatusTxt').textContent = 'Fetching...';
 
-const months = [
-'Apr','May','Jun','Jul',
-'Aug','Sep','Oct','Nov',
-'Dec','Jan','Feb','Mar'
-];
+  const r = result;
+  const prompt = `You are a senior Indian Chartered Accountant (CA). Analyze this person's tax situation and give exactly 6 specific actionable insights.
 
-months.forEach(month=>{
+TAX DATA FY2025-26:
+- Annual Salary: ${sym}${r.salary.toLocaleString()}
+- Gross Income: ${sym}${r.grossIncome.toLocaleString()}
+- Old Regime Tax: ${sym}${r.oldTax.toLocaleString()} (${(r.oldTax/r.grossIncome*100).toFixed(1)}% effective)
+- New Regime Tax: ${sym}${r.newTax.toLocaleString()} (${(r.newTax/r.grossIncome*100).toFixed(1)}% effective)
+- Recommended: ${r.winner.toUpperCase()} REGIME (saves ${sym}${r.savings.toLocaleString()})
+- 80C Used: ${sym}${r.inv80c.toLocaleString()} / ₹1,50,000 limit
+- 80D Medical: ${sym}${r.med80d.toLocaleString()} / ₹75,000 limit
+- NPS 80CCD(1B): ${sym}${r.nps.toLocaleString()} / ₹50,000 limit
+- HRA: ${sym}${r.hra.toLocaleString()}
+- Home Loan Interest: ${sym}${r.homeLoan.toLocaleString()} / ₹2,00,000 limit
+- Surcharge: ${Math.round(r.surcharge*100)}%
+- Optimization Score: ${r.score}/100
+- Total Deductions (old): ${sym}${(r.totalDed+r.stdDed).toLocaleString()}
 
-const tr =
-document.createElement("tr");
+Give exactly 6 insights in this JSON (respond ONLY with valid JSON, no markdown, no preamble):
+{"insights":[{"icon":"emoji","type":"success|warning|tip|info","title":"Short title max 5 words","text":"Specific actionable advice 2 sentences max"}]}`;
 
-tr.innerHTML = `
-<td>${month}</td>
-<td>${formatCurrency(tax/12)}</td>
-<td>${formatCurrency((salary/12)-(tax/12))}</td>
-<td>${((tax/salary)*100).toFixed(1)}%</td>
-`;
-
-tbody.appendChild(tr);
-
-});
-
+  try{
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'llama-3.1-8b-instant',messages:[{role:'user',content:prompt}],max_tokens:900,temperature:0.6})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error '+res.status);}
+    const data = await res.json();
+    const raw = data.choices[0].message.content.trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    const STYLES = {
+      success:{bg:'rgba(16,185,129,0.1)',c:'var(--success)'},
+      warning:{bg:'rgba(245,158,11,0.1)',c:'var(--warning)'},
+      tip:{bg:'rgba(99,102,241,0.1)',c:'var(--accent)'},
+      info:{bg:'rgba(139,92,246,0.1)',c:'var(--accent3)'},
+    };
+    aiCards.innerHTML = parsed.insights.map((ins,i)=>{
+      const s = STYLES[ins.type]||STYLES.info;
+      return `<div class="ai-card" style="animation-delay:${i*0.07}s;">
+        <div class="ai-card-icon" style="background:${s.bg};font-size:16px;">${ins.icon}</div>
+        <div class="ai-card-text"><strong>${ins.title}:</strong> ${ins.text}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('aiStatusTxt').textContent = 'Updated now · Groq Llama-3.1';
+    showToast('✨ AI insights ready!','success');
+  }catch(e){
+    aiCards.innerHTML = `<div class="ai-card"><div class="ai-card-icon" style="background:rgba(239,68,68,0.1);">❌</div><div class="ai-card-text"><strong>Error:</strong> ${e.message}. Check your API key.</div></div>`;
+    showToast('❌ '+e.message,'error');
+    document.getElementById('aiStatusTxt').textContent = 'Error · Check key';
+  }
+  btn.disabled=false; btn.innerHTML='✨ Get AI Advice';
 }
 
-function generateSummary(
-income,
-deductions,
-oldTax,
-newTax,
-savings,
-surcharge
-){
-
-document.getElementById("summaryTable")
-.innerHTML =
-
-`
-<tr>
-<td>Total Income</td>
-<td>${formatCurrency(income)}</td>
-</tr>
-
-<tr>
-<td>Total Deductions</td>
-<td>${formatCurrency(deductions)}</td>
-</tr>
-
-<tr>
-<td>Surcharge Applied</td>
-<td>${surcharge}%</td>
-</tr>
-
-<tr>
-<td>Old Regime Tax</td>
-<td>${formatCurrency(oldTax)}</td>
-</tr>
-
-<tr>
-<td>New Regime Tax</td>
-<td>${formatCurrency(newTax)}</td>
-</tr>
-
-<tr>
-<td>Total Savings</td>
-<td>${formatCurrency(savings)}</td>
-</tr>
-`;
-
-}
-
+// ════════════════════════════════════
+// EXPORT JSON
+// ════════════════════════════════════
 function downloadJSON(){
-
-const data = {
-
-salary:
-document.getElementById("salary").value,
-
-oldTax:
-document.getElementById("oldTax").innerText,
-
-newTax:
-document.getElementById("newTax").innerText,
-
-savings:
-document.getElementById("savings").innerText
-
-};
-
-const blob =
-new Blob(
-[JSON.stringify(data,null,2)],
-{type:'application/json'}
-);
-
-const a =
-document.createElement("a");
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-"tax-report.json";
-
-a.click();
-
+  if(!result){showToast('⚠️ Calculate tax first','warn');return;}
+  const r = result;
+  const data = {
+    generated: new Date().toISOString(),
+    financialYear: document.getElementById('fy').value==='2526'?'FY 2025-26':'FY 2024-25',
+    grossIncome: r.grossIncome,
+    oldRegime:{taxableIncome:r.oldTaxable,baseTax:r.oldBase.tax,rebate:r.oldBase.rebate,surcharge:Math.round(r.surcharge*100)+'%',cess:r.oldFull.cess,totalTax:r.oldTax},
+    newRegime:{taxableIncome:r.newTaxable,baseTax:r.newBase.tax,rebate:r.newBase.rebate,surcharge:Math.round(r.surcharge*100)+'%',cess:r.newFull.cess,totalTax:r.newTax},
+    recommendation:r.winner.toUpperCase()+' REGIME',
+    savings:r.savings,
+    effectiveTaxRate:r.effRate+'%',
+    monthlyInHand:r.inHand,
+    optimizationScore:r.score+'/100',
+    deductions:{std:r.stdDed,'80C':r.inv80c,'80D':r.med80d,'NPS':r.nps,HRA:r.hra,homeLoan:r.homeLoan}
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kjsynthora-tax-report.json';
+  a.click();
+  showToast('📥 Tax report exported!','success');
 }
 
-document.getElementById("salarySlider")
-.addEventListener("input",function(){
-
-document.getElementById("salary").value =
-this.value;
-
-document.getElementById("sliderValue").innerHTML =
-formatCurrency(this.value);
-
+// ════════════════════════════════════
+// INIT
+// ════════════════════════════════════
+if(localStorage.getItem('groq_key')) document.getElementById('groqStatus').textContent = 'Groq AI · Connected ✓';
 calculateTax();
-
-});
-
-document.querySelectorAll("input,select")
-.forEach(el=>{
-
-el.addEventListener(
-"input",
-calculateTax
-);
-
-});
-
-loadState();
-
-calculateTax();
-
 </script>
-
 </body>
 </html>
