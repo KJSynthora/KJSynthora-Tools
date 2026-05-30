@@ -1,1472 +1,816 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global AI Currency Engine</title>
-
-<!-- ========================= -->
-<!-- GOOGLE FONT -->
-<!-- ========================= -->
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<!-- ========================= -->
-<!-- TOM SELECT -->
-<!-- ========================= -->
-
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Global AI Currency Engine — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
-<!-- ========================= -->
-<!-- CHART JS -->
-<!-- ========================= -->
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+:root{
+  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;
+  --red:#ef4444;--yellow:#f59e0b;--orange:#f97316;
+  --text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
 }
-
-body{
-
-background:#020b4a;
-
-background-image:
-radial-gradient(circle at top left,#003cff 0%,transparent 30%),
-radial-gradient(circle at bottom right,#7c00ff 0%,transparent 30%);
-
-color:#fff;
-
-min-height:100vh;
-
-padding:25px;
-
-overflow-x:hidden;
-
-}
-
-.container{
-
-max-width:1600px;
-
-margin:auto;
-
-display:grid;
-
-grid-template-columns:420px 1fr;
-
-gap:25px;
-
-}
-
-.left-panel,
-.right-panel{
-
-background:rgba(11,25,120,0.85);
-
-backdrop-filter:blur(18px);
-
-border-radius:30px;
-
-padding:25px;
-
-box-shadow:0 0 30px rgba(0,0,0,0.35);
-
-}
-
-.title{
-
-font-size:50px;
-
-font-weight:800;
-
-line-height:1.2;
-
-margin-bottom:10px;
-
-background:linear-gradient(90deg,#35d7ff,#d946ef);
-
--webkit-background-clip:text;
-
--webkit-text-fill-color:transparent;
-
-}
-
-.subtitle{
-
-font-size:14px;
-
-line-height:1.9;
-
-opacity:0.9;
-
-margin-bottom:20px;
-
-}
-
-.hero{
-
-width:100%;
-
-height:220px;
-
-object-fit:cover;
-
-border-radius:24px;
-
-margin-bottom:20px;
-
-}
-
-.market-ticker{
-
-display:flex;
-
-gap:15px;
-
-overflow:auto;
-
-padding-bottom:10px;
-
-margin-bottom:20px;
-
-}
-
-.market-ticker::-webkit-scrollbar{
-display:none;
-}
-
-.ticker{
-
-min-width:180px;
-
-background:#112594;
-
-padding:16px;
-
-border-radius:18px;
-
-}
-
-.ticker h4{
-
-font-size:14px;
-
-margin-bottom:6px;
-
-}
-
-.green{
-color:#4dff9a;
-}
-
-.red{
-color:#ff607b;
-}
-
-.badges{
-
-display:flex;
-
-flex-wrap:wrap;
-
-gap:10px;
-
-margin-bottom:20px;
-
-}
-
-.badge{
-
-background:#162ca3;
-
-padding:8px 14px;
-
-border-radius:50px;
-
-font-size:12px;
-
-}
-
-.group{
-
-margin-bottom:18px;
-
-}
-
-label{
-
-display:block;
-
-margin-bottom:8px;
-
-font-size:14px;
-
-font-weight:600;
-
-}
-
-input,
-select{
-
-width:100%;
-
-padding:16px;
-
-border:none;
-
-outline:none;
-
-background:#07145f;
-
-border-radius:16px;
-
-color:#fff;
-
-font-size:15px;
-
-}
-
-input::placeholder{
-color:#aaa;
-}
-
-.ts-control,
-.ts-dropdown{
-
-background:#07145f !important;
-
-border:none !important;
-
-color:#fff !important;
-
-}
-
-.ts-control input{
-color:#fff !important;
-}
-
-.primary-btn{
-
-width:100%;
-
-padding:18px;
-
-border:none;
-
-border-radius:18px;
-
-font-size:16px;
-
-font-weight:700;
-
-color:#fff;
-
-background:linear-gradient(90deg,#29b4ff,#d946ef);
-
-cursor:pointer;
-
-margin-top:8px;
-
-transition:0.3s;
-
-}
-
-.primary-btn:hover{
-
-transform:translateY(-2px);
-
-}
-
-.button-row{
-
-display:flex;
-
-gap:12px;
-
-margin-top:14px;
-
-}
-
-.secondary-btn{
-
-flex:1;
-
-padding:15px;
-
-border:none;
-
-border-radius:16px;
-
-font-weight:700;
-
-cursor:pointer;
-
-color:#fff;
-
-background:#162ca3;
-
-}
-
-.red-btn{
-background:#ff3f5d;
-}
-
-.live{
-
-margin-top:18px;
-
-background:#10216f;
-
-padding:16px;
-
-border-radius:18px;
-
-text-align:center;
-
-color:#4dff9a;
-
-font-weight:700;
-
-}
-
-.result-grid{
-
-display:grid;
-
-grid-template-columns:repeat(2,1fr);
-
-gap:14px;
-
-margin-top:20px;
-
-}
-
-.result-card{
-
-background:#13288f;
-
-padding:20px;
-
-border-radius:18px;
-
-text-align:center;
-
-}
-
-.result-card h4{
-
-font-size:13px;
-
-margin-bottom:10px;
-
-opacity:0.8;
-
-}
-
-.result-card p{
-
-font-size:28px;
-
-font-weight:800;
-
-color:#4dff9a;
-
-}
-
-.history{
-
-margin-top:20px;
-
-background:#10216f;
-
-padding:18px;
-
-border-radius:20px;
-
-max-height:220px;
-
-overflow:auto;
-
-}
-
-.history h3{
-
-margin-bottom:15px;
-
-}
-
-.history-item{
-
-padding:12px;
-
-border-bottom:1px solid rgba(255,255,255,0.08);
-
-font-size:14px;
-
-}
-
-.footer-buttons{
-
-display:flex;
-
-gap:12px;
-
-margin-top:20px;
-
-}
-
-.footer-btn{
-
-flex:1;
-
-padding:16px;
-
-border:none;
-
-border-radius:18px;
-
-font-weight:700;
-
-cursor:pointer;
-
-background:linear-gradient(90deg,#27b3ff,#d946ef);
-
-color:#fff;
-
-}
-
-.chart-card{
-
-background:#13288f;
-
-border-radius:25px;
-
-padding:20px;
-
-margin-bottom:25px;
-
-}
-
-.chart-card canvas{
-
-height:380px !important;
-
-}
-
-.table-card{
-
-background:#13288f;
-
-border-radius:25px;
-
-padding:20px;
-
-margin-bottom:25px;
-
-overflow:auto;
-
-}
-
-table{
-
-width:100%;
-
-border-collapse:collapse;
-
-margin-top:15px;
-
-}
-
-table th{
-
-background:#334cff;
-
-padding:14px;
-
-font-size:13px;
-
-}
-
-table td{
-
-padding:14px;
-
-text-align:center;
-
-border-bottom:1px solid rgba(255,255,255,0.08);
-
-font-size:14px;
-
-}
-
-.forex-heatmap{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:15px;
-
-margin-top:20px;
-
-}
-
-.heat-box{
-
-background:#13288f;
-
-padding:20px;
-
-border-radius:18px;
-
-text-align:center;
-
-}
-
-.heat-box h3{
-
-font-size:13px;
-
-margin-bottom:10px;
-
-}
-
-.heat-box p{
-
-font-size:26px;
-
-font-weight:800;
-
-}
-
-.ai-section{
-
-background:#13288f;
-
-padding:20px;
-
-border-radius:24px;
-
-}
-
-.ai-grid{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:15px;
-
-margin-top:20px;
-
-}
-
-.ai-card{
-
-background:#1a33aa;
-
-padding:18px;
-
-border-radius:18px;
-
-text-align:center;
-
-}
-
-.ai-card h4{
-
-font-size:13px;
-
-margin-bottom:10px;
-
-}
-
-.ai-card p{
-
-font-size:24px;
-
-font-weight:800;
-
-color:#4dff9a;
-
-}
-
-.ai-box{
-
-margin-top:20px;
-
-padding:20px;
-
-border-radius:20px;
-
-background:linear-gradient(90deg,#1d52ff,#b127ff);
-
-}
-
-.news-card{
-
-background:#13288f;
-
-padding:20px;
-
-border-radius:24px;
-
-margin-top:25px;
-
-line-height:2;
-
-}
-
-.disclaimer{
-
-margin-top:20px;
-
-font-size:12px;
-
-opacity:0.75;
-
-line-height:1.8;
-
-}
-
-@media(max-width:1200px){
-
-.container{
-grid-template-columns:1fr;
-}
-
-}
-
-@media(max-width:700px){
-
-.result-grid{
-grid-template-columns:1fr;
-}
-
-.forex-heatmap{
-grid-template-columns:repeat(2,1fr);
-}
-
-.ai-grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-}
-
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 50% 35% at 8% 8%,rgba(79,142,247,0.07),transparent),
+  radial-gradient(ellipse 45% 30% at 92% 92%,rgba(139,92,246,0.07),transparent);
+  pointer-events:none;z-index:0}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(6,8,15,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.brand-name{font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--a1) 65%,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap}
+.ticker-strip{display:flex;gap:10px;overflow:hidden;flex:1;position:relative}
+.ticker-strip::before,.ticker-strip::after{content:'';position:absolute;top:0;width:40px;height:100%;z-index:2}
+.ticker-strip::before{left:0;background:linear-gradient(90deg,rgba(6,8,15,0.95),transparent)}
+.ticker-strip::after{right:0;background:linear-gradient(-90deg,rgba(6,8,15,0.95),transparent)}
+.ticker-inner{display:flex;gap:10px;animation:scroll 30s linear infinite;white-space:nowrap}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tick{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);font-size:11.5px;font-weight:600;white-space:nowrap}
+.tick .sym{color:var(--muted2)}
+.tick .val{font-family:'DM Mono',monospace}
+.tick .chg{font-size:10px;font-weight:700}
+.chg.up{color:var(--a4)}.chg.dn{color:var(--red)}
+.hbadges{display:flex;gap:6px;flex-shrink:0}
+.hb{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted2);white-space:nowrap}
+
+/* LAYOUT */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 56px)}
+
+/* LEFT */
+.left{background:var(--s1);border-right:1px solid var(--border);height:calc(100vh - 56px);overflow-y:auto;overflow-x:hidden;position:sticky;top:56px;display:flex;flex-direction:column}
+.left::-webkit-scrollbar{width:3px}
+.left::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+
+.lp-head{padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.lp-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--a1) 65%,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:4px}
+.lp-sub{font-size:11px;color:var(--muted2);line-height:1.6}
+
+.lp-body{padding:14px 18px;flex:1}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:9.5px;font-weight:700;color:var(--muted2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+
+/* Amount input special */
+.amount-wrap{position:relative}
+.amount-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:700;color:var(--a1);font-family:'DM Mono',monospace;pointer-events:none;z-index:2}
+#amount{padding-left:40px;font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+
+input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;transition:border-color .2s,background .2s}
+input:focus,select:focus{border-color:rgba(79,142,247,0.45);background:rgba(255,255,255,0.06)}
+select option{background:#0e1220}
+
+/* TomSelect override */
+.ts-wrapper{--ts-bg:rgba(255,255,255,0.04);--ts-color:#dde4f0;--ts-border-color:rgba(255,255,255,0.07)}
+.ts-control{background:rgba(255,255,255,0.04)!important;border:1px solid var(--border)!important;border-radius:9px!important;color:var(--text)!important;font-size:13px!important;padding:10px 12px!important;min-height:unset!important}
+.ts-control input{color:var(--text)!important;font-family:'Plus Jakarta Sans',sans-serif!important;font-size:13px!important}
+.ts-dropdown{background:#0e1220!important;border:1px solid var(--border)!important;border-radius:9px!important;color:var(--text)!important;font-size:13px!important}
+.ts-dropdown .option{padding:9px 12px!important}
+.ts-dropdown .option:hover,.ts-dropdown .option.active{background:rgba(79,142,247,0.12)!important;color:var(--a1)!important}
+.ts-dropdown .selected{background:rgba(79,142,247,0.15)!important}
+
+/* FROM/TO row */
+.cc-row{display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:end;margin-bottom:12px}
+.swap-btn{width:40px;height:42px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,0.04);color:var(--muted2);font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;margin-bottom:0}
+.swap-btn:hover{background:rgba(79,142,247,0.15);color:var(--a1);border-color:rgba(79,142,247,0.3);transform:rotate(180deg)}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.convert-btn{width:100%;padding:14px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(79,142,247,0.28);letter-spacing:.3px;margin-top:4px}
+.convert-btn:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(79,142,247,0.42)}
+.convert-btn:active{transform:none}
+
+/* RESULT CARD */
+.result-main{background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(139,92,246,0.08));border:1px solid rgba(79,142,247,0.2);border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.result-from{font-size:12px;color:var(--muted2);margin-bottom:4px}
+.result-arrow{font-size:20px;margin:6px 0;opacity:.5}
+.result-amount{font-size:28px;font-weight:800;font-family:'DM Mono',monospace;color:var(--a4);line-height:1}
+.result-code{font-size:12px;color:var(--muted2);margin-top:4px;font-weight:600}
+.result-rate{font-size:11px;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace}
+
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.ms-box{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:9px;padding:10px;text-align:center}
+.ms-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.ms-val{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.ms-val.green{color:var(--a4)}.ms-val.red{color:var(--red)}.ms-val.blue{color:var(--a1)}
+
+/* History */
+.hist-section{padding:0 18px 14px}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.hist-list{display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto}
+.hist-list::-webkit-scrollbar{width:2px}
+.hist-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08)}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:7px;font-size:11.5px}
+.hist-from{color:var(--muted2);font-family:'DM Mono',monospace}
+.hist-to{color:var(--a4);font-weight:700;font-family:'DM Mono',monospace}
+.hist-time{font-size:10px;color:var(--muted)}
+
+.lp-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:7px}
+.fp-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,0.04);color:var(--muted2);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.fp-btn:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+
+/* RIGHT */
+.right{padding:16px;overflow-y:auto}
+.right::-webkit-scrollbar{width:4px}
+.right::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+
+/* HEATMAP ROW */
+.heatmap{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.hm-box{background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:11px 10px;text-align:center}
+.hm-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.hm-val{font-size:17px;font-weight:800;font-family:'DM Mono',monospace}
+.hm-chg{font-size:10px;font-weight:600;margin-top:3px}
+.hm-val.up{color:var(--a4)}.hm-val.dn{color:var(--red)}.hm-val.neu{color:var(--a1)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+.chart-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:14px}
+.cc-title{font-size:12px;font-weight:700;color:var(--muted2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.cc-title-left{display:flex;align-items:center;gap:6px}
+.cdot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2))}
+.time-btns{display:flex;gap:4px}
+.time-btn{padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.time-btn:hover,.time-btn.active{background:rgba(79,142,247,0.15);border-color:rgba(79,142,247,0.3);color:var(--a1)}
+
+/* ARBITRAGE TABLE */
+.table-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.table-head{padding:12px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.th-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.th-badge{padding:3px 9px;border-radius:20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:10px;font-weight:600;color:var(--a4)}
+.tbl-wrap{overflow-x:auto}
+.tbl-wrap::-webkit-scrollbar{height:3px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:rgba(255,255,255,0.03);padding:9px 14px;text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+tbody td{padding:9px 14px;border-bottom:1px solid var(--border2);color:var(--muted2);white-space:nowrap}
+tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--text)}
+tbody tr:last-child td{border:none}
+.best-row td{color:var(--a4)!important}
+.td-name{font-weight:600;color:var(--text)!important}
+.td-mono{font-family:'DM Mono',monospace}
+.rate-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+.rate-pill.best{background:rgba(16,185,129,0.12);color:var(--a4)}
+.rate-pill.good{background:rgba(79,142,247,0.10);color:var(--a1)}
+.rate-pill.avg{background:rgba(245,158,11,0.10);color:var(--yellow)}
+.rate-pill.bad{background:rgba(239,68,68,0.10);color:var(--red)}
+
+/* MULTI CURRENCY TABLE */
+.multi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.mc-box{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:all .18s}
+.mc-box:hover{border-color:rgba(79,142,247,0.3);background:rgba(79,142,247,0.05)}
+.mc-flag{font-size:18px;flex-shrink:0}
+.mc-info{flex:1;min-width:0}
+.mc-code{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.5px}
+.mc-rate{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.mc-chg{font-size:10px;font-weight:600}
+.mc-chg.up{color:var(--a4)}.mc-chg.dn{color:var(--red)}
+
+/* AI SECTION */
+.ai-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.ai-box{background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:13px;text-align:center}
+.ai-label{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ai-val{font-size:18px;font-weight:800;color:var(--text);font-family:'DM Mono',monospace}
+.ai-val.green{color:var(--a4)}.ai-val.blue{color:var(--a1)}.ai-val.yellow{color:var(--yellow)}.ai-val.red{color:var(--red)}
+.ai-rec{background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(139,92,246,0.08));border:1px solid rgba(79,142,247,0.15);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.ai-rec-title{font-size:11px;font-weight:700;color:var(--a1);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ai-rec-text{font-size:13px;color:var(--text);line-height:1.65}
+
+/* NEWS */
+.news-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.news-item{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--muted2);line-height:1.55}
+.news-dot{width:6px;height:6px;border-radius:50%;background:var(--a1);flex-shrink:0;margin-top:5px}
+
+/* DISCLAIMER */
+.disc{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.12);border-radius:9px;padding:10px 13px;font-size:11px;color:var(--muted2);line-height:1.6;display:flex;gap:7px;margin-bottom:6px}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;padding:10px 16px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,0.4);z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:1200px){.app{grid-template-columns:1fr}.left{position:relative;height:auto}.heatmap{grid-template-columns:repeat(3,1fr)}.multi-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}.ai-row{grid-template-columns:repeat(2,1fr)}.news-list{grid-template-columns:1fr}}
+@media(max-width:700px){.heatmap{grid-template-columns:repeat(2,1fr)}.multi-grid{grid-template-columns:1fr 1fr}.hbadges{display:none}}
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
-
-<!-- ================= LEFT ================= -->
-
-<div class="left-panel">
-
-<h1 class="title">
-Global AI Currency Engine
-</h1>
-
-<p class="subtitle">
-Ultra realtime AI-powered multi-country forex workstation with live exchange intelligence,
-AI prediction engine, arbitrage comparison and historical market analytics.
-</p>
-
-<img class="hero"
-src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1400&auto=format&fit=crop">
-
-<!-- ================= MARKET TICKER ================= -->
-
-<div class="market-ticker">
-
-<div class="ticker">
-<h4>USD / INR</h4>
-<p class="green">83.20 ▲ +0.42%</p>
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">
+    <div class="brand-icon">💱</div>
+    <div class="brand-name">Global AI Currency Engine</div>
+  </div>
+  <div class="ticker-strip">
+    <div class="ticker-inner" id="tickerInner"></div>
+  </div>
+  <div class="hbadges">
+    <span class="hb">🌍 195 Countries</span>
+    <span class="hb">⚡ Live Rates</span>
+    <span class="hb">🤖 AI Insights</span>
+    <span class="hb">📊 Charts</span>
+  </div>
 </div>
 
-<div class="ticker">
-<h4>EUR / USD</h4>
-<p class="red">1.08 ▼ -0.18%</p>
-</div>
+<div class="app">
 
-<div class="ticker">
-<h4>GBP / USD</h4>
-<p class="green">1.27 ▲ +0.21%</p>
-</div>
+<!-- ===== LEFT PANEL ===== -->
+<div class="left">
 
-<div class="ticker">
-<h4>BTC / USD</h4>
-<p class="green">$68,220 ▲ +2.1%</p>
-</div>
+  <div class="lp-head">
+    <div class="lp-title">Currency Converter</div>
+    <div class="lp-sub">Real-time forex conversion · 195 currencies · AI-powered insights · Arbitrage comparison</div>
+  </div>
 
-<div class="ticker">
-<h4>Gold</h4>
-<p class="red">$2,341 ▼ -0.5%</p>
-</div>
+  <div class="lp-body">
 
-</div>
+    <!-- AMOUNT -->
+    <div class="field">
+      <label>Amount to Convert</label>
+      <div class="amount-wrap">
+        <span class="amount-prefix" id="amtPrefix">$</span>
+        <input type="text" id="amount" value="1,000" oninput="onAmountInput()">
+      </div>
+    </div>
 
-<!-- ================= BADGES ================= -->
+    <!-- FROM / SWAP / TO -->
+    <div class="cc-row">
+      <div class="field" style="margin:0">
+        <label>From</label>
+        <select id="fromSelect"></select>
+      </div>
+      <button class="swap-btn" onclick="swapCurrencies()" title="Swap currencies">⇄</button>
+      <div class="field" style="margin:0">
+        <label>To</label>
+        <select id="toSelect"></select>
+      </div>
+    </div>
 
-<div class="badges">
+    <!-- PROVIDER & SPEED -->
+    <div class="frow">
+      <div class="field">
+        <label>Transfer Provider</label>
+        <select id="provider" onchange="doConvert()">
+          <option value="0.004">Wise (0.4%)</option>
+          <option value="0.006">Revolut (0.6%)</option>
+          <option value="0.018">Bank Transfer (1.8%)</option>
+          <option value="0.032">PayPal (3.2%)</option>
+          <option value="0.002">Crypto (0.2%)</option>
+          <option value="0.025">Western Union (2.5%)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Transfer Speed</label>
+        <select id="speed">
+          <option>Instant</option>
+          <option>Same Day</option>
+          <option>1-2 Days</option>
+          <option>3-5 Days</option>
+        </select>
+      </div>
+    </div>
 
-<div class="badge">🌍 195 Countries</div>
+    <button class="convert-btn" onclick="doConvert()">🚀 Convert Currency</button>
 
-<div class="badge">⚡ Live Forex</div>
+    <!-- RESULT CARD -->
+    <div class="result-main" id="resultMain">
+      <div class="result-from" id="rFrom">Enter amount and click Convert</div>
+      <div class="result-arrow">↓</div>
+      <div class="result-amount" id="rAmount">—</div>
+      <div class="result-code" id="rCode">—</div>
+      <div class="result-rate" id="rRate">1 USD = — INR</div>
+    </div>
 
-<div class="badge">🤖 AI Insights</div>
+    <!-- MINI STATS -->
+    <div class="mini-stats">
+      <div class="ms-box"><div class="ms-label">Rate</div><div class="ms-val blue" id="sRate">—</div></div>
+      <div class="ms-box"><div class="ms-label">Inverse</div><div class="ms-val" id="sInverse">—</div></div>
+      <div class="ms-box"><div class="ms-label">Fee Deducted</div><div class="ms-val red" id="sFee">—</div></div>
+      <div class="ms-box"><div class="ms-label">After Fee</div><div class="ms-val green" id="sAfterFee">—</div></div>
+      <div class="ms-box"><div class="ms-label">Mid-Market</div><div class="ms-val" id="sMid">—</div></div>
+      <div class="ms-box"><div class="ms-label">Spread</div><div class="ms-val yellow" id="sSpread">—</div></div>
+    </div>
 
-<div class="badge">📈 Historical Charts</div>
+  </div>
 
-<div class="badge">💹 Arbitrage Engine</div>
+  <!-- HISTORY -->
+  <div class="hist-section">
+    <div class="sec-label">Conversion History</div>
+    <div class="hist-list" id="histList">
+      <div style="font-size:11px;color:var(--muted);text-align:center;padding:8px">No history yet</div>
+    </div>
+  </div>
 
-<div class="badge">🪙 Crypto Ready</div>
-
-</div>
-
-<!-- ================= FORM ================= -->
-
-<div class="group">
-<label>Enter Amount</label>
-<input type="text" id="amount" value="100000">
-</div>
-
-<div class="group">
-<label>From Country</label>
-<select id="fromCountry"></select>
-</div>
-
-<div class="group">
-<label>To Country</label>
-<select id="toCountry"></select>
-</div>
-
-<div class="group">
-<label>Bank / Transfer Provider</label>
-<select id="provider">
-<option>Wise</option>
-<option>Revolut</option>
-<option>PayPal</option>
-<option>Western Union</option>
-<option>Bank Transfer</option>
-<option>Crypto Exchange</option>
-</select>
-</div>
-
-<div class="group">
-<label>Your Credit Tier</label>
-<select id="credit">
-<option>Excellent</option>
-<option>Good</option>
-<option>Average</option>
-<option>Poor</option>
-</select>
-</div>
-
-<div class="group">
-<label>Transfer Speed</label>
-<select id="speed">
-<option>Instant</option>
-<option>Same Day</option>
-<option>1-2 Days</option>
-<option>3-5 Days</option>
-</select>
-</div>
-
-<button class="primary-btn" onclick="convertCurrency()">
-🚀 Convert Currency
-</button>
-
-<div class="button-row">
-
-<button class="secondary-btn" onclick="swapCurrencies()">
-🔁 Swap
-</button>
-
-<button class="secondary-btn red-btn" onclick="clearAll()">
-🗑 Clear
-</button>
+  <!-- FOOTER BTNS -->
+  <div class="lp-footer">
+    <button class="fp-btn" onclick="clearAll()">🗑 Clear</button>
+    <button class="fp-btn" onclick="exportData()">📥 Export</button>
+    <button class="fp-btn" onclick="window.print()">🖨 Print</button>
+    <button class="fp-btn" onclick="window.location.href='../index.html'">🏠 Home</button>
+  </div>
 
 </div>
 
-<div class="live">
-⚡ Live Forex Stream Connected
-</div>
+<!-- ===== RIGHT PANEL ===== -->
+<div class="right">
 
-<!-- ================= RESULTS ================= -->
+  <!-- LIVE HEATMAP -->
+  <div class="heatmap" id="heatmap"></div>
 
-<div class="result-grid">
+  <!-- MULTI CURRENCY GRID -->
+  <div class="sec-label" style="margin-bottom:8px">📊 Live Rates vs <span id="baseLabel" style="color:var(--a1)">USD</span></div>
+  <div class="multi-grid" id="multiGrid"></div>
 
-<div class="result-card">
-<h4>Converted Amount</h4>
-<p id="converted">--</p>
-</div>
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="cc-title">
+        <div class="cc-title-left"><div class="cdot"></div><span id="chartTitle">USD → INR · 7 Day Trend</span></div>
+        <div class="time-btns">
+          <button class="time-btn active" onclick="setChartPeriod('7d',this)">7D</button>
+          <button class="time-btn" onclick="setChartPeriod('1m',this)">1M</button>
+          <button class="time-btn" onclick="setChartPeriod('3m',this)">3M</button>
+          <button class="time-btn" onclick="setChartPeriod('1y',this)">1Y</button>
+        </div>
+      </div>
+      <canvas id="lineChart" height="140"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title"><div class="cc-title-left"><div class="cdot" style="background:linear-gradient(135deg,var(--a3),var(--a4))"></div>Cost Breakdown</div></div>
+      <canvas id="donutChart" height="140"></canvas>
+    </div>
+  </div>
 
-<div class="result-card">
-<h4>Exchange Rate</h4>
-<p id="rate">--</p>
-</div>
+  <!-- ARBITRAGE TABLE -->
+  <div class="table-card">
+    <div class="table-head">
+      <div class="th-title">🔁 Provider Arbitrage Comparison</div>
+      <div class="th-badge" id="bestProvider">Best: —</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Provider</th><th>Rate</th><th>Fee %</th><th>Fee Amount</th><th>You Receive</th><th>Speed</th><th>Rating</th></tr></thead>
+        <tbody id="arbTable"></tbody>
+      </table>
+    </div>
+  </div>
 
-<div class="result-card">
-<h4>Bank Fee</h4>
-<p id="fee">0%</p>
-</div>
+  <!-- AI SECTION -->
+  <div class="sec-label" style="margin-bottom:8px">🤖 AI Market Intelligence</div>
+  <div class="ai-row">
+    <div class="ai-box"><div class="ai-label">AI Trend</div><div class="ai-val green" id="aiTrend">Stable</div></div>
+    <div class="ai-box"><div class="ai-label">Volatility</div><div class="ai-val blue" id="aiVolatility">Low</div></div>
+    <div class="ai-box"><div class="ai-label">7D Forecast</div><div class="ai-val yellow" id="aiForecast">+0.8%</div></div>
+    <div class="ai-box"><div class="ai-label">Confidence</div><div class="ai-val green" id="aiConf">92%</div></div>
+    <div class="ai-box"><div class="ai-label">Best Time</div><div class="ai-val blue" id="aiBestTime">Now</div></div>
+    <div class="ai-box"><div class="ai-label">Market Mood</div><div class="ai-val green" id="aiMood">Bullish</div></div>
+    <div class="ai-box"><div class="ai-label">Risk Level</div><div class="ai-val" id="aiRisk">Low</div></div>
+    <div class="ai-box"><div class="ai-label">Liquidity</div><div class="ai-val green" id="aiLiq">High</div></div>
+  </div>
 
-<div class="result-card">
-<h4>GST / VAT</h4>
-<p>18%</p>
-</div>
+  <div class="ai-rec">
+    <div class="ai-rec-title">🤖 AI Recommendation</div>
+    <div class="ai-rec-text" id="aiRecText">Generate a conversion to see AI-powered recommendation for the best transfer method and timing.</div>
+  </div>
 
-<div class="result-card">
-<h4>Inverse Rate</h4>
-<p id="inverse">--</p>
-</div>
+  <!-- LIVE MARKET NEWS -->
+  <div class="sec-label" style="margin-bottom:8px">📰 Live Market Intelligence</div>
+  <div class="news-list">
+    <div class="news-item"><div class="news-dot"></div>US Federal Reserve signals potential rate pause amid cooling inflation data from CPI reports.</div>
+    <div class="news-item"><div class="news-dot" style="background:var(--a4)"></div>RBI maintains rupee stability through strategic liquidity management and forex interventions.</div>
+    <div class="news-item"><div class="news-dot" style="background:var(--yellow)"></div>Oil price surge impacts Gulf currencies — AED, SAR, QAR showing increased demand pressures.</div>
+    <div class="news-item"><div class="news-dot" style="background:var(--a2)"></div>Eurozone GDP growth slows to 0.4% — EUR faces headwinds from weak manufacturing sector.</div>
+    <div class="news-item"><div class="news-dot"></div>Bitcoin ETF inflows continue rising globally, driving crypto exchange volumes to new highs.</div>
+    <div class="news-item"><div class="news-dot" style="background:var(--a4)"></div>JPY at multi-decade lows — Bank of Japan intervention risk elevated, carry trade unwinding.</div>
+  </div>
 
-<div class="result-card">
-<h4>Status</h4>
-<p>LIVE</p>
-</div>
-
-</div>
-
-<!-- ================= HISTORY ================= -->
-
-<div class="history">
-
-<h3>Recent History</h3>
-
-<div id="historyBox"></div>
-
-</div>
-
-<!-- ================= FOOTER ================= -->
-
-<div class="footer-buttons">
-
-<button class="footer-btn"
-onclick="window.location.href='../index.html'">
-🏠 Return Home
-</button>
-
-<button class="footer-btn"
-onclick="window.print()">
-🖨 Print
-</button>
-
-</div>
-
-<div class="disclaimer">
-⚠ Exchange rates are illustrative demo estimates. Real interbank forex rates vary by provider,
-country regulations, taxes, transfer method, liquidity and market volatility.
-</div>
-
-</div>
-
-<!-- ================= RIGHT ================= -->
-
-<div class="right-panel">
-
-<!-- ================= CHART ================= -->
-
-<div class="chart-card">
-
-<h2 style="margin-bottom:20px;">
-📈 Live Forex Analytics
-</h2>
-
-<canvas id="chart"></canvas>
+  <div class="disc"><span>⚠️</span><span>Exchange rates are illustrative estimates based on mid-market benchmarks. Actual rates vary by provider, country regulations, taxes, transfer method, liquidity, and market volatility. Always compare rates before transferring.</span></div>
 
 </div>
-
-<!-- ================= ARBITRAGE TABLE ================= -->
-
-<div class="table-card">
-
-<h2>
-🌍 Arbitrage Comparison Matrix
-</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Provider</th>
-<th>Rate</th>
-<th>Fees</th>
-<th>Speed</th>
-<th>Final Value</th>
-</tr>
-
-</thead>
-
-<tbody id="arbitrageTable"></tbody>
-
-</table>
-
 </div>
 
-<!-- ================= HEATMAP ================= -->
-
-<div class="forex-heatmap">
-
-<div class="heat-box">
-<h3>🔥 Strongest</h3>
-<p class="green">USD</p>
-</div>
-
-<div class="heat-box">
-<h3>📉 Weakest</h3>
-<p class="red">JPY</p>
-</div>
-
-<div class="heat-box">
-<h3>⚡ Volatility</h3>
-<p class="green">LOW</p>
-</div>
-
-<div class="heat-box">
-<h3>🌍 Sentiment</h3>
-<p class="green">Bullish</p>
-</div>
-
-</div>
-
-<!-- ================= AI SECTION ================= -->
-
-<div class="ai-section">
-
-<h2>
-🤖 AI Smart Insights
-</h2>
-
-<div class="ai-grid">
-
-<div class="ai-card">
-<h4>AI Trend</h4>
-<p>Stable</p>
-</div>
-
-<div class="ai-card">
-<h4>Volatility</h4>
-<p>Low</p>
-</div>
-
-<div class="ai-card">
-<h4>Forecast</h4>
-<p>+0.8%</p>
-</div>
-
-<div class="ai-card">
-<h4>Confidence</h4>
-<p>92%</p>
-</div>
-
-</div>
-
-<div class="ai-box">
-
-<h3 style="margin-bottom:10px;">
-🤖 AI Recommendation
-</h3>
-
-<p id="aiInsight">
-Wise currently offers best USD → INR conversion value with lowest hidden spread.
-</p>
-
-</div>
-
-</div>
-
-<!-- ================= NEWS ================= -->
-
-<div class="news-card">
-
-<h2 style="margin-bottom:15px;">
-📰 Live Market News
-</h2>
-
-📌 US Federal Reserve expected to hold rates steady.<br>
-
-📌 RBI monitoring inflation and rupee stability.<br>
-
-📌 Oil prices impacting Gulf currencies.<br>
-
-📌 Eurozone growth slows amid weak exports.<br>
-
-📌 Bitcoin ETF inflows continue rising globally.<br>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- ================= JAVASCRIPT ================= -->
+<div class="toast" id="toast"></div>
 
 <script>
-
-/* ===================================================== */
-/* 195 COUNTRIES DATABASE */
-/* ===================================================== */
-
-const countries = [
-
-{country:"Afghanistan",code:"AFN",flag:"🇦🇫"},
-{country:"Albania",code:"ALL",flag:"🇦🇱"},
-{country:"Algeria",code:"DZD",flag:"🇩🇿"},
-{country:"Argentina",code:"ARS",flag:"🇦🇷"},
-{country:"Australia",code:"AUD",flag:"🇦🇺"},
-{country:"Austria",code:"EUR",flag:"🇦🇹"},
-{country:"Bahrain",code:"BHD",flag:"🇧🇭"},
-{country:"Bangladesh",code:"BDT",flag:"🇧🇩"},
-{country:"Belgium",code:"EUR",flag:"🇧🇪"},
-{country:"Brazil",code:"BRL",flag:"🇧🇷"},
-{country:"Canada",code:"CAD",flag:"🇨🇦"},
-{country:"China",code:"CNY",flag:"🇨🇳"},
-{country:"Denmark",code:"DKK",flag:"🇩🇰"},
-{country:"Egypt",code:"EGP",flag:"🇪🇬"},
-{country:"Finland",code:"EUR",flag:"🇫🇮"},
-{country:"France",code:"EUR",flag:"🇫🇷"},
-{country:"Germany",code:"EUR",flag:"🇩🇪"},
-{country:"Greece",code:"EUR",flag:"🇬🇷"},
-{country:"Hong Kong",code:"HKD",flag:"🇭🇰"},
-{country:"India",code:"INR",flag:"🇮🇳"},
-{country:"Indonesia",code:"IDR",flag:"🇮🇩"},
-{country:"Ireland",code:"EUR",flag:"🇮🇪"},
-{country:"Israel",code:"ILS",flag:"🇮🇱"},
-{country:"Italy",code:"EUR",flag:"🇮🇹"},
-{country:"Japan",code:"JPY",flag:"🇯🇵"},
-{country:"Kuwait",code:"KWD",flag:"🇰🇼"},
-{country:"Malaysia",code:"MYR",flag:"🇲🇾"},
-{country:"Mexico",code:"MXN",flag:"🇲🇽"},
-{country:"Nepal",code:"NPR",flag:"🇳🇵"},
-{country:"Netherlands",code:"EUR",flag:"🇳🇱"},
-{country:"New Zealand",code:"NZD",flag:"🇳🇿"},
-{country:"Nigeria",code:"NGN",flag:"🇳🇬"},
-{country:"Norway",code:"NOK",flag:"🇳🇴"},
-{country:"Pakistan",code:"PKR",flag:"🇵🇰"},
-{country:"Philippines",code:"PHP",flag:"🇵🇭"},
-{country:"Poland",code:"PLN",flag:"🇵🇱"},
-{country:"Portugal",code:"EUR",flag:"🇵🇹"},
-{country:"Qatar",code:"QAR",flag:"🇶🇦"},
-{country:"Russia",code:"RUB",flag:"🇷🇺"},
-{country:"Saudi Arabia",code:"SAR",flag:"🇸🇦"},
-{country:"Singapore",code:"SGD",flag:"🇸🇬"},
-{country:"South Africa",code:"ZAR",flag:"🇿🇦"},
-{country:"South Korea",code:"KRW",flag:"🇰🇷"},
-{country:"Spain",code:"EUR",flag:"🇪🇸"},
-{country:"Sri Lanka",code:"LKR",flag:"🇱🇰"},
-{country:"Sweden",code:"SEK",flag:"🇸🇪"},
-{country:"Switzerland",code:"CHF",flag:"🇨🇭"},
-{country:"Thailand",code:"THB",flag:"🇹🇭"},
-{country:"Turkey",code:"TRY",flag:"🇹🇷"},
-{country:"UAE",code:"AED",flag:"🇦🇪"},
-{country:"United Kingdom",code:"GBP",flag:"🇬🇧"},
-{country:"United States",code:"USD",flag:"🇺🇸"},
-{country:"Vietnam",code:"VND",flag:"🇻🇳"}
-
+// ============ DATA ============
+const CURRENCIES = [
+  {flag:"🇺🇸",code:"USD",name:"United States Dollar",rate:1},
+  {flag:"🇮🇳",code:"INR",name:"Indian Rupee",rate:83.2},
+  {flag:"🇬🇧",code:"GBP",name:"British Pound",rate:0.787},
+  {flag:"🇪🇺",code:"EUR",name:"Euro",rate:0.921},
+  {flag:"🇦🇪",code:"AED",name:"UAE Dirham",rate:3.672},
+  {flag:"🇯🇵",code:"JPY",name:"Japanese Yen",rate:157.4},
+  {flag:"🇸🇬",code:"SGD",name:"Singapore Dollar",rate:1.342},
+  {flag:"🇦🇺",code:"AUD",name:"Australian Dollar",rate:1.524},
+  {flag:"🇨🇦",code:"CAD",name:"Canadian Dollar",rate:1.362},
+  {flag:"🇨🇳",code:"CNY",name:"Chinese Yuan",rate:7.248},
+  {flag:"🇨🇭",code:"CHF",name:"Swiss Franc",rate:0.897},
+  {flag:"🇸🇦",code:"SAR",name:"Saudi Riyal",rate:3.751},
+  {flag:"🇶🇦",code:"QAR",name:"Qatari Riyal",rate:3.641},
+  {flag:"🇰🇼",code:"KWD",name:"Kuwaiti Dinar",rate:0.307},
+  {flag:"🇰🇷",code:"KRW",name:"South Korean Won",rate:1372},
+  {flag:"🇭🇰",code:"HKD",name:"Hong Kong Dollar",rate:7.818},
+  {flag:"🇲🇾",code:"MYR",name:"Malaysian Ringgit",rate:4.621},
+  {flag:"🇹🇭",code:"THB",name:"Thai Baht",rate:35.8},
+  {flag:"🇵🇭",code:"PHP",name:"Philippine Peso",rate:57.3},
+  {flag:"🇧🇷",code:"BRL",name:"Brazilian Real",rate:5.23},
+  {flag:"🇲🇽",code:"MXN",name:"Mexican Peso",rate:16.84},
+  {flag:"🇷🇺",code:"RUB",name:"Russian Ruble",rate:89.5},
+  {flag:"🇿🇦",code:"ZAR",name:"South African Rand",rate:18.42},
+  {flag:"🇳🇬",code:"NGN",name:"Nigerian Naira",rate:1485},
+  {flag:"🇵🇰",code:"PKR",name:"Pakistani Rupee",rate:279},
+  {flag:"🇧🇩",code:"BDT",name:"Bangladeshi Taka",rate:110},
+  {flag:"🇱🇰",code:"LKR",name:"Sri Lankan Rupee",rate:302},
+  {flag:"🇳🇵",code:"NPR",name:"Nepalese Rupee",rate:133},
+  {flag:"🇮🇩",code:"IDR",name:"Indonesian Rupiah",rate:16250},
+  {flag:"🇻🇳",code:"VND",name:"Vietnamese Dong",rate:25400},
+  {flag:"🇸🇪",code:"SEK",name:"Swedish Krona",rate:10.82},
+  {flag:"🇳🇴",code:"NOK",name:"Norwegian Krone",rate:10.71},
+  {flag:"🇩🇰",code:"DKK",name:"Danish Krone",rate:6.84},
+  {flag:"🇵🇱",code:"PLN",name:"Polish Zloty",rate:4.12},
+  {flag:"🇹🇷",code:"TRY",name:"Turkish Lira",rate:32.4},
+  {flag:"🇪🇬",code:"EGP",name:"Egyptian Pound",rate:47.5},
+  {flag:"🇮🇱",code:"ILS",name:"Israeli Shekel",rate:3.62},
+  {flag:"🇦🇷",code:"ARS",name:"Argentine Peso",rate:894},
+  {flag:"🇨🇴",code:"COP",name:"Colombian Peso",rate:3980},
+  {flag:"🇨🇱",code:"CLP",name:"Chilean Peso",rate:952},
+  {flag:"🇳🇿",code:"NZD",name:"New Zealand Dollar",rate:1.663},
+  {flag:"🇧🇭",code:"BHD",name:"Bahraini Dinar",rate:0.376},
+  {flag:"🇴🇲",code:"OMR",name:"Omani Rial",rate:0.385},
+  {flag:"🇯🇴",code:"JOD",name:"Jordanian Dinar",rate:0.709},
+  {flag:"🇲🇦",code:"MAD",name:"Moroccan Dirham",rate:9.98},
+  {flag:"🇰🇪",code:"KES",name:"Kenyan Shilling",rate:131},
+  {flag:"🇬🇭",code:"GHS",name:"Ghanaian Cedi",rate:15.8},
+  {flag:"🇺🇦",code:"UAH",name:"Ukrainian Hryvnia",rate:39.8},
+  {flag:"🇷🇴",code:"RON",name:"Romanian Leu",rate:4.58},
+  {flag:"🇨🇿",code:"CZK",name:"Czech Koruna",rate:22.9},
+  {flag:"🇭🇺",code:"HUF",name:"Hungarian Forint",rate:360},
 ];
 
-/* ===================================================== */
-/* FOREX RATES */
-/* ===================================================== */
-
-const forexRates={
-
-USD:1,
-INR:83.2,
-GBP:0.78,
-AED:3.67,
-JPY:156,
-SGD:1.34,
-AUD:1.52,
-CAD:1.36,
-EUR:0.92,
-CNY:7.2,
-KRW:1370,
-SAR:3.75,
-QAR:3.64,
-KWD:0.30,
-THB:36,
-MYR:4.6,
-RUB:89,
-BRL:5.2,
-ZAR:18.3,
-MXN:16.7,
-TRY:32,
-CHF:0.90,
-NZD:1.66,
-NPR:133,
-PKR:278,
-LKR:299,
-SEK:10.8,
-NOK:10.7,
-DKK:6.8,
-PLN:4.1,
-PHP:57,
-HKD:7.8,
-NGN:1480,
-ILS:3.6,
-IDR:16200,
-EGP:47
-
-};
-
-/* ===================================================== */
-/* DROPDOWNS */
-/* ===================================================== */
-
-const fromCountry=document.getElementById("fromCountry");
-
-const toCountry=document.getElementById("toCountry");
-
-countries.forEach(c=>{
-
-const option1=document.createElement("option");
-
-option1.value=c.code;
-
-option1.text=`${c.flag} ${c.country} (${c.code})`;
-
-fromCountry.appendChild(option1);
-
-const option2=document.createElement("option");
-
-option2.value=c.code;
-
-option2.text=`${c.flag} ${c.country} (${c.code})`;
-
-toCountry.appendChild(option2);
-
-});
-
-fromCountry.value='USD';
-
-toCountry.value='INR';
-
-/* ===================================================== */
-/* SEARCHABLE */
-/* ===================================================== */
-
-new TomSelect("#fromCountry");
-
-new TomSelect("#toCountry");
-
-/* ===================================================== */
-/* FORMAT */
-/* ===================================================== */
-
-function formatNumber(num){
-
-return new Intl.NumberFormat('en-IN',{
-maximumFractionDigits:2
-}).format(num);
-
-}
-
-/* ===================================================== */
-/* CONVERT */
-/* ===================================================== */
-
-function convertCurrency(){
-
-let amount=document.getElementById("amount").value;
-
-amount=parseFloat(amount.toString().replace(/,/g,'')) || 0;
-
-const from=fromCountry.value;
-
-const to=toCountry.value;
-
-const usdAmount=amount/forexRates[from];
-
-const converted=usdAmount*forexRates[to];
-
-document.getElementById("converted").innerHTML=
-`${to} ${formatNumber(converted)}`;
-
-const rate=(forexRates[to]/forexRates[from]).toFixed(4);
-
-document.getElementById("rate").innerHTML=rate;
-
-document.getElementById("inverse").innerHTML=
-(1/rate).toFixed(4);
-
-generateArbitrage(converted);
-
-saveHistory(amount,from,to,converted);
-
-updateChart();
-
-}
-
-/* ===================================================== */
-/* ARBITRAGE */
-/* ===================================================== */
-
-function generateArbitrage(base){
-
-const tbody=document.getElementById("arbitrageTable");
-
-tbody.innerHTML='';
-
-const providers=[
-
-{n:'Wise',f:'0.4%'},
-{n:'Revolut',f:'0.6%'},
-{n:'PayPal',f:'3.2%'},
-{n:'Bank Transfer',f:'1.8%'},
-{n:'Crypto Exchange',f:'0.2%'}
-
+const PROVIDERS = [
+  {name:"Wise",fee:0.004,speed:"Instant",rating:"⭐⭐⭐⭐⭐"},
+  {name:"Revolut",fee:0.006,speed:"Instant",rating:"⭐⭐⭐⭐"},
+  {name:"Crypto Exchange",fee:0.002,speed:"10 min",rating:"⭐⭐⭐⭐"},
+  {name:"Bank Transfer",fee:0.018,speed:"1-3 Days",rating:"⭐⭐⭐"},
+  {name:"Western Union",fee:0.025,speed:"Same Day",rating:"⭐⭐⭐"},
+  {name:"PayPal",fee:0.032,speed:"Instant",rating:"⭐⭐"},
+  {name:"MoneyGram",fee:0.022,speed:"Same Day",rating:"⭐⭐⭐"},
 ];
 
-providers.forEach(p=>{
+const HEATMAP_ITEMS = [
+  {label:"🔥 Strongest",val:"USD",cls:"up",sub:"+0.3%"},
+  {label:"📉 Weakest",val:"JPY",cls:"dn",sub:"-0.8%"},
+  {label:"⚡ Volatility",val:"LOW",cls:"up",sub:"Stable"},
+  {label:"🌍 Sentiment",val:"BULL",cls:"up",sub:"Positive"},
+  {label:"📊 Volume",val:"HIGH",cls:"up",sub:"Active"},
+  {label:"🏦 Policy",val:"HOLD",cls:"neu",sub:"Fed pause"},
+];
 
-const rate=(Math.random()*2+82).toFixed(2);
+let lineChart=null,donutChart=null,histData=[],currentPeriod="7d";
+let fromTS=null,toTS=null;
 
-const row=`
-<tr>
-<td>${p.n}</td>
-<td>${rate}</td>
-<td>${p.f}</td>
-<td>Instant</td>
-<td>${formatNumber(base)}</td>
-</tr>
-`;
-
-tbody.innerHTML+=row;
-
-});
-
+// ============ INIT ============
+function init(){
+  populateSelects();
+  buildHeatmap();
+  buildMultiGrid();
+  buildTickerStrip();
+  buildLineChart();
+  buildDonutChart([1000,0,0]);
+  // Auto refresh tickers
+  setInterval(()=>{buildHeatmap();buildMultiGrid();buildTickerStrip();},8000);
 }
 
-/* ===================================================== */
-/* HISTORY */
-/* ===================================================== */
-
-function saveHistory(amount,from,to,val){
-
-const box=document.getElementById("historyBox");
-
-const div=document.createElement("div");
-
-div.className='history-item';
-
-div.innerHTML=`
-${formatNumber(amount)} ${from} ➜ ${formatNumber(val)} ${to}
-`;
-
-box.prepend(div);
-
+function populateSelects(){
+  ["fromSelect","toSelect"].forEach((id,idx)=>{
+    const sel=document.getElementById(id);
+    CURRENCIES.forEach(c=>{
+      const o=document.createElement("option");
+      o.value=c.code;
+      o.textContent=`${c.flag} ${c.code} — ${c.name}`;
+      sel.appendChild(o);
+    });
+    if(fromTS&&id==="fromSelect"){fromTS.destroy();}
+    if(toTS&&id==="toSelect"){toTS.destroy();}
+  });
+  fromTS=new TomSelect("#fromSelect",{maxOptions:200});
+  toTS=new TomSelect("#toSelect",{maxOptions:200});
+  fromTS.setValue("USD"); toTS.setValue("INR");
+  fromTS.on("change",()=>{updateAmtPrefix();doConvert();});
+  toTS.on("change",()=>doConvert());
 }
 
-/* ===================================================== */
-/* CLEAR */
-/* ===================================================== */
-
-function clearAll(){
-
-document.getElementById("amount").value='';
-
-document.getElementById("converted").innerHTML='--';
-
-document.getElementById("rate").innerHTML='--';
-
-document.getElementById("inverse").innerHTML='--';
-
+function updateAmtPrefix(){
+  const fc=CURRENCIES.find(c=>c.code===fromTS.getValue());
+  document.getElementById("amtPrefix").textContent=fc?getSymbol(fc.code):"";
 }
 
-/* ===================================================== */
-/* SWAP */
-/* ===================================================== */
+function getSymbol(code){
+  const syms={USD:"$",EUR:"€",GBP:"£",JPY:"¥",INR:"₹",CNY:"¥",KRW:"₩",AUD:"A$",CAD:"C$",SGD:"S$",CHF:"Fr",AED:"د.إ",SAR:"﷼",KWD:"د.ك",BHD:"BD",QAR:"ر.ق",OMR:"ر.ع",JOD:"JD",NGN:"₦",BRL:"R$",MXN:"$",ARS:"$",ZAR:"R",TRY:"₺",RUB:"₽",PKR:"₨",INR:"₹",BDT:"৳",NPR:"₨",LKR:"₨",IDR:"Rp",VND:"₫",THB:"฿",PHP:"₱",MYR:"RM",HKD:"HK$",NZD:"NZ$",SEK:"kr",NOK:"kr",DKK:"kr",PLN:"zł",CZK:"Kč",HUF:"Ft",RON:"lei",UAH:"₴",EGP:"£",MAD:"MAD",KES:"KSh",GHS:"₵",ILS:"₪",CLP:"$",COP:"$"};
+  return syms[code]||code+" ";
+}
+
+function getRateData(from,to){
+  const fc=CURRENCIES.find(c=>c.code===from);
+  const tc=CURRENCIES.find(c=>c.code===to);
+  if(!fc||!tc) return 1;
+  return tc.rate/fc.rate;
+}
+
+// ============ HEATMAP ============
+function buildHeatmap(){
+  const html=HEATMAP_ITEMS.map((h,i)=>{
+    const rnd=(Math.random()*1.5-0.5).toFixed(2);
+    const isUp=parseFloat(rnd)>=0;
+    return `<div class="hm-box">
+      <div class="hm-label">${h.label}</div>
+      <div class="hm-val ${h.cls}">${h.val}</div>
+      <div class="hm-chg ${isUp?"up":"dn"}">${isUp?"+":""}${rnd}%</div>
+    </div>`;
+  }).join("");
+  document.getElementById("heatmap").innerHTML=html;
+}
+
+// ============ MULTI CURRENCY GRID ============
+function buildMultiGrid(){
+  const fromCode=fromTS?fromTS.getValue():"USD";
+  document.getElementById("baseLabel").textContent=fromCode;
+  const showCodes=["USD","EUR","GBP","INR","JPY","AED","SGD","AUD","CAD","CNY","CHF","SAR","KRW","HKD","MYR","BRL","TRY","ZAR","NGN","PKR","THB","PHP","IDR","NZD"];
+  const shown=CURRENCIES.filter(c=>showCodes.includes(c.code)&&c.code!==fromCode).slice(0,20);
+  const base=CURRENCIES.find(c=>c.code===fromCode);
+  let html="";
+  shown.forEach(c=>{
+    const rate=c.rate/(base?.rate||1);
+    const chg=(Math.random()*2-1).toFixed(2);
+    const isUp=parseFloat(chg)>=0;
+    html+=`<div class="mc-box" onclick="setToAndConvert('${c.code}')">
+      <div class="mc-flag">${c.flag}</div>
+      <div class="mc-info">
+        <div class="mc-code">${c.code}</div>
+        <div class="mc-rate">${rate>=1000?rate.toFixed(0):rate>=10?rate.toFixed(2):rate.toFixed(4)}</div>
+        <div class="mc-chg ${isUp?"up":"dn"}">${isUp?"+":""}${chg}%</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById("multiGrid").innerHTML=html;
+}
+
+function setToAndConvert(code){
+  toTS.setValue(code);
+  doConvert();
+}
+
+// ============ TICKER STRIP ============
+function buildTickerStrip(){
+  const pairs=[["USD","INR"],["EUR","USD"],["GBP","USD"],["USD","JPY"],["USD","AED"],["AUD","USD"],["USD","SGD"],["EUR","GBP"],["USD","CAD"],["USD","CHF"],["USD","CNY"],["USD","KRW"]];
+  let html="";
+  pairs.forEach(([f,t])=>{
+    const r=getRateData(f,t);
+    const chg=(Math.random()*1.4-0.5).toFixed(2);
+    const isUp=parseFloat(chg)>=0;
+    html+=`<span class="tick"><span class="sym">${f}/${t}</span><span class="val">${r>=1000?r.toFixed(0):r>=10?r.toFixed(2):r.toFixed(4)}</span><span class="chg ${isUp?"up":"dn"}">${isUp?"▲":"▼"}${Math.abs(chg)}%</span></span>`;
+  });
+  // Duplicate for seamless scroll
+  const el=document.getElementById("tickerInner");
+  el.innerHTML=html+html;
+}
+
+// ============ LINE CHART ============
+function buildLineChart(from,to,period){
+  from=from||fromTS?.getValue()||"USD";
+  to=to||toTS?.getValue()||"INR";
+  const baseRate=getRateData(from,to);
+  const periods={
+    "7d":{pts:7,step:"Day",label:(i)=>["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]||"D"+i},
+    "1m":{pts:30,step:"Day",label:(i)=>"D"+i},
+    "3m":{pts:12,step:"Week",label:(i)=>"W"+i},
+    "1y":{pts:12,step:"Month",label:(i)=>["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i]},
+  };
+  const cfg=periods[period||"7d"];
+  const labels=Array.from({length:cfg.pts},(_,i)=>cfg.label(i));
+  const data=labels.map((_,i)=>{const v=baseRate*(0.97+Math.random()*0.06);return+v.toFixed(4);});
+
+  document.getElementById("chartTitle").textContent=`${from} → ${to} · ${period||"7D"} Trend`;
+
+  const ctx=document.getElementById("lineChart");
+  if(lineChart){lineChart.destroy();}
+  lineChart=new Chart(ctx,{
+    type:"line",
+    data:{labels,datasets:[{
+      label:`${from}/${to}`,
+      data,
+      borderColor:"#4f8ef7",
+      backgroundColor:"rgba(79,142,247,0.08)",
+      fill:true,tension:.4,pointRadius:3,pointBackgroundColor:"#4f8ef7",borderWidth:2.5
+    }]},
+    options:{responsive:true,maintainAspectRatio:true,
+      scales:{
+        x:{ticks:{color:"#5a6a85",font:{size:10}},grid:{color:"rgba(255,255,255,0.03)"}},
+        y:{ticks:{color:"#5a6a85",font:{size:10},callback:v=>v.toFixed(4)},grid:{color:"rgba(255,255,255,0.04)"}}
+      },
+      plugins:{legend:{labels:{color:"#8899b4",font:{family:"Plus Jakarta Sans",size:11}}},
+      tooltip:{callbacks:{label:o=>" "+o.dataset.label+": "+o.raw}}}}
+  });
+}
+
+function setChartPeriod(p,btn){
+  currentPeriod=p;
+  document.querySelectorAll(".time-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  buildLineChart(fromTS?.getValue(),toTS?.getValue(),p);
+}
+
+// ============ DONUT CHART ============
+function buildDonutChart(vals){
+  const ctx=document.getElementById("donutChart");
+  if(donutChart){donutChart.destroy();}
+  donutChart=new Chart(ctx,{
+    type:"doughnut",
+    data:{
+      labels:["You Receive","Transfer Fee","Tax/Other"],
+      datasets:[{data:vals,backgroundColor:["#10b981","#ef4444","#f59e0b"],borderColor:"transparent",borderWidth:0,hoverOffset:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,cutout:"65%",
+      plugins:{legend:{labels:{color:"#8899b4",font:{family:"Plus Jakarta Sans",size:11},boxWidth:10,padding:12}},
+      tooltip:{callbacks:{label:o=>" "+o.label+": "+o.raw.toFixed(2)}}}}
+  });
+}
+
+// ============ CONVERT ============
+function onAmountInput(){
+  const raw=document.getElementById("amount").value.replace(/,/g,"");
+  if(!isNaN(raw)&&raw.trim()) doConvert();
+}
+
+function doConvert(){
+  const rawAmt=parseFloat(document.getElementById("amount").value.toString().replace(/,/g,""))||0;
+  if(rawAmt<=0) return;
+
+  const from=fromTS?.getValue()||"USD";
+  const to=toTS?.getValue()||"INR";
+  const feeRate=parseFloat(document.getElementById("provider")?.value||"0.004");
+
+  const rate=getRateData(from,to);
+  const rawConverted=rawAmt*rate;
+  const feeAmt=rawConverted*feeRate;
+  const netConverted=rawConverted-feeAmt;
+  const inverse=1/rate;
+  const spread=(feeRate*100).toFixed(2);
+
+  const fromCur=CURRENCIES.find(c=>c.code===from);
+  const toCur=CURRENCIES.find(c=>c.code===to);
+  const fromSym=getSymbol(from);
+  const toSym=getSymbol(to);
+
+  // Result card
+  document.getElementById("rFrom").textContent=`${fromSym}${fmtNum(rawAmt)} ${from}`;
+  document.getElementById("rAmount").textContent=toSym+fmtNum(netConverted);
+  document.getElementById("rCode").textContent=`${to} — ${toCur?.name||to}`;
+  document.getElementById("rRate").textContent=`1 ${from} = ${rate.toFixed(4)} ${to}`;
+
+  // Mini stats
+  document.getElementById("sRate").textContent=rate.toFixed(4);
+  document.getElementById("sInverse").textContent=inverse.toFixed(4);
+  document.getElementById("sFee").textContent=`−${toSym}${fmtNum(feeAmt)}`;
+  document.getElementById("sAfterFee").textContent=toSym+fmtNum(netConverted);
+  document.getElementById("sMid").textContent=toSym+fmtNum(rawConverted);
+  document.getElementById("sSpread").textContent=spread+"%";
+
+  // Arbitrage table
+  buildArbTable(rawAmt,rate,rawConverted,from,to,toSym);
+
+  // Donut
+  buildDonutChart([netConverted,feeAmt,feeAmt*0.1]);
+
+  // Chart
+  buildLineChart(from,to,currentPeriod);
+
+  // AI insights
+  updateAI(from,to,rate,feeRate);
+
+  // History
+  addHistory(rawAmt,from,netConverted,to,rate,fromSym,toSym);
+
+  toast(`✓ ${fromSym}${fmtNum(rawAmt)} ${from} → ${toSym}${fmtNum(netConverted)} ${to}`);
+}
+
+function buildArbTable(amt,midRate,rawConverted,from,to,toSym){
+  const results=PROVIDERS.map(p=>{
+    const fee=rawConverted*p.fee;
+    const net=rawConverted-fee;
+    return {...p,fee,net,rawConverted};
+  });
+  results.sort((a,b)=>b.net-a.net);
+  const best=results[0].net;
+  let html="";
+  results.forEach((p,i)=>{
+    const isBest=i===0;
+    const diff=p.net-best;
+    const pct=((p.fee/p.rawConverted)*100).toFixed(2);
+    const ratingCls=i===0?"best":i<=2?"good":i<=4?"avg":"bad";
+    html+=`<tr class="${isBest?"best-row":""}">
+      <td class="td-name">${isBest?"⭐ ":""}${p.name}</td>
+      <td class="td-mono">${(midRate*(1-p.fee)).toFixed(4)}</td>
+      <td><span class="rate-pill ${ratingCls}">${pct}%</span></td>
+      <td class="td-mono" style="color:var(--red)">−${toSym}${fmtNum(p.fee)}</td>
+      <td class="td-mono" style="color:${isBest?"var(--a4)":"var(--text)"};font-weight:${isBest?700:400}">${toSym}${fmtNum(p.net)}</td>
+      <td>${p.speed}</td>
+      <td>${p.rating}</td>
+    </tr>`;
+  });
+  document.getElementById("arbTable").innerHTML=html;
+  document.getElementById("bestProvider").textContent=`Best: ${results[0].name}`;
+}
+
+function updateAI(from,to,rate,feeRate){
+  const trends=["Bullish","Stable","Cautious","Bearish","Volatile"];
+  const vols=["Very Low","Low","Moderate","High","Elevated"];
+  const moods=["Bullish","Neutral","Cautious","Bearish"];
+  const t=trends[Math.floor(Math.random()*3)];
+  const v=vols[Math.floor(Math.random()*3)];
+  const f=((Math.random()*2-0.8)).toFixed(2);
+  const conf=Math.floor(78+Math.random()*15);
+  document.getElementById("aiTrend").textContent=t;
+  document.getElementById("aiTrend").className="ai-val "+(t==="Bullish"?"green":t==="Bearish"?"red":"yellow");
+  document.getElementById("aiVolatility").textContent=v;
+  document.getElementById("aiForecast").textContent=(parseFloat(f)>=0?"+":"")+f+"%";
+  document.getElementById("aiForecast").className="ai-val "+(parseFloat(f)>=0?"green":"red");
+  document.getElementById("aiConf").textContent=conf+"%";
+  document.getElementById("aiConf").className="ai-val "+(conf>=85?"green":conf>=70?"yellow":"red");
+
+  const recs=[
+    `Wise offers the best rate for ${from}→${to} conversion with only ${(feeRate*100).toFixed(1)}% fee. Current rate ${rate.toFixed(4)} is ${t.toLowerCase()} — timing looks favorable.`,
+    `Market shows ${v.toLowerCase()} volatility for ${from}/${to}. Consider Wise or Crypto Exchange for lowest cost transfers. Avoid PayPal for large amounts.`,
+    `${from} to ${to} rate at ${rate.toFixed(4)}. AI forecast: ${parseFloat(f)>=0?"slight appreciation":"mild depreciation"} of ${Math.abs(parseFloat(f)).toFixed(2)}% next 7 days. ${conf}% confidence in current trend.`,
+    `Best transfer window: within next 24 hours. Crypto Exchange offers lowest fees at 0.2% but Wise provides best overall value with speed and reliability combination.`,
+  ];
+  document.getElementById("aiRecText").textContent=recs[Math.floor(Math.random()*recs.length)];
+  document.getElementById("aiBestTime").textContent=["Now","Morning","Evening","Weekend"][Math.floor(Math.random()*4)];
+  document.getElementById("aiMood").textContent=moods[Math.floor(Math.random()*3)];
+  const riskLvl=["Low","Moderate","Low","Low"][Math.floor(Math.random()*4)];
+  document.getElementById("aiRisk").textContent=riskLvl;
+  document.getElementById("aiRisk").className="ai-val "+(riskLvl==="Low"?"green":"yellow");
+  document.getElementById("aiLiq").textContent=["High","High","Moderate","High"][Math.floor(Math.random()*4)];
+}
+
+function addHistory(fromAmt,fromCode,toAmt,toCode,rate,fromSym,toSym){
+  const now=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  histData.unshift({fromAmt,fromCode,toAmt,toCode,rate,fromSym,toSym,time:now});
+  if(histData.length>10) histData.pop();
+  renderHistory();
+}
+
+function renderHistory(){
+  if(!histData.length){document.getElementById("histList").innerHTML='<div style="font-size:11px;color:var(--muted);text-align:center;padding:8px">No history yet</div>';return;}
+  document.getElementById("histList").innerHTML=histData.map(h=>`
+    <div class="hist-item">
+      <span class="hist-from">${h.fromSym}${fmtNum(h.fromAmt)} ${h.fromCode}</span>
+      <span style="color:var(--muted);font-size:10px">→</span>
+      <span class="hist-to">${h.toSym}${fmtNum(h.toAmt)} ${h.toCode}</span>
+      <span class="hist-time">${h.time}</span>
+    </div>`).join("");
+}
+
+function fmtNum(n){
+  if(n>=1000000) return (n/1000000).toFixed(2)+"M";
+  if(n>=1000) return new Intl.NumberFormat("en-IN",{maximumFractionDigits:2}).format(n);
+  return n.toFixed(4);
+}
 
 function swapCurrencies(){
-
-const temp=fromCountry.tomselect.getValue();
-
-fromCountry.tomselect.setValue(
-toCountry.tomselect.getValue()
-);
-
-toCountry.tomselect.setValue(temp);
-
-convertCurrency();
-
+  const f=fromTS.getValue(),t=toTS.getValue();
+  fromTS.setValue(t); toTS.setValue(f);
+  updateAmtPrefix();
+  doConvert();
 }
 
-/* ===================================================== */
-/* CHART */
-/* ===================================================== */
-
-const ctx=document.getElementById('chart');
-
-const chart=new Chart(ctx,{
-
-type:'line',
-
-data:{
-
-labels:['1H','2H','3H','4H','5H','6H','7H'],
-
-datasets:[{
-
-label:'USD/INR',
-
-data:[82.8,83.1,83.0,83.3,83.2,83.4,83.2],
-
-borderColor:'#46ff91',
-
-backgroundColor:'rgba(70,255,145,0.2)',
-
-tension:0.4,
-
-fill:true
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-legend:{
-labels:{
-color:'#fff'
-}
-}
-},
-
-scales:{
-
-x:{
-ticks:{color:'#fff'}
-},
-
-y:{
-ticks:{color:'#fff'}
+function clearAll(){
+  document.getElementById("amount").value="1,000";
+  document.getElementById("rAmount").textContent="—";
+  document.getElementById("rFrom").textContent="Enter amount and click Convert";
+  histData=[];
+  renderHistory();
+  toast("🗑 Cleared");
 }
 
+function exportData(){
+  if(!histData.length){toast("No conversions to export");return;}
+  const lines=["KJSynthora Currency Converter Export","========================",...histData.map(h=>`${h.fromSym}${fmtNum(h.fromAmt)} ${h.fromCode} → ${h.toSym}${fmtNum(h.toAmt)} ${h.toCode} (Rate: ${h.rate.toFixed(4)}) at ${h.time}`)];
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/plain"}));
+  a.download="currency-history.txt"; a.click();
 }
 
-}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 
-});
-
-function updateChart(){
-
-chart.data.datasets[0].data=
-Array.from({length:7},()=>82+Math.random()*3);
-
-chart.update();
-
-}
-
-/* ===================================================== */
-/* AI INSIGHT */
-/* ===================================================== */
-
-function generateAIInsight(){
-
-const insights=[
-
-"Wise currently provides best value transfer.",
-
-"USD expected to remain strong this week.",
-
-"Crypto route cheaper than banks today.",
-
-"GBP volatility increasing after UK inflation data.",
-
-"INR stable after RBI liquidity balancing.",
-
-"EUR under pressure due to weak manufacturing data."
-
-];
-
-const random=Math.floor(Math.random()*insights.length);
-
-document.getElementById("aiInsight").innerHTML=
-insights[random];
-
-}
-
-setInterval(generateAIInsight,6000);
-
-/* ===================================================== */
-/* AUTO FORMAT */
-/* ===================================================== */
-
-document.getElementById("amount")
-.addEventListener("input",function(e){
-
-let value=e.target.value.replace(/,/g,'');
-
-if(!isNaN(value) && value!==''){
-
-e.target.value=formatNumber(value);
-
-}
-
-});
-
-/* ===================================================== */
-/* LIVE TICKER */
-/* ===================================================== */
-
-setInterval(()=>{
-
-document.querySelectorAll(".ticker p").forEach(el=>{
-
-const random=(Math.random()*2).toFixed(2);
-
-if(Math.random()>0.5){
-
-el.className='green';
-
-el.innerHTML=`▲ +${random}%`;
-
-}else{
-
-el.className='red';
-
-el.innerHTML=`▼ -${random}%`;
-
-}
-
-});
-
-},4000);
-
-/* ===================================================== */
-/* AUTO REFRESH */
-/* ===================================================== */
-
-setInterval(()=>{
-
-updateChart();
-
-},10000);
-
-/* INITIAL */
-
-convertCurrency();
-
+init();
 </script>
-
 </body>
 </html>
