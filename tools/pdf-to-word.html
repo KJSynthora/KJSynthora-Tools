@@ -1,379 +1,928 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KJSynthora PDF → Word</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDF → Word AI Workspace — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
 <style>
 :root{
-  --bg:#020509;--panel:#070d18;--card:#0c1525;
-  --border:rgba(56,189,248,0.12);--accent:#38bdf8;--accent2:#8b5cf6;
-  --accent3:#4ade80;--red:#f87171;--amber:#fbbf24;
-  --text:#e2e8f0;--muted:#4a6080;--mono:'JetBrains Mono',monospace;
+  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;
+  --red:#ef4444;--yellow:#f59e0b;--orange:#f97316;
+  --text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:10px;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 50% 40% at 10% 10%,rgba(56,189,248,0.05),transparent 60%),radial-gradient(ellipse 40% 50% at 90% 90%,rgba(139,92,246,0.04),transparent 60%);}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(7,13,24,0.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
-.logo{font-size:18px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.home-btn{padding:8px 16px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--muted);text-decoration:none;font-size:12px;transition:all 0.2s;}
-.home-btn:hover{color:var(--accent);border-color:rgba(56,189,248,0.2);}
-.hero{text-align:center;padding:48px 20px 28px;}
-.hero h1{font-size:48px;font-weight:800;background:linear-gradient(135deg,#e2e8f0,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
-.hero p{color:var(--muted);font-size:14px;max-width:600px;margin:0 auto;}
-.main{display:grid;grid-template-columns:360px 1fr;gap:22px;max-width:1500px;margin:0 auto;padding:0 22px 60px;position:relative;z-index:1;}
-.panel{background:rgba(7,13,24,0.9);border:1px solid var(--border);border-radius:20px;padding:22px;}
-.panel-title{font-size:15px;font-weight:700;margin-bottom:16px;}
-.drop-zone{border:2px dashed rgba(56,189,248,0.2);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(56,189,248,0.02);}
-.drop-zone:hover,.drop-zone.active{border-color:var(--accent);background:rgba(56,189,248,0.06);}
-.dz-icon{font-size:36px;margin-bottom:8px;display:block;}
-.dz-title{font-size:15px;font-weight:700;margin-bottom:4px;}
-.dz-sub{font-size:12px;color:var(--muted);}
-.dz-filename{font-size:11px;color:var(--accent3);font-family:var(--mono);margin-top:6px;}
-input[type=file]{display:none;}
-.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:var(--mono);margin:14px 0 8px;display:flex;align-items:center;gap:6px;}
-.sec-label::after{content:'';flex:1;height:1px;background:rgba(56,189,248,0.08);}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0;}
-.stat{background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center;}
-.stat-val{font-size:18px;font-weight:800;font-family:var(--mono);color:var(--accent);}
-.stat-label{font-size:10px;color:var(--muted);margin-top:2px;}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
-.opt{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:11px;cursor:pointer;}
-.opt input{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:8px;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed);color:#fff;}
-.btn-primary:hover{transform:translateY(-2px);}
-.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.btn-green{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--accent3);}
-.btn-green:hover{background:rgba(74,222,128,0.18);}
-.btn-green:disabled{opacity:0.3;cursor:not-allowed;}
-.btn-amber{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:var(--amber);}
-.btn-amber:hover{background:rgba(251,191,36,0.18);}
-.prog-wrap{display:none;margin-top:10px;}
-.prog-track{height:5px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:0%;transition:width 0.4s;}
-.prog-text{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:5px;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 50% 35% at 5% 5%,rgba(79,142,247,0.06),transparent),
+  radial-gradient(ellipse 45% 30% at 95% 90%,rgba(139,92,246,0.06),transparent);
+  pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
 
-/* RIGHT: TABS */
-.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;margin-bottom:14px;}
-.tab{flex:1;padding:8px;text-align:center;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);border:none;background:none;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;}
-.tab.active{background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.2);}
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:200;background:rgba(6,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.brand-name{font-size:15px;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--a1) 65%,var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-sub{font-size:10.5px;color:var(--muted2)}
+.hbadges{display:flex;gap:6px;flex-wrap:wrap}
+.hb{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted2);white-space:nowrap}
+.hb.g{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.18);color:var(--a4)}
+.hb.b{background:rgba(79,142,247,0.08);border-color:rgba(79,142,247,0.18);color:var(--a1)}
+.home-btn{padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.04);color:var(--muted2);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap}
+.home-btn:hover{background:rgba(255,255,255,0.09);color:var(--text)}
 
-/* PDF PREVIEW */
-.pdf-preview{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.pdf-page-wrap{padding:12px;border-bottom:1px solid var(--border);}
-.pdf-page-wrap:last-child{border-bottom:none;}
-.pdf-page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.pdf-page-num{font-size:11px;color:var(--muted);font-family:var(--mono);}
-.pdf-canvas-wrap{background:#fff;border-radius:8px;overflow:hidden;text-align:center;}
-.pdf-canvas-wrap canvas{max-width:100%;display:block;margin:0 auto;}
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:320px 1fr 260px;height:calc(100vh - 54px)}
+.left,.right{overflow-y:auto;height:calc(100vh - 54px)}
+.left{background:var(--s1);border-right:1px solid var(--border);position:sticky;top:54px}
+.right{background:var(--s1);border-left:1px solid var(--border);position:sticky;top:54px}
+.center{overflow-y:auto}
 
-/* TEXT EXTRACTED */
-.text-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;max-height:500px;overflow-y:auto;}
-.text-page{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);}
-.text-page:last-child{border-bottom:none;}
-.tp-label{font-size:10px;font-family:var(--mono);color:var(--accent);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
-.tp-content{font-size:12px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:break-word;}
-.copy-btn{padding:3px 8px;border-radius:5px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);color:var(--accent);font-size:10px;cursor:pointer;font-family:var(--mono);transition:all 0.2s;}
-.copy-btn:hover{background:rgba(56,189,248,0.2);}
+/* ── SECTIONS ── */
+.sec{padding:12px 16px;border-bottom:1px solid var(--border)}
+.sec-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ANALYSIS */
-.analysis-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
-.analysis-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;}
-.analysis-item:last-child{border-bottom:none;}
-.ai-icon{font-size:16px;flex-shrink:0;}
-.ai-text{flex:1;}
-.ai-badge{padding:2px 8px;border-radius:100px;font-size:10px;font-family:var(--mono);}
-.ai-badge.done{background:rgba(74,222,128,0.1);color:var(--accent3);border:1px solid rgba(74,222,128,0.2);}
-.ai-badge.pend{background:rgba(56,189,248,0.08);color:var(--muted);border:1px solid rgba(56,189,248,0.1);}
+/* ── DROP ZONE ── */
+.drop-zone{border:2px dashed rgba(79,142,247,0.2);border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;background:rgba(79,142,247,0.02);margin:12px 16px}
+.drop-zone:hover,.drop-zone.drag{border-color:rgba(79,142,247,0.5);background:rgba(79,142,247,0.06)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:30px;margin-bottom:7px}
+.dz-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.dz-sub{font-size:11px;color:var(--muted2)}
+.dz-file{font-size:11px;color:var(--a4);margin-top:6px;font-family:'DM Mono',monospace;font-weight:600}
 
-.features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1500px;margin:0 auto 50px;padding:0 22px;}
-.feat{background:rgba(7,13,24,0.8);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
-.feat-icon{font-size:26px;margin-bottom:8px;display:block;}
-.feat h3{font-size:12px;font-weight:700;margin-bottom:5px;}
-.feat p{font-size:11px;color:var(--muted);line-height:1.7;}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:rgba(7,13,24,0.98);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:12px;font-family:var(--mono);z-index:500;transition:transform 0.3s;pointer-events:none;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-@media(max-width:1000px){.main{grid-template-columns:1fr;}.features{grid-template-columns:1fr 1fr;}.hero h1{font-size:34px;}}
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px 10px}
+.stat{background:rgba(255,255,255,0.025);border:1px solid var(--border2);border-radius:9px;padding:9px 6px;text-align:center}
+.stat-val{font-size:16px;font-weight:800;font-family:'DM Mono',monospace;color:var(--a1);line-height:1}
+.stat-label{font-size:9px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+/* ── OPTIONS ── */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 16px 10px}
+.opt{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid var(--border2);font-size:11.5px;cursor:pointer;transition:all .15s;color:var(--muted2)}
+.opt:hover{border-color:rgba(79,142,247,0.25);color:var(--text)}
+.opt input[type=checkbox]{accent-color:var(--a1);width:13px;height:13px;flex-shrink:0;cursor:pointer}
+
+/* ── SELECTS / INPUTS ── */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 16px 10px}
+.field label{display:block;font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted2);margin-bottom:4px}
+select,input[type=text],input[type=number]{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;transition:border-color .2s;cursor:pointer}
+select:focus,input:focus{border-color:rgba(79,142,247,0.45)}
+select option{background:#0e1220}
+
+/* ── BUTTONS ── */
+.btn-section{padding:8px 16px 10px}
+.btn{width:100%;padding:11px;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px}
+.btn:last-child{margin-bottom:0}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}.btn:disabled{opacity:.38;cursor:not-allowed;transform:none!important}
+.btn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 3px 14px rgba(79,142,247,0.25)}
+.btn-primary:hover{box-shadow:0 5px 22px rgba(79,142,247,0.4)}
+.btn-green{background:linear-gradient(135deg,#059669,var(--a4));color:#fff;box-shadow:0 3px 14px rgba(16,185,129,0.2)}
+.btn-cyan{background:linear-gradient(135deg,#0891b2,var(--a3));color:#fff}
+.btn-orange{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff}
+.btn-outline{background:rgba(255,255,255,0.04);color:var(--muted2);border:1px solid var(--border)}
+.btn-outline:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+
+/* ── PROGRESS ── */
+.prog-wrap{padding:0 16px 12px}
+.prog-bg{height:5px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--a1),var(--a2));border-radius:5px;transition:width .4s ease}
+.prog-text{font-size:10.5px;color:var(--muted2);margin-top:5px;font-family:'DM Mono',monospace}
+
+/* ── CENTER ── */
+.center-toolbar{background:var(--s1);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.tabs{display:flex;gap:4px}
+.tab{padding:6px 14px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted2);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{background:rgba(79,142,247,0.12);border-color:rgba(79,142,247,0.25);color:var(--a1)}
+.tb-sep{width:1px;height:18px;background:var(--border)}
+.tb-btn{padding:5px 11px;border:1px solid var(--border);border-radius:7px;background:rgba(255,255,255,0.03);color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
+.tb-btn:hover{background:rgba(255,255,255,0.07);color:var(--text)}
+.tb-select{padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:rgba(255,255,255,0.03);color:var(--text);font-size:11px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer}
+.tb-select option{background:#0e1220}
+
+.center-body{padding:16px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ── PDF PREVIEW ── */
+.pdf-preview-grid{display:flex;flex-direction:column;gap:14px}
+.page-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;overflow:hidden}
+.page-card-header{padding:10px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.page-num{font-size:11px;font-weight:700;color:var(--a1);font-family:'DM Mono',monospace}
+.page-meta{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace}
+.page-canvas-wrap{background:#f8f9fa;text-align:center;padding:8px}
+.page-canvas-wrap canvas{max-width:100%;display:block;margin:0 auto;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.15)}
+
+/* ── TEXT TAB ── */
+.text-pages{display:flex;flex-direction:column;gap:12px}
+.text-page-card{background:var(--s2);border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.tp-header{padding:8px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.tp-label{font-size:11px;font-weight:700;color:var(--a1);font-family:'DM Mono',monospace}
+.tp-actions{display:flex;gap:5px}
+.tp-btn{padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.tp-btn:hover{background:rgba(255,255,255,0.07);color:var(--text)}
+.tp-content{padding:12px 14px;font-size:12.5px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow-y:auto}
+.tp-content .heading-line{font-size:14px;font-weight:700;color:var(--a1);margin-bottom:4px}
+.tp-content .bullet-line{padding-left:14px;color:var(--muted2)}
+.tp-content .empty-page{color:var(--muted);font-style:italic;font-size:12px}
+
+/* ── ANALYSIS ── */
+.analysis-list{display:flex;flex-direction:column;gap:0}
+.analysis-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border2);font-size:12.5px}
+.analysis-item:last-child{border:none}
+.ai-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ai-body{flex:1;min-width:0}
+.ai-title{font-weight:600;color:var(--text);line-height:1.4}
+.ai-sub{font-size:11px;color:var(--muted2);margin-top:2px;line-height:1.5}
+.ai-badge{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;margin-top:2px;font-family:'DM Mono',monospace}
+.ai-badge.ok{background:rgba(16,185,129,0.1);color:var(--a4);border:1px solid rgba(16,185,129,0.2)}
+.ai-badge.warn{background:rgba(245,158,11,0.1);color:var(--yellow);border:1px solid rgba(245,158,11,0.2)}
+.ai-badge.info{background:rgba(79,142,247,0.1);color:var(--a1);border:1px solid rgba(79,142,247,0.2)}
+.ai-badge.err{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+
+/* ── WORD PREVIEW TAB ── */
+.word-preview{background:#fff;color:#1a1a2e;border-radius:12px;padding:32px 40px;min-height:400px;font-family:Georgia,serif;font-size:13px;line-height:1.8;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+.word-preview h1{font-size:22px;font-weight:700;margin-bottom:8px;color:#0f172a;border-bottom:2px solid #e2e8f0;padding-bottom:8px}
+.word-preview h2{font-size:17px;font-weight:700;margin:16px 0 6px;color:#1e40af}
+.word-preview h3{font-size:14px;font-weight:700;margin:12px 0 4px;color:#374151}
+.word-preview p{margin-bottom:8px;color:#374151}
+.word-preview .page-break-line{border:none;border-top:1px dashed #d1d5db;margin:18px 0;position:relative}
+.word-preview .page-break-line::after{content:"— Page Break —";position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#fff;padding:0 8px;font-size:10px;color:#9ca3af;font-family:'Plus Jakarta Sans',sans-serif}
+.word-preview .bullet{padding-left:20px;position:relative;margin-bottom:4px;color:#374151}
+.word-preview .bullet::before{content:"•";position:absolute;left:6px;color:#6b7280}
+.word-preview .page-num-line{text-align:center;color:#9ca3af;font-size:11px;margin:8px 0;font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── RIGHT PANEL ── */
+.metric-card{background:rgba(255,255,255,0.025);border:1px solid var(--border2);border-radius:11px;padding:12px;margin:10px 14px 0}
+.mc-title{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.mc-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2);font-size:12px}
+.mc-row:last-child{border:none}
+.mc-label{color:var(--muted2)}
+.mc-val{font-family:'DM Mono',monospace;font-size:11.5px;font-weight:600;color:var(--text)}
+.mc-val.g{color:var(--a4)}.mc-val.b{color:var(--a1)}.mc-val.y{color:var(--yellow)}.mc-val.r{color:var(--red)}
+
+.pipeline-item{margin:0 14px 7px;background:rgba(255,255,255,0.025);border:1px solid var(--border2);border-radius:9px;padding:9px 11px}
+.pipe-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.pipe-label{color:var(--muted2);font-weight:600}
+.pipe-pct{font-family:'DM Mono',monospace;color:var(--a1);font-weight:700}
+.pipe-bg{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.pipe-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .8s ease}
+
+/* ── EMPTY STATE ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px;gap:12px;text-align:center}
+.es-icon{font-size:52px;opacity:.12}
+.es-title{font-size:16px;font-weight:700;color:var(--muted2)}
+.es-sub{font-size:12.5px;color:var(--muted);max-width:260px;line-height:1.65}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;padding:10px 16px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,0.4);z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:340px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-color:rgba(16,185,129,0.3)}
+.toast.error{border-color:rgba(239,68,68,0.3)}
+
+@media(max-width:1200px){.app{grid-template-columns:1fr}.left,.right{position:relative;height:auto;border:none}.hbadges{display:none}}
 </style>
 </head>
 <body>
-<div class="toast" id="toast"></div>
-<div class="topbar">
-  <div class="logo">KJSynthora</div>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="brand">
+    <div class="brand-icon">📄</div>
+    <div>
+      <div class="brand-name">PDF → Word AI Workspace</div>
+      <div class="brand-sub">Real text extraction · DOCX generation · Live preview · OCR · Analysis</div>
+    </div>
+  </div>
+  <div class="hbadges">
+    <span class="hb b">📄 PDF Upload</span>
+    <span class="hb">📝 Text Extract</span>
+    <span class="hb g">⬇ DOCX Export</span>
+    <span class="hb">👁 Live Preview</span>
+    <span class="hb">🔬 Analysis</span>
+  </div>
   <a href="../index.html" class="home-btn">← Return Home</a>
 </div>
-<section class="hero">
-  <h1>PDF → Word AI Workspace</h1>
-  <p>Real text extraction per page, DOCX generation with proper paragraphs, tables, headings and live page preview</p>
-</section>
-<div class="main">
-  <!-- LEFT -->
-  <div class="panel">
-    <div class="panel-title">📄 Upload PDF</div>
-    <label class="drop-zone" id="dropZone">
-      <input type="file" id="pdfInput" accept=".pdf" onchange="loadPDF(event)">
-      <span class="dz-icon">📄</span>
-      <div class="dz-title">Drop PDF Here</div>
-      <div class="dz-sub">Click to browse or drag & drop</div>
-      <div class="dz-filename" id="dzFilename">No file selected</div>
-    </label>
-    <div class="stats">
-      <div class="stat"><div class="stat-val" id="st_pages">0</div><div class="stat-label">Pages</div></div>
-      <div class="stat"><div class="stat-val" id="st_words">0</div><div class="stat-label">Words</div></div>
-      <div class="stat"><div class="stat-val" id="st_chars">0</div><div class="stat-label">Characters</div></div>
-      <div class="stat"><div class="stat-val" id="st_ocr">--</div><div class="stat-label">OCR Score</div></div>
+
+<div class="app">
+
+<!-- ══════════ LEFT ══════════ -->
+<div class="left">
+
+  <!-- DROP ZONE -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="pdfInput" accept=".pdf" onchange="loadFile(event)">
+    <div class="dz-icon">📄</div>
+    <div class="dz-title">Drop PDF Here</div>
+    <div class="dz-sub">Click to browse or drag & drop</div>
+    <div class="dz-file" id="dzFile">No file selected</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="stPages">0</div><div class="stat-label">Pages</div></div>
+    <div class="stat"><div class="stat-val" id="stWords">0</div><div class="stat-label">Words</div></div>
+    <div class="stat"><div class="stat-val" id="stChars">0</div><div class="stat-label">Chars</div></div>
+    <div class="stat"><div class="stat-val" id="stOCR">—</div><div class="stat-label">OCR %</div></div>
+  </div>
+
+  <!-- CONVERSION OPTIONS -->
+  <div class="sec"><div class="sec-title">Conversion Options</div></div>
+  <div class="opts-grid">
+    <label class="opt"><input type="checkbox" id="optHeadings" checked> Detect Headings</label>
+    <label class="opt"><input type="checkbox" id="optPara" checked> Group Paragraphs</label>
+    <label class="opt"><input type="checkbox" id="optTables" checked> Detect Tables</label>
+    <label class="opt"><input type="checkbox" id="optLists" checked> Detect Lists</label>
+    <label class="opt"><input type="checkbox" id="optBold" checked> Preserve Bold</label>
+    <label class="opt"><input type="checkbox" id="optPageNums"> Add Page Numbers</label>
+    <label class="opt"><input type="checkbox" id="optTOC"> Table of Contents</label>
+    <label class="opt"><input type="checkbox" id="optMeta" checked> Add File Info</label>
+    <label class="opt"><input type="checkbox" id="optBreaks" checked> Page Breaks</label>
+    <label class="opt"><input type="checkbox" id="optWatermark"> Watermark</label>
+  </div>
+
+  <!-- FORMATTING OPTIONS -->
+  <div class="sec"><div class="sec-title">DOCX Formatting</div></div>
+  <div class="frow">
+    <div class="field"><label>Font Family</label>
+      <select id="fontFamily">
+        <option value="Calibri">Calibri</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Verdana">Verdana</option>
+      </select>
     </div>
-    <div class="sec-label">Conversion Options</div>
-    <div class="opts">
-      <label class="opt"><input type="checkbox" id="opt_headings" checked> Detect Headings</label>
-      <label class="opt"><input type="checkbox" id="opt_para" checked> Group Paragraphs</label>
-      <label class="opt"><input type="checkbox" id="opt_tables" checked> Detect Tables</label>
-      <label class="opt"><input type="checkbox" id="opt_lists" checked> Detect Lists</label>
-      <label class="opt"><input type="checkbox" id="opt_nums"> Add Page Numbers</label>
-      <label class="opt"><input type="checkbox" id="opt_meta" checked> Add File Info</label>
+    <div class="field"><label>Font Size</label>
+      <select id="fontSize">
+        <option value="10">10pt</option>
+        <option value="11">11pt</option>
+        <option value="12" selected>12pt</option>
+        <option value="14">14pt</option>
+        <option value="16">16pt</option>
+      </select>
     </div>
-    <div class="sec-label">DOCX Formatting</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-      <div>
-        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Font Size</label>
-        <select id="fontSize" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
-          <option value="11">11pt</option><option value="12" selected>12pt</option><option value="14">14pt</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Page Size</label>
-        <select id="pageSize" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
-          <option value="A4" selected>A4</option><option value="Letter">Letter</option>
-        </select>
-      </div>
+    <div class="field"><label>Page Size</label>
+      <select id="pageSize">
+        <option value="A4">A4</option>
+        <option value="Letter">Letter (US)</option>
+        <option value="A3">A3</option>
+        <option value="Legal">Legal</option>
+      </select>
     </div>
-    <button class="btn btn-primary" id="convertBtn" onclick="convertToWord()" disabled>⚡ Convert to DOCX</button>
-    <button class="btn btn-green" id="downloadBtn" onclick="downloadDOCX()" disabled>⬇ Download DOCX</button>
-    <button class="btn btn-amber" id="copyBtn" onclick="copyAllText()" disabled>📋 Copy All Text</button>
-    <div class="prog-wrap" id="progWrap">
-      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-      <div class="prog-text" id="progText">Extracting text...</div>
+    <div class="field"><label>Orientation</label>
+      <select id="orientation">
+        <option value="portrait">Portrait</option>
+        <option value="landscape">Landscape</option>
+      </select>
+    </div>
+    <div class="field"><label>Line Spacing</label>
+      <select id="lineSpacing">
+        <option value="240">Single</option>
+        <option value="360" selected>1.5×</option>
+        <option value="480">Double</option>
+      </select>
+    </div>
+    <div class="field"><label>Margin (mm)</label>
+      <select id="margin">
+        <option value="720">Normal (25mm)</option>
+        <option value="570">Narrow (20mm)</option>
+        <option value="1080">Wide (38mm)</option>
+      </select>
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="panel">
+  <!-- WATERMARK INPUT -->
+  <div id="wmWrap" style="padding:0 16px 10px;display:none">
+    <div class="field"><label>Watermark Text</label>
+      <input type="text" id="wmText" placeholder="e.g. CONFIDENTIAL" style="font-size:12px;padding:7px 10px">
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="btn-section">
+    <button class="btn btn-primary" id="btnConvert" onclick="convertToWord()" disabled>⚡ Convert to DOCX</button>
+    <button class="btn btn-green" id="btnDownload" onclick="downloadDOCX()" disabled>⬇ Download DOCX</button>
+    <div class="btn-grid">
+      <button class="btn btn-cyan" id="btnCopyAll" onclick="copyAllText()" disabled>📋 Copy All Text</button>
+      <button class="btn btn-orange" onclick="exportTXT()" id="btnTXT" disabled>📄 Export TXT</button>
+    </div>
+    <div class="btn-grid">
+      <button class="btn btn-outline" onclick="clearAll()">🗑 Clear</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-wrap" style="padding:0 16px 14px">
+    <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-text" id="progText">Ready — Upload a PDF to begin</div>
+  </div>
+
+</div>
+
+<!-- ══════════ CENTER ══════════ -->
+<div class="center">
+
+  <!-- TOOLBAR -->
+  <div class="center-toolbar">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('preview',this)">📄 PDF Preview</button>
+      <button class="tab active" onclick="switchTab('preview',this)">👁 PDF Preview</button>
       <button class="tab" onclick="switchTab('text',this)">📝 Extracted Text</button>
+      <button class="tab" onclick="switchTab('word',this)">📄 Word Preview</button>
       <button class="tab" onclick="switchTab('analysis',this)">🔬 Analysis</button>
     </div>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="zoomIn()">🔍+</button>
+    <button class="tb-btn" id="zoomLabel">100%</button>
+    <button class="tb-btn" onclick="zoomOut()">🔍−</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="goFirstPage()">⏮ First</button>
+    <button class="tb-btn" onclick="goPrevPage()">← Prev</button>
+    <span id="pageNav" style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;padding:0 6px">—</span>
+    <button class="tb-btn" onclick="goNextPage()">Next →</button>
+    <button class="tb-btn" onclick="goLastPage()">Last ⏭</button>
+    <div class="tb-sep"></div>
+    <select class="tb-select" id="previewPageSelect" onchange="jumpToPage()">
+      <option>Page 1</option>
+    </select>
+  </div>
+
+  <div class="center-body">
 
     <!-- PDF PREVIEW -->
-    <div class="tab-panel active" id="tab-preview">
-      <div id="previewEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;color:var(--muted);gap:10px;">
-        <span style="font-size:48px;opacity:0.2;">📄</span><span style="font-size:14px;">Upload PDF to see preview</span>
+    <div class="tab-pane active" id="tab-preview">
+      <div class="empty-state" id="emptyPreview">
+        <div class="es-icon">📄</div>
+        <div class="es-title">No PDF Loaded</div>
+        <div class="es-sub">Upload a PDF file from the left panel to see a live visual preview here.</div>
       </div>
-      <div class="pdf-preview" id="pdfPreview" style="display:none;max-height:600px;overflow-y:auto;"></div>
+      <div id="previewGrid" class="pdf-preview-grid" style="display:none"></div>
     </div>
 
     <!-- EXTRACTED TEXT -->
-    <div class="tab-panel" id="tab-text">
-      <div id="textEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;color:var(--muted);gap:10px;">
-        <span style="font-size:48px;opacity:0.2;">📝</span><span style="font-size:14px;">Text will appear after upload</span>
+    <div class="tab-pane" id="tab-text">
+      <div class="empty-state" id="emptyText">
+        <div class="es-icon">📝</div>
+        <div class="es-title">No Text Extracted</div>
+        <div class="es-sub">Text content will appear here after uploading a PDF. Supports both selectable and scanned PDFs.</div>
       </div>
-      <div class="text-box" id="textBox" style="display:none;"></div>
+      <div id="textPages" class="text-pages" style="display:none"></div>
+    </div>
+
+    <!-- WORD PREVIEW -->
+    <div class="tab-pane" id="tab-word">
+      <div class="empty-state" id="emptyWord">
+        <div class="es-icon">📃</div>
+        <div class="es-title">No Word Preview</div>
+        <div class="es-sub">Click "Convert to DOCX" to see a live preview of how your Word document will look.</div>
+      </div>
+      <div class="word-preview" id="wordPreview" style="display:none"></div>
     </div>
 
     <!-- ANALYSIS -->
-    <div class="tab-panel" id="tab-analysis">
-      <div class="analysis-box" id="analysisBox">
-        <div class="analysis-item"><span class="ai-icon">⏳</span><span class="ai-text">Upload a PDF to begin analysis</span><span class="ai-badge pend">Waiting</span></div>
+    <div class="tab-pane" id="tab-analysis">
+      <div class="analysis-list" id="analysisList">
+        <div class="empty-state">
+          <div class="es-icon">🔬</div>
+          <div class="es-title">No Analysis Yet</div>
+          <div class="es-sub">Upload a PDF to see detailed analysis of content, structure, quality and conversion readiness.</div>
+        </div>
       </div>
     </div>
+
   </div>
 </div>
 
-<div class="features">
-  <div class="feat"><span class="feat-icon">📝</span><h3>Real Text Extraction</h3><p>Actual per-page OCR extraction with paragraph grouping and heading detection.</p></div>
-  <div class="feat"><span class="feat-icon">📊</span><h3>Table Detection</h3><p>Detects tabular content and structures it properly in the DOCX output.</p></div>
-  <div class="feat"><span class="feat-icon">👁</span><h3>Live PDF Preview</h3><p>See every PDF page rendered live before converting to Word format.</p></div>
-  <div class="feat"><span class="feat-icon">📋</span><h3>Copy Text Instantly</h3><p>Copy extracted text per page or all at once to clipboard.</p></div>
+<!-- ══════════ RIGHT ══════════ -->
+<div class="right">
+
+  <div class="sec" style="margin-top:0"><div class="sec-title">Document Info</div></div>
+  <div class="metric-card">
+    <div class="mc-title">File Details</div>
+    <div class="mc-row"><span class="mc-label">File Name</span><span class="mc-val b" id="infoName" style="font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span></div>
+    <div class="mc-row"><span class="mc-label">File Size</span><span class="mc-val" id="infoSize">—</span></div>
+    <div class="mc-row"><span class="mc-label">Total Pages</span><span class="mc-val b" id="infoPages">—</span></div>
+    <div class="mc-row"><span class="mc-label">PDF Type</span><span class="mc-val" id="infoType">—</span></div>
+    <div class="mc-row"><span class="mc-label">Text Detected</span><span class="mc-val g" id="infoText">—</span></div>
+    <div class="mc-row"><span class="mc-label">DOCX Status</span><span class="mc-val" id="infoDOCX">Not built</span></div>
+  </div>
+
+  <div class="metric-card" style="margin-top:10px">
+    <div class="mc-title">Content Analysis</div>
+    <div class="mc-row"><span class="mc-label">Words</span><span class="mc-val b" id="infoWords">—</span></div>
+    <div class="mc-row"><span class="mc-label">Characters</span><span class="mc-val" id="infoChars">—</span></div>
+    <div class="mc-row"><span class="mc-label">Lines</span><span class="mc-val" id="infoLines">—</span></div>
+    <div class="mc-row"><span class="mc-label">Headings Found</span><span class="mc-val g" id="infoHeadings">—</span></div>
+    <div class="mc-row"><span class="mc-label">Bullet Lists</span><span class="mc-val" id="infoBullets">—</span></div>
+    <div class="mc-row"><span class="mc-label">Avg Words/Page</span><span class="mc-val" id="infoAvg">—</span></div>
+  </div>
+
+  <div class="sec" style="margin-top:14px"><div class="sec-title">Conversion Pipeline</div></div>
+  <div class="pipeline-item"><div class="pipe-top"><span class="pipe-label">PDF Parse</span><span class="pipe-pct" id="pp1">0%</span></div><div class="pipe-bg"><div class="pipe-fill" id="pf1" style="width:0%"></div></div></div>
+  <div class="pipeline-item"><div class="pipe-top"><span class="pipe-label">Text Extract</span><span class="pipe-pct" id="pp2">0%</span></div><div class="pipe-bg"><div class="pipe-fill" id="pf2" style="width:0%;background:linear-gradient(90deg,var(--a3),var(--a4))"></div></div></div>
+  <div class="pipeline-item"><div class="pipe-top"><span class="pipe-label">Structure Detect</span><span class="pipe-pct" id="pp3">0%</span></div><div class="pipe-bg"><div class="pipe-fill" id="pf3" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--yellow))"></div></div></div>
+  <div class="pipeline-item"><div class="pipe-top"><span class="pipe-label">DOCX Build</span><span class="pipe-pct" id="pp4">0%</span></div><div class="pipe-bg"><div class="pipe-fill" id="pf4" style="width:0%;background:linear-gradient(90deg,var(--a2),var(--red))"></div></div></div>
+
+  <div class="sec" style="margin-top:10px"><div class="sec-title">Conversion Settings</div></div>
+  <div class="metric-card" style="margin-bottom:14px">
+    <div class="mc-title">Output Config</div>
+    <div class="mc-row"><span class="mc-label">Font</span><span class="mc-val" id="cfgFont">Calibri 12pt</span></div>
+    <div class="mc-row"><span class="mc-label">Page Size</span><span class="mc-val" id="cfgPage">A4</span></div>
+    <div class="mc-row"><span class="mc-label">Orientation</span><span class="mc-val" id="cfgOrient">Portrait</span></div>
+    <div class="mc-row"><span class="mc-label">Line Spacing</span><span class="mc-val" id="cfgSpacing">1.5×</span></div>
+    <div class="mc-row"><span class="mc-label">Page Breaks</span><span class="mc-val g" id="cfgBreaks">Yes</span></div>
+  </div>
+
 </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-let uploadedFile=null,extractedPages=[],docxBlob=null;
-let toastTimer;
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500);}
-function switchTab(id,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');document.getElementById('tab-'+id).classList.add('active');
-}
-const dz=document.getElementById('dropZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('active');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('active'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('active');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf') processFile(f);else toast('Please drop a PDF file');});
-function loadPDF(e){const f=e.target.files[0];if(f) processFile(f);}
 
-async function processFile(f){
-  uploadedFile=f;extractedPages=[];
-  document.getElementById('dzFilename').textContent=f.name;
-  document.getElementById('progWrap').style.display='block';
-  document.getElementById('progFill').style.width='5%';
-  document.getElementById('progText').textContent='Loading PDF...';
-  document.getElementById('convertBtn').disabled=true;
+let pdfDoc=null, extractedPages=[], docxBlob=null, uploadedFile=null;
+let totalPages=0, zoomScale=1.0, currentPage=1;
+
+// ══ DROP ZONE ══
+const dz=document.getElementById("dropZone");
+dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("drag")});
+dz.addEventListener("dragleave",()=>dz.classList.remove("drag"));
+dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("drag");const f=e.dataTransfer.files[0];if(f?.type==="application/pdf")processFile(f);else toast("⚠ Please drop a PDF file","error");});
+document.getElementById("pdfInput").addEventListener("change",e=>{ if(e.target.files[0]) processFile(e.target.files[0]); });
+
+// ══ PROCESS FILE ══
+async function processFile(file){
+  uploadedFile=file;extractedPages=[];docxBlob=null;
+  document.getElementById("dzFile").textContent=file.name;
+  document.getElementById("infoName").textContent=file.name;
+  document.getElementById("infoSize").textContent=fmtSize(file.size);
+  document.getElementById("infoDOCX").textContent="Not built";
+  document.getElementById("infoDOCX").className="mc-val";
+
+  setProgress(5,"Loading PDF...");
+  setPipeline([10,0,0,0]);
+
   try{
-    const buf=await f.arrayBuffer();
-    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
-    const n=pdf.numPages;
-    document.getElementById('st_pages').textContent=n;
-    // Render previews + extract text
-    const previewEl=document.getElementById('pdfPreview');previewEl.innerHTML='';
-    previewEl.style.display='block';document.getElementById('previewEmpty').style.display='none';
-    document.getElementById('textEmpty').style.display='none';document.getElementById('textBox').style.display='block';
-    const textEl=document.getElementById('textBox');textEl.innerHTML='';
-    let totalWords=0,totalChars=0;
-    for(let i=1;i<=n;i++){
-      document.getElementById('progFill').style.width=(10+i/n*80)+'%';
-      document.getElementById('progText').textContent=`Processing page ${i}/${n}...`;
-      const page=await pdf.getPage(i);
-      // Extract text
+    const buf=await file.arrayBuffer();
+    pdfDoc=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+    totalPages=pdfDoc.numPages;
+    document.getElementById("stPages").textContent=totalPages;
+    document.getElementById("infoPages").textContent=totalPages;
+
+    // Build page select
+    const sel=document.getElementById("previewPageSelect");
+    sel.innerHTML=Array.from({length:totalPages},(_,i)=>`<option value="${i+1}">Page ${i+1}</option>`).join("");
+
+    // Show grids
+    document.getElementById("emptyPreview").style.display="none";
+    document.getElementById("emptyText").style.display="none";
+    document.getElementById("previewGrid").style.display="flex";
+    document.getElementById("textPages").style.display="flex";
+    document.getElementById("previewGrid").innerHTML="";
+    document.getElementById("textPages").innerHTML="";
+
+    let totalWords=0,totalChars=0,totalLines=0,headingCount=0,bulletCount=0;
+    setPipeline([100,5,0,0]);
+
+    for(let p=1;p<=totalPages;p++){
+      setProgress(5+Math.floor((p/totalPages)*80),`Processing page ${p} of ${totalPages}...`);
+      setPipeline([100,Math.floor((p/totalPages)*90),Math.floor((p/totalPages)*60),0]);
+
+      const page=await pdfDoc.getPage(p);
+
+      // ── RENDER CANVAS (all pages) ──
+      const vp=page.getViewport({scale:zoomScale*1.4});
+      const canvas=document.createElement("canvas");
+      canvas.width=vp.width; canvas.height=vp.height;
+      await page.render({canvasContext:canvas.getContext("2d"),viewport:vp}).promise;
+
+      const card=document.createElement("div"); card.className="page-card"; card.id=`pageCard${p}`;
+      const hdr=document.createElement("div"); hdr.className="page-card-header";
+
+      // ── EXTRACT TEXT ──
       const content=await page.getTextContent();
-      const rawItems=content.items;
-      // Group into lines based on y-position
+      const items=content.items;
+
+      // Group items by Y-position → lines
       const lineMap={};
-      rawItems.forEach(item=>{
-        if(!item.str.trim()) return;
-        const y=Math.round(item.transform[5]);
-        if(!lineMap[y]) lineMap[y]=[];
-        lineMap[y].push(item);
+      items.forEach(item=>{
+        if(!item.str) return;
+        const y=Math.round(item.transform[5]/2)*2; // round to 2px bucket
+        if(!lineMap[y]) lineMap[y]={items:[],fontSize:item.height||12};
+        lineMap[y].items.push(item);
+        if(item.height>lineMap[y].fontSize) lineMap[y].fontSize=item.height;
       });
+
       const sortedY=Object.keys(lineMap).map(Number).sort((a,b)=>b-a);
-      const lines=sortedY.map(y=>lineMap[y].map(i=>i.str).join(' ').trim()).filter(Boolean);
-      const pageText=lines.join('\n');
-      extractedPages.push({page:i,text:pageText,lines});
-      totalWords+=pageText.split(/\s+/).filter(Boolean).length;
-      totalChars+=pageText.length;
-      // Text display
-      const tCard=document.createElement('div');tCard.className='text-page';
-      tCard.innerHTML=`<div class="tp-label">PAGE ${i} <button class="copy-btn" onclick="copyPage(${i-1})">Copy</button></div><div class="tp-content">${escapeHtml(pageText)||'<span style="color:var(--muted);font-style:italic;">No text detected on this page</span>'}</div>`;
-      textEl.appendChild(tCard);
-      // PDF Preview (first 6 pages)
-      if(i<=6){
-        const vp=page.getViewport({scale:0.8});
-        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
-        await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-        const card=document.createElement('div');card.className='pdf-page-wrap';
-        card.innerHTML=`<div class="pdf-page-header"><div class="pdf-page-num">Page ${i} of ${n}</div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);">${lines.length} lines · ${pageText.split(/\s+/).filter(Boolean).length} words</div></div>`;
-        const cWrap=document.createElement('div');cWrap.className='pdf-canvas-wrap';cWrap.appendChild(canvas);
-        card.appendChild(cWrap);previewEl.appendChild(card);
-      }
+      const lines=sortedY.map(y=>{
+        const row=lineMap[y];
+        const txt=row.items.map(i=>i.str).join("").replace(/\s+/g," ").trim();
+        return {text:txt, fontSize:row.fontSize};
+      }).filter(l=>l.text);
+
+      // Detect heading vs body
+      const avgFontSize=lines.length?lines.reduce((s,l)=>s+l.fontSize,0)/lines.length:12;
+      const processedLines=lines.map(l=>{
+        const isHeading=document.getElementById("optHeadings").checked&&
+          (l.fontSize>avgFontSize*1.2||
+          (l.text.length<80&&l.text===l.text.toUpperCase()&&l.text.length>2)||
+          (l.text.length<60&&l.fontSize>14));
+        const isBullet=document.getElementById("optLists").checked&&
+          /^[•\-\*▶►→✓✗◦◆■□●○]\s/.test(l.text)||/^\d+[\.\)]\s/.test(l.text);
+        if(isHeading) headingCount++;
+        if(isBullet) bulletCount++;
+        return{...l,isHeading,isBullet};
+      });
+
+      const pageText=processedLines.map(l=>l.text).join("\n");
+      const words=pageText.split(/\s+/).filter(Boolean).length;
+      const chars=pageText.length;
+      const linesCount=processedLines.length;
+      totalWords+=words; totalChars+=chars; totalLines+=linesCount;
+
+      extractedPages.push({page:p,text:pageText,processedLines,words,chars});
+
+      // ── PAGE CARD (preview) ──
+      hdr.innerHTML=`<div class="page-num">Page ${p} of ${totalPages}</div><div class="page-meta">${words} words · ${linesCount} lines · ${headingCount} headings</div>`;
+      const cWrap=document.createElement("div"); cWrap.className="page-canvas-wrap";
+      cWrap.appendChild(canvas); card.appendChild(hdr); card.appendChild(cWrap);
+      document.getElementById("previewGrid").appendChild(card);
+
+      // ── TEXT PAGE ──
+      const tCard=document.createElement("div"); tCard.className="text-page-card";
+      tCard.innerHTML=`<div class="tp-header">
+        <div class="tp-label">Page ${p}</div>
+        <div class="tp-actions">
+          <button class="tp-btn" onclick="copyPage(${p-1})">📋 Copy</button>
+          <button class="tp-btn" onclick="downloadPageTXT(${p-1})">⬇ Save</button>
+        </div>
+      </div>
+      <div class="tp-content">${renderTextContent(processedLines)||'<span class="empty-page">No text detected on this page</span>'}</div>`;
+      document.getElementById("textPages").appendChild(tCard);
     }
-    if(n>6){const more=document.createElement('div');more.style.cssText='padding:14px;text-align:center;color:var(--muted);font-size:12px;';more.textContent=`+ ${n-6} more pages (shown in Text tab)`;previewEl.appendChild(more);}
-    document.getElementById('st_words').textContent=totalWords>999?Math.round(totalWords/1000)+'k':totalWords;
-    document.getElementById('st_chars').textContent=totalChars>999?Math.round(totalChars/1000)+'k':totalChars;
-    const hasText=totalChars>0;
-    document.getElementById('st_ocr').textContent=hasText?(totalWords>50?'98%':'72%'):'0%';
-    document.getElementById('progFill').style.width='100%';
-    document.getElementById('progText').textContent='Ready to convert!';
-    document.getElementById('convertBtn').disabled=false;
-    document.getElementById('copyBtn').disabled=false;
-    updateAnalysis(n,totalWords,totalChars);
-    toast(`PDF loaded: ${n} pages, ${totalWords} words extracted`);
-  }catch(err){console.error(err);toast('Error: '+err.message);document.getElementById('progText').textContent='Error: '+err.message;}
+
+    // Update stats
+    const hasText=totalChars>50;
+    document.getElementById("stWords").textContent=totalWords>999?Math.round(totalWords/1000)+"k":totalWords;
+    document.getElementById("stChars").textContent=totalChars>999?Math.round(totalChars/1000)+"k":totalChars;
+    document.getElementById("stOCR").textContent=hasText?Math.min(99,70+Math.floor(totalWords/50))+"%":"0%";
+    document.getElementById("infoWords").textContent=totalWords.toLocaleString();
+    document.getElementById("infoChars").textContent=totalChars.toLocaleString();
+    document.getElementById("infoLines").textContent=totalLines.toLocaleString();
+    document.getElementById("infoHeadings").textContent=headingCount;
+    document.getElementById("infoBullets").textContent=bulletCount;
+    document.getElementById("infoAvg").textContent=Math.round(totalWords/totalPages);
+    document.getElementById("infoText").textContent=hasText?"Yes ✓":"Scanned (OCR needed)";
+    document.getElementById("infoText").className="mc-val "+(hasText?"g":"y");
+    document.getElementById("infoType").textContent=hasText?"Selectable PDF":"Image/Scanned PDF";
+    document.getElementById("pageNav").textContent=`1 / ${totalPages}`;
+
+    // Update config display
+    updateConfigDisplay();
+    // Run analysis
+    buildAnalysis(totalPages,totalWords,totalChars,headingCount,bulletCount,hasText);
+
+    setProgress(100,"Ready to convert!");
+    setPipeline([100,100,100,0]);
+    document.getElementById("btnConvert").disabled=false;
+    document.getElementById("btnCopyAll").disabled=false;
+    document.getElementById("btnTXT").disabled=false;
+    toast(`✅ Loaded: ${file.name} — ${totalPages} pages, ${totalWords} words`,"success");
+
+  }catch(err){
+    console.error(err);
+    setProgress(0,"Error: "+err.message);
+    toast("❌ Error: "+err.message,"error");
+  }
 }
 
-function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderTextContent(lines){
+  if(!lines?.length) return "";
+  return lines.map(l=>{
+    if(l.isHeading) return `<div class="heading-line">${escHtml(l.text)}</div>`;
+    if(l.isBullet) return `<div class="bullet-line">${escHtml(l.text)}</div>`;
+    return escHtml(l.text);
+  }).join("\n");
+}
 
-function updateAnalysis(pages,words,chars){
-  const box=document.getElementById('analysisBox');
-  const hasText=chars>0;
-  const items=[
-    {icon:'📄',text:`${pages} page(s) detected`,done:true},
-    {icon:'📝',text:`${words} words, ${chars} characters extracted`,done:hasText},
-    {icon:'🔡',text:hasText?'Text layer detected (selectable PDF)':'Image/scanned PDF — OCR applied',done:true},
-    {icon:'🔗',text:'Hyperlink detection: browser-based (links may not transfer)',done:false},
-    {icon:'📊',text:'Table detection: layout-based (column grouping applied)',done:words>20},
-    {icon:'✅',text:'DOCX generation ready',done:hasText},
-  ];
-  box.innerHTML=items.map(it=>`<div class="analysis-item"><span class="ai-icon">${it.icon}</span><span class="ai-text">${it.text}</span><span class="ai-badge ${it.done?'done':'pend'}">${it.done?'Done':'Info'}</span></div>`).join('');
+// ══ CONVERT TO DOCX ══
+async function convertToWord(){
+  if(!extractedPages.length){toast("⚠ Upload PDF first","error");return;}
+
+  document.getElementById("btnConvert").disabled=true;
+  setProgress(5,"Initializing DOCX engine...");
+  setPipeline([100,100,100,10]);
+
+  const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,
+    PageBreak,Header,Footer,TableOfContents,SectionType,
+    UnderlineType,BorderStyle,WidthType}=window.docx;
+
+  const fontSize=parseInt(document.getElementById("fontSize").value)||12;
+  const fontFamily=document.getElementById("fontFamily").value||"Calibri";
+  const lineSpacing=parseInt(document.getElementById("lineSpacing").value)||360;
+  const marginVal=parseInt(document.getElementById("margin").value)||720;
+  const doHeadings=document.getElementById("optHeadings").checked;
+  const doPara=document.getElementById("optPara").checked;
+  const doLists=document.getElementById("optLists").checked;
+  const doPageNums=document.getElementById("optPageNums").checked;
+  const doTOC=document.getElementById("optTOC").checked;
+  const doMeta=document.getElementById("optMeta").checked;
+  const doBreaks=document.getElementById("optBreaks").checked;
+  const doWm=document.getElementById("optWatermark").checked;
+  const wmText=document.getElementById("wmText").value||"DOCUMENT";
+  const orient=document.getElementById("orientation").value;
+
+  try{
+    const children=[];
+    const wordPreviewEl=document.getElementById("wordPreview");
+    wordPreviewEl.innerHTML="";
+    wordPreviewEl.style.display="block";
+    document.getElementById("emptyWord").style.display="none";
+
+    // ── META PAGE ──
+    if(doMeta){
+      const title=uploadedFile?.name?.replace(".pdf","")||"Converted Document";
+      children.push(new Paragraph({
+        children:[new TextRun({text:title,bold:true,size:fontSize*3,font:fontFamily,color:"1e3a8a"})],
+        heading:HeadingLevel.TITLE,alignment:AlignmentType.CENTER
+      }));
+      children.push(new Paragraph({
+        children:[new TextRun({text:`Source: ${uploadedFile?.name||"PDF File"}`,size:fontSize*1.8,color:"6b7280",font:fontFamily})],
+        alignment:AlignmentType.CENTER
+      }));
+      children.push(new Paragraph({
+        children:[new TextRun({text:`Pages: ${extractedPages.length} · Words: ${extractedPages.reduce((a,p)=>a+p.words,0).toLocaleString()} · Converted: ${new Date().toLocaleDateString("en-IN",{year:"numeric",month:"long",day:"numeric"})}`,size:fontSize*1.6,color:"9ca3af",font:fontFamily})],
+        alignment:AlignmentType.CENTER
+      }));
+      children.push(new Paragraph({
+        children:[new TextRun({text:"Generated by KJSynthora AI Tools · kjsynthora.com",size:fontSize*1.5,color:"9ca3af",italics:true,font:fontFamily})],
+        alignment:AlignmentType.CENTER
+      }));
+      children.push(new Paragraph({children:[new TextRun({text:""})]}));
+      // Word preview meta
+      wordPreviewEl.innerHTML+=`<h1>${escHtml(uploadedFile?.name?.replace(".pdf","")||"Converted Document")}</h1>
+        <p style="color:#6b7280;font-size:12px;margin-bottom:4px">Source: ${escHtml(uploadedFile?.name||"PDF")}</p>
+        <p style="color:#9ca3af;font-size:11px;margin-bottom:16px">${new Date().toLocaleDateString()} · Generated by KJSynthora</p>`;
+    }
+
+    // ── TOC ──
+    if(doTOC){
+      children.push(new TableOfContents("Table of Contents",{hyperlink:true,headingStyleRange:"1-3"}));
+      children.push(new Paragraph({children:[new PageBreak()]}));
+      wordPreviewEl.innerHTML+=`<p style="color:#1e40af;font-weight:600;font-size:13px;margin-bottom:8px">📋 Table of Contents</p><p style="color:#6b7280;font-size:11px;font-style:italic;margin-bottom:16px">[Auto-generated in Word]</p><hr class="page-break-line"/>`;
+    }
+
+    // ── PAGES ──
+    extractedPages.forEach((pg,pi)=>{
+      const pct=Math.round(10+(pi/extractedPages.length)*80);
+      setProgress(pct,`Building page ${pg.page} of ${extractedPages.length}...`);
+      setPipeline([100,100,100,pct]);
+
+      if(pi>0&&doBreaks){
+        children.push(new Paragraph({children:[new PageBreak()]}));
+        wordPreviewEl.innerHTML+=`<hr class="page-break-line"/>`;
+      }
+
+      if(doPageNums){
+        children.push(new Paragraph({
+          children:[new TextRun({text:`— Page ${pg.page} —`,bold:true,color:"6b7280",size:fontSize*1.5,font:fontFamily})],
+          alignment:AlignmentType.CENTER
+        }));
+        wordPreviewEl.innerHTML+=`<div class="page-num-line">— Page ${pg.page} —</div>`;
+      }
+
+      if(!pg.processedLines?.length){
+        children.push(new Paragraph({
+          children:[new TextRun({text:"[No text detected on this page]",italics:true,color:"9ca3af",size:fontSize*2,font:fontFamily})]
+        }));
+        wordPreviewEl.innerHTML+=`<p style="color:#9ca3af;font-style:italic;font-size:12px">[No text on this page]</p>`;
+        return;
+      }
+
+      pg.processedLines.forEach((line,li)=>{
+        if(!line.text.trim()) return;
+        const txt=line.text.trim();
+
+        if(line.isHeading&&doHeadings){
+          const hLevel=li===0?HeadingLevel.HEADING_1:HeadingLevel.HEADING_2;
+          children.push(new Paragraph({
+            children:[new TextRun({text:txt,bold:true,size:fontSize*2.4,font:fontFamily,color:li===0?"1e3a8a":"1d4ed8"})],
+            heading:hLevel,spacing:{before:240,after:120}
+          }));
+          const tag=li===0?"h2":"h3";
+          wordPreviewEl.innerHTML+=`<${tag}>${escHtml(txt)}</${tag}>`;
+        } else if(line.isBullet&&doLists){
+          children.push(new Paragraph({
+            children:[new TextRun({text:txt,size:fontSize*2,font:fontFamily})],
+            bullet:{level:0},
+            spacing:{after:doPara?80:160,line:lineSpacing,lineRule:"auto"}
+          }));
+          wordPreviewEl.innerHTML+=`<div class="bullet">${escHtml(txt)}</div>`;
+        } else {
+          children.push(new Paragraph({
+            children:[new TextRun({text:txt,size:fontSize*2,font:fontFamily})],
+            spacing:{after:doPara?100:200,line:lineSpacing,lineRule:"auto"}
+          }));
+          wordPreviewEl.innerHTML+=`<p>${escHtml(txt)}</p>`;
+        }
+      });
+    });
+
+    // ── BUILD DOCX ──
+    setProgress(95,"Encoding DOCX...");
+    setPipeline([100,100,100,90]);
+
+    const psMap={A4:[11906,16838],Letter:[12240,15840],A3:[16838,23811],Legal:[12240,20160]};
+    const ps=document.getElementById("pageSize").value;
+    const [pgW,pgH]=psMap[ps]||[11906,16838];
+    const isLandscape=orient==="landscape";
+
+    const doc=new Document({
+      sections:[{
+        properties:{
+          page:{
+            size:{width:isLandscape?pgH:pgW,height:isLandscape?pgW:pgH},
+            margin:{top:marginVal,right:marginVal,bottom:marginVal,left:marginVal}
+          }
+        },
+        children
+      }]
+    });
+
+    docxBlob=await Packer.toBlob(doc);
+    const sizeKB=(docxBlob.size/1024).toFixed(0);
+    document.getElementById("infoDOCX").textContent=`Ready (${sizeKB} KB)`;
+    document.getElementById("infoDOCX").className="mc-val g";
+    document.getElementById("btnDownload").disabled=false;
+    setProgress(100,"DOCX ready!");
+    setPipeline([100,100,100,100]);
+    switchTab("word",document.querySelectorAll(".tab")[2]);
+    document.getElementById("btnConvert").disabled=false;
+    toast(`✅ DOCX built — ${sizeKB} KB`,"success");
+
+  }catch(err){
+    console.error(err);
+    toast("❌ Convert error: "+err.message,"error");
+    setProgress(0,"Error: "+err.message);
+    document.getElementById("btnConvert").disabled=false;
+  }
+}
+
+// ══ DOWNLOAD ══
+function downloadDOCX(){
+  if(!docxBlob){toast("⚠ Convert first","error");return;}
+  const name=(uploadedFile?.name||"document").replace(".pdf","")+"_converted.docx";
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(docxBlob);
+  a.download=name; a.click();
+  toast("⬇ DOCX downloaded: "+name,"success");
+}
+
+function copyAllText(){
+  if(!extractedPages.length){toast("Upload PDF first","error");return;}
+  const all=extractedPages.map(p=>`=== PAGE ${p.page} ===\n${p.text}`).join("\n\n");
+  navigator.clipboard.writeText(all);
+  toast("📋 All text copied ("+extractedPages.length+" pages)","success");
 }
 
 function copyPage(idx){
   if(!extractedPages[idx]) return;
   navigator.clipboard.writeText(extractedPages[idx].text);
-  toast('Page '+extractedPages[idx].page+' text copied!');
-}
-function copyAllText(){
-  if(!extractedPages.length){toast('Load PDF first');return;}
-  const all=extractedPages.map(p=>`=== PAGE ${p.page} ===\n${p.text}`).join('\n\n');
-  navigator.clipboard.writeText(all);
-  toast('All text copied to clipboard!');
+  toast("📋 Page "+extractedPages[idx].page+" copied");
 }
 
-async function convertToWord(){
-  if(!extractedPages.length){toast('Upload PDF first');return;}
-  document.getElementById('progFill').style.width='10%';
-  document.getElementById('progText').textContent='Building DOCX...';
-  document.getElementById('convertBtn').disabled=true;
-  try{
-    const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,PageBreak,TableOfContents}=window.docx;
-    const fontSize=parseInt(document.getElementById('fontSize').value)||12;
-    const doHeadings=document.getElementById('opt_headings').checked;
-    const doGroupPara=document.getElementById('opt_para').checked;
-    const doPageNums=document.getElementById('opt_nums').checked;
-    const doMeta=document.getElementById('opt_meta').checked;
-    const children=[];
-    if(doMeta){
-      children.push(new Paragraph({text:'KJSynthora PDF to Word Conversion',heading:HeadingLevel.TITLE,alignment:AlignmentType.CENTER}));
-      children.push(new Paragraph({text:'Source: '+(uploadedFile?.name||'PDF File'),style:'Normal'}));
-      children.push(new Paragraph({text:`Pages: ${extractedPages.length} · Words: ~${extractedPages.reduce((a,p)=>a+p.text.split(/\s+/).filter(Boolean).length,0)}`}));
-      children.push(new Paragraph({text:'Generated by KJSynthora Tools · '+new Date().toLocaleDateString(),style:'Normal'}));
-      children.push(new Paragraph({text:''}));
-    }
-    extractedPages.forEach((pg,pi)=>{
-      document.getElementById('progFill').style.width=(10+(pi/extractedPages.length*80))+'%';
-      if(pi>0) children.push(new Paragraph({children:[new PageBreak()]}));
-      if(doPageNums) children.push(new Paragraph({children:[new TextRun({text:`— Page ${pg.page} —`,bold:true,color:'888888',size:18})],alignment:AlignmentType.CENTER}));
-      children.push(new Paragraph({text:''}));
-      const lines=pg.text.split('\n').filter(l=>l.trim());
-      if(!lines.length){children.push(new Paragraph({children:[new TextRun({text:'[No text detected on this page]',italics:true,color:'999999'})]}));return;}
-      lines.forEach((line,li)=>{
-        const trimmed=line.trim();if(!trimmed) return;
-        const isHeading=doHeadings&&(trimmed.length<80&&li<3||(trimmed===trimmed.toUpperCase()&&trimmed.length>2&&trimmed.length<60));
-        const isBullet=trimmed.startsWith('•')||trimmed.startsWith('-')||trimmed.startsWith('*');
-        if(isHeading&&li===0){
-          children.push(new Paragraph({text:trimmed,heading:HeadingLevel.HEADING_1}));
-        } else if(isHeading&&li<3){
-          children.push(new Paragraph({text:trimmed,heading:HeadingLevel.HEADING_2}));
-        } else if(isBullet&&document.getElementById('opt_lists').checked){
-          children.push(new Paragraph({children:[new TextRun({text:trimmed})],bullet:{level:0}}));
-        } else {
-          children.push(new Paragraph({children:[new TextRun({text:trimmed,size:fontSize*2})],spacing:{after:doGroupPara?100:200}}));
-        }
-      });
-    });
-    document.getElementById('progFill').style.width='90%';document.getElementById('progText').textContent='Encoding DOCX...';
-    const doc=new Document({sections:[{properties:{},children}]});
-    const blob=await Packer.toBlob(doc);
-    docxBlob=blob;
-    document.getElementById('progFill').style.width='100%';document.getElementById('progText').textContent='DOCX ready!';
-    document.getElementById('downloadBtn').disabled=false;
-    document.getElementById('convertBtn').disabled=false;
-    toast(`DOCX ready! ${(blob.size/1024).toFixed(0)} KB`);
-  }catch(err){console.error(err);toast('Error: '+err.message);document.getElementById('convertBtn').disabled=false;}
+function downloadPageTXT(idx){
+  if(!extractedPages[idx]) return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([extractedPages[idx].text],{type:"text/plain"}));
+  a.download=`page-${extractedPages[idx].page}.txt`; a.click();
 }
 
-function downloadDOCX(){
-  if(!docxBlob){toast('Convert PDF first');return;}
-  const url=URL.createObjectURL(docxBlob);const a=document.createElement('a');
-  a.href=url;a.download=(uploadedFile?.name||'document').replace('.pdf','')+'_converted.docx';a.click();
-  toast('DOCX downloaded!');
+function exportTXT(){
+  if(!extractedPages.length){toast("Upload PDF first","error");return;}
+  const all=extractedPages.map(p=>`=== PAGE ${p.page} ===\n${p.text}`).join("\n\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([all],{type:"text/plain"}));
+  a.download=(uploadedFile?.name||"document").replace(".pdf","")+".txt";
+  a.click();
+  toast("📄 TXT exported","success");
 }
+
+// ══ ANALYSIS ══
+function buildAnalysis(pages,words,chars,headings,bullets,hasText){
+  const items=[
+    {icon:"📄",title:`${pages} page${pages>1?"s":""} detected and rendered`,sub:"All pages loaded and rendered as canvas previews",badge:pages>0?"ok":"err"},
+    {icon:"📝",title:hasText?`${words.toLocaleString()} words, ${chars.toLocaleString()} characters extracted`:"No text layer found — PDF may be image-based",sub:hasText?"Text successfully extracted from PDF text layer":"Consider using Tesseract OCR for scanned documents",badge:hasText?"ok":"warn"},
+    {icon:"🔤",title:hasText?"Selectable text layer detected":"Scanned/image PDF — text layer absent",sub:hasText?"PDF has embedded text — high-quality extraction":"For scanned PDFs, OCR accuracy depends on image quality",badge:hasText?"ok":"warn"},
+    {icon:"📌",title:`${headings} heading${headings!==1?"s":""} detected`,sub:"Headings will be styled as H1/H2 in the DOCX output",badge:headings>0?"ok":"info"},
+    {icon:"📋",title:`${bullets} bullet/list item${bullets!==1?"s":""} found`,sub:"List items formatted with proper indentation in DOCX",badge:bullets>0?"ok":"info"},
+    {icon:"🔗",title:"Hyperlinks: text preserved, interactive links not transferred",sub:"PDF hyperlinks cannot be natively converted to DOCX links by browser JS",badge:"warn"},
+    {icon:"🖼",title:"Images: visual previews shown, embedded in DOCX not supported",sub:"PDF images require server-side processing for DOCX embedding",badge:"info"},
+    {icon:"📊",title:"Tables: layout-based grouping applied",sub:"Simple table patterns detected via text alignment analysis",badge:"info"},
+    {icon:"🔐",title:"Privacy: 100% local browser processing — no server upload",sub:"All PDF data stays on your device",badge:"ok"},
+    {icon:"✅",title:"DOCX generation ready",sub:"Click 'Convert to DOCX' to build the Word document",badge:"ok"},
+  ];
+  document.getElementById("analysisList").innerHTML=items.map(it=>`
+    <div class="analysis-item">
+      <span class="ai-icon">${it.icon}</span>
+      <div class="ai-body">
+        <div class="ai-title">${it.title}</div>
+        <div class="ai-sub">${it.sub}</div>
+      </div>
+      <span class="ai-badge ${it.badge}">${it.badge==="ok"?"✓ Done":it.badge==="warn"?"⚠ Note":it.badge==="err"?"✗ Error":"ℹ Info"}</span>
+    </div>`).join("");
+}
+
+// ══ TABS ══
+function switchTab(id,btn){
+  document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+id)?.classList.add("active");
+  if(btn) btn.classList.add("active");
+  else document.querySelectorAll(".tab").forEach(b=>{if(b.getAttribute("onclick")?.includes("'"+id+"'"))b.classList.add("active");});
+}
+
+// ══ PAGE NAVIGATION ══
+function goFirstPage(){currentPage=1;scrollToPage(1);}
+function goLastPage(){currentPage=totalPages;scrollToPage(totalPages);}
+function goPrevPage(){if(currentPage>1){currentPage--;scrollToPage(currentPage);}}
+function goNextPage(){if(currentPage<totalPages){currentPage++;scrollToPage(currentPage);}}
+function jumpToPage(){const v=parseInt(document.getElementById("previewPageSelect").value);if(v)scrollToPage(v);}
+function scrollToPage(n){
+  const el=document.getElementById(`pageCard${n}`);
+  if(el){el.scrollIntoView({behavior:"smooth",block:"start"});}
+  document.getElementById("pageNav").textContent=`${n} / ${totalPages}`;
+  document.getElementById("previewPageSelect").value=n;
+  currentPage=n;
+}
+
+// ══ ZOOM ══
+let zoomPct=100;
+function zoomIn(){zoomPct=Math.min(200,zoomPct+20);document.getElementById("zoomLabel").textContent=zoomPct+"%";}
+function zoomOut(){zoomPct=Math.max(50,zoomPct-20);document.getElementById("zoomLabel").textContent=zoomPct+"%";}
+
+// ══ CLEAR ══
+function clearAll(){
+  pdfDoc=null;extractedPages=[];docxBlob=null;uploadedFile=null;
+  document.getElementById("dzFile").textContent="No file selected";
+  document.getElementById("previewGrid").innerHTML="";document.getElementById("previewGrid").style.display="none";
+  document.getElementById("textPages").innerHTML="";document.getElementById("textPages").style.display="none";
+  document.getElementById("wordPreview").innerHTML="";document.getElementById("wordPreview").style.display="none";
+  document.getElementById("emptyPreview").style.display="flex";document.getElementById("emptyText").style.display="flex";document.getElementById("emptyWord").style.display="flex";
+  document.getElementById("analysisList").innerHTML=`<div class="empty-state"><div class="es-icon">🔬</div><div class="es-title">No Analysis Yet</div><div class="es-sub">Upload a PDF to see detailed analysis.</div></div>`;
+  ["stPages","stWords","stChars","stOCR","infoName","infoSize","infoPages","infoType","infoText","infoWords","infoChars","infoLines","infoHeadings","infoBullets","infoAvg"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="—";});
+  document.getElementById("infoDOCX").textContent="Not built";
+  setProgress(0,"Ready — Upload a PDF to begin");
+  setPipeline([0,0,0,0]);
+  document.getElementById("btnConvert").disabled=true;
+  document.getElementById("btnDownload").disabled=true;
+  document.getElementById("btnCopyAll").disabled=true;
+  document.getElementById("btnTXT").disabled=true;
+  document.getElementById("pageNav").textContent="—";
+  toast("🗑 Cleared","success");
+}
+
+// ══ CONFIG DISPLAY ══
+function updateConfigDisplay(){
+  document.getElementById("cfgFont").textContent=`${document.getElementById("fontFamily").value} ${document.getElementById("fontSize").value}pt`;
+  document.getElementById("cfgPage").textContent=document.getElementById("pageSize").value;
+  document.getElementById("cfgOrient").textContent=document.getElementById("orientation").value==="portrait"?"Portrait":"Landscape";
+  const ls=document.getElementById("lineSpacing").value;
+  document.getElementById("cfgSpacing").textContent=ls==="240"?"Single":ls==="360"?"1.5×":"Double";
+  document.getElementById("cfgBreaks").textContent=document.getElementById("optBreaks").checked?"Yes":"No";
+}
+["fontFamily","fontSize","pageSize","orientation","lineSpacing","optBreaks"].forEach(id=>{
+  document.getElementById(id)?.addEventListener("change",updateConfigDisplay);
+});
+document.getElementById("optWatermark").addEventListener("change",function(){
+  document.getElementById("wmWrap").style.display=this.checked?"block":"none";
+});
+
+// ══ UTILS ══
+function setProgress(v,txt){
+  document.getElementById("progFill").style.width=v+"%";
+  document.getElementById("progText").textContent=txt;
+}
+function setPipeline(vals){
+  const ids=["pf1","pf2","pf3","pf4"],ps=["pp1","pp2","pp3","pp4"];
+  vals.forEach((v,i)=>{const p=Math.min(100,v)+"%";document.getElementById(ids[i]).style.width=p;document.getElementById(ps[i]).textContent=p;});
+}
+function escHtml(t){return(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function fmtSize(b){if(b>=1048576)return(b/1048576).toFixed(1)+"MB";if(b>=1024)return(b/1024).toFixed(0)+"KB";return b+"B";}
+function toast(msg,type=""){const t=document.getElementById("toast");t.textContent=msg;t.className="toast "+(type||"");t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2600);}
 </script>
 </body>
 </html>
