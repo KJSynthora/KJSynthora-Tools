@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown Editor | KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500;600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#0f1117;
+  --bg2:#13161f;
+  --surface:#181c27;
+  --surface2:#1e2333;
+  --surface3:#242b3d;
+  --border:#252d42;
+  --border2:#2e3850;
+  --acc:#5eead4;
+  --acc2:#f59e0b;
+  --acc3:#818cf8;
+  --danger:#f87171;
+  --success:#4ade80;
+  --text:#e2e8f8;
+  --text2:#6b7a9e;
+  --text3:#2e3a56;
+  --preview-bg:#ffffff;
+  --preview-text:#1a1f2e;
+  --preview-border:#e5e9f2;
+  --preview-code:#f3f4f9;
+  --preview-accent:#2563eb;
+  --preview-quote:#64748b;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Manrope',sans-serif;
+  --prose:'Lora',serif;
+}
+
+/* Light theme */
+body.light{
+  --bg:#f5f6fa;
+  --bg2:#eef0f7;
+  --surface:#ffffff;
+  --surface2:#f0f2f9;
+  --surface3:#e8ebf5;
+  --border:#d8ddf0;
+  --border2:#c8ceea;
+  --text:#1a1f2e;
+  --text2:#5a6585;
+  --text3:#aab0ca;
+}
+
+html,body{height:100%;overflow:hidden;}
+
+body{
+  font-family:var(--display);
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── HEADER ── */
+.header{
+  display:flex;align-items:center;
+  padding:0 16px;height:50px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  gap:12px;
+  flex-shrink:0;
+  position:relative;
+  z-index:10;
+}
+
+.logo{
+  display:flex;align-items:center;gap:9px;
+  text-decoration:none;margin-right:4px;
+}
+.logo-mark{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,var(--acc),var(--acc3));
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;
+  font-family:var(--mono);
+  box-shadow:0 0 12px rgba(94,234,212,0.25);
+  flex-shrink:0;
+}
+.logo-text{
+  font-size:13px;font-weight:700;
+  color:var(--text);letter-spacing:-0.2px;
+}
+.logo-text span{color:var(--acc);}
+
+.header-divider{
+  width:1px;height:20px;
+  background:var(--border);
+  flex-shrink:0;
+}
+
+/* Title input */
+.doc-title{
+  flex:1;
+  background:transparent;
+  border:none;outline:none;
+  font-family:var(--display);
+  font-size:14px;font-weight:600;
+  color:var(--text);
+  min-width:0;
+}
+.doc-title::placeholder{color:var(--text3);}
+
+/* Header right */
+.header-right{
+  display:flex;align-items:center;gap:6px;
+  flex-shrink:0;
+}
+
+.h-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text2);font-family:var(--display);
+  font-size:11px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+}
+.h-btn:hover{border-color:var(--acc);color:var(--acc);}
+.h-btn.active{background:rgba(94,234,212,0.1);border-color:var(--acc);color:var(--acc);}
+
+.theme-btn{
+  width:30px;height:30px;
+  border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text2);font-size:14px;
+  cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.theme-btn:hover{border-color:var(--acc2);color:var(--acc2);}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  display:flex;align-items:center;
+  padding:0 12px;height:42px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  gap:2px;
+  flex-shrink:0;
+  overflow-x:auto;
+}
+.toolbar::-webkit-scrollbar{height:0;}
+
+.tb-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:28px;
+  border-radius:5px;
+  background:transparent;border:none;
+  color:var(--text2);
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.12s;
+  flex-shrink:0;
+  position:relative;
+}
+.tb-btn:hover{background:var(--surface2);color:var(--acc);}
+.tb-btn:active{transform:scale(0.92);}
+
+.tb-sep{
+  width:1px;height:18px;
+  background:var(--border);margin:0 4px;
+  flex-shrink:0;
+}
+
+.tb-btn[data-tooltip]::after{
+  content:attr(data-tooltip);
+  position:absolute;top:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:var(--surface3);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--display);
+  font-size:10px;font-weight:500;padding:3px 7px;
+  border-radius:4px;white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.15s;z-index:100;
+}
+.tb-btn:hover[data-tooltip]::after{opacity:1;}
+
+.tb-select{
+  height:28px;padding:0 8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:5px;color:var(--text2);
+  font-family:var(--mono);font-size:11px;outline:none;cursor:pointer;
+  transition:border-color 0.15s;
+}
+.tb-select:focus{border-color:var(--acc);}
+.tb-select option{background:var(--surface);}
+
+/* ── MAIN ── */
+.main{
+  flex:1;display:flex;
+  overflow:hidden;min-height:0;
+}
+
+/* ── EDITOR PANE ── */
+.editor-pane{
+  display:flex;flex-direction:column;
+  overflow:hidden;min-height:0;
+  transition:flex 0.25s ease;
+  position:relative;
+}
+
+.editor-pane.hidden{flex:0;overflow:hidden;}
+
+.editor-scroll{
+  flex:1;overflow:auto;
+  position:relative;
+  display:flex;
+  min-height:0;
+}
+.editor-scroll::-webkit-scrollbar{width:6px;}
+.editor-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+
+/* Line numbers */
+.line-nums{
+  padding:20px 0;
+  background:var(--surface);
+  min-width:48px;
+  text-align:right;
+  user-select:none;
+  font-family:var(--mono);font-size:12px;
+  line-height:22px;color:var(--text3);
+  padding-right:12px;padding-left:8px;
+  border-right:1px solid var(--border);
+  flex-shrink:0;
+}
+
+#mdEditor{
+  flex:1;
+  padding:20px 24px;
+  background:var(--surface);
+  border:none;outline:none;
+  font-family:var(--mono);font-size:14px;
+  line-height:22px;
+  color:var(--text);
+  resize:none;
+  caret-color:var(--acc);
+  tab-size:2;
+  white-space:pre;
+  overflow-wrap:normal;
+  overflow-x:auto;
+  width:100%;
+}
+#mdEditor::placeholder{color:var(--text3);}
+#mdEditor::-webkit-scrollbar{display:none;}
+
+/* ── RESIZER ── */
+.resizer{
+  width:5px;
+  background:var(--border);
+  cursor:col-resize;
+  flex-shrink:0;
+  position:relative;
+  transition:background 0.15s;
+}
+.resizer:hover,.resizer.dragging{background:var(--acc);}
+.resizer::after{
+  content:'';
+  position:absolute;inset:-4px 0;
+}
+
+/* ── PREVIEW PANE ── */
+.preview-pane{
+  display:flex;flex-direction:column;
+  overflow:hidden;min-height:0;
+  background:var(--preview-bg);
+  transition:flex 0.25s ease;
+}
+.preview-pane.hidden{flex:0;overflow:hidden;}
+
+.preview-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;height:36px;
+  background:#f8f9fc;
+  border-bottom:1px solid var(--preview-border);
+  flex-shrink:0;
+}
+.preview-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  color:#94a3b8;font-family:var(--display);
+}
+
+.preview-scroll{
+  flex:1;overflow-y:auto;
+  padding:32px 48px 60px;
+  min-height:0;
+}
+.preview-scroll::-webkit-scrollbar{width:6px;}
+.preview-scroll::-webkit-scrollbar-thumb{background:#d1d9e6;border-radius:99px;}
+
+/* ── PROSE STYLES ── */
+.prose{
+  font-family:var(--prose);
+  font-size:16px;
+  line-height:1.8;
+  color:var(--preview-text);
+  max-width:680px;
+  margin:0 auto;
+}
+
+.prose h1{
+  font-family:var(--display);
+  font-size:2em;font-weight:800;
+  letter-spacing:-0.5px;
+  color:#0f172a;
+  margin:0 0 16px;
+  padding-bottom:12px;
+  border-bottom:2px solid #e2e8f0;
+  line-height:1.2;
+}
+.prose h2{
+  font-family:var(--display);
+  font-size:1.45em;font-weight:700;
+  color:#1e293b;
+  margin:32px 0 14px;
+  letter-spacing:-0.3px;
+  line-height:1.3;
+}
+.prose h3{
+  font-family:var(--display);
+  font-size:1.2em;font-weight:700;
+  color:#334155;
+  margin:24px 0 10px;
+}
+.prose h4{font-family:var(--display);font-size:1em;font-weight:700;color:#475569;margin:18px 0 8px;}
+.prose h5,.prose h6{font-family:var(--display);font-size:0.9em;font-weight:700;color:#64748b;margin:14px 0 6px;}
+
+.prose p{margin:0 0 18px;color:#374151;}
+.prose p:last-child{margin-bottom:0;}
+
+.prose a{color:var(--preview-accent);text-decoration:underline;text-decoration-color:rgba(37,99,235,0.3);transition:text-decoration-color 0.15s;}
+.prose a:hover{text-decoration-color:var(--preview-accent);}
+
+.prose strong{font-weight:700;color:#111827;}
+.prose em{font-style:italic;color:#374151;}
+.prose del{text-decoration:line-through;color:#94a3b8;}
+
+.prose ul,.prose ol{margin:0 0 18px;padding-left:28px;}
+.prose li{margin-bottom:6px;color:#374151;}
+.prose ul>li{list-style:disc;}
+.prose ol>li{list-style:decimal;}
+.prose li::marker{color:#94a3b8;}
+
+.prose blockquote{
+  border-left:3px solid var(--preview-accent);
+  margin:24px 0;padding:14px 20px;
+  background:#f8fafc;border-radius:0 8px 8px 0;
+  color:var(--preview-quote);
+  font-style:italic;
+}
+.prose blockquote p{margin:0;color:var(--preview-quote);}
+
+.prose code{
+  font-family:var(--mono);font-size:0.84em;
+  background:var(--preview-code);
+  color:#e11d48;padding:2px 6px;border-radius:4px;
+  border:1px solid #e5e9f2;
+}
+
+.prose pre{
+  background:#0f172a;
+  border-radius:10px;padding:20px 24px;
+  margin:20px 0;overflow-x:auto;
+  border:1px solid #1e293b;
+  position:relative;
+}
+.prose pre code{
+  font-family:var(--mono);font-size:13px;
+  background:none;color:#e2e8f0;
+  padding:0;border:none;border-radius:0;
+}
+.prose pre::before{
+  content:'';
+  position:absolute;top:12px;left:14px;
+  width:8px;height:8px;border-radius:50%;
+  background:#ef4444;
+  box-shadow:14px 0 0 #eab308,28px 0 0 #22c55e;
+}
+.prose pre code{display:block;margin-top:8px;}
+
+.prose hr{
+  border:none;
+  border-top:1px solid #e2e8f0;
+  margin:36px 0;
+}
+
+.prose table{
+  width:100%;border-collapse:collapse;
+  margin:20px 0;font-size:14px;
+  font-family:var(--display);
+}
+.prose th{
+  background:#f1f5f9;
+  padding:10px 14px;text-align:left;
+  font-weight:700;color:#374151;
+  border:1px solid #e2e8f0;
+  font-family:var(--display);font-size:13px;
+}
+.prose td{
+  padding:10px 14px;
+  border:1px solid #e2e8f0;
+  color:#4b5563;
+}
+.prose tr:nth-child(even) td{background:#f8fafc;}
+
+/* Task list */
+.prose .task-item{list-style:none;display:flex;align-items:flex-start;gap:8px;margin-left:-28px;padding-left:4px;}
+.prose .task-item input[type=checkbox]{width:15px;height:15px;margin-top:3px;accent-color:var(--preview-accent);flex-shrink:0;}
+
+/* Images */
+.prose img{max-width:100%;border-radius:8px;margin:16px 0;box-shadow:0 4px 20px rgba(0,0,0,0.08);}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  display:flex;align-items:center;gap:16px;
+  padding:0 16px;height:26px;
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+  font-family:var(--mono);font-size:10px;
+  color:var(--text3);
+}
+.sb-item{display:flex;align-items:center;gap:4px;}
+.sb-item span{color:var(--text2);}
+.sb-item .val{color:var(--acc);}
+.sb-sep{width:1px;height:10px;background:var(--border);}
+.sb-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+
+/* ── VIEW MODES ── */
+.view-btns{
+  display:flex;gap:2px;
+  background:var(--surface3);
+  border-radius:5px;padding:2px;
+}
+.view-btn{
+  padding:3px 9px;border-radius:3px;
+  font-size:10px;font-weight:700;
+  font-family:var(--display);
+  cursor:pointer;color:var(--text3);
+  border:none;background:transparent;
+  transition:all 0.15s;
+}
+.view-btn.active{background:var(--surface2);color:var(--acc);box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:36px;right:20px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text);padding:9px 15px;border-radius:7px;
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  transform:translateY(60px);opacity:0;
+  transition:all 0.3s cubic-bezier(.34,1.56,.64,1);
+  z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── FIND/REPLACE BAR ── */
+.find-bar{
+  display:none;
+  align-items:center;gap:8px;
+  padding:6px 14px;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.find-bar.show{display:flex;}
+.find-inp{
+  padding:5px 9px;border-radius:5px;
+  background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--mono);font-size:12px;
+  outline:none;width:180px;
+  transition:border-color 0.15s;
+}
+.find-inp:focus{border-color:var(--acc);}
+.find-inp::placeholder{color:var(--text3);}
+.find-count{font-family:var(--mono);font-size:10px;color:var(--text2);}
+.find-close{width:24px;height:24px;border-radius:4px;background:transparent;border:none;color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.find-close:hover{background:var(--surface3);color:var(--danger);}
+
+/* ── OUTLINE PANEL ── */
+.outline-panel{
+  width:0;overflow:hidden;
+  background:var(--bg2);border-left:1px solid var(--border);
+  transition:width 0.25s ease;flex-shrink:0;
+}
+.outline-panel.open{width:200px;}
+.outline-inner{padding:14px;width:200px;}
+.outline-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px;}
+.outline-item{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 6px;border-radius:4px;
+  font-size:11px;color:var(--text2);
+  cursor:pointer;transition:all 0.12s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border:none;background:transparent;width:100%;text-align:left;
+}
+.outline-item:hover{background:var(--surface2);color:var(--text);}
+.outline-item .h1{color:var(--acc);font-weight:700;font-size:10px;margin-right:2px;}
+.outline-item .h2{color:var(--acc2);font-weight:600;font-size:10px;margin-right:2px;margin-left:8px;}
+.outline-item .h3{color:var(--text3);font-weight:500;font-size:10px;margin-right:2px;margin-left:16px;}
+
+/* Smooth appearance */
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.prose>*{animation:fadeIn 0.2s ease both;}
+
+/* Responsive */
+@media(max-width:768px){
+  .preview-scroll{padding:20px 20px 40px;}
+  .line-nums{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a class="logo" href="#">
+    <div class="logo-mark">M↓</div>
+    <span class="logo-text">KJ<span>Synthora</span></span>
+  </a>
+  <div class="header-divider"></div>
+  <input type="text" class="doc-title" id="docTitle" placeholder="Untitled document" value="My Document">
+  <div class="header-right">
+    <div class="view-btns">
+      <button class="view-btn active" onclick="setView('split',this)">Split</button>
+      <button class="view-btn" onclick="setView('editor',this)">Edit</button>
+      <button class="view-btn" onclick="setView('preview',this)">Preview</button>
+    </div>
+    <div class="header-divider"></div>
+    <button class="h-btn" onclick="toggleOutline()" id="outlineBtn" title="Table of Contents">☰ Outline</button>
+    <button class="h-btn" onclick="exportMD()">📥 .md</button>
+    <button class="h-btn" onclick="exportHTML()">📤 HTML</button>
+    <button class="h-btn" onclick="copyHTML()" id="copyHTMLBtn">📋 Copy HTML</button>
+    <div class="header-divider"></div>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <!-- Heading select -->
+  <select class="tb-select" onchange="insertHeading(this.value);this.value=''" title="Heading">
+    <option value="">Heading</option>
+    <option value="1">H1 — Title</option>
+    <option value="2">H2 — Section</option>
+    <option value="3">H3 — Subsection</option>
+    <option value="4">H4</option>
+    <option value="5">H5</option>
+  </select>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="wrap('**','**')" data-tooltip="Bold (Ctrl+B)"><b>B</b></button>
+  <button class="tb-btn" onclick="wrap('*','*')" data-tooltip="Italic (Ctrl+I)"><i>I</i></button>
+  <button class="tb-btn" onclick="wrap('~~','~~')" data-tooltip="Strikethrough"><s>S</s></button>
+  <button class="tb-btn" onclick="wrap('`','`')" data-tooltip="Inline Code" style="font-size:11px;">&lt;/&gt;</button>
+  <button class="tb-btn" onclick="wrap('==','==')" data-tooltip="Highlight" style="color:var(--acc2);">H</button>
+  <button class="tb-btn" onclick="wrap('**_','_**')" data-tooltip="Bold Italic"><b><i>BI</i></b></button>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="insertLink()" data-tooltip="Insert Link">🔗</button>
+  <button class="tb-btn" onclick="insertImage()" data-tooltip="Insert Image">🖼</button>
+  <button class="tb-btn" onclick="insertTable()" data-tooltip="Insert Table">⊞</button>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="insertLine('- ')" data-tooltip="Bullet List">• —</button>
+  <button class="tb-btn" onclick="insertLine('1. ')" data-tooltip="Numbered List">1.</button>
+  <button class="tb-btn" onclick="insertLine('- [ ] ')" data-tooltip="Task List">☑</button>
+  <button class="tb-btn" onclick="insertLine('> ')" data-tooltip="Blockquote">❝</button>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="insertCodeBlock()" data-tooltip="Code Block" style="font-size:10px;">```</button>
+  <button class="tb-btn" onclick="insertLine('---\n')" data-tooltip="Horizontal Rule">—</button>
+  <button class="tb-btn" onclick="insertLine('| Col 1 | Col 2 |\n|-------|-------|\n| Data  | Data  |\n')" data-tooltip="Quick Table">▦</button>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="document.execCommand('undo')" data-tooltip="Undo (Ctrl+Z)">↩</button>
+  <button class="tb-btn" onclick="document.execCommand('redo')" data-tooltip="Redo (Ctrl+Y)">↪</button>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" onclick="toggleFind()" data-tooltip="Find (Ctrl+F)">🔍</button>
+  <button class="tb-btn" onclick="formatDocument()" data-tooltip="Format / Clean Up">✨</button>
+  <button class="tb-btn" onclick="insertSampleDoc()" data-tooltip="Load Sample Doc">📄</button>
+</div>
+
+<!-- FIND BAR -->
+<div class="find-bar" id="findBar">
+  <input type="text" class="find-inp" id="findInput" placeholder="Find…" oninput="doFind()">
+  <input type="text" class="find-inp" id="replaceInput" placeholder="Replace…" style="width:150px;">
+  <button class="h-btn" onclick="doReplace()">Replace</button>
+  <button class="h-btn" onclick="doReplaceAll()">All</button>
+  <span class="find-count" id="findCount"></span>
+  <button class="find-close" onclick="toggleFind()">✕</button>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainArea">
+
+  <!-- EDITOR -->
+  <div class="editor-pane" id="editorPane" style="flex:1;">
+    <div class="editor-scroll" id="editorScroll">
+      <div class="line-nums" id="lineNums">1</div>
+      <textarea id="mdEditor"
+        placeholder="Start writing Markdown…&#10;&#10;# Hello World&#10;&#10;Type here and see **live preview** on the right."
+        oninput="onEdit()"
+        onscroll="syncLN()"
+        onkeydown="onKey(event)"
+        spellcheck="false"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- RESIZER -->
+  <div class="resizer" id="resizer"></div>
+
+  <!-- PREVIEW -->
+  <div class="preview-pane" id="previewPane" style="flex:1;">
+    <div class="preview-header">
+      <span class="preview-label">Preview</span>
+      <span id="previewMeta" style="font-size:10px;color:#94a3b8;font-family:var(--mono);"></span>
+    </div>
+    <div class="preview-scroll">
+      <div class="prose" id="preview"></div>
+    </div>
+  </div>
+
+  <!-- OUTLINE -->
+  <div class="outline-panel" id="outlinePanel">
+    <div class="outline-inner">
+      <div class="outline-title">Table of Contents</div>
+      <div id="outlineList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="sb-item">Words: <span class="val" id="sbWords">0</span></div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">Chars: <span class="val" id="sbChars">0</span></div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">Lines: <span class="val" id="sbLines">0</span></div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">Read time: <span class="val" id="sbRead">0</span> min</div>
+  <div class="sb-right">
+    <div class="sb-item">Ln <span id="sbLn">1</span>, Col <span id="sbCol">1</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item">UTF-8</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item" id="sbSaved" style="color:var(--success);">✓ Saved</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════
+// MARKDOWN PARSER (no external deps)
+// ════════════════════════════
+function parseMarkdown(md){
+  let html = md;
+
+  // Escape HTML entities first (selective — keep < > for code)
+  const esc = s => s.replace(/&/g,'&amp;');
+
+  // Fenced code blocks
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<pre><code class="lang-${lang}">${escaped.trim()}</code></pre>`;
+  });
+
+  // Inline code (protect from further processing)
+  const codes = [];
+  html = html.replace(/`([^`]+)`/g, (_, c) => {
+    codes.push(`<code>${c.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code>`);
+    return `\x00CODE${codes.length-1}\x00`;
+  });
+
+  // Headers
+  html = html.replace(/^######\s(.+)$/gm,'<h6>$1</h6>');
+  html = html.replace(/^#####\s(.+)$/gm,'<h5>$1</h5>');
+  html = html.replace(/^####\s(.+)$/gm,'<h4>$1</h4>');
+  html = html.replace(/^###\s(.+)$/gm,'<h3>$1</h3>');
+  html = html.replace(/^##\s(.+)$/gm,'<h2>$1</h2>');
+  html = html.replace(/^#\s(.+)$/gm,'<h1>$1</h1>');
+
+  // Horizontal rule
+  html = html.replace(/^(-{3,}|_{3,}|\*{3,})$/gm,'<hr>');
+
+  // Blockquotes
+  html = html.replace(/^&gt;\s?(.+)$/gm,'<blockquote><p>$1</p></blockquote>');
+  html = html.replace(/^> ?(.+)$/gm,'<blockquote><p>$1</p></blockquote>');
+  // Merge consecutive blockquotes
+  html = html.replace(/<\/blockquote>\n<blockquote>/g,'\n');
+
+  // Tables
+  html = html.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g, (match, header, rows) => {
+    const heads = header.split('|').filter(h=>h.trim()).map(h=>`<th>${h.trim()}</th>`).join('');
+    const rowsHTML = rows.trim().split('\n').map(row => {
+      const cells = row.split('|').filter(c=>c.trim()).map(c=>`<td>${c.trim()}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${heads}</tr></thead><tbody>${rowsHTML}</tbody></table>`;
+  });
+
+  // Task lists
+  html = html.replace(/^- \[x\] (.+)$/gim,'<li class="task-item"><input type="checkbox" checked disabled> $1</li>');
+  html = html.replace(/^- \[ \] (.+)$/gim,'<li class="task-item"><input type="checkbox" disabled> $1</li>');
+
+  // Unordered lists
+  html = html.replace(/^(\s*)[-*+]\s+(.+)$/gm, (_, indent, item) => `<li style="margin-left:${indent.length*8}px">${item}</li>`);
+
+  // Ordered lists
+  html = html.replace(/^(\s*)\d+\.\s+(.+)$/gm, (_, indent, item) => `<oli style="margin-left:${indent.length*8}px">${item}</oli>`);
+
+  // Wrap li groups in ul
+  html = html.replace(/((?:<li[^>]*>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+  html = html.replace(/((?:<oli[^>]*>.*<\/oli>\n?)+)/g, (match) => '<ol>' + match.replace(/<oli/g,'<li').replace(/<\/oli>/g,'</li>') + '</ol>');
+
+  // Bold italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  html = html.replace(/___(.+?)___/g,'<strong><em>$1</em></strong>');
+
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  html = html.replace(/__(.+?)__/g,'<strong>$1</strong>');
+
+  // Italic
+  html = html.replace(/\*([^*\n]+?)\*/g,'<em>$1</em>');
+  html = html.replace(/_([^_\n]+?)_/g,'<em>$1</em>');
+
+  // Strikethrough
+  html = html.replace(/~~(.+?)~~/g,'<del>$1</del>');
+
+  // Highlight
+  html = html.replace(/==(.+?)==/g,'<mark>$1</mark>');
+
+  // Links with image check
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1">');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  // Autolinks
+  html = html.replace(/(?<![="'])https?:\/\/[^\s<>"']+/g,'<a href="$&" target="_blank">$&</a>');
+
+  // Restore inline codes
+  codes.forEach((c,i)=>{ html = html.replace(`\x00CODE${i}\x00`, c); });
+
+  // Paragraphs — wrap orphan lines
+  const lines = html.split('\n');
+  const out = [];
+  let inBlock = false;
+  let para = [];
+
+  const blockTags = /^<(h[1-6]|ul|ol|li|blockquote|pre|table|hr|img)/;
+
+  for(const line of lines){
+    if(blockTags.test(line.trim()) || line.trim() === ''){
+      if(para.length){
+        out.push('<p>'+para.join(' ')+'</p>');
+        para = [];
+      }
+      if(line.trim()) out.push(line);
+    } else {
+      para.push(line);
+    }
+  }
+  if(para.length) out.push('<p>'+para.join(' ')+'</p>');
+
+  return out.join('\n');
+}
+
+// ════════════════════════════
+// STATE
+// ════════════════════════════
+let viewMode = 'split';
+let outlineOpen = false;
+let saveTimer = null;
+let findMatches = [];
+let findIdx = 0;
+let isDragging = false;
+let darkTheme = true;
+
+const editor = document.getElementById('mdEditor');
+const previewEl = document.getElementById('preview');
+const lineNums = document.getElementById('lineNums');
+
+// ════════════════════════════
+// RENDER
+// ════════════════════════════
+function render(){
+  const md = editor.value;
+  const html = parseMarkdown(md);
+  previewEl.innerHTML = html;
+  updateStats(md);
+  updateLineNums(md);
+  updateOutline();
+  markSaving();
+}
+
+function onEdit(){
+  render();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDoc, 1000);
+  updateCursor();
+}
+
+// ════════════════════════════
+// STATS
+// ════════════════════════════
+function updateStats(md){
+  const words = md.trim() ? md.trim().split(/\s+/).length : 0;
+  const chars = md.length;
+  const lines = md.split('\n').length;
+  const readTime = Math.max(1, Math.ceil(words / 200));
+  document.getElementById('sbWords').textContent = words.toLocaleString();
+  document.getElementById('sbChars').textContent = chars.toLocaleString();
+  document.getElementById('sbLines').textContent = lines;
+  document.getElementById('sbRead').textContent = readTime;
+  document.getElementById('previewMeta').textContent = `${words} words · ${readTime} min read`;
+}
+
+function updateCursor(){
+  const val = editor.value;
+  const pos = editor.selectionStart;
+  const before = val.substring(0,pos);
+  const ln = before.split('\n').length;
+  const col = before.split('\n').pop().length + 1;
+  document.getElementById('sbLn').textContent = ln;
+  document.getElementById('sbCol').textContent = col;
+}
+editor.addEventListener('click', updateCursor);
+editor.addEventListener('keyup', updateCursor);
+
+// ════════════════════════════
+// LINE NUMBERS
+// ════════════════════════════
+function updateLineNums(md){
+  const count = md.split('\n').length;
+  lineNums.textContent = Array.from({length:count},(_,i)=>i+1).join('\n');
+}
+
+function syncLN(){
+  lineNums.scrollTop = editor.scrollTop;
+}
+
+// ════════════════════════════
+// OUTLINE
+// ════════════════════════════
+function updateOutline(){
+  const md = editor.value;
+  const headings = [...md.matchAll(/^(#{1,3})\s+(.+)$/gm)];
+  const list = document.getElementById('outlineList');
+  list.innerHTML = headings.map(m => {
+    const level = m[1].length;
+    const text = m[2];
+    const cls = ['h1','h2','h3'][level-1];
+    return `<button class="outline-item" onclick="jumpToHeading('${text.replace(/'/g,"\\'")}')">
+      <span class="${cls}">${'#'.repeat(level)}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;">${text}</span>
+    </button>`;
+  }).join('') || '<div style="font-size:11px;color:var(--text3);padding:4px;">No headings yet</div>';
+}
+
+function jumpToHeading(text){
+  const lines = editor.value.split('\n');
+  for(let i=0;i<lines.length;i++){
+    if(lines[i].includes(text)){
+      const pos = lines.slice(0,i).join('\n').length + 1;
+      editor.focus();
+      editor.setSelectionRange(pos, pos);
+      const lineH = 22;
+      editor.scrollTop = i * lineH - 100;
+      break;
+    }
+  }
+}
+
+function toggleOutline(){
+  outlineOpen = !outlineOpen;
+  document.getElementById('outlinePanel').classList.toggle('open', outlineOpen);
+  document.getElementById('outlineBtn').classList.toggle('active', outlineOpen);
+}
+
+// ════════════════════════════
+// INSERT HELPERS
+// ════════════════════════════
+function getSelection(){
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const val = editor.value;
+  return {start, end, selected: val.slice(start,end), before: val.slice(0,start), after: val.slice(end)};
+}
+
+function setEditorValue(val, cursorPos){
+  editor.value = val;
+  if(cursorPos !== undefined) editor.setSelectionRange(cursorPos, cursorPos);
+  editor.focus();
+  render();
+}
+
+function wrap(before, after){
+  const {start, end, selected, before:b, after:a} = getSelection();
+  const newVal = b + before + (selected || 'text') + after + a;
+  const cursor = selected ? end + before.length + after.length : start + before.length + 4;
+  setEditorValue(newVal, cursor);
+}
+
+function insertLine(prefix){
+  const {start, before, after} = getSelection();
+  const lineStart = before.lastIndexOf('\n') + 1;
+  const newVal = editor.value.slice(0, lineStart) + prefix + editor.value.slice(lineStart);
+  setEditorValue(newVal, lineStart + prefix.length + (start - lineStart));
+}
+
+function insertHeading(level){
+  if(!level) return;
+  const prefix = '#'.repeat(parseInt(level)) + ' ';
+  const {before} = getSelection();
+  const lineStart = before.lastIndexOf('\n') + 1;
+  const lineEnd = editor.value.indexOf('\n', lineStart);
+  const end = lineEnd === -1 ? editor.value.length : lineEnd;
+  const line = editor.value.slice(lineStart, end).replace(/^#+\s*/, '');
+  const newVal = editor.value.slice(0, lineStart) + prefix + line + editor.value.slice(end);
+  setEditorValue(newVal, lineStart + prefix.length + line.length);
+}
+
+function insertCodeBlock(){
+  const {start, end, selected, before, after} = getSelection();
+  const code = selected || 'code here';
+  const block = '```javascript\n' + code + '\n```\n';
+  const newVal = before + '\n' + block + after;
+  setEditorValue(newVal, before.length + 1 + '```javascript\n'.length + code.length);
+}
+
+function insertLink(){
+  const {selected, before, after} = getSelection();
+  const txt = selected || 'link text';
+  const block = `[${txt}](https://example.com)`;
+  const newVal = before + block + after;
+  setEditorValue(newVal, before.length + block.length);
+}
+
+function insertImage(){
+  const {before, after} = getSelection();
+  const block = `![alt text](https://via.placeholder.com/600x300)`;
+  const newVal = before + block + after;
+  setEditorValue(newVal, before.length + block.length);
+}
+
+function insertTable(){
+  const tbl = `\n| Column 1 | Column 2 | Column 3 |\n|----------|----------|----------|\n| Row 1    | Data     | Data     |\n| Row 2    | Data     | Data     |\n`;
+  const {before, after} = getSelection();
+  setEditorValue(before + tbl + after, before.length + tbl.length);
+}
+
+// ════════════════════════════
+// KEYBOARD SHORTCUTS
+// ════════════════════════════
+function onKey(e){
+  const ctrl = e.ctrlKey || e.metaKey;
+  if(ctrl && e.key === 'b'){ e.preventDefault(); wrap('**','**'); }
+  if(ctrl && e.key === 'i'){ e.preventDefault(); wrap('*','*'); }
+  if(ctrl && e.key === 'k'){ e.preventDefault(); insertLink(); }
+  if(ctrl && e.key === 'f'){ e.preventDefault(); toggleFind(); }
+  if(ctrl && e.key === 's'){ e.preventDefault(); saveDoc(); toast('✅ Saved!'); }
+  if(ctrl && e.key === 'z'){ setTimeout(()=>{render();},0); }
+
+  // Tab key
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    const {start, before, after} = getSelection();
+    setEditorValue(before + '  ' + after, start + 2);
+  }
+
+  // Auto-pairs
+  const pairs = {'(':')','{':'}','[':']','"':'"',"'":"'",'`':'`'};
+  if(pairs[e.key]){
+    const {start, end, selected} = getSelection();
+    if(selected){
+      e.preventDefault();
+      wrap(e.key, pairs[e.key]);
+    }
+  }
+}
+
+// ════════════════════════════
+// FIND & REPLACE
+// ════════════════════════════
+function toggleFind(){
+  const bar = document.getElementById('findBar');
+  bar.classList.toggle('show');
+  if(bar.classList.contains('show')) document.getElementById('findInput').focus();
+}
+
+function doFind(){
+  const q = document.getElementById('findInput').value;
+  findMatches = [];
+  findIdx = 0;
+  if(!q){ document.getElementById('findCount').textContent=''; return; }
+  const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+  let m;
+  while((m = re.exec(editor.value)) !== null) findMatches.push(m.index);
+  document.getElementById('findCount').textContent = findMatches.length ? `${findIdx+1}/${findMatches.length}` : 'Not found';
+  if(findMatches.length){
+    editor.setSelectionRange(findMatches[0], findMatches[0]+q.length);
+    editor.focus();
+  }
+}
+
+function doReplace(){
+  const q = document.getElementById('findInput').value;
+  const r = document.getElementById('replaceInput').value;
+  if(!q) return;
+  const pos = findMatches[findIdx];
+  if(pos === undefined) return;
+  const val = editor.value;
+  editor.value = val.slice(0,pos) + r + val.slice(pos+q.length);
+  render();
+  doFind();
+}
+
+function doReplaceAll(){
+  const q = document.getElementById('findInput').value;
+  const r = document.getElementById('replaceInput').value;
+  if(!q) return;
+  const count = findMatches.length;
+  editor.value = editor.value.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'), r);
+  render();
+  doFind();
+  toast(`✅ Replaced ${count} occurrences`);
+}
+
+// ════════════════════════════
+// VIEW MODES
+// ════════════════════════════
+function setView(mode, btn){
+  viewMode = mode;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const ep = document.getElementById('editorPane');
+  const pp = document.getElementById('previewPane');
+  const rz = document.getElementById('resizer');
+  if(mode === 'split'){
+    ep.style.flex='1';ep.style.overflow='';
+    pp.style.flex='1';pp.style.overflow='';
+    rz.style.display='';
+  } else if(mode === 'editor'){
+    ep.style.flex='1';ep.style.overflow='';
+    pp.style.flex='0';pp.style.overflow='hidden';
+    rz.style.display='none';
+  } else {
+    ep.style.flex='0';ep.style.overflow='hidden';
+    pp.style.flex='1';pp.style.overflow='';
+    rz.style.display='none';
+  }
+}
+
+// ════════════════════════════
+// RESIZER
+// ════════════════════════════
+const resizer = document.getElementById('resizer');
+let startX, startLeftW, startRightW;
+
+resizer.addEventListener('mousedown', e=>{
+  isDragging = true;
+  startX = e.clientX;
+  startLeftW = document.getElementById('editorPane').getBoundingClientRect().width;
+  startRightW = document.getElementById('previewPane').getBoundingClientRect().width;
+  resizer.classList.add('dragging');
+  document.body.style.userSelect = 'none';
+  document.body.style.cursor = 'col-resize';
+});
+
+document.addEventListener('mousemove', e=>{
+  if(!isDragging) return;
+  const delta = e.clientX - startX;
+  const ep = document.getElementById('editorPane');
+  const pp = document.getElementById('previewPane');
+  const total = startLeftW + startRightW;
+  const newLeft = Math.max(200, Math.min(total - 200, startLeftW + delta));
+  const newRight = total - newLeft;
+  ep.style.flex = 'none';
+  ep.style.width = newLeft + 'px';
+  pp.style.flex = '1';
+});
+
+document.addEventListener('mouseup', ()=>{
+  isDragging = false;
+  resizer.classList.remove('dragging');
+  document.body.style.userSelect = '';
+  document.body.style.cursor = '';
+});
+
+// ════════════════════════════
+// THEME
+// ════════════════════════════
+function toggleTheme(){
+  darkTheme = !darkTheme;
+  document.body.classList.toggle('light', !darkTheme);
+  document.getElementById('themeBtn').textContent = darkTheme ? '🌙' : '☀️';
+  toast(darkTheme ? '🌙 Dark theme' : '☀️ Light theme');
+}
+
+// ════════════════════════════
+// SAVE (localStorage)
+// ════════════════════════════
+function saveDoc(){
+  const data = {
+    title: document.getElementById('docTitle').value,
+    content: editor.value,
+    saved: Date.now()
+  };
+  localStorage.setItem('kjsynthora_md', JSON.stringify(data));
+  document.getElementById('sbSaved').textContent = '✓ Saved ' + new Date().toLocaleTimeString();
+}
+
+function loadDoc(){
+  try {
+    const data = JSON.parse(localStorage.getItem('kjsynthora_md')||'{}');
+    if(data.content) editor.value = data.content;
+    if(data.title) document.getElementById('docTitle').value = data.title;
+  } catch(e){}
+}
+
+function markSaving(){
+  document.getElementById('sbSaved').textContent = '● Unsaved';
+  document.getElementById('sbSaved').style.color = 'var(--acc2)';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    saveDoc();
+    document.getElementById('sbSaved').textContent = '✓ Saved';
+    document.getElementById('sbSaved').style.color = 'var(--success)';
+  }, 1200);
+}
+
+// ════════════════════════════
+// EXPORT
+// ════════════════════════════
+function exportMD(){
+  const title = document.getElementById('docTitle').value || 'document';
+  const blob = new Blob([editor.value], {type:'text/markdown'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = title.replace(/\s+/g,'-').toLowerCase() + '.md';
+  a.click();
+  toast('📥 Exported as .md!');
+}
+
+function exportHTML(){
+  const title = document.getElementById('docTitle').value || 'Document';
+  const content = parseMarkdown(editor.value);
+  const full = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lora',serif;background:#fff;color:#1a1f2e;padding:48px 24px;line-height:1.8;}
+  .prose{max-width:680px;margin:0 auto;}
+  h1,h2,h3,h4,h5,h6{font-family:'Manrope',sans-serif;margin-top:28px;margin-bottom:12px;color:#0f172a;}
+  h1{font-size:2em;border-bottom:2px solid #e2e8f0;padding-bottom:10px;}
+  h2{font-size:1.5em;}h3{font-size:1.2em;}
+  p{margin-bottom:16px;color:#374151;}
+  a{color:#2563eb;}
+  code{font-family:'IBM Plex Mono',monospace;background:#f3f4f9;padding:2px 5px;border-radius:4px;color:#e11d48;font-size:0.85em;}
+  pre{background:#0f172a;color:#e2e8f0;padding:20px;border-radius:10px;overflow-x:auto;margin:16px 0;}
+  pre code{background:none;color:#e2e8f0;padding:0;}
+  blockquote{border-left:3px solid #2563eb;padding:12px 18px;background:#f8fafc;margin:20px 0;font-style:italic;color:#64748b;}
+  ul,ol{padding-left:28px;margin-bottom:16px;}li{margin-bottom:5px;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;}
+  th{background:#f1f5f9;padding:10px;border:1px solid #e2e8f0;font-family:'Manrope',sans-serif;}
+  td{padding:10px;border:1px solid #e2e8f0;}
+  hr{border:none;border-top:1px solid #e2e8f0;margin:32px 0;}
+  img{max-width:100%;border-radius:8px;margin:12px 0;}
+</style>
+</head>
+<body>
+<div class="prose">
+${content}
+</div>
+</body>
+</html>`;
+  const blob = new Blob([full], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (title.replace(/\s+/g,'-').toLowerCase()) + '.html';
+  a.click();
+  toast('📤 Exported as HTML!');
+}
+
+function copyHTML(){
+  const html = parseMarkdown(editor.value);
+  navigator.clipboard.writeText(html);
+  const btn = document.getElementById('copyHTMLBtn');
+  btn.textContent = '✓ Copied!';
+  setTimeout(()=>btn.textContent='📋 Copy HTML', 2000);
+  toast('📋 HTML copied to clipboard!');
+}
+
+// ════════════════════════════
+// FORMAT DOCUMENT
+// ════════════════════════════
+function formatDocument(){
+  let md = editor.value;
+  // Remove excessive blank lines (max 2)
+  md = md.replace(/\n{3,}/g,'\n\n');
+  // Trim trailing spaces
+  md = md.split('\n').map(l=>l.trimEnd()).join('\n');
+  // Ensure newline at end
+  if(!md.endsWith('\n')) md += '\n';
+  editor.value = md;
+  render();
+  toast('✨ Document formatted!');
+}
+
+// ════════════════════════════
+// SAMPLE DOCUMENT
+// ════════════════════════════
+function insertSampleDoc(){
+  editor.value = `# Welcome to KJSynthora Markdown Editor
+
+> A powerful, distraction-free writing environment with live preview.
+
+## Features
+
+- **Live Preview** — See your rendered markdown instantly
+- **Syntax Highlighting** — Code blocks with language support
+- **Export Options** — Save as .md or .html
+- **Auto-save** — Never lose your work
+
+## Getting Started
+
+Type your content in the editor on the left. The preview updates in real-time on the right.
+
+### Text Formatting
+
+You can use **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
+
+Combine them for ***bold italic*** or ~~**bold strikethrough**~~.
+
+### Code Blocks
+
+\`\`\`javascript
+// KJSynthora example
+const greeting = (name) => {
+  return \`Hello, \${name}! Welcome to the editor.\`;
+};
+
+console.log(greeting('World'));
+\`\`\`
+
+### Tables
+
+| Tool | Purpose | Status |
+|------|---------|--------|
+| Regex Tester | Pattern matching | ✅ Live |
+| JSON Formatter | Format & validate | ✅ Live |
+| Tax Engine | India tax calc | ✅ Live |
+
+### Task List
+
+- [x] Build the editor
+- [x] Add live preview
+- [x] Export to HTML
+- [ ] Add collaborative editing
+- [ ] Publish to KJSynthora
+
+### Blockquote
+
+> "The best tool is the one you actually use."
+> — Every developer ever
+
+---
+
+## Links & Images
+
+Visit [KJSynthora](https://kjsynthora.com) for more tools.
+
+![Placeholder](https://via.placeholder.com/600x200/0f172a/38bdf8?text=KJSynthora+Markdown+Editor)
+
+## Math & More
+
+Use \`==highlighted text==\` for highlights.
+
+---
+
+*Start writing your document below this line ↓*
+`;
+  document.getElementById('docTitle').value = 'KJSynthora Sample Doc';
+  render();
+  toast('📄 Sample document loaded!');
+}
+
+// ════════════════════════════
+// TOAST
+// ════════════════════════════
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// ════════════════════════════
+// GLOBAL SHORTCUTS
+// ════════════════════════════
+document.addEventListener('keydown', e=>{
+  const ctrl = e.ctrlKey||e.metaKey;
+  if(ctrl && e.key==='s'){ e.preventDefault(); saveDoc(); toast('✅ Saved!'); }
+  if(ctrl && e.key==='f'){ e.preventDefault(); toggleFind(); }
+  if(ctrl && e.shiftKey && e.key==='P'){ e.preventDefault(); setView('preview', document.querySelectorAll('.view-btn')[2]); }
+  if(ctrl && e.shiftKey && e.key==='E'){ e.preventDefault(); setView('editor', document.querySelectorAll('.view-btn')[1]); }
+});
+
+// ════════════════════════════
+// INIT
+// ════════════════════════════
+loadDoc();
+if(!editor.value){
+  editor.value = `# Hello, World!
+
+Start writing your **Markdown** here.
+
+- Use the toolbar above to format text
+- Click *Preview* to see the full preview
+- Use \`Ctrl+S\` to save
+
+\`\`\`js
+console.log("Welcome to KJSynthora!");
+\`\`\`
+`;
+}
+render();
+updateCursor();
+</script>
+</body>
+</html>
