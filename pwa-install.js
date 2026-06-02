@@ -24,6 +24,13 @@
           });
         })
         .catch(err => console.warn('[PWA] SW registration failed:', err));
+       navigator.serviceWorker.addEventListener('message', event => {
+        if (!event.data) return;
+        // handle చేయి, return true వేయకు
+        if (event.data.type === 'SKIP_WAITING') {
+          window.location.reload();
+        }
+      });    
     });
   }
 
