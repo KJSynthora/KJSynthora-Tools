@@ -1,12 +1,10 @@
 /* ═══════════════════════════════════════════════════════
-   KJSynthora Service Worker — v1.0
-   Strategy: Cache-first for assets, Network-first for pages
+   KJSynthora Service Worker — v1.1 (Fixed)
 ═══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'kjsynthora-v1';
+const CACHE_NAME = 'kjsynthora-v2';
 const OFFLINE_URL = '/offline.html';
 
-// Static assets to pre-cache on install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -17,7 +15,7 @@ const PRECACHE_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap'
 ];
 
-// ── Install: pre-cache core assets ──────────────────────
+// ── Install ──────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -28,7 +26,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// ── Activate: delete old caches ──────────────────────────
+// ── Activate ─────────────────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -39,23 +37,25 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: smart caching strategy ───────────────────────
+// ── Fetch ────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET, browser extensions, analytics
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
-  if (url.hostname.includes('google-analytics') ||
-      url.hostname.includes('googletagmanager') ||
-      url.hostname.includes('doubleclick')) return;
+  if (
+    url.hostname.includes('google-analytics') ||
+    url.hostname.includes('googletagmanager') ||
+    url.hostname.includes('doubleclick')
+  ) return;
 
-  // HTML pages → Network first, fallback to cache, then offline page
+  // HTML → Network first
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
       fetch(request)
         .then(res => {
+          // ✅ FIX: clone BEFORE doing anything else with res
           const clone = res.clone();
           caches.open(CACHE_NAME).then(c => c.put(request, clone));
           return res;
@@ -69,15 +69,19 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Fonts & CDN assets → Cache first
-  if (url.hostname.includes('fonts.googleapis.com') ||
-      url.hostname.includes('fonts.gstatic.com') ||
-      url.hostname.includes('cdnjs.cloudflare.com')) {
+  // Fonts & CDN → Cache first
+  if (
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com') ||
+    url.hostname.includes('cdnjs.cloudflare.com')
+  ) {
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
         return fetch(request).then(res => {
-          caches.open(CACHE_NAME).then(c => c.put(request, res.clone()));
+          // ✅ FIX: clone immediately, return original
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(request, clone));
           return res;
         });
       })
@@ -85,16 +89,20 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // JS/CSS/Images → Cache first, update in background (stale-while-revalidate)
-  if (request.destination === 'script' ||
-      request.destination === 'style' ||
-      request.destination === 'image') {
+  // JS/CSS/Images → Stale-while-revalidate
+  if (
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'image'
+  ) {
     event.respondWith(
       caches.match(request).then(cached => {
         const fetchPromise = fetch(request).then(res => {
-          caches.open(CACHE_NAME).then(c => c.put(request, res.clone()));
+          // ✅ FIX: always clone before caching
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(request, clone));
           return res;
-        });
+        }).catch(() => cached); // graceful fallback
         return cached || fetchPromise;
       })
     );
@@ -107,9 +115,26 @@ self.addEventListener('fetch', event => {
   );
 });
 
+// ── Message Handler (fixes "channel closed" error) ───────
+self.addEventListener('message', event => {
+  // ✅ FIX: handle messages so channel doesn't close unexpectedly
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  // Always respond if a port is waiting
+  if (event.ports && event.ports[0]) {
+    event.ports[0].postMessage({ status: 'ok' });
+  }
+});
+
 // ── Push Notifications ───────────────────────────────────
 self.addEventListener('push', event => {
-  let data = { title: 'KJSynthora', body: 'New tool available!', icon: '/logo.png', url: '/' };
+  let data = {
+    title: 'KJSynthora',
+    body: 'New tool available!',
+    icon: '/logo.png',
+    url: '/'
+  };
   try { data = { ...data, ...event.data.json() }; } catch(e) {}
 
   event.waitUntil(
@@ -127,7 +152,7 @@ self.addEventListener('push', event => {
   );
 });
 
-// ── Notification click ───────────────────────────────────
+// ── Notification Click ───────────────────────────────────
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   if (event.action === 'close') return;
@@ -143,7 +168,7 @@ self.addEventListener('notificationclick', event => {
   );
 });
 
-// ── Background Sync (offline form submissions) ───────────
+// ── Background Sync ──────────────────────────────────────
 self.addEventListener('sync', event => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
@@ -151,6 +176,5 @@ self.addEventListener('sync', event => {
 });
 
 async function doBackgroundSync() {
-  // Placeholder — extend for offline form queue if needed
   console.log('[SW] Background sync fired');
 }
