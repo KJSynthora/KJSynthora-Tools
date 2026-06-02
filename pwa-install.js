@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
-   KJSynthora PWA Install + Notification Manager — v1.0
-   Add this script to your index.html (before </body>)
+   KJSynthora PWA Install + Notification Manager — v1.1
+   Fixed: message channel closed error + null checks
 ═══════════════════════════════════════════════════════ */
 
 (function () {
@@ -13,24 +13,30 @@
         .then(reg => {
           console.log('[PWA] Service Worker registered:', reg.scope);
 
-          // Check for SW update
+          // ✅ FIX: null check for reg.installing
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
+            if (!newWorker) return;
+
             newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              if (
+                newWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
                 showUpdateBanner();
               }
             });
           });
         })
         .catch(err => console.warn('[PWA] SW registration failed:', err));
-       navigator.serviceWorker.addEventListener('message', event => {
+
+      // ✅ FIX: SW message listener — prevents "message channel closed" error
+      navigator.serviceWorker.addEventListener('message', event => {
         if (!event.data) return;
-        // handle చేయి, return true వేయకు
         if (event.data.type === 'SKIP_WAITING') {
           window.location.reload();
         }
-      });    
+      });
     });
   }
 
@@ -47,16 +53,12 @@
     deferredPrompt = null;
     hideInstallBanner();
     showToast('✅ KJSynthora installed! Find it on your home screen.');
-    // Analytics event
     if (typeof gtag !== 'undefined') gtag('event', 'pwa_installed');
   });
 
   function showInstallBanner() {
-    // Don't show if already in standalone mode
     if (window.matchMedia('(display-mode: standalone)').matches) return;
-    // Don't show if dismissed recently
     if (localStorage.getItem('pwa-dismissed') > Date.now() - 7*24*60*60*1000) return;
-
     const banner = document.getElementById('pwa-install-banner');
     if (banner) {
       banner.style.display = 'flex';
@@ -114,19 +116,26 @@
       } else {
         showToast('Notifications blocked. Enable in browser settings anytime.');
       }
+    },
+
+    applyUpdate: function () {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+      window.location.reload();
     }
   };
 
   async function subscribeToPush() {
     try {
       const reg = await navigator.serviceWorker.ready;
-      // Replace VAPID_PUBLIC_KEY with your actual key from web-push library
       const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       });
-      // Send subscription to your server
       await fetch('/api/push-subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,17 +157,13 @@
   // ── Update Banner ────────────────────────────────────────
   function showUpdateBanner() {
     const el = document.getElementById('pwa-update-banner');
-    if (el) { el.style.display = 'flex'; setTimeout(() => el.classList.add('pwa-show'), 100); }
+    if (el) {
+      el.style.display = 'flex';
+      setTimeout(() => el.classList.add('pwa-show'), 100);
+    }
   }
 
-  window.kjPWA.applyUpdate = function () {
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg && reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
-    });
-    window.location.reload();
-  };
-
-  // ── Toast helper (standalone, no dependency) ────────────
+  // ── Toast helper ─────────────────────────────────────────
   function showToast(msg) {
     let t = document.getElementById('pwa-toast');
     if (!t) {
@@ -172,8 +177,14 @@
       document.body.appendChild(t);
     }
     t.textContent = msg;
-    requestAnimationFrame(() => { t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
-    setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(30px)'; }, 3500);
+    requestAnimationFrame(() => {
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(30px)';
+    }, 3500);
   }
 
   // ── Online/Offline status indicator ─────────────────────
