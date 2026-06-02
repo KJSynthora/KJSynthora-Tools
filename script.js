@@ -10,127 +10,75 @@ async function convertToPDF() {
 
   const files = input.files;
 
-  if(files.length === 0){
+  if (files.length === 0) {
     alert("Select images first");
     return;
   }
 
-  // Loading message
   const loading = document.getElementById("loading");
+  if (loading) loading.style.display = "block";
 
-  if(loading){
-    loading.style.display = "block";
-  }
-
-  for(let i = 0; i < files.length; i++){
+  for (let i = 0; i < files.length; i++) {
 
     const file = files[i];
-
     const reader = new FileReader();
-
     reader.readAsDataURL(file);
 
     await new Promise(resolve => {
 
-      reader.onload = function(e){
+      reader.onload = function (e) {
 
         const img = new Image();
-
         img.src = e.target.result;
 
-        img.onload = function(){
+        img.onload = function () {
 
-          if(i > 0){
-            pdf.addPage();
-          }
+          if (i > 0) pdf.addPage();
 
-          // Auto image sizing
           const imgWidth = 190;
-
           const pageHeight = 295;
+          const imgHeight = (img.height * imgWidth) / img.width;
+          const finalHeight = imgHeight > pageHeight ? pageHeight : imgHeight;
 
-          const imgHeight =
-          (img.height * imgWidth) / img.width;
-
-          let finalHeight = imgHeight;
-
-          if(finalHeight > pageHeight){
-            finalHeight = pageHeight;
-          }
-
-          pdf.addImage(
-            img,
-            'JPEG',
-            10,
-            10,
-            imgWidth,
-            finalHeight
-          );
-
+          pdf.addImage(img, 'JPEG', 10, 10, imgWidth, finalHeight);
           resolve();
-        }
-      }
+        };
+      };
     });
   }
 
   pdf.save("KJSynthora.pdf");
 
-  // Hide loading
-  if(loading){
-    loading.style.display = "none";
+  if (loading) loading.style.display = "none";
+}
+
+
+
+// ========================= TOOL SEARCH (Toolbar) =========================
+
+function searchTools() {
+
+  const input = document.getElementById("toolSearch");
+  if (!input) return; // ✅ null check
+
+  const query = input.value.toLowerCase();
+  const cards = document.querySelectorAll(".tool-card");
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const text = card.innerText.toLowerCase();
+    if (text.includes(query)) {
+      card.style.display = "";
+      visibleCount++;
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  const noResults = document.getElementById("noResults");
+  if (noResults) {
+    noResults.style.display = visibleCount === 0 ? "block" : "none";
   }
-}
-
-
-
-// ========================= TOOL SEARCH =========================
-
-function searchTools(){
-
-let input =
-document.getElementById("toolSearch")
-.value
-.toLowerCase();
-
-let cards =
-document.querySelectorAll(".tool-card");
-
-let visibleCount = 0;
-
-cards.forEach(card=>{
-
-let text =
-card.innerText.toLowerCase();
-
-if(text.includes(input)){
-
-card.style.display = "";
-
-visibleCount++;
-
-}
-else{
-
-card.style.display = "none";
-
-}
-
-});
-
-const noResults =
-document.getElementById("noResults");
-
-if(visibleCount === 0){
-
-noResults.style.display = "block";
-
-}
-else{
-
-noResults.style.display = "none";
-
-}
-
 }
 
 
@@ -141,169 +89,108 @@ async function updateClock() {
 
   try {
 
-    const response =
-    await fetch("https://ipapi.co/json/");
-
+    const response = await fetch("https://ipapi.co/json/");
     const data = await response.json();
 
     const country = data.country_name;
-
     const countryCode = data.country_code;
-
     const timezone = data.timezone;
 
     const now = new Date();
 
     const options = {
-
       weekday: 'long',
-
       year: 'numeric',
-
       month: 'long',
-
       day: 'numeric',
-
       hour: 'numeric',
-
       minute: 'numeric',
-
       second: 'numeric',
-
       hour12: true,
-
       timeZone: timezone
-
     };
 
-    const time =
-    now.toLocaleString('en-US', options);
+    const time = now.toLocaleString('en-US', options);
 
-    // Country Flag
     const flag = countryCode
-    .toUpperCase()
-    .replace(/./g, char =>
-      String.fromCodePoint(
-        127397 + char.charCodeAt()
-      )
-    );
+      .toUpperCase()
+      .replace(/./g, char =>
+        String.fromCodePoint(127397 + char.charCodeAt())
+      );
 
-    const clock =
-    document.getElementById("clock");
-
-    if(clock){
-
-      clock.innerHTML = `
-      ${flag} ${country}<br>
-      ${time}
-      `;
-
+    const clock = document.getElementById("clock");
+    if (clock) {
+      clock.innerHTML = `${flag} ${country}<br>${time}`;
     }
 
-  }
+  } catch (error) {
 
-  catch(error){
-
-    const clock =
-    document.getElementById("clock");
-
-    if(clock){
-
-      clock.innerHTML =
-      "Unable to load time";
-
-    }
+    const clock = document.getElementById("clock");
+    if (clock) clock.innerHTML = "Unable to load time";
 
   }
-
 }
 
-// Update every second
 setInterval(updateClock, 1000);
-
 updateClock();
+
+
 
 // ========================= TOOL COUNT =========================
 
-setTimeout(()=>{
+setTimeout(() => {
 
-const totalTools =
-document.querySelectorAll('[class*="tool-card"]').length;
+  const totalTools = document.querySelectorAll('[class*="tool-card"]').length;
+  const toolCount = document.getElementById("toolCount");
 
-const toolCount =
-document.getElementById("toolCount");
+  if (toolCount) {
+    toolCount.innerText = totalTools + "+";
+  }
 
-if(toolCount){
+}, 1000);
 
-toolCount.innerText =
-totalTools + "+";
 
+
+// ========================= SEARCH INPUT (Main Page) =========================
+
+// ✅ FIX: null check before adding event listener
+const searchInput = document.getElementById("searchInput");
+
+if (searchInput) {
+  searchInput.addEventListener("keyup", function () {
+
+    const value = this.value.toLowerCase();
+    const cards = document.querySelectorAll(".tool-card");
+
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.display = text.includes(value) ? "block" : "none";
+    });
+  });
 }
 
-},1000);
 
-const searchInput =
-document.getElementById("searchInput");
 
-searchInput.addEventListener(
-"keyup",
-function(){
+// ========================= FILTER TOOLS =========================
 
-const value =
-this.value.toLowerCase();
+function filterTools(category) {
 
-const cards =
-document.querySelectorAll(".tool-card");
+  const cards = document.querySelectorAll(".tool-card");
 
-cards.forEach(card=>{
+  cards.forEach(card => {
+    if (category === "all" || card.classList.contains(category)) {
+      card.style.display = "block";
+    } else {
+      card.style.display = "none";
+    }
+  });
 
-const text =
-card.innerText.toLowerCase();
+  document.querySelectorAll(".side-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
 
-if(text.includes(value)){
-
-card.style.display="block";
-
-}else{
-
-card.style.display="none";
-
-}
-
-});
-
-});
-
-function filterTools(category){
-
-const cards =
-document.querySelectorAll(".tool-card");
-
-cards.forEach(card=>{
-
-if(
-category==="all" ||
-card.classList.contains(category)
-){
-
-card.style.display="block";
-
-}else{
-
-card.style.display="none";
-
-}
-
-});
-
-document
-.querySelectorAll(".side-btn")
-.forEach(btn=>{
-
-btn.classList.remove("active");
-
-});
-
-event.target.classList.add("active");
-
+  // ✅ FIX: use event parameter safely
+  if (event && event.target) {
+    event.target.classList.add("active");
+  }
 }
