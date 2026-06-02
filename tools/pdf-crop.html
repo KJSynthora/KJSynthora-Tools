@@ -1,1056 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Crop Pro</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  :root {
-    --bg: #f0ede8;
-    --surface: #faf8f5;
-    --surface2: #e8e4dd;
-    --border: #d4cfc6;
-    --ink: #1a1714;
-    --muted: #7a7168;
-    --accent: #e85d26;
-    --accent2: #2b6cb0;
-    --accent3: #2d6a4f;
-    --shadow: rgba(26,23,20,0.12);
+  <!-- ✅ PRIMARY SEO META TAGS -->
+  <title>PDF Crop Online Free – Crop PDF Pages to Any Size | KJSynthora</title>
+  <meta name="description" content="Crop PDF pages online for free. Remove unwanted margins, resize page area, or crop to custom dimensions. No signup needed. Instant, private & secure. By KJSynthora." />
+  <meta name="keywords" content="crop PDF, PDF crop online, crop PDF pages free, trim PDF margins, resize PDF page, PDF page cropper, online PDF tool, KJSynthora PDF tools" />
+  <meta name="author" content="KJSynthora" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- ✅ CANONICAL -->
+  <link rel="canonical" href="https://kjsynthora.com/pdf-crop.html" />
+
+  <!-- ✅ OPEN GRAPH -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="PDF Crop Online Free – Crop PDF Pages to Any Size | KJSynthora" />
+  <meta property="og:description" content="Crop, trim, or resize PDF pages online for free. No watermark, no signup. Works instantly on any device." />
+  <meta property="og:url" content="https://kjsynthora.com/pdf-crop.html" />
+  <meta property="og:site_name" content="KJSynthora" />
+  <meta property="og:image" content="https://kjsynthora.com/og-image.png" />
+
+  <!-- ✅ TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PDF Crop Online Free | KJSynthora" />
+  <meta name="twitter:description" content="Crop PDF pages instantly. Remove margins, resize, custom crop — free, no signup." />
+  <meta name="twitter:image" content="https://kjsynthora.com/og-image.png" />
+
+  <!-- ✅ STRUCTURED DATA -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PDF Crop – KJSynthora",
+    "url": "https://kjsynthora.com/pdf-crop.html",
+    "description": "Crop PDF pages online for free. Remove unwanted margins, custom crop area. No signup required.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": { "@type": "Organization", "name": "KJSynthora", "url": "https://kjsynthora.com" }
   }
+  </script>
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Outfit', sans-serif;
-    min-height: 100vh;
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kjsynthora.com" },
+      { "@type": "ListItem", "position": 2, "name": "PDF Tools", "item": "https://kjsynthora.com/pdf" },
+      { "@type": "ListItem", "position": 3, "name": "PDF Crop", "item": "https://kjsynthora.com/pdf-crop.html" }
+    ]
   }
+  </script>
 
-  /* Grain texture */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+  <link rel="icon" href="https://kjsynthora.com/favicon.ico" />
 
-  .container { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 0 28px; }
+  <style>
+    :root {
+      --bg: #0d0e14; --surface: #13141d; --border: #1e2030;
+      --accent-blue: #6cb4f5; --accent-pink: #f06bbc; --accent-purple: #a78bfa;
+      --text: #e2e8f0; --muted: #64748b;
+      --gradient: linear-gradient(135deg, #6cb4f5, #a78bfa, #f06bbc);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-  /* Header */
-  header {
-    padding: 28px 0;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 20px;
-    border-bottom: 2px solid var(--ink);
-    margin-bottom: 32px;
-  }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+      background: rgba(13,14,20,0.95); position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+    .logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+    .logo-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--gradient); display: grid; place-items: center; font-weight: 900; font-size: 1rem; color: #fff; }
+    .logo-text { font-size: 1.1rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-sub { font-size: .65rem; color: var(--muted); display: block; margin-top: -2px; }
+    nav a.back { font-size: .85rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: .35rem .9rem; border-radius: 6px; transition: color .2s, border-color .2s; }
+    nav a.back:hover { color: var(--text); border-color: var(--accent-blue); }
 
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-box {
-    width: 48px; height: 48px;
-    background: var(--accent);
-    border-radius: 10px;
-    display: grid; place-items: center;
-    font-size: 24px;
-    color: white;
-    font-weight: 800;
-  }
+    .hero { text-align: center; padding: 4rem 2rem 2rem; }
+    .badge { display: inline-flex; align-items: center; gap: .4rem; background: rgba(240,107,188,.1); border: 1px solid rgba(240,107,188,.25); color: var(--accent-pink); padding: .3rem .9rem; border-radius: 999px; font-size: .78rem; letter-spacing: .05em; margin-bottom: 1.2rem; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; line-height: 1.2; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .8rem; }
+    .subtitle { color: var(--muted); font-size: 1rem; max-width: 520px; margin: 0 auto 2.5rem; }
 
-  header h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -1px; }
-  header h1 em { color: var(--accent); font-style: normal; }
-  header p { font-size: 0.8rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+    .tool-card { max-width: 680px; margin: 0 auto 3rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: 1.5rem; }
+    .drop-zone:hover { border-color: var(--accent-pink); background: rgba(240,107,188,.04); }
+    .drop-icon { font-size: 2.5rem; margin-bottom: .6rem; }
+    .drop-text { font-size: .95rem; color: var(--muted); }
+    .drop-text span { color: var(--accent-pink); cursor: pointer; }
 
-  .header-actions { display: flex; gap: 10px; align-items: center; }
+    .crop-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .field label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .3rem; }
+    .field input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: .55rem .8rem; font-size: .9rem;
+    }
+    .field input:focus { outline: none; border-color: var(--accent-pink); }
 
-  .file-name-badge {
-    background: var(--ink);
-    color: var(--bg);
-    border-radius: 6px;
-    padding: 6px 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    .preset-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .preset-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: .4rem .8rem; font-size: .8rem; cursor: pointer; transition: all .2s; }
+    .preset-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
 
-  /* Upload */
-  .upload-zone {
-    border: 3px dashed var(--border);
-    border-radius: 16px;
-    padding: 72px 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: var(--surface);
-    box-shadow: 0 2px 0 var(--border);
-  }
+    .btn-primary { width: 100%; padding: .9rem; background: var(--gradient); border: none; border-radius: 10px; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity .2s; }
+    .btn-primary:hover { opacity: .88; }
 
-  .upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--accent);
-    background: white;
-    box-shadow: 0 4px 0 var(--accent);
-  }
+    .features { max-width: 800px; margin: 0 auto 4rem; padding: 0 2rem; }
+    .features h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.2rem; text-align: center; }
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .feat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+    .feat-icon { font-size: 1.4rem; margin-bottom: .5rem; }
+    .feat h3 { font-size: .9rem; font-weight: 600; margin-bottom: .25rem; }
+    .feat p { font-size: .8rem; color: var(--muted); }
 
-  .upload-zone .icon { font-size: 60px; margin-bottom: 20px; }
-  .upload-zone h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-  .upload-zone p { color: var(--muted); }
+    .faq { max-width: 680px; margin: 0 auto 4rem; padding: 0 2rem; }
+    .faq h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.2rem; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .faq-item h3 { font-size: .95rem; font-weight: 600; margin-bottom: .4rem; }
+    .faq-item p { font-size: .85rem; color: var(--muted); line-height: 1.6; }
 
-  .upload-btn-label {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 32px;
-    background: var(--accent);
-    color: white;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s;
-    box-shadow: 0 4px 0 #b84015;
-  }
-
-  .upload-btn-label:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #b84015; }
-  .upload-btn-label:active { transform: translateY(2px); box-shadow: 0 2px 0 #b84015; }
-
-  /* Layout */
-  .workspace {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* Canvas Panel */
-  .canvas-panel {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 4px 4px 0 var(--border);
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border-bottom: 2px solid var(--border);
-    background: var(--surface2);
-  }
-
-  .panel-title { font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-
-  .page-nav { display: flex; align-items: center; gap: 8px; }
-  .nav-btn {
-    width: 30px; height: 30px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-    display: grid; place-items: center;
-  }
-  .nav-btn:hover { border-color: var(--accent); background: white; }
-  .page-indicator { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); }
-
-  .canvas-wrap {
-    position: relative;
-    overflow: hidden;
-    background: #e0dbd4;
-    min-height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: crosshair;
-  }
-
-  #pageCanvas { display: block; max-width: 100%; }
-
-  /* Crop overlay */
-  #cropOverlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  #cropRect {
-    position: absolute;
-    border: 2px solid var(--accent);
-    background: rgba(232,93,38,0.1);
-    display: none;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
-  }
-
-  .crop-handle {
-    position: absolute;
-    width: 10px; height: 10px;
-    background: white;
-    border: 2px solid var(--accent);
-    border-radius: 2px;
-    cursor: nw-resize;
-    pointer-events: all;
-    transform: translate(-50%, -50%);
-  }
-  .crop-handle.tl { top: 0; left: 0; cursor: nw-resize; }
-  .crop-handle.tr { top: 0; left: 100%; cursor: ne-resize; }
-  .crop-handle.bl { top: 100%; left: 0; cursor: sw-resize; }
-  .crop-handle.br { top: 100%; left: 100%; cursor: se-resize; }
-  .crop-handle.tm { top: 0; left: 50%; cursor: n-resize; }
-  .crop-handle.bm { top: 100%; left: 50%; cursor: s-resize; }
-  .crop-handle.ml { top: 50%; left: 0; cursor: w-resize; }
-  .crop-handle.mr { top: 50%; left: 100%; cursor: e-resize; }
-
-  /* Controls panel */
-  .controls-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    box-shadow: 3px 3px 0 var(--border);
-  }
-
-  .card-title {
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 14px;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  /* Preset buttons */
-  .presets-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .preset-btn {
-    padding: 10px 8px;
-    border: 1.5px solid var(--border);
-    background: var(--surface2);
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.2s;
-    text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-  }
-
-  .preset-btn small { font-size: 0.7rem; color: var(--muted); font-weight: 400; }
-  .preset-btn:hover { border-color: var(--accent); background: white; }
-  .preset-btn.active { border-color: var(--accent); background: rgba(232,93,38,0.08); color: var(--accent); }
-
-  /* Margin inputs */
-  .margin-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .input-field {
-    display: flex; flex-direction: column; gap: 4px;
-  }
-
-  .input-field label { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
-
-  .num-input {
-    border: 1.5px solid var(--border);
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  .num-input:focus { border-color: var(--accent); background: white; }
-
-  /* Crop info */
-  .crop-info {
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-    line-height: 1.8;
-  }
-
-  .crop-info strong { color: var(--ink); }
-
-  /* Apply buttons */
-  .btn {
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--ink);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    box-shadow: 0 2px 0 var(--border);
-  }
-
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--border); }
-  .btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--border); }
-
-  .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-    box-shadow: 0 3px 0 #b84015;
-  }
-  .btn-primary:hover { box-shadow: 0 5px 0 #b84015; }
-
-  .btn-secondary {
-    background: var(--accent2);
-    border-color: var(--accent2);
-    color: white;
-    box-shadow: 0 3px 0 #1a4e8a;
-  }
-  .btn-secondary:hover { box-shadow: 0 5px 0 #1a4e8a; }
-
-  .btn-full { width: 100%; }
-
-  .scope-tabs {
-    display: flex;
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 3px;
-    gap: 2px;
-    margin-bottom: 12px;
-  }
-
-  .scope-tab {
-    flex: 1;
-    padding: 7px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'Outfit', sans-serif;
-    font-weight: 600;
-    font-size: 0.8rem;
-    transition: all 0.2s;
-    color: var(--muted);
-  }
-
-  .scope-tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px var(--shadow); }
-
-  /* Zoom */
-  .zoom-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-top: 2px solid var(--border);
-    background: var(--surface2);
-  }
-
-  .zoom-btn {
-    width: 28px; height: 28px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    display: grid; place-items: center;
-    transition: all 0.2s;
-    font-weight: 700;
-  }
-
-  .zoom-btn:hover { border-color: var(--accent); background: white; }
-
-  .zoom-label { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); margin: 0 4px; }
-
-  /* Progress */
-  .progress-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(240,237,232,0.88);
-    backdrop-filter: blur(6px);
-    display: none;
-    place-items: center;
-    z-index: 100;
-  }
-  .progress-overlay.show { display: grid; }
-
-  .progress-box {
-    background: var(--surface);
-    border: 2px solid var(--ink);
-    border-radius: 16px;
-    padding: 40px 50px;
-    text-align: center;
-    box-shadow: 6px 6px 0 var(--ink);
-    min-width: 320px;
-  }
-
-  .loading-bar {
-    height: 6px;
-    background: var(--surface2);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 16px;
-  }
-
-  .loading-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 4px;
-    transition: width 0.3s;
-    width: 0%;
-  }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 28px; right: 28px;
-    background: var(--ink); color: var(--bg);
-    border-radius: 10px; padding: 12px 20px;
-    font-size: 0.9rem; font-weight: 600;
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 200; max-width: 300px;
-    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-
-  #fileInput { display: none; }
-
-  @media (max-width: 900px) {
-    .workspace { grid-template-columns: 1fr; }
-  }
-</style>
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="logo">
-      <div class="logo-box">✂</div>
-      <div>
-        <h1>PDF <em>Crop</em> Pro</h1>
-        <p>precision margin & crop control</p>
-      </div>
-    </div>
-    <div></div>
-    <div class="header-actions">
-      <div class="file-name-badge" id="fileNameBadge" style="display:none">—</div>
-      <label class="upload-btn-label" for="fileInput" style="padding:10px 20px;font-size:0.85rem">+ Load PDF</label>
-      <input type="file" id="fileInput" accept=".pdf">
-    </div>
-  </header>
 
-  <!-- Upload -->
-  <div class="upload-zone" id="uploadZone">
-    <div class="icon">📐</div>
-    <h2>Load a PDF to crop</h2>
-    <p>Drag & drop your file or click below to browse</p>
-    <label class="upload-btn-label" for="fileInput">Choose PDF File</label>
+<nav>
+  <a href="https://kjsynthora.com" class="logo">
+    <div class="logo-icon">KJ</div>
+    <div>
+      <span class="logo-text">KJSynthora</span>
+      <span class="logo-sub">AI Tools Platform</span>
+    </div>
+  </a>
+  <a href="https://kjsynthora.com" class="back">← Back to Tools</a>
+</nav>
+
+<section class="hero">
+  <div class="badge">✂️ PDF Tool</div>
+  <h1>Crop PDF Pages Online</h1>
+  <p class="subtitle">Trim margins, remove borders, or define a custom crop area for any PDF — free, instant, no account needed.</p>
+</section>
+
+<div class="tool-card">
+  <div class="drop-zone" onclick="document.getElementById('pdfInput').click()">
+    <div class="drop-icon">📄</div>
+    <p class="drop-text">Drag & drop your PDF here or <span>browse file</span></p>
+    <input type="file" id="pdfInput" accept=".pdf" style="display:none" />
   </div>
 
-  <!-- Workspace -->
-  <div class="workspace" id="workspace" style="display:none">
-    <!-- Left: Canvas -->
-    <div class="canvas-panel">
-      <div class="panel-header">
-        <div class="panel-title">📄 Page Preview</div>
-        <div class="page-nav">
-          <button class="nav-btn" onclick="changePage(-1)">‹</button>
-          <span class="page-indicator" id="pageIndicator">1 / 1</span>
-          <button class="nav-btn" onclick="changePage(1)">›</button>
-        </div>
-      </div>
-      <div class="canvas-wrap" id="canvasWrap">
-        <canvas id="pageCanvas"></canvas>
-        <div id="cropOverlay">
-          <div id="cropRect">
-            <div class="crop-handle tl" data-handle="tl"></div>
-            <div class="crop-handle tr" data-handle="tr"></div>
-            <div class="crop-handle bl" data-handle="bl"></div>
-            <div class="crop-handle br" data-handle="br"></div>
-            <div class="crop-handle tm" data-handle="tm"></div>
-            <div class="crop-handle bm" data-handle="bm"></div>
-            <div class="crop-handle ml" data-handle="ml"></div>
-            <div class="crop-handle mr" data-handle="mr"></div>
-          </div>
-        </div>
-      </div>
-      <div class="zoom-bar">
-        <button class="zoom-btn" onclick="adjustZoom(-0.25)">−</button>
-        <span class="zoom-label" id="zoomLabel">100%</span>
-        <button class="zoom-btn" onclick="adjustZoom(0.25)">+</button>
-        <button class="zoom-btn" onclick="fitPage()" style="width:auto;padding:0 8px;font-size:0.8rem">Fit</button>
-        <button class="zoom-btn" onclick="startDrawCrop()" style="width:auto;padding:0 8px;font-size:0.8rem;margin-left:auto;color:var(--accent)">✏ Draw</button>
-        <button class="zoom-btn" onclick="clearCrop()" style="width:auto;padding:0 8px;font-size:0.8rem">✕ Clear</button>
-      </div>
-    </div>
-
-    <!-- Right: Controls -->
-    <div class="controls-panel">
-
-      <!-- Presets -->
-      <div class="card">
-        <div class="card-title">📋 Crop Presets</div>
-        <div class="presets-grid">
-          <button class="preset-btn" onclick="applyPreset('full')">Full Page<small>No crop</small></button>
-          <button class="preset-btn" onclick="applyPreset('a4')">A4 Margins<small>10mm each</small></button>
-          <button class="preset-btn" onclick="applyPreset('letter')">Letter<small>12mm each</small></button>
-          <button class="preset-btn" onclick="applyPreset('half-top')">Top Half<small>Content area</small></button>
-          <button class="preset-btn" onclick="applyPreset('half-bottom')">Bottom Half<small>Content area</small></button>
-          <button class="preset-btn" onclick="applyPreset('center')">Center 80%<small>Equal crop</small></button>
-        </div>
-      </div>
-
-      <!-- Manual Margins -->
-      <div class="card">
-        <div class="card-title">📏 Manual Margins (pt)</div>
-        <div class="margin-grid">
-          <div class="input-field">
-            <label>▲ Top</label>
-            <input type="number" class="num-input" id="mTop" value="0" min="0" max="500" oninput="updateFromInputs()">
-          </div>
-          <div class="input-field">
-            <label>▼ Bottom</label>
-            <input type="number" class="num-input" id="mBottom" value="0" min="0" max="500" oninput="updateFromInputs()">
-          </div>
-          <div class="input-field">
-            <label>◄ Left</label>
-            <input type="number" class="num-input" id="mLeft" value="0" min="0" max="500" oninput="updateFromInputs()">
-          </div>
-          <div class="input-field">
-            <label>► Right</label>
-            <input type="number" class="num-input" id="mRight" value="0" min="0" max="500" oninput="updateFromInputs()">
-          </div>
-        </div>
-
-        <div class="margin-grid" style="margin-top:10px">
-          <div class="input-field">
-            <label>Unit</label>
-            <select class="num-input" id="unitSelect" onchange="updateUnit()">
-              <option value="pt">Points (pt)</option>
-              <option value="mm">Millimeters</option>
-              <option value="in">Inches</option>
-              <option value="px">Pixels (72dpi)</option>
-            </select>
-          </div>
-          <div class="input-field">
-            <label>&nbsp;</label>
-            <button class="btn btn-full" onclick="equalizeMargins()">⊞ Equal All</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Crop info -->
-      <div class="card">
-        <div class="card-title">📊 Crop Info</div>
-        <div class="crop-info" id="cropInfo">
-          Load a PDF and draw a crop region<br>to see coordinates here.
-        </div>
-      </div>
-
-      <!-- Apply scope -->
-      <div class="card">
-        <div class="card-title">⚡ Apply & Download</div>
-        <div class="scope-tabs">
-          <button class="scope-tab active" onclick="setScope(this,'current')">This Page</button>
-          <button class="scope-tab" onclick="setScope(this,'all')">All Pages</button>
-          <button class="scope-tab" onclick="setScope(this,'range')">Range</button>
-        </div>
-        <div id="rangeInput" style="display:none;margin-bottom:10px">
-          <input type="text" class="num-input" id="pageRange" placeholder="e.g. 1-5,8,10-12">
-        </div>
-        <button class="btn btn-primary btn-full" onclick="applyCropAndDownload()" style="margin-bottom:8px">
-          ✂ Apply Crop & Download
-        </button>
-        <button class="btn btn-secondary btn-full" onclick="previewCrop()">
-          👁 Preview Crop
-        </button>
-      </div>
-    </div>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:.7rem;">📐 Quick Presets</p>
+  <div class="preset-row">
+    <button class="preset-btn">A4 Portrait</button>
+    <button class="preset-btn">A4 Landscape</button>
+    <button class="preset-btn">Letter</button>
+    <button class="preset-btn">Remove Margins</button>
+    <button class="preset-btn">Square Crop</button>
   </div>
+
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:.7rem;">📏 Custom Crop Margins (mm)</p>
+  <div class="crop-controls">
+    <div class="field"><label>Top</label><input type="number" value="0" min="0" /></div>
+    <div class="field"><label>Bottom</label><input type="number" value="0" min="0" /></div>
+    <div class="field"><label>Left</label><input type="number" value="0" min="0" /></div>
+    <div class="field"><label>Right</label><input type="number" value="0" min="0" /></div>
+  </div>
+
+  <button class="btn-primary">✂️ Crop & Download PDF</button>
 </div>
 
-<!-- Progress -->
-<div class="progress-overlay" id="progressOverlay">
-  <div class="progress-box">
-    <div style="font-size:40px;margin-bottom:16px">✂️</div>
-    <h3 id="progressTitle">Cropping PDF...</h3>
-    <p id="progressMsg" style="color:var(--muted);font-size:0.85rem;margin-top:6px">Processing pages</p>
-    <div class="loading-bar"><div class="loading-fill" id="progressFill"></div></div>
+<section class="features">
+  <h2>Why Use KJSynthora PDF Crop?</h2>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-icon">📐</div><h3>Precise Cropping</h3><p>Set exact margins in mm for pixel-perfect results.</p></div>
+    <div class="feat"><div class="feat-icon">🔒</div><h3>Privacy First</h3><p>All processing done in your browser — zero server uploads.</p></div>
+    <div class="feat"><div class="feat-icon">✅</div><h3>No Signup</h3><p>No account, no email — just upload and crop.</p></div>
+    <div class="feat"><div class="feat-icon">📱</div><h3>Any Device</h3><p>Works on mobile, tablet, and desktop browsers.</p></div>
   </div>
-</div>
+</section>
 
-<div class="toast" id="toast"></div>
+<section class="faq">
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-item">
+    <h3>How do I crop a PDF page online?</h3>
+    <p>Upload your PDF, enter the crop margins (top, bottom, left, right) in millimeters, then click "Crop & Download". Your cropped PDF is ready instantly.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Can I remove white margins from a PDF?</h3>
+    <p>Yes. Use the "Remove Margins" preset or manually enter the margin values to trim any unwanted white space from your PDF pages.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Does cropping a PDF reduce file size?</h3>
+    <p>Cropping adjusts the visible page area but may not reduce file size significantly. Use our PDF Compress tool for size reduction.</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 <a href="https://kjsynthora.com">KJSynthora</a> · AI & Productivity Platform · All rights reserved.</p>
+</footer>
 
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-let pdfDoc = null;
-let originalBytes = null;
-let currentPage = 1;
-let totalPages = 0;
-let zoomLevel = 1.0;
-let fileName = 'document.pdf';
-let cropScope = 'current';
-let renderTask = null;
-
-// Crop state (in canvas px)
-let cropBox = null; // {x,y,w,h} in canvas space
-let isDragging = false;
-let isDrawing = false;
-let dragHandle = null;
-let dragStart = null;
-let drawMode = false;
-
-// Page dimensions in PDF points
-let pageWidth = 0;
-let pageHeight = 0;
-let canvasOffsetX = 0; // canvas element position in wrapper
-let canvasOffsetY = 0;
-let canvasScale = 1; // pt -> canvas px scale
-
-const fileInput = document.getElementById('fileInput');
-const uploadZone = document.getElementById('uploadZone');
-const workspace = document.getElementById('workspace');
-const canvas = document.getElementById('pageCanvas');
-const ctx = canvas.getContext('2d');
-const cropRect = document.getElementById('cropRect');
-const canvasWrap = document.getElementById('canvasWrap');
-
-// Unit conversion to pt
-const toPt = { pt: 1, mm: 2.8346, in: 72, px: 1 };
-
-// Drag & drop upload
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
-
-async function loadFile(file) {
-  fileName = file.name;
-  const arrayBuffer = await file.arrayBuffer();
-  originalBytes = new Uint8Array(arrayBuffer);
-  pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  totalPages = pdfDoc.numPages;
-  currentPage = 1;
-
-  document.getElementById('fileNameBadge').textContent = file.name;
-  document.getElementById('fileNameBadge').style.display = 'block';
-  uploadZone.style.display = 'none';
-  workspace.style.display = 'grid';
-
-  await renderPage();
-  showToast(`✅ Loaded ${totalPages} pages`);
-}
-
-async function renderPage() {
-  if (renderTask) renderTask.cancel().catch(() => {});
-  const page = await pdfDoc.getPage(currentPage);
-  const vp0 = page.getViewport({ scale: 1 });
-  pageWidth = vp0.width;
-  pageHeight = vp0.height;
-
-  const wrapW = canvasWrap.clientWidth - 40;
-  const fitScale = wrapW / vp0.width;
-  const scale = fitScale * zoomLevel;
-  canvasScale = scale;
-
-  const vp = page.getViewport({ scale });
-  canvas.width = vp.width;
-  canvas.height = vp.height;
-
-  document.getElementById('pageIndicator').textContent = `${currentPage} / ${totalPages}`;
-  renderTask = page.render({ canvasContext: ctx, viewport: vp });
-  await renderTask.promise;
-  renderTask = null;
-
-  // Reposition crop rect if exists
-  if (cropBox) drawCropRect(cropBox);
-  else clearCropRect();
-}
-
-async function changePage(dir) {
-  const np = currentPage + dir;
-  if (np < 1 || np > totalPages) return;
-  currentPage = np;
-  await renderPage();
-}
-
-function adjustZoom(delta) {
-  zoomLevel = Math.max(0.25, Math.min(3, zoomLevel + delta));
-  document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
-  renderPage();
-}
-
-function fitPage() {
-  zoomLevel = 1;
-  document.getElementById('zoomLabel').textContent = '100%';
-  renderPage();
-}
-
-// Draw crop on canvas
-function startDrawCrop() {
-  drawMode = true;
-  canvasWrap.style.cursor = 'crosshair';
-  showToast('Draw a crop region on the page');
-}
-
-canvasWrap.addEventListener('mousedown', e => {
-  const pos = getCanvasPos(e);
-  if (drawMode) {
-    cropBox = { x: pos.x, y: pos.y, w: 0, h: 0 };
-    isDragging = true;
-    dragStart = pos;
-    cropRect.style.display = 'block';
-    return;
-  }
-  // Check if clicking a handle
-  const h = e.target.dataset.handle;
-  if (h) {
-    dragHandle = h;
-    isDragging = true;
-    dragStart = pos;
-    return;
-  }
-  // Move the crop rect
-  if (cropBox && isCropClick(pos)) {
-    dragHandle = 'move';
-    isDragging = true;
-    dragStart = pos;
-  }
-});
-
-canvasWrap.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const pos = getCanvasPos(e);
-  const dx = pos.x - dragStart.x;
-  const dy = pos.y - dragStart.y;
-
-  if (drawMode) {
-    cropBox.w = pos.x - cropBox.x;
-    cropBox.h = pos.y - cropBox.y;
-    drawCropRect(normalizeBox(cropBox));
-    updateCropInfo(normalizeBox(cropBox));
-    return;
-  }
-
-  if (!cropBox) return;
-  let nb = { ...cropBox };
-
-  switch (dragHandle) {
-    case 'move': nb.x += dx; nb.y += dy; break;
-    case 'tl': nb.x += dx; nb.y += dy; nb.w -= dx; nb.h -= dy; break;
-    case 'tr': nb.y += dy; nb.w += dx; nb.h -= dy; break;
-    case 'bl': nb.x += dx; nb.w -= dx; nb.h += dy; break;
-    case 'br': nb.w += dx; nb.h += dy; break;
-    case 'tm': nb.y += dy; nb.h -= dy; break;
-    case 'bm': nb.h += dy; break;
-    case 'ml': nb.x += dx; nb.w -= dx; break;
-    case 'mr': nb.w += dx; break;
-  }
-
-  cropBox = nb;
-  drawCropRect(normalizeBox(nb));
-  updateCropInfo(normalizeBox(nb));
-  dragStart = pos;
-});
-
-canvasWrap.addEventListener('mouseup', () => {
-  if (drawMode && cropBox) {
-    cropBox = normalizeBox(cropBox);
-    drawMode = false;
-    canvasWrap.style.cursor = 'default';
-    updateCropInfo(cropBox);
-    updateInputsFromCrop(cropBox);
-  }
-  isDragging = false;
-  dragHandle = null;
-});
-
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const wrapRect = canvasWrap.getBoundingClientRect();
-  const cx = canvas.offsetLeft;
-  const cy = canvas.offsetTop;
-  return {
-    x: e.clientX - wrapRect.left - cx,
-    y: e.clientY - wrapRect.top - cy
-  };
-}
-
-function isCropClick(pos) {
-  if (!cropBox) return false;
-  const b = normalizeBox(cropBox);
-  return pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h;
-}
-
-function normalizeBox(b) {
-  return {
-    x: b.w < 0 ? b.x + b.w : b.x,
-    y: b.h < 0 ? b.y + b.h : b.y,
-    w: Math.abs(b.w),
-    h: Math.abs(b.h)
-  };
-}
-
-function drawCropRect(b) {
-  const canvas = document.getElementById('pageCanvas');
-  const cx = canvas.offsetLeft;
-  const cy = canvas.offsetTop;
-  cropRect.style.display = 'block';
-  cropRect.style.left = (cx + b.x) + 'px';
-  cropRect.style.top = (cy + b.y) + 'px';
-  cropRect.style.width = b.w + 'px';
-  cropRect.style.height = b.h + 'px';
-}
-
-function clearCropRect() {
-  cropRect.style.display = 'none';
-}
-
-function clearCrop() {
-  cropBox = null;
-  clearCropRect();
-  document.getElementById('cropInfo').innerHTML = 'Crop cleared. Draw a new region or<br>enter values manually.';
-  resetInputs();
-}
-
-function updateCropInfo(b) {
-  // Convert canvas px to PDF points
-  const ptX = b.x / canvasScale;
-  const ptY = b.y / canvasScale;
-  const ptW = b.w / canvasScale;
-  const ptH = b.h / canvasScale;
-  const marginL = ptX;
-  const marginT = ptY;
-  const marginR = pageWidth - ptX - ptW;
-  const marginB = pageHeight - ptY - ptH;
-
-  document.getElementById('cropInfo').innerHTML = `
-    <strong>Crop Box (pt)</strong><br>
-    X: ${ptX.toFixed(1)} &nbsp; Y: ${ptY.toFixed(1)}<br>
-    W: ${ptW.toFixed(1)} &nbsp; H: ${ptH.toFixed(1)}<br><br>
-    <strong>Margins (pt)</strong><br>
-    ▲ ${marginT.toFixed(1)}  ▼ ${marginB.toFixed(1)}<br>
-    ◄ ${marginL.toFixed(1)}  ► ${marginR.toFixed(1)}
-  `;
-}
-
-function updateInputsFromCrop(b) {
-  const ptX = b.x / canvasScale;
-  const ptY = b.y / canvasScale;
-  const ptW = b.w / canvasScale;
-  const ptH = b.h / canvasScale;
-  const u = toPt[document.getElementById('unitSelect').value] || 1;
-
-  document.getElementById('mTop').value = (ptY / u).toFixed(1);
-  document.getElementById('mBottom').value = ((pageHeight - ptY - ptH) / u).toFixed(1);
-  document.getElementById('mLeft').value = (ptX / u).toFixed(1);
-  document.getElementById('mRight').value = ((pageWidth - ptX - ptW) / u).toFixed(1);
-}
-
-function updateFromInputs() {
-  const u = toPt[document.getElementById('unitSelect').value] || 1;
-  const top = parseFloat(document.getElementById('mTop').value || 0) * u;
-  const bottom = parseFloat(document.getElementById('mBottom').value || 0) * u;
-  const left = parseFloat(document.getElementById('mLeft').value || 0) * u;
-  const right = parseFloat(document.getElementById('mRight').value || 0) * u;
-
-  const x = left / canvasScale * canvasScale;
-  const y = top / canvasScale * canvasScale;
-  const w = (pageWidth - left - right);
-  const h = (pageHeight - top - bottom);
-
-  if (w <= 0 || h <= 0) return;
-  cropBox = {
-    x: left / (pageWidth / canvas.width),
-    y: top / (pageHeight / canvas.height),
-    w: w / (pageWidth / canvas.width),
-    h: h / (pageHeight / canvas.height)
-  };
-  drawCropRect(cropBox);
-  updateCropInfo(cropBox);
-}
-
-function updateUnit() { /* keep values same, just display in different unit */ }
-
-function equalizeMargins() {
-  const u = toPt[document.getElementById('unitSelect').value] || 1;
-  const val = (Math.min(pageWidth, pageHeight) * 0.1 / u).toFixed(1);
-  document.getElementById('mTop').value = val;
-  document.getElementById('mBottom').value = val;
-  document.getElementById('mLeft').value = val;
-  document.getElementById('mRight').value = val;
-  updateFromInputs();
-}
-
-function resetInputs() {
-  ['mTop','mBottom','mLeft','mRight'].forEach(id => document.getElementById(id).value = 0);
-}
-
-function applyPreset(preset) {
-  const u = toPt[document.getElementById('unitSelect').value] || 1;
-  let t=0,b=0,l=0,r=0;
-  if (preset==='full') { t=b=l=r=0; }
-  else if (preset==='a4') { t=b=l=r=28.35/u; } // 10mm
-  else if (preset==='letter') { t=b=l=r=34/u; } // 12mm
-  else if (preset==='half-top') { t=0; b=pageHeight*0.5/u; l=0; r=0; }
-  else if (preset==='half-bottom') { t=pageHeight*0.5/u; b=0; l=0; r=0; }
-  else if (preset==='center') { const m=pageWidth*0.1/u; t=b=m; l=r=m; }
-
-  document.getElementById('mTop').value = t.toFixed(1);
-  document.getElementById('mBottom').value = b.toFixed(1);
-  document.getElementById('mLeft').value = l.toFixed(1);
-  document.getElementById('mRight').value = r.toFixed(1);
-  updateFromInputs();
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-function setScope(btn, scope) {
-  cropScope = scope;
-  document.querySelectorAll('.scope-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('rangeInput').style.display = scope === 'range' ? 'block' : 'none';
-}
-
-function getPageRange() {
-  if (cropScope === 'current') return [currentPage];
-  if (cropScope === 'all') return Array.from({length: totalPages}, (_, i) => i+1);
-  // Parse range
-  const str = document.getElementById('pageRange').value;
-  const pages = new Set();
-  str.split(',').forEach(part => {
-    const dash = part.indexOf('-');
-    if (dash > 0) {
-      const s = parseInt(part), e = parseInt(part.slice(dash+1));
-      for (let i = s; i <= Math.min(e, totalPages); i++) pages.add(i);
-    } else {
-      const p = parseInt(part);
-      if (p >= 1 && p <= totalPages) pages.add(p);
-    }
-  });
-  return [...pages];
-}
-
-function getCropBoxInPt() {
-  const u = toPt[document.getElementById('unitSelect').value] || 1;
-  const top = parseFloat(document.getElementById('mTop').value || 0) * u;
-  const bottom = parseFloat(document.getElementById('mBottom').value || 0) * u;
-  const left = parseFloat(document.getElementById('mLeft').value || 0) * u;
-  const right = parseFloat(document.getElementById('mRight').value || 0) * u;
-  return { top, bottom, left, right };
-}
-
-async function applyCropAndDownload() {
-  if (!originalBytes) return;
-
-  const pages = getPageRange();
-  const margins = getCropBoxInPt();
-
-  showProgress('Cropping PDF...', `Processing ${pages.length} page(s)`);
-
-  try {
-    const { PDFDocument } = PDFLib;
-    const pdfLibDoc = await PDFDocument.load(originalBytes);
-    const allPages = pdfLibDoc.getPages();
-
-    for (let i = 0; i < pages.length; i++) {
-      const pg = allPages[pages[i] - 1];
-      const { width, height } = pg.getSize();
-      pg.setCropBox(
-        margins.left,
-        margins.bottom,
-        width - margins.left - margins.right,
-        height - margins.top - margins.bottom
-      );
-      setProgress(20 + (i / pages.length) * 75);
-    }
-
-    setProgress(98);
-    const bytes = await pdfLibDoc.save();
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = fileName.replace('.pdf', '_cropped.pdf');
-    a.click();
-    URL.revokeObjectURL(url);
-    hideProgress();
-    showToast('✅ Cropped PDF downloaded!', 'success');
-  } catch (err) {
-    hideProgress();
-    showToast('❌ Error: ' + err.message, 'error');
-  }
-}
-
-async function previewCrop() {
-  const margins = getCropBoxInPt();
-  const page = await pdfDoc.getPage(currentPage);
-  const { width, height } = page.getViewport({ scale: 1 });
-
-  const x = margins.left * canvasScale;
-  const y = margins.top * canvasScale;
-  const w = (width - margins.left - margins.right) * canvasScale;
-  const h = (height - margins.top - margins.bottom) * canvasScale;
-
-  if (w > 0 && h > 0) {
-    cropBox = { x, y, w, h };
-    drawCropRect(cropBox);
-    updateCropInfo(cropBox);
-    showToast('👁 Preview updated');
-  }
-}
-
-// Progress
-function showProgress(title, msg) {
-  document.getElementById('progressTitle').textContent = title;
-  document.getElementById('progressMsg').textContent = msg;
-  document.getElementById('progressFill').style.width = '5%';
-  document.getElementById('progressOverlay').classList.add('show');
-}
-function setProgress(p) { document.getElementById('progressFill').style.width = p + '%'; }
-function hideProgress() { setTimeout(() => document.getElementById('progressOverlay').classList.remove('show'), 500); }
-
-// Toast
-let toastTimer;
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-}
+  const dz = document.querySelector('.drop-zone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = 'var(--accent-pink)'; });
+  dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; });
 </script>
 </body>
 </html>
