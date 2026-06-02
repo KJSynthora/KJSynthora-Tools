@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
-   KJSynthora PWA Install + Notification Manager — v1.1
-   Fixed: message channel closed error + null checks
+   KJSynthora PWA Install + Notification Manager — v1.2
+   Fixed: message channel closed error + applyUpdate race condition
 ═══════════════════════════════════════════════════════ */
 
 (function () {
@@ -13,7 +13,7 @@
         .then(reg => {
           console.log('[PWA] Service Worker registered:', reg.scope);
 
-          // ✅ FIX: null check for reg.installing
+          // ✅ null check for reg.installing
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             if (!newWorker) return;
@@ -30,12 +30,17 @@
         })
         .catch(err => console.warn('[PWA] SW registration failed:', err));
 
-      // ✅ FIX: SW message listener — prevents "message channel closed" error
+      // ✅ SW message listener — prevents "message channel closed" error
       navigator.serviceWorker.addEventListener('message', event => {
         if (!event.data) return;
         if (event.data.type === 'SKIP_WAITING') {
           window.location.reload();
         }
+      });
+
+      // ✅ controllerchange listener — reloads when new SW takes over
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
       });
     });
   }
@@ -118,13 +123,16 @@
       }
     },
 
+    // ✅ FIXED: reload is handled by controllerchange — no race condition
     applyUpdate: function () {
       navigator.serviceWorker.getRegistration().then(reg => {
         if (reg && reg.waiting) {
           reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          // controllerchange listener above will trigger reload
+        } else {
+          window.location.reload(); // fallback only
         }
       });
-      window.location.reload();
     }
   };
 
