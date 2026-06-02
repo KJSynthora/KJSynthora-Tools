@@ -482,7 +482,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--b1);padding:50px 5
       </div>
     </div>
     <a href="about.html" class="nl-btn">About</a>
-    <a href="#contact" class="nl-btn">Contact</a>
+    <a href="#contact" class="nl-btn" onclick="openContact(event)">Contact</a>
   </div>
 
   <div class="nav-r">
@@ -1117,5 +1117,85 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
     });
   }
 </script>
+<!-- CONTACT MODAL -->
+<style>
+.cmodal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(3,5,10,0.85);
+  backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:.3s;}
+.cmodal-overlay.open{opacity:1;pointer-events:all;}
+.cmodal{background:var(--ink3);border:1px solid var(--b1);border-radius:24px;
+  padding:40px 36px;max-width:520px;width:90%;position:relative;
+  transform:translateY(20px);transition:.3s;
+  box-shadow:0 32px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,0.06);}
+.cmodal-overlay.open .cmodal{transform:translateY(0);}
+.cmodal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;
+  border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--b1);
+  color:var(--ice3);font-size:14px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:.2s;}
+.cmodal-close:hover{background:rgba(255,255,255,0.1);color:var(--ice);}
+.cmodal-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--neon);margin-bottom:10px;}
+.cmodal-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+  letter-spacing:-1px;margin-bottom:10px;background:linear-gradient(135deg,var(--ice),var(--ice3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cmodal-desc{font-size:13px;color:var(--ice3);line-height:1.7;margin-bottom:24px;}
+.cmodal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cmodal-card{padding:16px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);
+  border-radius:14px;text-align:center;text-decoration:none;color:var(--ice3);
+  transition:.2s;display:block;}
+.cmodal-card:hover{border-color:rgba(79,172,254,0.3);color:var(--neon);
+  background:rgba(79,172,254,0.05);transform:translateY(-2px);}
+.cmodal-card-ico{font-size:20px;margin-bottom:7px;}
+.cmodal-card-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  margin-bottom:2px;color:var(--ice);}
+.cmodal-card-val{font-size:10.5px;}
+</style>
+
+<div class="cmodal-overlay" id="contactModal" onclick="closeContact(event)">
+  <div class="cmodal">
+    <button class="cmodal-close" onclick="closeContactBtn()">✕</button>
+    <div class="cmodal-eyebrow">✦ Get in Touch</div>
+    <div class="cmodal-title">Contact KJSynthora</div>
+    <p class="cmodal-desc">Have feedback, a tool request, or just want to say hi?<br>Reach out on any platform below.</p>
+    <div class="cmodal-grid">
+      <a href="mailto:thekjspace@gmail.com" class="cmodal-card">
+        <div class="cmodal-card-ico">✉️</div>
+        <div class="cmodal-card-name">Email</div>
+        <div class="cmodal-card-val">thekjspace@gmail.com</div>
+      </a>
+      <a href="https://instagram.com/kjsynthora" target="_blank" class="cmodal-card">
+        <div class="cmodal-card-ico">📸</div>
+        <div class="cmodal-card-name">Instagram</div>
+        <div class="cmodal-card-val">@kjsynthora</div>
+      </a>
+      <a href="https://youtube.com/@TheKJSpace" target="_blank" class="cmodal-card">
+        <div class="cmodal-card-ico">▶️</div>
+        <div class="cmodal-card-name">YouTube</div>
+        <div class="cmodal-card-val">KJSynthora</div>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61590188120158" target="_blank" class="cmodal-card">
+        <div class="cmodal-card-ico">📘</div>
+        <div class="cmodal-card-name">Facebook</div>
+        <div class="cmodal-card-val">Kj Synthora</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function openContact(e){
+  if(e)e.preventDefault();
+  document.getElementById('contactModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeContactBtn(){
+  document.getElementById('contactModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeContact(e){
+  if(e.target===document.getElementById('contactModal')) closeContactBtn();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeContactBtn();});
+</script>  
 </body>
 </html>
