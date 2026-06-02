@@ -1,0 +1,170 @@
+/* ═══════════════════════════════════════════════════════
+   KJSynthora PWA UI — Install Banner + Update Banner
+   Add this to your style.css or <head>
+═══════════════════════════════════════════════════════ */
+
+/* ── Install Banner (bottom slide-up) ─────────────────── */
+#pwa-install-banner {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  width: calc(100% - 32px);
+  max-width: 480px;
+  background: #13131a;
+  border: 1px solid #2a2a3d;
+  border-radius: 18px;
+  padding: 16px 18px;
+  align-items: center;
+  gap: 14px;
+  z-index: 9000;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  transition: transform 0.45s cubic-bezier(0.34,1.2,0.64,1), opacity 0.45s;
+  opacity: 0;
+}
+
+#pwa-install-banner.pwa-show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.pwa-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c6af7, #f76a8a);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.pwa-banner-text { flex: 1; }
+.pwa-banner-text strong {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #e8e8f0;
+  margin-bottom: 2px;
+}
+.pwa-banner-text span {
+  font-size: 0.75rem;
+  color: #6b6b85;
+  font-family: 'DM Mono', monospace;
+}
+
+.pwa-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.pwa-btn-install {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #7c6af7, #9b5cf0);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.pwa-btn-install:hover { box-shadow: 0 4px 16px rgba(124,106,247,0.5); transform: translateY(-1px); }
+
+.pwa-btn-dismiss {
+  width: 32px; height: 32px;
+  background: #1c1c28;
+  border: 1px solid #2a2a3d;
+  border-radius: 8px;
+  color: #6b6b85;
+  cursor: pointer;
+  font-size: 16px;
+  display: grid; place-items: center;
+  transition: all 0.2s;
+}
+.pwa-btn-dismiss:hover { color: #f76a8a; border-color: #f76a8a; }
+
+/* ── Update Banner (top slide-down) ───────────────────── */
+#pwa-update-banner {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  background: #1c1c28;
+  border: 1px solid rgba(124,106,247,0.4);
+  border-radius: 12px;
+  padding: 12px 18px;
+  align-items: center;
+  gap: 12px;
+  z-index: 9000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s;
+  opacity: 0;
+  max-width: 400px;
+  width: calc(100% - 32px);
+}
+
+#pwa-update-banner.pwa-show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+#pwa-update-banner span {
+  flex: 1;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  color: #e8e8f0;
+}
+
+.pwa-btn-update {
+  padding: 7px 14px;
+  background: #7c6af7;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.pwa-btn-update:hover { background: #9b5cf0; }
+
+/* ── Notification bell button (optional, add to header) ── */
+.pwa-notif-btn {
+  width: 38px; height: 38px;
+  background: #1c1c28;
+  border: 1px solid #2a2a3d;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  position: relative;
+}
+.pwa-notif-btn:hover { border-color: #7c6af7; }
+.pwa-notif-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  background: #f76a8a;
+  border-radius: 50%;
+  border: 1.5px solid #0a0a0f;
+}
+
+/* ── Standalone mode tweaks ───────────────────────────── */
+@media (display-mode: standalone) {
+  /* Extra top padding for status bar on mobile */
+  body { padding-top: env(safe-area-inset-top); }
+  /* Hide install banners when already installed */
+  #pwa-install-banner { display: none !important; }
+}
+
+/* ── Mobile responsive ────────────────────────────────── */
+@media (max-width: 480px) {
+  #pwa-install-banner { flex-wrap: wrap; }
+  .pwa-banner-actions { width: 100%; justify-content: flex-end; }
+}
