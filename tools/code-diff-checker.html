@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="KJSynthora Code Diff Checker — Compare two code files side by side with syntax highlighting, inline diffs, and detailed stats.">
+<link rel="icon" type="image/png" href="../logo.png">
+<title>Code Diff Checker — KJSynthora</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#03050a;--ink2:#06090f;--ink3:#0b101c;--ink4:#111827;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.035);
+  --ice:#e8f4ff;--ice2:#b8d4f0;--ice3:#7499c4;
+  --neon:#4facfe;--neon2:#a78bfa;--neon3:#34d399;
+  --gold:#fbbf24;--rose:#f472b6;--cyan:#22d3ee;
+  --red:#f87171;--green:#34d399;
+  --g1:linear-gradient(135deg,#4facfe,#a78bfa);
+  --g2:linear-gradient(135deg,#0ea5e9,#7c3aed);
+  --g3:linear-gradient(135deg,#4facfe 0%,#a78bfa 50%,#f472b6 100%);
+  --add-bg:rgba(52,211,153,0.08);--add-border:rgba(52,211,153,0.25);--add-num:rgba(52,211,153,0.15);
+  --del-bg:rgba(248,113,113,0.08);--del-border:rgba(248,113,113,0.25);--del-num:rgba(248,113,113,0.15);
+  --mod-bg:rgba(251,191,36,0.06);--mod-border:rgba(251,191,36,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--ice);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.55;}
+
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.a-blob{position:absolute;border-radius:50%;filter:blur(90px);animation:ab 16s ease-in-out infinite alternate}
+.ab1{width:800px;height:800px;background:radial-gradient(circle,rgba(79,172,254,0.12),rgba(124,58,237,0.06));top:-300px;left:-200px;}
+.ab2{width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,0.1),rgba(244,114,182,0.05));bottom:-150px;right:-150px;animation-delay:-8s;}
+@keyframes ab{0%{transform:scale(1)}100%{transform:scale(1.3)translate(30px,-20px)}}
+
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:rgba(79,172,254,0.3);border-radius:3px}
+
+/* ══ NAV ══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(3,5,10,0.7);backdrop-filter:blur(24px);border-bottom:1px solid var(--b1);}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nl-m{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,rgba(79,172,254,0.15),rgba(167,139,250,0.1));border:1px solid rgba(79,172,254,0.25);display:flex;align-items:center;justify-content:center;}
+.nl-m span{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nl-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;background:var(--g3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-back{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--b1);color:var(--ice3);font-size:12px;text-decoration:none;transition:.2s;font-family:'DM Mono',monospace;}
+.nav-back:hover{color:var(--neon);border-color:rgba(79,172,254,0.25);}
+
+/* ══ MAIN ══ */
+.main{position:relative;z-index:1;padding:80px 0 60px;}
+.tool-header{text-align:center;padding:40px 5% 32px;}
+.tool-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:4px 14px;border-radius:999px;background:rgba(79,172,254,0.07);border:1px solid rgba(79,172,254,0.15);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon);margin-bottom:14px;}
+.tool-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-2px;background:linear-gradient(135deg,var(--ice),var(--ice3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+.tool-sub{font-size:14px;color:var(--ice3);max-width:480px;margin:0 auto;line-height:1.7;}
+
+/* ══ CONTROLS ══ */
+.controls{padding:0 5% 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ctrl-group{display:flex;align-items:center;gap:6px;background:var(--ink3);border:1px solid var(--b1);border-radius:10px;padding:4px;}
+.ctrl-btn{padding:5px 12px;border-radius:7px;border:none;background:none;color:var(--ice3);font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;transition:.2s;white-space:nowrap;}
+.ctrl-btn:hover{color:var(--ice);background:rgba(255,255,255,0.05);}
+.ctrl-btn.active{background:rgba(79,172,254,0.12);color:var(--neon);border:1px solid rgba(79,172,254,0.2);}
+.ctrl-sep{width:1px;height:18px;background:var(--b1);}
+.lang-select{padding:6px 10px;border-radius:8px;background:var(--ink3);border:1px solid var(--b1);color:var(--ice3);font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;outline:none;}
+.lang-select:focus{border-color:rgba(79,172,254,0.3);}
+.btn-compare{padding:8px 20px;border-radius:9px;background:var(--g2);border:none;color:#fff;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;box-shadow:0 4px 16px rgba(79,172,254,0.2);}
+.btn-compare:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(79,172,254,0.35);}
+.btn-clear{padding:8px 16px;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid var(--b1);color:var(--ice3);font-size:13px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;}
+.btn-clear:hover{background:rgba(255,255,255,0.08);color:var(--ice);}
+.btn-copy{padding:8px 16px;border-radius:9px;background:rgba(79,172,254,0.08);border:1px solid rgba(79,172,254,0.2);color:var(--neon);font-size:13px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;}
+.btn-copy:hover{background:rgba(79,172,254,0.14);}
+
+/* ══ EDITORS ══ */
+.editors-wrap{padding:0 5%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.editor-panel{background:var(--ink3);border:1px solid var(--b1);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.editor-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02);}
+.editor-label{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
+.label-dot{width:8px;height:8px;border-radius:50%;}
+.dot-old{background:#f87171;}
+.dot-new{background:#34d399;}
+.editor-actions{display:flex;gap:6px;}
+.ea-btn{padding:3px 10px;border-radius:6px;border:none;background:rgba(255,255,255,0.04);color:var(--ice3);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:.2s;}
+.ea-btn:hover{background:rgba(255,255,255,0.08);color:var(--ice);}
+.editor-textarea{width:100%;min-height:280px;background:transparent;border:none;outline:none;color:var(--ice);font-family:'DM Mono',monospace;font-size:13px;line-height:1.6;padding:14px;resize:vertical;tab-size:2;}
+.editor-textarea::placeholder{color:rgba(116,153,196,0.35);}
+
+/* ══ STATS BAR ══ */
+.stats-bar{margin:0 5% 16px;background:var(--ink3);border:1px solid var(--b1);border-radius:12px;padding:12px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.stat-item{display:flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:12px;}
+.stat-dot{width:8px;height:8px;border-radius:50%;}
+.stat-val{font-weight:500;}
+.stat-lbl{color:var(--ice3);}
+.stats-bar .sep{width:1px;height:16px;background:var(--b1);margin:0 4px;}
+.similarity-bar{flex:1;min-width:120px;display:flex;align-items:center;gap:10px;margin-left:auto;}
+.sim-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--ice3);white-space:nowrap;}
+.sim-track{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.sim-fill{height:100%;border-radius:2px;background:var(--g1);transition:width .5s ease;}
+.sim-pct{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--neon);white-space:nowrap;}
+
+/* ══ DIFF OUTPUT ══ */
+.diff-wrap{padding:0 5% 40px;}
+.diff-container{background:var(--ink3);border:1px solid var(--b1);border-radius:16px;overflow:hidden;}
+.diff-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02);}
+.diff-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ice2);}
+.diff-view-btns{display:flex;gap:4px;}
+.dv-btn{padding:4px 10px;border-radius:6px;border:none;background:rgba(255,255,255,0.03);color:var(--ice3);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:.2s;}
+.dv-btn.active{background:rgba(79,172,254,0.1);color:var(--neon);}
+.diff-body{overflow-x:auto;}
+
+/* Unified diff */
+.diff-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12.5px;line-height:1.6;}
+.diff-table td{padding:2px 0;white-space:pre;vertical-align:top;}
+.diff-table .ln{width:40px;text-align:right;padding:2px 10px;color:rgba(116,153,196,0.35);user-select:none;font-size:11px;border-right:1px solid var(--b1);}
+.diff-table .ln-old{background:var(--del-num);}
+.diff-table .ln-new{background:var(--add-num);}
+.diff-table .code{padding:2px 14px;width:100%;}
+.diff-row-add{background:var(--add-bg);}
+.diff-row-add .code{color:var(--green);}
+.diff-row-add .prefix{color:var(--green);font-weight:700;}
+.diff-row-del{background:var(--del-bg);}
+.diff-row-del .code{color:var(--red);}
+.diff-row-del .prefix{color:var(--red);font-weight:700;}
+.diff-row-ctx .code{color:var(--ice3);}
+.diff-row-ctx .prefix{color:transparent;}
+.diff-row-hunk{background:rgba(79,172,254,0.05);border-top:1px solid rgba(79,172,254,0.1);border-bottom:1px solid rgba(79,172,254,0.1);}
+.diff-row-hunk .code{color:var(--neon);font-style:italic;font-size:11px;}
+.diff-empty{text-align:center;padding:60px;color:var(--ice3);font-family:'DM Mono',monospace;font-size:13px;}
+
+/* Side by side */
+.sbs-wrap{display:grid;grid-template-columns:1fr 1fr;}
+.sbs-pane{overflow-x:auto;}
+.sbs-pane:first-child{border-right:1px solid var(--b1);}
+.sbs-header{padding:8px 14px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--b1);font-family:'DM Mono',monospace;font-size:11px;display:flex;align-items:center;gap:6px;}
+.sbs-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px;line-height:1.6;}
+.sbs-table td{padding:2px 0;white-space:pre;vertical-align:top;}
+.sbs-table .ln{width:36px;text-align:right;padding:2px 8px;color:rgba(116,153,196,0.3);user-select:none;font-size:11px;border-right:1px solid var(--b1);}
+.sbs-table .code{padding:2px 12px;width:100%;}
+.sbs-add{background:var(--add-bg);}
+.sbs-add .code{color:var(--green);}
+.sbs-del{background:var(--del-bg);}
+.sbs-del .code{color:var(--red);}
+.sbs-ctx .code{color:var(--ice3);}
+.sbs-empty-line{background:rgba(255,255,255,0.02);}
+.sbs-empty-line .code{color:transparent;}
+
+/* inline char diff highlight */
+.char-add{background:rgba(52,211,153,0.25);border-radius:2px;}
+.char-del{background:rgba(248,113,113,0.25);border-radius:2px;text-decoration:line-through;}
+
+/* ══ LEGEND ══ */
+.legend{display:flex;align-items:center;gap:16px;padding:10px 16px;border-top:1px solid var(--b1);background:rgba(255,255,255,0.01);flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ice3);}
+.leg-swatch{width:12px;height:12px;border-radius:3px;}
+.leg-add{background:var(--add-bg);border:1px solid var(--add-border);}
+.leg-del{background:var(--del-bg);border:1px solid var(--del-border);}
+.leg-ctx{background:rgba(255,255,255,0.03);border:1px solid var(--b1);}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;background:var(--ink4);border:1px solid var(--b1);border-radius:10px;font-size:12px;font-family:'DM Mono',monospace;z-index:9999;opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .editors-wrap{grid-template-columns:1fr;}
+  .controls{gap:8px;}
+  .similarity-bar{display:none;}
+  .sbs-wrap{grid-template-columns:1fr;}
+  .sbs-pane:first-child{border-right:none;border-bottom:1px solid var(--b1);}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"><div class="a-blob ab1"></div><div class="a-blob ab2"></div></div>
+
+<!-- NAV -->
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <div class="nl-m"><span>KJ</span></div>
+    <span class="nl-name">KJSynthora</span>
+  </a>
+  <a href="../index.html" class="nav-back">← Back to Tools</a>
+</nav>
+
+<div class="main">
+  <!-- HEADER -->
+  <div class="tool-header">
+    <div class="tool-eyebrow">🔀 Dev Tool</div>
+    <h1 class="tool-title">Code Diff Checker</h1>
+    <p class="tool-sub">Compare two code snippets side by side with syntax-aware diffs, line numbers, and similarity scores.</p>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <button class="ctrl-btn active" id="btnUnified" onclick="setView('unified')">Unified</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btnSplit" onclick="setView('split')">Split</button>
+    </div>
+    <div class="ctrl-group">
+      <button class="ctrl-btn active" id="btnCtx3" onclick="setContext(3)">±3 lines</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btnCtx5" onclick="setContext(5)">±5 lines</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btnCtxAll" onclick="setContext(-1)">Full</button>
+    </div>
+    <select class="lang-select" id="langSelect">
+      <option value="plain">Plain Text</option>
+      <option value="js">JavaScript</option>
+      <option value="py">Python</option>
+      <option value="html">HTML</option>
+      <option value="css">CSS</option>
+      <option value="json">JSON</option>
+      <option value="sql">SQL</option>
+      <option value="java">Java</option>
+      <option value="cpp">C++</option>
+    </select>
+    <button class="btn-compare" onclick="runDiff()">⚡ Compare</button>
+    <button class="btn-clear" onclick="clearAll()">✕ Clear</button>
+    <button class="btn-copy" onclick="copyDiff()">📋 Copy Diff</button>
+  </div>
+
+  <!-- EDITORS -->
+  <div class="editors-wrap">
+    <div class="editor-panel">
+      <div class="editor-header">
+        <div class="editor-label">
+          <div class="label-dot dot-old"></div>
+          <span style="color:var(--red);font-weight:600;">Original</span>
+          <span style="color:var(--ice3);margin-left:4px;" id="oldLines">0 lines</span>
+        </div>
+        <div class="editor-actions">
+          <button class="ea-btn" onclick="loadSample('old')">Sample</button>
+          <button class="ea-btn" onclick="clearPanel('old')">Clear</button>
+          <button class="ea-btn" onclick="uploadFile('old')">📁 Upload</button>
+        </div>
+      </div>
+      <textarea class="editor-textarea" id="oldCode" placeholder="Paste original code here…&#10;&#10;Or click 'Sample' to load an example." spellcheck="false" oninput="updateLineCount('old')"></textarea>
+    </div>
+    <div class="editor-panel">
+      <div class="editor-header">
+        <div class="editor-label">
+          <div class="label-dot dot-new"></div>
+          <span style="color:var(--green);font-weight:600;">Modified</span>
+          <span style="color:var(--ice3);margin-left:4px;" id="newLines">0 lines</span>
+        </div>
+        <div class="editor-actions">
+          <button class="ea-btn" onclick="loadSample('new')">Sample</button>
+          <button class="ea-btn" onclick="clearPanel('new')">Clear</button>
+          <button class="ea-btn" onclick="uploadFile('new')">📁 Upload</button>
+        </div>
+      </div>
+      <textarea class="editor-textarea" id="newCode" placeholder="Paste modified code here…&#10;&#10;Or click 'Sample' to load an example." spellcheck="false" oninput="updateLineCount('new')"></textarea>
+    </div>
+  </div>
+  <input type="file" id="fileInput" style="display:none" accept=".js,.ts,.py,.html,.css,.json,.sql,.java,.cpp,.c,.txt,.md" onchange="handleFile(event)">
+
+  <!-- STATS BAR -->
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat-item"><div class="stat-dot" style="background:var(--green)"></div><span class="stat-val" id="statAdd">0</span><span class="stat-lbl">added</span></div>
+    <div class="sep"></div>
+    <div class="stat-item"><div class="stat-dot" style="background:var(--red)"></div><span class="stat-val" id="statDel">0</span><span class="stat-lbl">removed</span></div>
+    <div class="sep"></div>
+    <div class="stat-item"><div class="stat-dot" style="background:var(--ice3)"></div><span class="stat-val" id="statCtx">0</span><span class="stat-lbl">unchanged</span></div>
+    <div class="sep"></div>
+    <div class="stat-item"><div class="stat-dot" style="background:var(--gold)"></div><span class="stat-val" id="statChunks">0</span><span class="stat-lbl">chunks</span></div>
+    <div class="similarity-bar">
+      <span class="sim-label">Similarity</span>
+      <div class="sim-track"><div class="sim-fill" id="simFill" style="width:0%"></div></div>
+      <span class="sim-pct" id="simPct">0%</span>
+    </div>
+  </div>
+
+  <!-- DIFF OUTPUT -->
+  <div class="diff-wrap">
+    <div class="diff-container" id="diffContainer">
+      <div class="diff-header">
+        <span class="diff-title">Diff Output</span>
+        <div class="diff-view-btns">
+          <button class="dv-btn active" id="dvUnified" onclick="setView('unified')">Unified</button>
+          <button class="dv-btn" id="dvSplit" onclick="setView('split')">Split</button>
+        </div>
+      </div>
+      <div class="diff-body" id="diffBody">
+        <div class="diff-empty">
+          ↑ Paste code in both panels and click <strong style="color:var(--neon)">Compare</strong> to see the diff
+        </div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-swatch leg-add"></div>Added lines</div>
+        <div class="leg-item"><div class="leg-swatch leg-del"></div>Removed lines</div>
+        <div class="leg-item"><div class="leg-swatch leg-ctx"></div>Unchanged</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ STATE ══
+let viewMode = 'unified';
+let ctxLines = 3;
+let lastDiff = null;
+let uploadTarget = null;
+
+// ══ SAMPLES ══
+const SAMPLES = {
+  old: `function fetchUserData(userId) {
+  var url = 'https://api.example.com/users/' + userId;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, false);
+  xhr.send();
+  if (xhr.status === 200) {
+    var data = JSON.parse(xhr.responseText);
+    return data;
+  }
+  return null;
+}
+
+function processUsers(users) {
+  var result = [];
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].active == true) {
+      result.push(users[i].name);
+    }
+  }
+  return result;
+}`,
+  new: `async function fetchUserData(userId) {
+  const url = \`https://api.example.com/users/\${userId}\`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    return null;
+  }
+}
+
+function processUsers(users) {
+  return users
+    .filter(user => user.active === true)
+    .map(user => user.name);
+}`
+};
+
+// ══ DIFF ENGINE (Myers LCS) ══
+function computeDiff(oldLines, newLines) {
+  const m = oldLines.length, n = newLines.length;
+  const max = m + n;
+  const v = new Array(2 * max + 1).fill(0);
+  const trace = [];
+
+  for (let d = 0; d <= max; d++) {
+    trace.push([...v]);
+    for (let k = -d; k <= d; k += 2) {
+      const ki = k + max;
+      let x;
+      if (k === -d || (k !== d && v[ki - 1] < v[ki + 1])) {
+        x = v[ki + 1];
+      } else {
+        x = v[ki - 1] + 1;
+      }
+      let y = x - k;
+      while (x < m && y < n && oldLines[x] === newLines[y]) { x++; y++; }
+      v[ki] = x;
+      if (x >= m && y >= n) {
+        return backtrack(trace, oldLines, newLines, max, d);
+      }
+    }
+  }
+  return backtrack(trace, oldLines, newLines, max, max);
+}
+
+function backtrack(trace, oldL, newL, max, d) {
+  const ops = [];
+  let x = oldL.length, y = newL.length;
+  for (let dd = d; dd > 0; dd--) {
+    const v = trace[dd];
+    const k = x - y;
+    const ki = k + max;
+    let prevK;
+    if (k === -dd || (k !== dd && v[ki - 1] < v[ki + 1])) {
+      prevK = k + 1;
+    } else {
+      prevK = k - 1;
+    }
+    const prevX = v[prevK + max];
+    const prevY = prevX - prevK;
+    while (x > prevX && y > prevY) { x--; y--; ops.unshift({type:'eq',old:x,new:y}); }
+    if (dd > 0) {
+      if (x === prevX) { y--; ops.unshift({type:'ins',new:y}); }
+      else { x--; ops.unshift({type:'del',old:x}); }
+    }
+  }
+  while (x > 0 && y > 0) { x--; y--; ops.unshift({type:'eq',old:x,new:y}); }
+  return ops;
+}
+
+function buildHunks(ops, oldLines, newLines, ctx) {
+  if (ctx === -1) return [{ops, oldStart:0, newStart:0}];
+  const hunks = [];
+  let i = 0;
+  while (i < ops.length) {
+    if (ops[i].type !== 'eq') {
+      const start = Math.max(0, i - ctx);
+      let end = i;
+      while (end < ops.length && (ops[end].type !== 'eq' || end - i < ctx * 2)) end++;
+      end = Math.min(ops.length, end + ctx);
+      hunks.push({ops: ops.slice(start, end), i: start});
+      i = end;
+    } else { i++; }
+  }
+  return hunks;
+}
+
+// ══ CHAR-LEVEL DIFF ══
+function charDiff(a, b) {
+  if (a === b) return [escHtml(a), escHtml(b)];
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  let j = 0;
+  while (j < a.length - i && j < b.length - i && a[a.length-1-j] === b[b.length-1-j]) j++;
+  const aCommon1 = escHtml(a.slice(0, i));
+  const aCommon2 = escHtml(a.slice(a.length - j || undefined));
+  const bCommon1 = escHtml(b.slice(0, i));
+  const bCommon2 = escHtml(b.slice(b.length - j || undefined));
+  const aMid = a.slice(i, j ? a.length - j : undefined);
+  const bMid = b.slice(i, j ? b.length - j : undefined);
+  return [
+    `${aCommon1}<span class="char-del">${escHtml(aMid)}</span>${aCommon2}`,
+    `${bCommon1}<span class="char-add">${escHtml(bMid)}</span>${bCommon2}`
+  ];
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══ RENDER UNIFIED ══
+function renderUnified(ops, oldLines, newLines, ctx) {
+  const hunks = buildHunks(ops, oldLines, newLines, ctx === -1 ? -1 : ctx);
+  if (!hunks.length) return '<div class="diff-empty" style="padding:40px;text-align:center;color:var(--neon3)">✓ Files are identical — no differences found</div>';
+
+  let html = '<table class="diff-table">';
+  let lastEnd = -1;
+
+  for (const hunk of hunks) {
+    const hunkOps = hunk.ops;
+    if (!hunkOps.length) continue;
+
+    // hunk header
+    const firstOld = hunkOps.find(o => o.old !== undefined);
+    const firstNew = hunkOps.find(o => o.new !== undefined);
+    const oldStart = firstOld ? firstOld.old + 1 : 1;
+    const newStart = firstNew ? firstNew.new + 1 : 1;
+
+    if (ctx !== -1) {
+      html += `<tr class="diff-row-hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -${oldStart},${hunkOps.filter(o=>o.old!==undefined).length} +${newStart},${hunkOps.filter(o=>o.new!==undefined).length} @@</td></tr>`;
+    }
+
+    // find adjacent del+ins pairs for char diff
+    for (let i = 0; i < hunkOps.length; i++) {
+      const op = hunkOps[i];
+      if (op.type === 'del') {
+        const next = hunkOps[i + 1];
+        if (next && next.type === 'ins') {
+          const [delHtml, insHtml] = charDiff(oldLines[op.old], newLines[next.new]);
+          html += `<tr class="diff-row-del"><td class="ln ln-old">${op.old+1}</td><td class="ln"></td><td class="code"><span class="prefix">−</span> ${delHtml}</td></tr>`;
+          html += `<tr class="diff-row-add"><td class="ln"></td><td class="ln ln-new">${next.new+1}</td><td class="code"><span class="prefix">+</span> ${insHtml}</td></tr>`;
+          i++;
+        } else {
+          html += `<tr class="diff-row-del"><td class="ln ln-old">${op.old+1}</td><td class="ln"></td><td class="code"><span class="prefix">−</span> ${escHtml(oldLines[op.old])}</td></tr>`;
+        }
+      } else if (op.type === 'ins') {
+        html += `<tr class="diff-row-add"><td class="ln"></td><td class="ln ln-new">${op.new+1}</td><td class="code"><span class="prefix">+</span> ${escHtml(newLines[op.new])}</td></tr>`;
+      } else {
+        html += `<tr class="diff-row-ctx"><td class="ln">${op.old+1}</td><td class="ln">${op.new+1}</td><td class="code"><span class="prefix"> </span> ${escHtml(oldLines[op.old])}</td></tr>`;
+      }
+    }
+  }
+  html += '</table>';
+  return html;
+}
+
+// ══ RENDER SPLIT ══
+function renderSplit(ops, oldLines, newLines, ctx) {
+  const leftRows = [], rightRows = [];
+
+  if (ctx === -1) {
+    processOps(ops, oldLines, newLines, leftRows, rightRows);
+  } else {
+    const hunks = buildHunks(ops, oldLines, newLines, ctx);
+    for (const h of hunks) processOps(h.ops, oldLines, newLines, leftRows, rightRows);
+  }
+
+  let leftHtml = '<table class="sbs-table">';
+  let rightHtml = '<table class="sbs-table">';
+  const len = Math.max(leftRows.length, rightRows.length);
+  for (let i = 0; i < len; i++) {
+    const l = leftRows[i] || {cls:'sbs-empty-line', ln:'', code:' '};
+    const r = rightRows[i] || {cls:'sbs-empty-line', ln:'', code:' '};
+    leftHtml += `<tr class="${l.cls}"><td class="ln">${l.ln}</td><td class="code">${l.code}</td></tr>`;
+    rightHtml += `<tr class="${r.cls}"><td class="ln">${r.ln}</td><td class="code">${r.code}</td></tr>`;
+  }
+  leftHtml += '</table>'; rightHtml += '</table>';
+
+  return `<div class="sbs-wrap">
+    <div class="sbs-pane">
+      <div class="sbs-header"><span class="label-dot dot-old" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;"></span>Original</div>
+      ${leftHtml}
+    </div>
+    <div class="sbs-pane">
+      <div class="sbs-header"><span class="label-dot dot-new" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;"></span>Modified</div>
+      ${rightHtml}
+    </div>
+  </div>`;
+}
+
+function processOps(ops, oldLines, newLines, leftRows, rightRows) {
+  let i = 0;
+  while (i < ops.length) {
+    const op = ops[i];
+    if (op.type === 'del') {
+      const next = ops[i+1];
+      if (next && next.type === 'ins') {
+        const [delHtml, insHtml] = charDiff(oldLines[op.old], newLines[next.new]);
+        leftRows.push({cls:'sbs-del', ln:op.old+1, code:delHtml});
+        rightRows.push({cls:'sbs-add', ln:next.new+1, code:insHtml});
+        i += 2;
+      } else {
+        leftRows.push({cls:'sbs-del', ln:op.old+1, code:escHtml(oldLines[op.old])});
+        rightRows.push({cls:'sbs-empty-line', ln:'', code:' '});
+        i++;
+      }
+    } else if (op.type === 'ins') {
+      leftRows.push({cls:'sbs-empty-line', ln:'', code:' '});
+      rightRows.push({cls:'sbs-add', ln:op.new+1, code:escHtml(newLines[op.new])});
+      i++;
+    } else {
+      leftRows.push({cls:'sbs-ctx', ln:op.old+1, code:escHtml(oldLines[op.old])});
+      rightRows.push({cls:'sbs-ctx', ln:op.new+1, code:escHtml(newLines[op.new])});
+      i++;
+    }
+  }
+}
+
+// ══ MAIN DIFF RUNNER ══
+function runDiff() {
+  const oldText = document.getElementById('oldCode').value;
+  const newText = document.getElementById('newCode').value;
+  if (!oldText.trim() && !newText.trim()) { showToast('⚠️ Please paste code in both panels'); return; }
+
+  const oldLines = oldText.split('\n');
+  const newLines = newText.split('\n');
+  const ops = computeDiff(oldLines, newLines);
+  lastDiff = {ops, oldLines, newLines};
+
+  // stats
+  const added = ops.filter(o => o.type === 'ins').length;
+  const deleted = ops.filter(o => o.type === 'del').length;
+  const ctx = ops.filter(o => o.type === 'eq').length;
+  const total = oldLines.length + newLines.length;
+  const similarity = total > 0 ? Math.round((ctx * 2 / total) * 100) : 100;
+
+  // chunk count
+  let chunks = 0, inChunk = false;
+  ops.forEach(o => {
+    if (o.type !== 'eq') { if (!inChunk) { chunks++; inChunk = true; } }
+    else { inChunk = false; }
+  });
+
+  document.getElementById('statAdd').textContent = added;
+  document.getElementById('statDel').textContent = deleted;
+  document.getElementById('statCtx').textContent = ctx;
+  document.getElementById('statChunks').textContent = chunks;
+  document.getElementById('simFill').style.width = similarity + '%';
+  document.getElementById('simPct').textContent = similarity + '%';
+  document.getElementById('statsBar').style.display = 'flex';
+
+  renderDiff();
+}
+
+function renderDiff() {
+  if (!lastDiff) return;
+  const {ops, oldLines, newLines} = lastDiff;
+  const body = document.getElementById('diffBody');
+  if (viewMode === 'unified') {
+    body.innerHTML = renderUnified(ops, oldLines, newLines, ctxLines);
+  } else {
+    body.innerHTML = renderSplit(ops, oldLines, newLines, ctxLines);
+  }
+}
+
+// ══ VIEW / CONTEXT ══
+function setView(mode) {
+  viewMode = mode;
+  ['Unified','Split'].forEach(v => {
+    document.getElementById('btn'+v).classList.toggle('active', v.toLowerCase() === mode);
+    document.getElementById('dv'+v).classList.toggle('active', v.toLowerCase() === mode);
+  });
+  renderDiff();
+}
+
+function setContext(n) {
+  ctxLines = n;
+  ['3','5','All'].forEach(v => {
+    const el = document.getElementById('btnCtx'+v);
+    if (el) el.classList.toggle('active', (v === 'All' ? -1 : +v) === n);
+  });
+  renderDiff();
+}
+
+// ══ UTILS ══
+function updateLineCount(side) {
+  const val = document.getElementById(side+'Code').value;
+  const lines = val ? val.split('\n').length : 0;
+  document.getElementById(side+'Lines').textContent = lines + ' line' + (lines !== 1 ? 's' : '');
+}
+
+function loadSample(side) {
+  document.getElementById(side+'Code').value = SAMPLES[side];
+  updateLineCount(side);
+}
+
+function clearPanel(side) {
+  document.getElementById(side+'Code').value = '';
+  updateLineCount(side);
+}
+
+function clearAll() {
+  ['old','new'].forEach(s => { document.getElementById(s+'Code').value = ''; updateLineCount(s); });
+  document.getElementById('diffBody').innerHTML = '<div class="diff-empty">↑ Paste code in both panels and click <strong style="color:var(--neon)">Compare</strong> to see the diff</div>';
+  document.getElementById('statsBar').style.display = 'none';
+  lastDiff = null;
+}
+
+function uploadFile(side) {
+  uploadTarget = side;
+  document.getElementById('fileInput').click();
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById(uploadTarget+'Code').value = ev.target.result;
+    updateLineCount(uploadTarget);
+    showToast('✅ File loaded: ' + file.name);
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function copyDiff() {
+  if (!lastDiff) { showToast('⚠️ Run a comparison first'); return; }
+  const {ops, oldLines, newLines} = lastDiff;
+  let text = '';
+  ops.forEach(op => {
+    if (op.type === 'del') text += '- ' + oldLines[op.old] + '\n';
+    else if (op.type === 'ins') text += '+ ' + newLines[op.new] + '\n';
+    else text += '  ' + oldLines[op.old] + '\n';
+  });
+  navigator.clipboard.writeText(text).then(() => showToast('✅ Diff copied to clipboard'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// auto-run on Ctrl+Enter
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runDiff(); }
+});
+</script>
+</body>
+</html>
