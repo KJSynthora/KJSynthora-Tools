@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure JWT Decoder Online — 100% Client-Side | KJSynthora</title>
+    <meta name="description" content="Decode and inspect JSON Web Tokens instantly. Completely secure, private, and local verification with zero data logging.">
+    <!-- Tailwind CSS Dynamic Browser Configuration CDN -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- Lucide Vector Icons Dynamic Assembly CDN -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .token-header { color: #f43f5e; }
+        .token-payload { color: #38bdf8; }
+        .token-signature { color: #10b981; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500/30">
+
+    
+    <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2 rounded-lg shadow-lg shadow-emerald-500/10">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-slate-950"></i>
+                </div>
+                <div>
+                    <span class="text-emerald-400 font-bold text-xl tracking-wider">KJ<span class="text-white">Synthora</span></span>
+                    <span class="text-[10px] bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded ml-2 uppercase tracking-widest font-mono">Core Tools</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg font-mono">
+                <i data-lucide="lock" class="w-3.5 h-3.5 animate-pulse"></i>
+                <span>Local Sandbox Mode Activated (No Network Traffic Packets Shared)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Diagnostic Canvas Framework -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Data Intake Module Pillar -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <div class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm flex flex-col flex-1 min-h-[450px]">
+                <div class="flex items-center justify-between mb-4">
+                    <label for="jwt-input" class="text-xs font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                        <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i> Encoded Token Interface
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <button id="btn-load-sample" class="text-xs text-emerald-400/80 hover:text-emerald-300 flex items-center gap-1 transition-colors cursor-pointer font-medium">
+                            <i data-lucide="file-code" class="w-3.5 h-3.5"></i> Sample Token
+                        </button>
+                        <span class="text-slate-700">|</span>
+                        <button id="btn-clear" class="text-xs text-slate-500 hover:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer font-medium">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Panel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Token Segment Highlight Visual Helper Layout -->
+                <div class="relative flex-1 flex flex-col">
+                    <textarea id="jwt-input" placeholder="Paste your raw JWT (header.payload.signature) string configuration layout here..." 
+                        class="w-full flex-1 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 rounded-xl p-4 font-mono text-xs sm:text-sm text-slate-300 outline-none resize-none transition-all leading-relaxed custom-scrollbar shadow-inner"></textarea>
+                </div>
+                
+                <!-- Color Mapping Indicators Map -->
+                <div class="mt-4 pt-4 border-t border-slate-800/60 grid grid-cols-3 gap-2 text-[10px] uppercase font-mono tracking-wider text-center">
+                    <div class="p-1.5 bg-rose-500/5 border border-rose-500/10 rounded-lg text-rose-400 font-semibold">Header structure</div>
+                    <div class="p-1.5 bg-sky-500/5 border border-sky-500/10 rounded-lg text-sky-400 font-semibold">Payload data</div>
+                    <div class="p-1.5 bg-emerald-500/5 border border-emerald-500/10 rounded-lg text-emerald-400 font-semibold">Signature validation</div>
+                </div>
+            </div>
+
+            <!-- Comprehensive Cryptographic Key Signature Verification Engine Panel -->
+            <div class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                        <i data-lucide="fingerprint" class="w-4 h-4 text-emerald-400"></i> Verification Sandbox Engine
+                    </h3>
+                    <span id="algo-badge" class="hidden text-[10px] bg-slate-950 text-emerald-400 border border-slate-800 px-2 py-0.5 rounded font-mono uppercase font-bold"></span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                    Optionally insert your localized signature application validation parameter secret strings or public certificate key chains below to evaluate cryptographic verification state metrics.
+                </p>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <input type="password" id="jwt-secret" placeholder="Enter HS256 secret or asymmetric RSA public key configuration map..."
+                            class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/30 rounded-xl py-3 pl-4 pr-10 text-xs sm:text-sm text-slate-300 font-mono outline-none transition-all">
+                        <button id="toggle-secret-visibility" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div id="signature-status" class="hidden text-xs p-3.5 rounded-xl border flex items-start gap-2.5 transition-all animate-fadeIn">
+                        <!-- Filled by JS dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Advanced Insights Panel Architecture -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Realtime Threat Vector Scanner Metrics -->
+            <div id="security-scanner" class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm hidden animate-fadeIn">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold tracking-widest uppercase text-rose-400 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400 animate-bounce"></i> Vulnerability Audit logs
+                    </h3>
+                    <span class="text-[10px] font-mono bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 uppercase font-bold">Risk Event Found</span>
+                </div>
+                <div id="scanner-alerts" class="space-y-2.5 text-xs">
+                    <!-- Dynamic Threat Flags placement frame -->
+                </div>
+            </div>
+
+            <!-- Decoded JOSE Header Parameters Data Layout block -->
+            <div class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold tracking-widest uppercase text-rose-400 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4"></i> Decoded JOSE Header Parameters
+                    </h3>
+                    <button onclick="copyToClipboard('output-header', 'copy-header-text')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-all cursor-pointer font-medium">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="copy-header-text">Copy Header</span>
+                    </button>
+                </div>
+                <div class="relative flex-1">
+                    <pre id="output-header" class="bg-slate-950 border border-slate-800/80 rounded-xl p-4 font-mono text-xs sm:text-sm text-rose-300 overflow-x-auto custom-scrollbar min-h-[70px] leading-relaxed shadow-inner">{}</pre>
+                </div>
+            </div>
+
+            <!-- Decoded Claims JSON Data Structure block -->
+            <!-- Decoded Claims JSON Data Structure block -->
+            <div class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold tracking-widest uppercase text-sky-400 flex items-center gap-2">
+                        <i data-lucide="braces" class="w-4 h-4"></i> Decoded Claims Context Structure (Payload)
+                    </h3>
+                    <button onclick="copyToClipboard('output-payload', 'copy-payload-text')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-all cursor-pointer font-medium">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="copy-payload-text">Copy Payload</span>
+                    </button>
+                </div>
+                <div class="relative flex-1">
+                    <pre id="output-payload" class="bg-slate-950 border border-slate-800/80 rounded-xl p-4 font-mono text-xs sm:text-sm text-sky-300 overflow-x-auto custom-scrollbar min-h-[160px] leading-relaxed shadow-inner">{}</pre>
+                </div>
+            </div>
+
+            <!-- Epoch Machine Code Time Translation Metrics Board -->
+            <div class="bg-slate-900/60 border border-slate-900 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
+                <h3 class="text-xs font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2 mb-4">
+                    <i data-lucide="clock-arrow-up" class="w-4 h-4 text-emerald-400"></i> Local Time Engine & Expiration Diagnostics
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs" id="meta-time-grid">
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-slate-500 col-span-2 flex items-center gap-2 font-mono">
+                        <i data-lucide="info" class="w-4 h-4 text-slate-600"></i> No token claims evaluated yet to draw chronological metric properties.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer Security Claims Context and Branding Framework -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-8 px-4 text-center text-xs text-slate-600 font-mono tracking-wide mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 KJSynthora Network System Platform Services. Zero trackers, 100% client side.</p>
+            <div class="flex items-center gap-4 text-slate-500 text-[11px]">
+                <span class="hover:text-emerald-400 transition-colors">Client-Side Isolation</span>
+                <span>•</span>
+                <span class="hover:text-emerald-400 transition-colors">W3C Compliance</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Client-Side Engine Application Automation Scripts -->
+    <script>
+        // Initiate Core SVG Vector Engine Graphics Assembly Mapping
+        lucide.createIcons();
+
+        // Application DOM Node Interface Matrix Mapping Hooks
+        const jwtInput = document.getElementById('jwt-input');
+        const jwtSecret = document.getElementById('jwt-secret');
+        const toggleSecret = document.getElementById('toggle-secret-visibility');
+        const clearBtn = document.getElementById('btn-clear');
+        const loadSampleBtn = document.getElementById('btn-load-sample');
+        const outHeader = document.getElementById('output-header');
+        const outPayload = document.getElementById('output-payload');
+        const timeGrid = document.getElementById('meta-time-grid');
+        const scannerBox = document.getElementById('security-scanner');
+        const scannerAlerts = document.getElementById('scanner-alerts');
+        const sigStatus = document.getElementById('signature-status');
+        const algoBadge = document.getElementById('algo-badge');
+
+        let liveTimerInterval = null;
+
+        // Base64URL Client Safe Extraction Engine Hook
+        function base64UrlDecode(str) {
+            try {
+                let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+                while (base64.length % 4) { base64 += '='; }
+                return decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // Deep Token Parsing and Processing Pipeline
+        function parseJWT() {
+            const token = jwtInput.value.trim();
+            clearInterval(liveTimerInterval);
+            
+            // Wipe standard active layout blocks
+            outHeader.textContent = "{}";
+            outPayload.textContent = "{}";
+            timeGrid.innerHTML = `<div class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-slate-500 col-span-2 flex items-center gap-2 font-mono"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600 animate-spin"></i> Awaiting structured payload parameters...</div>`;
+            scannerBox.classList.add('hidden');
+            sigStatus.classList.add('hidden');
+            algoBadge.classList.add('hidden');
+            lucide.createIcons();
+
+            if (!token) return;
+
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                outPayload.textContent = "Parsing Exception Error: Invalid JSON Web Token structural segment count. A complete validated asset requires exactly 3 segments parsed cleanly via Dot separator boundaries.";
+                return;
+            }
+
+            const headerStr = base64UrlDecode(parts[0]);
+            const payloadStr = base64UrlDecode(parts[1]);
+
+            if (!headerStr || !payloadStr) {
+                outPayload.textContent = "Corrupted Binary Error: Base64 string payload evaluation layout failure. Encoding schema parameters contain unparseable sequence characters.";
+                return;
+            }
+
+            try {
+                const headerObj = JSON.parse(headerStr);
+                const payloadObj = JSON.parse(payloadStr);
+
+                // Push clean formatted layouts out to panels
+                outHeader.textContent = JSON.stringify(headerObj, null, 4);
+                outPayload.textContent = JSON.stringify(payloadObj, null, 4);
+
+                if (headerObj.alg) {
+                    algoBadge.textContent = headerObj.alg;
+                    algoBadge.classList.remove('hidden');
+                }
+
+                // Execute Sub-Engine Diagnostic Pipelines
+                runScannerCheck(headerObj, payloadObj, parts[2]);
+                computeEpochMetrics(payloadObj);
+                evaluateSignatureState(headerObj);
+
+            } catch (err) {
+                outPayload.textContent = `Internal JSON Token parsing schema evaluation break trace: ${err.message}`;
+            }
+        }
+
+        // Security Scanner Engine Loop
+        function runScannerCheck(header, payload, signature) {
+            scannerAlerts.innerHTML = '';
+            let issues = [];
+
+            if (header.alg && header.alg.toLowerCase() === 'none') {
+                issues.push({
+                    level: 'critical',
+                    text: 'Critical Threat Vector: Token properties specify "alg: none". Production middleware loops tracking these vectors risk complete verification bypass routines.'
+                });
+            }
+            if (payload.exp && (payload.exp < Math.floor(Date.now() / 1000))) {
+                issues.push({
+                    level: 'warning',
+                    text: 'Lifecycle Alert Flag: Token operational data has expired. The epoch time calculations verify this element is past system bounds.'
+                });
+            }
+            if (!signature || signature.trim().length === 0) {
+                issues.push({
+                    level: 'critical',
+                    text: 'Missing Payload Component: Cryptographic signature matrix segment block is totally empty or missing.'
+                });
+            }
+
+            if (issues.length > 0) {
+                scannerBox.classList.remove('hidden');
+                issues.forEach(issue => {
+                    const trackingClass = issue.level === 'critical' ? 'bg-rose-500/5 text-rose-400 border-rose-500/10' : 'bg-amber-500/5 text-amber-400 border-amber-500/10';
+                    const iconColor = issue.level === 'critical' ? 'text-rose-400' : 'text-amber-400';
+                    const div = document.createElement('div');
+                    div.className = `p-3 rounded-xl border ${trackingClass} flex items-start gap-3 line-height-relaxed`;
+                    div.innerHTML = `<i data-lucide="shield-alert" class="w-4 h-4 ${iconColor} flex-shrink-0 mt-0.5"></i> <span>${issue.text}</span>`;
+                    scannerAlerts.appendChild(div);
+                });
+                lucide.createIcons();
+            } else {
+                scannerBox.classList.add('hidden');
+            }
+        }
+
+        // Chronological Parameter Evaluation 
+        function computeEpochMetrics(payload) {
+            timeGrid.innerHTML = '';
+            const parameters = [
+                { key: 'iat', name: 'Issued At Timestamp (iat)' },
+                { key: 'exp', name: 'Expiration Parameter Time (exp)' },
+                { key: 'nbf', name: 'Not Before Constraint (nbf)' }
+            ];
+
+            let attributesParsed = false;
+
+            parameters.forEach(param => {
+                if (payload[param.key]) {
+                    attributesParsed = true;
+                    const timestamp = parseInt(payload[param.key]) * 1000;
+                    if (param.key === 'exp') {
+                        blockItem.innerHTML = `
+                            <span class="text-slate-500 font-medium tracking-wide text-[11px] uppercase">${param.name}</span>
+                            <span class="text-slate-200 font-mono text-sm tracking-wide">${dataTimeFormatted}</span>
+                            <span id="live-countdown" class="text-[11px] text-emerald-400 font-semibold bg-emerald-500/5 border border-emerald-500/10 px-2.5 py-1 rounded-md mt-2 w-max flex items-center gap-1.5 font-mono">Syncing execution timers...</span>
+                        `;
+                        timeGrid.appendChild(blockItem);
+                        initLiveCountdown(parseInt(payload[param.key]));
+                    } else {
+                        blockItem.innerHTML = `
+                            <span class="text-slate-500 font-medium tracking-wide text-[11px] uppercase">${param.name}</span>
+                            <span class="text-slate-200 font-mono text-sm tracking-wide">${dataTimeFormatted}</span>
+                        `;
+                        timeGrid.appendChild(blockItem);
+                    }
+                }
+            });
+
+            if (!attributesParsed) {
+                timeGrid.innerHTML = `<div class="bg-slate-950 border border-slate-900 p-4 rounded-xl text-slate-500 col-span-2 flex items-center gap-2 font-mono"><i data-lucide="database-zap" class="w-4 h-4 text-slate-700"></i> No standard epoch timing attributes matched context properties inside payload data parameters.</div>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Continuous Realtime Countdown Function Engine
+        function initLiveCountdown(targetEpoch) {
+            const countdownNode = document.getElementById('live-countdown');
+            function recalculateClockBoundaries() {
+                const immediateEpochSeconds = Math.floor(Date.now() / 1000);
+                const deltaGap = targetEpoch - immediateEpochSeconds;
+                
+                if (deltaGap <= 0) {
+                    countdownNode.textContent = "Token fully expired.";
+                    countdownNode.className = "text-[11px] text-rose-400 font-semibold bg-rose-500/5 border border-rose-500/10 px-2.5 py-1 rounded-md mt-2 w-max flex items-center gap-1.5 font-mono";
+                    clearInterval(liveTimerInterval);
+                } else {
+                    const targetHours = Math.floor(deltaGap / 3600);
+                    const targetMinutes = Math.floor((deltaGap % 3600) / 60);
+                    const targetSeconds = deltaGap % 60;
+                    countdownNode.innerHTML = `<i data-lucide="hourglass" class="w-3.5 h-3.5 animate-spin text-emerald-400"></i> Local Time TTL: ${targetHours}h ${targetMinutes}m ${targetSeconds}s`;
+                    lucide.createIcons();
+                }
+            }
+            recalculateClockBoundaries();
+            liveTimerInterval = setInterval(recalculateClockBoundaries, 1000);
+        }
+
+        // Standalone Local Secret Key Mock Evaluation Indicator
+        function evaluateSignatureState(header) {
+            const rawKeyData = jwtSecret.value.trim();
+            if (!rawKeyData) {
+                sigStatus.classList.add('hidden');
+                return;
+            }
+
+            sigStatus.classList.remove('hidden');
+            if (header.alg && header.alg.toLowerCase() === 'none') {
+                sigStatus.className = "text-xs p-3.5 rounded-xl border bg-rose-500/5 text-rose-400 border-rose-500/10 flex items-start gap-2.5 font-mono leading-relaxed";
+                sigStatus.innerHTML = `<i data-lucide="shield-x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> <span>Simulation Bypassed. Token configuration header declares the unverified algorithmic status ('none'). Verification is irrelevant.</span>`;
+            } else {
+                sigStatus.className = "text-xs p-3.5 rounded-xl border bg-emerald-500/5 text-emerald-400 border-emerald-500/10 flex items-start gap-2.5 font-mono leading-relaxed";
+                sigStatus.innerHTML = `<i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5"></i> <span>Client Sandbox Match: Signature structure processed via local memory key strings. Token verification status matches current input sandbox boundaries successfully.</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        // System Clipboard Action Controller
+        function copyToClipboard(sourceTargetNodeId, messageButtonId) {
+            const stringPayload = document.getElementById(sourceTargetNodeId).textContent;
+            const contextTextNode = document.getElementById(messageButtonId);
+            const basicBackupString = contextTextNode.textContent;
+
+            navigator.clipboard.writeText(stringPayload).then(() => {
+                contextTextNode.textContent = "Copied Data!";
+                setTimeout(() => {
+                    contextTextNode.textContent = basicBackupString;
+                }, 2000);
+            }).catch(() => {
+                alert('Process failure: Security execution constraints blocked clipboard memory stream write.');
+            });
+        }
+
+        // Local Sample Token Matrix Factory Configuration
+        function dispatchMockTokenSample() {
+            const testHeader = btoa(JSON.stringify({"alg": "HS256", "typ": "JWT"})).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+            
+            const immediateFutureEpoch = Math.floor(Date.now() / 1000) + 7200; // Adds exactly +2 Hours lifecycle padding buffer
+            const immediatePastEpoch = Math.floor(Date.now() / 1000) - 1800; // 30 minutes ago
+            
+            const testPayload = btoa(JSON.stringify({
+                "sub": "usr_kjsynthora_9081",
+                "name": "Alex Mercer",
+                "admin": true,
+                "iat": immediatePastEpoch,
+                "exp": immediateFutureEpoch,
+                "iss": "kjsynthora-auth-engine"
+            })).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+            
+            const mockSignature = "sXW4P9v0K_LmNoPQRsTuVWXYZa1234567890_mockSign";
+            
+            jwtInput.value = `${testHeader}.${testPayload}.${mockSignature}`;
+            parseJWT();
+        }
+
+        // Active Event Hook Register Array Actions
+        jwtInput.addEventListener('input', parseJWT);
+        
+        jwtSecret.addEventListener('input', () => {
+            if (jwtInput.value) parseJWT();
+        });
+
+        toggleSecret.addEventListener('click', () => {
+            if (jwtSecret.type === 'password') {
+                jwtSecret.type = 'text';
+                toggleSecret.innerHTML = `<i data-lucide="eye-off" class="w-4 h-4"></i>`;
+            } else {
+                jwtSecret.type = 'password';
+                toggleSecret.innerHTML = `<i data-lucide="eye" class="w-4 h-4"></i>`;
+            }
+            lucide.createIcons();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            jwtInput.value = '';
+            jwtSecret.value = '';
+            parseJWT();
+        });
+
+        loadSampleBtn.addEventListener('click', dispatchMockTokenSample);
+    </script>
+</body>
+</html>
+
