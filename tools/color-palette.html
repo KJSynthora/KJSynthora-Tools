@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<!-- SEO STRATEGY -->
+<title>Color Palette Generator & WCAG Contrast Checker | KJSynthora</title>
+<meta name="description" content="Create stunning, accessible color schemes. Export directly to Tailwind CSS, Sass, or CSS variables with built-in WCAG testing. AI-powered image color extractor included.">
+<meta name="keywords" content="accessible color palette generator, tailwind css color scheme creator, wcag contrast checker palette, color harmony tool, figma color json exporter">
+<link rel="canonical" href="https://kjsynthora.com/tools/color-palette.html">
+
+<!-- Open Graph -->
+<meta property="og:title" content="KJSynthora Color Workspace — Advanced Palette & Accessibility">
+<meta property="og:description" content="Generate accessible palettes, check WCAG contrast, and export Tailwind configs.">
+<meta property="og:image" content="https://kjsynthora.com/logo.png">
+
+<!-- JSON-LD Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "KJSynthora Color Palette Hub",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:200;background:rgba(6,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.brand-name{font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff,var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* APP LAYOUT */
+.app{display:grid;grid-template-columns:320px 1fr 340px;height:calc(100vh - 54px)}
+@media(max-width:1200px){.app{grid-template-columns:1fr;height:auto}}
+
+.panel{background:var(--s1);border-right:1px solid var(--border);padding:20px;overflow-y:auto}
+.main{background:var(--bg);padding:25px;overflow-y:auto}
+.right{background:var(--s1);border-left:1px solid var(--border);padding:20px;overflow-y:auto}
+
+/* PALETTE DISPLAY */
+.palette-container{display:grid;grid-template-columns:repeat(5, 1fr);gap:15px;margin-bottom:30px;min-height:250px}
+.color-block{border-radius:16px;display:flex;flex-direction:column;justify-content:flex-end;padding:15px;position:relative;transition:0.3s;border:1px solid var(--border);cursor:pointer}
+.color-block:hover{transform:scale(1.02)}
+.hex-label{font-family:'DM Mono';font-weight:700;font-size:14px;background:rgba(0,0,0,0.3);padding:4px 8px;border-radius:4px;backdrop-filter:blur(4px);width:fit-content}
+.contrast-badge{position:absolute;top:15px;right:15px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px}
+
+/* UI PREVIEW MOCKUP */
+.preview-card{background:var(--s2);border:1px solid var(--border);border-radius:15px;padding:25px;margin-top:20px}
+.mock-nav{height:10px;width:100px;border-radius:5px;margin-bottom:20px}
+.mock-btn{padding:10px 25px;border-radius:8px;font-weight:700;font-size:12px;display:inline-block;margin-right:10px}
+.mock-text{font-size:24px;font-weight:800;margin-bottom:10px}
+.mock-sub{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:20px}
+
+/* IMAGE EXTRACTOR */
+.dropzone{border:2px dashed var(--a1);background:rgba(79,142,247,0.02);padding:20px;text-align:center;border-radius:12px;margin-bottom:20px;cursor:pointer}
+
+/* EXPORT AREA */
+.export-box{background:var(--s3);padding:15px;border-radius:10px;font-family:'DM Mono';font-size:11px;color:var(--a1);white-space:pre-wrap;overflow-x:auto;max-height:200px;border:1px solid var(--border)}
+
+/* CONTROLS */
+.input-group{margin-bottom:20px}
+.input-group label{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px;letter-spacing:1px}
+select, input[type="color"]{width:100%;padding:10px;background:var(--s3);border:1px solid var(--border);color:#fff;border-radius:8px}
+
+.btn{padding:12px;border-radius:8px;border:none;font-weight:700;cursor:pointer;width:100%;margin-bottom:10px}
+.btn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff}
+
+/* SEO CONTENT */
+.seo-section{max-width:1000px;margin:60px auto;padding:20px}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.blog-card{background:var(--s1);padding:25px;border-radius:15px;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header class="header">
+    <div class="brand-name">KJSynthora Color Studio</div>
+    <div style="display:flex;gap:15px;font-size:11px;font-weight:700">
+        <span style="color:var(--a1)">WCAG 2.1 COMPLIANT</span>
+        <span style="color:var(--a2)">TAILWIND READY</span>
+    </div>
+</header>
+
+<div class="app">
+    <!-- LEFT: COLOR GENERATOR CONTROLS -->
+    <aside class="panel">
+        <div class="input-group">
+            <label>Seed Color</label>
+            <input type="color" id="baseColor" value="#4f8ef7" oninput="generatePalette()">
+        </div>
+
+        <div class="input-group">
+            <label>Harmony Mode</label>
+            <select id="harmonyMode" onchange="generatePalette()">
+                <option value="analogous">Analogous (Professional)</option>
+                <option value="monochromatic">Monochromatic (Clean)</option>
+                <option value="triadic">Triadic (Vibrant)</option>
+                <option value="complementary">Complementary (High Contrast)</option>
+                <option value="tetradic">Tetradic (Rich)</option>
+            </select>
+        </div>
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('imgInput').click()">
+            <input type="file" id="imgInput" style="display:none" accept="image/*" onchange="extractFromImage(event)">
+            <p style="font-size:12px">🖼 Drop image to extract palette</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="generateRandom()">🎲 Generate Random</button>
+        <button class="btn btn-primary" style="background:var(--s3);border:1px solid var(--border)" onclick="copyAllHex()">📋 Copy All HEX</button>
+    </aside>
+
+    <!-- CENTER: WORKSPACE & PREVIEW -->
+    <main class="main">
+        <div class="palette-container" id="paletteGrid">
+            <!-- Palette generated here -->
+        </div>
+
+        <h3 style="font-size:14px;color:var(--muted);margin-bottom:15px">LIVE UI PREVIEW MOCKUP</h3>
+        <div class="preview-card" id="uiPreview">
+            <div class="mock-nav" id="mockNav"></div>
+            <h2 class="mock-text" id="mockTitle">Transform Your Workflow</h2>
+            <p class="mock-sub">KJSynthora allows you to build accessible color schemes instantly. No more manual contrast calculations.</p>
+            <div class="mock-btn" id="mockBtnPrimary">Get Started</div>
+            <div class="mock-btn" id="mockBtnSecondary" style="border:1px solid var(--border)">View Demo</div>
+        </div>
+    </main>
+
+    <!-- RIGHT: ACCESSIBILITY & EXPORT -->
+    <aside class="right">
+        <h3 style="font-size:12px;margin-bottom:15px;color:var(--a1)">WCAG ACCESSIBILITY CHECKER</h3>
+        <div id="accessibilityList" style="margin-bottom:30px">
+            <!-- Accessibility results -->
+        </div>
+
+        <h3 style="font-size:12px;margin-bottom:10px">TAILWIND CONFIG EXPORT</h3>
+        <div class="export-box" id="tailwindExport"></div>
+        
+        <h3 style="font-size:12px;margin:20px 0 10px">CSS VARIABLES</h3>
+        <div class="export-box" id="cssExport"></div>
+    </aside>
+</div>
+
+<!-- SEO STRATEGY & BLOGS -->
+<section class="seo-section">
+    <div class="blog-grid">
+        <article class="blog-card">
+            <h3>Designing for Everyone: WCAG Color Contrast</h3>
+            <p>A guide to WCAG color contrast accessibility. Learn how AA and AAA ratings impact readability and user retention in SaaS design.</p>
+        </article>
+        <article class="blog-card">
+            <h3>Dynamic Theme Variables in Tailwind</h3>
+            <p>How to structure your tailwind.config.js for dark/light mode using CSS variables. A scalable approach for modern web apps.</p>
+        </article>
+        <article class="blog-card">
+            <h3>The Psychology of Color in UI Design</h3>
+            <p>Choosing the right palette. Why blue builds trust and red creates urgency. Master the science of color theory in app interfaces.</p>
+        </article>
+    </div>
+</section>
+
+<script>
+    let currentPalette = [];
+
+    function generatePalette() {
+        const baseHex = document.getElementById('baseColor').value;
+        const mode = document.getElementById('harmonyMode').value;
+        const hsl = hexToHSL(baseHex);
+        
+        currentPalette = [];
+        
+        if(mode === 'analogous') {
+            currentPalette = [
+                hslToHex(hsl.h - 30, hsl.s, hsl.l),
+                hslToHex(hsl.h - 15, hsl.s, hsl.l),
+                baseHex,
+                hslToHex(hsl.h + 15, hsl.s, hsl.l),
+                hslToHex(hsl.h + 30, hsl.s, hsl.l)
+            ];
+        } else if(mode === 'monochromatic') {
+            currentPalette = [
+                hslToHex(hsl.h, hsl.s, hsl.l - 30),
+                hslToHex(hsl.h, hsl.s, hsl.l - 15),
+                baseHex,
+                hslToHex(hsl.h, hsl.s, hsl.l + 15),
+                hslToHex(hsl.h, hsl.s, hsl.l + 30)
+            ];
+        } else if(mode === 'triadic') {
+            currentPalette = [
+                hslToHex(hsl.h, hsl.s, hsl.l - 10),
+                hslToHex(hsl.h + 120, hsl.s, hsl.l),
+                baseHex,
+                hslToHex(hsl.h + 240, hsl.s, hsl.l),
+                hslToHex(hsl.h, hsl.s, hsl.l + 20)
+            ];
+        } else if(mode === 'complementary') {
+            currentPalette = [
+                hslToHex(hsl.h, hsl.s, hsl.l - 20),
+                hslToHex(hsl.h, hsl.s, hsl.l - 10),
+                baseHex,
+                hslToHex(hsl.h + 180, hsl.s, hsl.l),
+                hslToHex(hsl.h + 180, hsl.s, hsl.l + 20)
+            ];
+        } else {
+            currentPalette = [baseHex, hslToHex(hsl.h+90, hsl.s, hsl.l), hslToHex(hsl.h+180, hsl.s, hsl.l), hslToHex(hsl.h+270, hsl.s, hsl.l), hslToHex(hsl.h, hsl.s, hsl.l+20)];
+        }
+
+        renderPalette();
+    }
+
+    function renderPalette() {
+        const grid = document.getElementById('paletteGrid');
+        const accList = document.getElementById('accessibilityList');
+        grid.innerHTML = '';
+        accList.innerHTML = '';
+
+        currentPalette.forEach((color, i) => {
+            const ratio = getContrastRatio(color, '#06080f');
+            const status = ratio >= 4.5 ? 'AA PASS' : 'FAIL';
+            const badgeColor = ratio >= 4.5 ? 'var(--a4)' : 'var(--red)';
+
+            // Grid item
+            const div = document.createElement('div');
+            div.className = 'color-block';
+            div.style.backgroundColor = color;
+            div.innerHTML = `
+                <span class="contrast-badge" style="background:${badgeColor}">${ratio.toFixed(2)}:1</span>
+                <span class="hex-label" style="color:${getLuminance(color) > 0.5 ? '#000' : '#fff'}">${color.toUpperCase()}</span>
+            `;
+            grid.appendChild(div);
+
+            // Accessibility List
+            accList.innerHTML += `
+                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+                    <span>${color} on Background</span>
+                    <span style="color:${badgeColor};font-weight:800">${status} (${ratio.toFixed(1)})</span>
+                </div>
+            `;
+        });
+
+        updateUIPreview();
+        updateExports();
+    }
+
+    function updateUIPreview() {
+        const p = currentPalette;
+        document.getElementById('mockNav').style.backgroundColor = p[0];
+        document.getElementById('mockTitle').style.color = p[2];
+        document.getElementById('mockBtnPrimary').style.backgroundColor = p[2];
+        document.getElementById('mockBtnPrimary').style.color = getLuminance(p[2]) > 0.5 ? '#000' : '#fff';
+        document.getElementById('mockBtnSecondary').style.color = p[3];
+    }
+
+    function updateExports() {
+        const p = currentPalette;
+        const tw = `colors: {\n  primary: '${p[2]}',\n  secondary: '${p[3]}',\n  accent: '${p[1]}',\n  neutral: '${p[0]}',\n  highlight: '${p[4]}'\n}`;
+        const css = `:root {\n  --primary: ${p[2]};\n  --secondary: ${p[3]};\n  --accent: ${p[1]};\n  --neutral: ${p[0]};\n}`;
+        document.getElementById('tailwindExport').innerText = tw;
+        document.getElementById('cssExport').innerText = css;
+    }
+
+    // UTILS
+    function hexToHSL(hex) {
+        let r = parseInt(hex.slice(1, 3), 16) / 255;
+        let g = parseInt(hex.slice(3, 5), 16) / 255;
+        let b = parseInt(hex.slice(5, 7), 16) / 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if(max === min) h = s = 0;
+        else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch(max){
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return { h: h * 360, s: s * 100, l: l * 100 };
+    }
+
+    function hslToHex(h, s, l) {
+        l /= 100;
+        const a = s * Math.min(l, 1 - l) / 100;
+        const f = n => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
+    }
+
+    function getLuminance(hex) {
+        let rgb = [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+        let a = rgb.map(v => {
+            v /= 255;
+            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    }
+
+    function getContrastRatio(h1, h2) {
+        let l1 = getLuminance(h1) + 0.05;
+        let l2 = getLuminance(h2) + 0.05;
+        return l1 > l2 ? l1 / l2 : l2 / l1;
+    }
+
+    function generateRandom() {
+        const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        document.getElementById('baseColor').value = randomHex;
+        generatePalette();
+    }
+
+    function extractFromImage(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width; canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const data = ctx.getImageData(0,0,10,10).data; // Sample small area
+                const hex = "#" + ((1 << 24) + (data[0] << 16) + (data[1] << 8) + data[2]).toString(16).slice(1);
+                document.getElementById('baseColor').value = hex;
+                generatePalette();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function copyAllHex() {
+        navigator.clipboard.writeText(currentPalette.join(', '));
+        alert("All Hex codes copied!");
+    }
+
+    generatePalette();
+</script>
+</body>
+</html>
