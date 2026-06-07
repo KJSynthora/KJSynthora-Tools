@@ -4,458 +4,816 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Excel to PDF Converter Free Online — Convert XLSX to PDF | KJSynthora</title>
-<meta name="description" content="Convert Excel spreadsheets to PDF online for free. Convert XLSX to PDF instantly in your browser. No signup required. Fast Excel to PDF converter.">
-<meta name="keywords" content="excel to pdf, convert excel to pdf, xlsx to pdf online free, spreadsheet to pdf, convert xls to pdf, excel to pdf converter">
-<meta property="og:title" content="Excel to PDF Converter Free — KJSynthora">
-<meta property="og:description" content="Convert Excel files to PDF instantly. Free online converter, no signup needed.">
+<meta name="description" content="Convert Excel spreadsheets to PDF online for free. XLSX to PDF, XLS to PDF instantly in your browser. Choose page size, orientation, font. No signup needed.">
+<meta name="keywords" content="excel to pdf, convert excel to pdf online free, xlsx to pdf, xls to pdf, spreadsheet to pdf converter, excel to pdf free, excel to pdf no signup, kjsynthora">
+<meta name="robots" content="index,follow">
+<meta name="author" content="KJSynthora">
+<link rel="canonical" href="https://kjsynthora.com/tools/excel-to-pdf.html">
+<meta property="og:title" content="Excel to PDF Converter Free Online — KJSynthora">
+<meta property="og:description" content="Convert Excel files to PDF instantly. Free, no signup, no watermark. Choose page size, orientation, font size.">
 <meta property="og:url" content="https://kjsynthora.com/tools/excel-to-pdf.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://kjsynthora.com/logo.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://kjsynthora.com/tools/excel-to-pdf.html">
-<meta name="robots" content="index,follow">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="twitter:title" content="Excel to PDF Converter Free — KJSynthora">
+<meta name="twitter:description" content="Convert XLSX/XLS to PDF free online. No signup, no watermark. Instant download.">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KJSynthora">
+<meta name="theme-color" content="#04040a">
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Excel to PDF Converter",
+  "url":"https://kjsynthora.com/tools/excel-to-pdf.html",
+  "description":"Free online Excel to PDF converter. Convert XLSX and XLS files to PDF instantly in your browser with no signup.",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"},
+  "featureList":["XLSX to PDF","XLS to PDF","Multi-sheet support","Page size options","Orientation control","Font size control","Live preview","No watermark","No signup","100% browser-based"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"Is the Excel to PDF converter free?","acceptedAnswer":{"@type":"Answer","text":"Yes, completely free with no signup, no watermark, and no file size limits. All processing happens in your browser."}},
+    {"@type":"Question","name":"Is my Excel data safe?","acceptedAnswer":{"@type":"Answer","text":"Yes, 100% safe. Your Excel file is never uploaded to any server. All conversion happens locally in your browser using JavaScript."}},
+    {"@type":"Question","name":"What Excel formats are supported?","acceptedAnswer":{"@type":"Answer","text":"Both XLSX (Excel 2007+) and XLS (older Excel) formats are supported. You can also convert multiple sheets from the same workbook."}},
+    {"@type":"Question","name":"Can I convert multiple sheets?","acceptedAnswer":{"@type":"Answer","text":"Yes! You can select any sheet from your workbook or convert all sheets into a single PDF document."}}
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
-:root {
-  --bg: #04040a;
-  --surface: #0d0d1a;
-  --surface2: #13132a;
-  --border: rgba(0,200,255,0.18);
-  --accent: #00c8ff;
-  --accent2: #7c5cfc;
-  --green: #00ffaa;
-  --text: #e0f4ff;
-  --muted: #6a7a8a;
-  --danger: #ff4d6d;
+:root{
+  --bg:#04040a;--surf:#0d0d1a;--surf2:#13132a;--surf3:#1a1a35;
+  --border:rgba(0,200,255,0.15);--border2:rgba(0,200,255,0.25);
+  --accent:#00c8ff;--accent2:#7c5cfc;--green:#00ffaa;
+  --gold:#fbbf24;--red:#ff4d6d;--orange:#fb923c;
+  --text:#e0f4ff;--text2:#8a9ab5;--text3:#4a5a6a;
+  --font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'DM Sans',sans-serif;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  position:relative;
-  overflow-x:hidden;
-}
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:
-    linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
-  background-size:52px 52px;
-  pointer-events:none;z-index:0;
-}
-body::after{
-  content:'';
-  position:fixed;
-  width:700px;height:700px;
-  background:radial-gradient(circle, rgba(0,200,255,0.08) 0%, transparent 65%);
-  bottom:-200px;right:-200px;
-  pointer-events:none;z-index:0;
-  animation:blob2 10s ease-in-out infinite alternate;
-}
-@keyframes blob2{
-  from{transform:translate(0,0) scale(1);}
-  to{transform:translate(-150px,-80px) scale(1.2);}
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,0.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:#1a1a35;border-radius:4px;}
 
-.card{
-  position:relative;z-index:1;
-  width:100%;max-width:680px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:48px 44px 40px;
-  box-shadow:0 0 0 1px rgba(0,200,255,0.06), 0 32px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
-}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(4,4,10,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.nav-logo{text-decoration:none;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;}
+.nav-logo .kj{color:var(--accent);}
+.nav-logo .s{color:var(--text);}
+.nav-links{display:flex;gap:.25rem;}
+.nav-links a{color:var(--text2);font-size:.8rem;text-decoration:none;padding:.3rem .7rem;border-radius:6px;transition:all .2s;}
+.nav-links a:hover{color:var(--accent);background:rgba(0,200,255,.07);}
+.nav-cta{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-weight:700;font-size:.78rem;padding:.4rem 1rem;border-radius:7px;text-decoration:none;transition:opacity .2s;}
+.nav-cta:hover{opacity:.85;}
 
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(0,200,255,0.10);
-  border:1px solid rgba(0,200,255,0.25);
-  border-radius:999px;
-  padding:5px 14px;
-  font-size:11px;font-weight:500;
-  color:var(--accent);
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  margin-bottom:20px;
-}
-.badge .dot{
-  width:6px;height:6px;
-  background:var(--accent);
-  border-radius:50%;
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:3rem 5% 1.5rem;}
+.hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(circle,rgba(0,200,255,.08) 0%,rgba(124,92,252,.05) 40%,transparent 70%);pointer-events:none;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);border-radius:99px;padding:.3rem .9rem;font-size:.72rem;font-weight:600;color:var(--accent);letter-spacing:.07em;text-transform:uppercase;margin-bottom:1rem;}
+.badge .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:.6rem;background:linear-gradient(135deg,#00e5ff 0%,#7c5cfc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{color:var(--text2);font-size:.95rem;max-width:520px;margin:0 auto 1.5rem;}
+.hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin-bottom:1rem;}
+.hp{background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:.72rem;padding:.2rem .65rem;border-radius:99px;}
 
-h1{
-  font-family:'Syne',sans-serif;
-  font-size:38px;font-weight:800;line-height:1.1;
-  margin-bottom:8px;
-  background:linear-gradient(135deg, #00e5ff 0%, #7c5cfc 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.subtitle{color:var(--muted);font-size:14px;margin-bottom:32px;}
+/* ── TOOL WRAP ── */
+.tool-wrap{max-width:960px;margin:0 auto;padding:0 1.5rem 2rem;position:relative;z-index:1;}
 
-.steps{display:flex;gap:0;margin-bottom:28px;}
+/* AFFILIATE BANNER */
+.aff-banner{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(0,200,255,.04));border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.aff-text{font-size:.82rem;color:var(--text);line-height:1.5;}
+.aff-text strong{color:var(--gold);}
+.aff-btn{background:var(--gold);color:#000;font-weight:700;font-size:.78rem;padding:.4rem 1rem;border-radius:7px;text-decoration:none;white-space:nowrap;transition:opacity .2s;flex-shrink:0;}
+.aff-btn:hover{opacity:.85;}
+
+/* MAIN CARD */
+.main-card{background:var(--surf);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:1.25rem;box-shadow:0 0 0 1px rgba(0,200,255,.05),0 32px 80px rgba(0,0,0,.5);}
+.card-head{background:var(--surf2);border-bottom:1px solid var(--border);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.card-title{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;}
+.card-body{padding:1.25rem;}
+
+/* STEPS */
+.steps{display:flex;gap:0;margin-bottom:1.5rem;}
 .step{flex:1;text-align:center;position:relative;}
-.step:not(:last-child)::after{
-  content:'';position:absolute;top:14px;left:50%;right:-50%;
-  height:1px;background:var(--border);
-}
-.step-num{
-  width:28px;height:28px;border-radius:50%;
-  background:var(--surface2);border:1px solid var(--border);
-  color:var(--muted);font-size:11px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 6px;font-family:'Syne',sans-serif;position:relative;z-index:1;
-}
-.step-label{font-size:10px;color:var(--muted);letter-spacing:0.05em;}
+.step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;right:-50%;height:1px;background:var(--border);}
+.step-num{width:27px;height:27px;border-radius:50%;background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;position:relative;z-index:1;font-family:'Syne',sans-serif;}
+.step-num.done{background:rgba(0,200,255,.15);border-color:var(--accent);color:var(--accent);}
+.step-label{font-size:.65rem;color:var(--text2);letter-spacing:.04em;}
 
-.dropzone{
-  border:2px dashed rgba(0,200,255,0.25);
-  border-radius:16px;padding:40px 24px;
-  text-align:center;cursor:pointer;
-  transition:all 0.25s ease;position:relative;
-  background:rgba(0,200,255,0.03);margin-bottom:20px;
-}
-.dropzone:hover,.dropzone.dragover{
-  border-color:var(--accent);
-  background:rgba(0,200,255,0.07);
-  transform:translateY(-2px);
-}
+/* DROPZONE */
+.dropzone{border:2px dashed rgba(0,200,255,.22);border-radius:14px;padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:all .25s;position:relative;background:rgba(0,200,255,.025);margin-bottom:1rem;}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:rgba(0,200,255,.06);transform:translateY(-2px);}
 .dropzone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
-.drop-icon{font-size:40px;margin-bottom:12px;display:block;}
-.drop-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;}
-.drop-sub{font-size:12px;color:var(--muted);}
+.drop-icon{font-size:2.5rem;margin-bottom:.75rem;display:block;}
+.drop-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.3rem;}
+.drop-sub{font-size:.8rem;color:var(--text2);}
+.drop-formats{display:flex;justify-content:center;gap:.35rem;margin-top:.75rem;}
+.df{background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:.68rem;padding:.15rem .5rem;border-radius:5px;font-family:var(--mono);}
 
-.file-chosen{
-  display:none;align-items:center;gap:12px;
-  background:rgba(0,255,170,0.05);
-  border:1px solid rgba(0,255,170,0.18);
-  border-radius:10px;padding:12px 16px;margin-bottom:20px;
-}
-.file-chosen .file-icon{font-size:24px;}
-.file-chosen .file-name{font-size:13px;font-weight:500;color:var(--green);flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.file-chosen .file-size{font-size:11px;color:var(--muted);}
+/* FILE CHOSEN */
+.file-chosen{display:none;align-items:center;gap:.75rem;background:rgba(0,255,170,.05);border:1px solid rgba(0,255,170,.18);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;}
 .file-chosen.show{display:flex;}
+.file-icon{font-size:1.5rem;}
+.file-name{font-size:.85rem;font-weight:600;color:var(--green);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-meta{font-size:.72rem;color:var(--text2);font-family:var(--mono);}
+.file-remove{background:none;border:1px solid rgba(255,77,109,.25);color:var(--red);font-size:.72rem;padding:.2rem .5rem;border-radius:5px;cursor:pointer;transition:all .2s;}
+.file-remove:hover{background:rgba(255,77,109,.1);}
 
-/* Sheet selector */
-.sheet-selector{
-  display:none;
-  margin-bottom:20px;
-}
-.sheet-selector.show{display:block;}
-.sheet-selector label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;}
-.sheet-selector select{
-  width:100%;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--text);
-  padding:10px 14px;
-  font-family:'DM Sans',sans-serif;
-  font-size:13px;
-  appearance:none;
-  cursor:pointer;
-}
+/* OPTIONS GRID */
+.options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem;}
+.opt-group{display:flex;flex-direction:column;gap:.3rem;}
+.opt-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+select,.opt-input{background:var(--surf2);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.82rem;border-radius:8px;padding:.45rem .7rem;outline:none;cursor:pointer;transition:border-color .2s;width:100%;}
+select:focus,.opt-input:focus{border-color:var(--accent);}
+select option{background:var(--surf2);}
 
-/* Preview table */
-.preview-wrap{
-  display:none;
-  margin-bottom:20px;
-  border-radius:12px;
-  overflow:hidden;
-  border:1px solid var(--border);
-  max-height:200px;
-  overflow-y:auto;
-}
+/* TOGGLES */
+.toggle-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+.tog{display:flex;align-items:center;gap:.3rem;background:var(--surf2);border:1px solid var(--border);border-radius:7px;padding:.3rem .65rem;cursor:pointer;font-size:.75rem;color:var(--text2);user-select:none;transition:all .2s;}
+.tog:hover{border-color:var(--accent);}
+.tog.active{border-color:var(--accent);background:rgba(0,200,255,.08);color:var(--accent);}
+.tog input{display:none;}
+
+/* SHEET TABS */
+.sheet-tabs-wrap{display:none;margin-bottom:1rem;}
+.sheet-tabs-wrap.show{display:block;}
+.sheet-tabs-label{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;}
+.sheet-tabs{display:flex;gap:.35rem;flex-wrap:wrap;}
+.sheet-tab{background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:.75rem;font-weight:600;padding:.3rem .75rem;border-radius:6px;cursor:pointer;transition:all .2s;font-family:var(--font);}
+.sheet-tab:hover{border-color:var(--accent);color:var(--accent);}
+.sheet-tab.active{background:rgba(0,200,255,.12);border-color:var(--accent);color:var(--accent);}
+.all-sheets-btn{background:rgba(124,92,252,.1);border-color:rgba(124,92,252,.3);color:var(--accent2);}
+.all-sheets-btn.active{background:rgba(124,92,252,.2);border-color:var(--accent2);color:var(--accent2);}
+
+/* PREVIEW */
+.preview-wrap{display:none;margin-bottom:1rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);max-height:220px;overflow-y:auto;}
 .preview-wrap.show{display:block;}
-.preview-wrap table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:11px;
-}
-.preview-wrap th{
-  background:var(--surface2);
-  color:var(--accent);
-  padding:8px 10px;
-  text-align:left;
-  font-weight:600;
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;
-}
-.preview-wrap td{
-  padding:6px 10px;
-  color:var(--text);
-  border-bottom:1px solid rgba(255,255,255,0.04);
-}
-.preview-wrap tr:last-child td{border-bottom:none;}
-.preview-label{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.preview-wrap::-webkit-scrollbar{width:4px;height:4px;}
+.preview-wrap::-webkit-scrollbar-thumb{background:var(--surf3);border-radius:4px;}
+.preview-wrap table{width:100%;border-collapse:collapse;font-size:.75rem;}
+.preview-wrap th{background:var(--surf2);color:var(--accent);padding:.5rem .65rem;text-align:left;font-weight:700;border-bottom:1px solid var(--border);position:sticky;top:0;white-space:nowrap;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;}
+.preview-wrap td{padding:.4rem .65rem;color:var(--text);border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;font-family:var(--mono);font-size:.72rem;}
+.preview-wrap tr:hover td{background:rgba(0,200,255,.03);}
+.preview-stats{font-size:.7rem;color:var(--text2);margin-bottom:.4rem;font-family:var(--mono);}
 
-.progress-wrap{display:none;margin-bottom:20px;}
+/* PROGRESS */
+.progress-wrap{display:none;margin-bottom:1rem;}
 .progress-wrap.show{display:block;}
-.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
-.progress-bar-bg{background:var(--surface2);border-radius:999px;height:6px;overflow:hidden;}
-.progress-bar-fill{
-  height:100%;border-radius:999px;
-  background:linear-gradient(90deg, var(--accent), var(--accent2));
-  width:0%;transition:width 0.3s ease;
-  box-shadow:0 0 12px rgba(0,200,255,0.4);
-}
+.progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text2);margin-bottom:.5rem;}
+.progress-bar-bg{background:var(--surf2);border-radius:99px;height:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .3s;box-shadow:0 0 10px rgba(0,200,255,.35);}
 
-.btn{
-  width:100%;padding:16px;border:none;border-radius:14px;
-  background:linear-gradient(135deg, #0099cc 0%, var(--accent2) 100%);
-  color:white;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;
-  cursor:pointer;transition:all 0.25s ease;position:relative;overflow:hidden;
-  letter-spacing:0.03em;
-}
-.btn::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);
-  opacity:0;transition:opacity 0.2s;
-}
-.btn:hover::before{opacity:1;}
-.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,200,255,0.3);}
-.btn:active{transform:translateY(0);}
-.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+/* BUTTONS */
+.convert-btn{width:100%;padding:.95rem;border:none;border-radius:12px;background:linear-gradient(135deg,#0099cc,var(--accent2));color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;letter-spacing:.02em;margin-bottom:.75rem;}
+.convert-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent 60%);opacity:0;transition:opacity .2s;}
+.convert-btn:hover::before{opacity:1;}
+.convert-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,200,255,.3);}
+.convert-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
 
-.result{display:none;margin-top:20px;padding:16px 20px;border-radius:14px;background:rgba(0,255,170,0.06);border:1px solid rgba(0,255,170,0.25);text-align:center;}
-.result.show{display:block;}
-.result.error{background:rgba(255,77,109,0.06);border-color:rgba(255,77,109,0.25);}
-.result-icon{font-size:28px;margin-bottom:6px;}
-.result-text{font-size:14px;color:var(--green);font-weight:500;}
-.result.error .result-text{color:var(--danger);}
+.action-row{display:flex;gap:.5rem;flex-wrap:wrap;}
+.act-btn{display:inline-flex;align-items:center;gap:.35rem;background:var(--surf2);border:1px solid var(--border);color:var(--text2);font-size:.78rem;font-weight:600;padding:.4rem .85rem;border-radius:7px;cursor:pointer;font-family:var(--font);transition:all .2s;white-space:nowrap;}
+.act-btn:hover{border-color:var(--accent);color:var(--accent);}
+.act-btn.green{border-color:var(--green);color:var(--green);}
+.act-btn.green:hover{background:rgba(0,255,170,.07);}
 
-.trust{display:flex;justify-content:center;gap:20px;margin-top:32px;flex-wrap:wrap;}
-.trust-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
-.trust-item span:first-child{font-size:14px;}
+/* RESULT */
+.result-box{display:none;margin-top:.85rem;padding:1rem;border-radius:12px;background:rgba(0,255,170,.05);border:1px solid rgba(0,255,170,.22);text-align:center;}
+.result-box.show{display:block;}
+.result-box.error{background:rgba(255,77,109,.05);border-color:rgba(255,77,109,.22);}
+.result-icon{font-size:1.75rem;margin-bottom:.4rem;}
+.result-text{font-size:.88rem;color:var(--green);font-weight:600;}
+.result-box.error .result-text{color:var(--red);}
 
-.back{display:inline-flex;align-items:center;gap:6px;margin-top:28px;color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;}
-.back:hover{color:var(--accent);}
+/* TRUST */
+.trust-row{display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;margin-top:1rem;}
+.trust-item{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--text2);}
+
+/* ── SEO SECTION ── */
+.seo-wrap{max-width:960px;margin:2.5rem auto 0;padding:0 1.5rem 4rem;position:relative;z-index:1;}
+.seo-wrap h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:1.25rem;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.8rem;margin-bottom:2.5rem;}
+.fc{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;}
+.fc .fi{font-size:1.25rem;margin-bottom:.3rem;}
+.fc h3{font-size:.87rem;font-weight:700;color:var(--text);margin-bottom:.2rem;}
+.fc p{font-size:.77rem;color:var(--text2);line-height:1.55;}
+.faq-item{border-bottom:1px solid var(--border);padding:.85rem 0;}
+.faq-q{font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;gap:1rem;font-size:.88rem;}
+.faq-q::after{content:'+';color:var(--accent);font-size:1.1rem;flex-shrink:0;transition:transform .2s;}
+.faq-item.open .faq-q::after{transform:rotate(45deg);}
+.faq-a{color:var(--text2);font-size:.83rem;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
+.faq-item.open .faq-a{max-height:200px;padding-top:.6rem;}
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.65rem;margin-top:1rem;}
+.rel-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;text-decoration:none;transition:all .2s;display:block;}
+.rel-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.rel-card .ri{font-size:1.1rem;margin-bottom:.25rem;}
+.rel-card .rn{font-size:.82rem;font-weight:700;color:var(--text);}
+.rel-card .rd{font-size:.71rem;color:var(--text2);}
+
+/* SUPPORT SECTION */
+.support-section{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-align:center;margin-bottom:2rem;}
+.support-section h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+.support-section p{font-size:.83rem;color:var(--text2);margin-bottom:1rem;line-height:1.6;}
+.support-btns{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;}
+.sup-btn{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;font-size:.82rem;padding:.55rem 1.1rem;border-radius:8px;text-decoration:none;transition:all .2s;}
+.sup-btn.upi{background:#5f259f;color:#fff;}
+.sup-btn.upi:hover{opacity:.88;}
+.sup-btn.paypal{background:#003087;color:#fff;}
+.sup-btn.paypal:hover{opacity:.88;}
+
+/* BOTTOM BAR */
+.bottom-bar{background:var(--surf);border-top:1px solid var(--border);padding:1.1rem 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.65rem;position:relative;z-index:1;}
+.bb-links{display:flex;gap:.5rem;flex-wrap:wrap;}
+.bb-link{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);font-size:.77rem;font-weight:600;padding:.32rem .8rem;border-radius:6px;text-decoration:none;transition:all .2s;}
+.bb-link:hover{border-color:var(--accent);color:var(--accent);}
+.bb-link.hl{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;}
+.coffee-btn{display:flex;align-items:center;gap:.35rem;background:#FFDD00;color:#000;font-weight:700;font-size:.78rem;padding:.4rem .9rem;border-radius:7px;text-decoration:none;transition:opacity .2s;}
+.coffee-btn:hover{opacity:.88;}
+footer{background:rgba(4,4,10,.98);border-top:1px solid var(--border);padding:1.1rem 5%;text-align:center;color:var(--text2);font-size:.78rem;position:relative;z-index:1;}
+footer a{color:var(--text);text-decoration:none;margin:0 .35rem;}
+footer a:hover{color:var(--accent);}
+/* TOAST */
+.toast{position:fixed;bottom:1.25rem;right:1.25rem;z-index:999;background:var(--green);color:#000;font-weight:700;padding:.55rem 1.1rem;border-radius:8px;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;font-size:.82rem;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.error{background:var(--red);color:#fff;}
+@media(max-width:600px){.nav-links{display:none;}.options-grid{grid-template-columns:1fr 1fr;}.aff-banner{flex-direction:column;text-align:center;}}
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="badge"><span class="dot"></span> 100% Free · No Signup</div>
-  <h1>Excel to PDF</h1>
-  <p class="subtitle">Convert your spreadsheets into beautifully formatted PDF documents instantly.</p>
-
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><div class="step-label">Upload Excel</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-label">Preview</div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-label">Download PDF</div></div>
+<!-- NAV -->
+<nav>
+  <a href="https://kjsynthora.com/" class="nav-logo"><span class="kj">KJ</span><span class="s">Synthora</span></a>
+  <div class="nav-links">
+    <a href="https://kjsynthora.com/tools/pdf-merge.html">PDF Merge</a>
+    <a href="https://kjsynthora.com/tools/pdf-compress.html">Compress</a>
+    <a href="https://kjsynthora.com/tools/word-to-pdf.html">Word→PDF</a>
+    <a href="https://kjsynthora.com/tools/pdf-to-excel.html">PDF→Excel</a>
   </div>
+  <a href="https://kjsynthora.com/#tools-explorer" class="nav-cta">All Tools ↗</a>
+</nav>
 
-  <div class="dropzone" id="dropzone">
-    <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="fileSelected(this)">
-    <span class="drop-icon">📊</span>
-    <div class="drop-title">Drop your Excel file here</div>
-    <div class="drop-sub">or click to browse &nbsp;·&nbsp; .xlsx / .xls supported</div>
+<!-- HERO -->
+<div class="hero">
+  <div class="badge"><span class="dot"></span>Free · No Signup · No Watermark</div>
+  <h1>Excel to PDF Converter</h1>
+  <p>Convert XLSX & XLS spreadsheets to clean, formatted PDF documents instantly — 100% in your browser.</p>
+  <div class="hero-pills">
+    <span class="hp">⚡ Instant Convert</span>
+    <span class="hp">📊 XLSX & XLS</span>
+    <span class="hp">📄 Multi-Sheet</span>
+    <span class="hp">🎨 Custom Options</span>
+    <span class="hp">🔒 100% Private</span>
+    <span class="hp">📥 No Watermark</span>
   </div>
-
-  <div class="file-chosen" id="fileChosen">
-    <span class="file-icon">📗</span>
-    <span class="file-name" id="fileName">—</span>
-    <span class="file-size" id="fileSize">—</span>
-  </div>
-
-  <div class="sheet-selector" id="sheetSelector">
-    <label>Select Sheet to Convert</label>
-    <select id="sheetSelect" onchange="renderPreview()"></select>
-  </div>
-
-  <div style="margin-bottom:20px;" id="previewSection" class="preview-wrap">
-    <table id="previewTable"></table>
-  </div>
-
-  <div class="progress-wrap" id="progressWrap">
-    <div class="progress-label">
-      <span id="progressStep">Preparing...</span>
-      <span id="progressPct">0%</span>
-    </div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-  </div>
-
-  <button class="btn" id="convertBtn" onclick="convertExcelToPDF()">⚡ Convert Excel to PDF</button>
-
-  <div class="result" id="result">
-    <div class="result-icon" id="resultIcon">✅</div>
-    <div class="result-text" id="resultText">PDF downloaded!</div>
-  </div>
-
-  <div class="trust">
-    <div class="trust-item"><span>🔒</span><span>No data uploaded to server</span></div>
-    <div class="trust-item"><span>⚡</span><span>Processes in your browser</span></div>
-    <div class="trust-item"><span>🆓</span><span>Completely free</span></div>
-  </div>
-
-  <a class="back" href="../index.html">← Return Home</a>
 </div>
 
+<!-- TOOL -->
+<div class="tool-wrap">
+
+  <!-- AFFILIATE BANNER -->
+  <div class="aff-banner">
+    <div class="aff-text"><strong>📊 Need to analyze your Excel data?</strong> Try KJSynthora's free Bank Statement Converter & Expense Tracker tools.</div>
+    <a href="https://kjsynthora.com/tools/bank-statement-converter.html" class="aff-btn">Try Free →</a>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <div class="card-head">
+      <span class="card-title">📗 Excel → PDF Converter</span>
+      <div style="display:flex;gap:.4rem;">
+        <button class="act-btn" onclick="document.getElementById('excelFile').click()">📂 Upload File</button>
+        <button class="act-btn" onclick="loadSample()">📄 Sample</button>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- STEPS -->
+      <div class="steps">
+        <div class="step"><div class="step-num" id="s1">1</div><div class="step-label">Upload Excel</div></div>
+        <div class="step"><div class="step-num" id="s2">2</div><div class="step-label">Configure</div></div>
+        <div class="step"><div class="step-num" id="s3">3</div><div class="step-label">Preview</div></div>
+        <div class="step"><div class="step-num" id="s4">4</div><div class="step-label">Download PDF</div></div>
+      </div>
+
+      <!-- DROPZONE -->
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="fileSelected(this)">
+        <span class="drop-icon">📊</span>
+        <div class="drop-title">Drop your Excel file here</div>
+        <div class="drop-sub">or click to browse your computer</div>
+        <div class="drop-formats">
+          <span class="df">.xlsx</span>
+          <span class="df">.xls</span>
+          <span class="df">.csv</span>
+        </div>
+      </div>
+
+      <!-- FILE CHOSEN -->
+      <div class="file-chosen" id="fileChosen">
+        <span class="file-icon">📗</span>
+        <span class="file-name" id="fileName">—</span>
+        <span class="file-meta" id="fileMeta">—</span>
+        <button class="file-remove" onclick="removeFile()">✕ Remove</button>
+      </div>
+
+      <!-- SHEET TABS -->
+      <div class="sheet-tabs-wrap" id="sheetTabsWrap">
+        <div class="sheet-tabs-label">Select Sheet(s) to Convert</div>
+        <div class="sheet-tabs" id="sheetTabs"></div>
+      </div>
+
+      <!-- OPTIONS -->
+      <div class="options-grid">
+        <div class="opt-group">
+          <span class="opt-label">Page Size</span>
+          <select id="pageSize">
+            <option value="a4">A4 (210×297mm)</option>
+            <option value="letter">Letter (8.5×11in)</option>
+            <option value="a3">A3 (297×420mm)</option>
+            <option value="legal">Legal (8.5×14in)</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Orientation</span>
+          <select id="orientation">
+            <option value="landscape">Landscape (Recommended)</option>
+            <option value="portrait">Portrait</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Font Size</span>
+          <select id="fontSize">
+            <option value="7">7pt (Very Small)</option>
+            <option value="8" selected>8pt (Small)</option>
+            <option value="9">9pt (Normal)</option>
+            <option value="10">10pt (Large)</option>
+            <option value="11">11pt (Larger)</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Theme</span>
+          <select id="pdfTheme">
+            <option value="dark">Dark (Blue/Navy)</option>
+            <option value="green">Green (Professional)</option>
+            <option value="orange">Orange (Warm)</option>
+            <option value="minimal">Minimal (White)</option>
+            <option value="purple">Purple (Creative)</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Max Preview Rows</span>
+          <select id="previewRows">
+            <option value="5">5 rows</option>
+            <option value="10" selected>10 rows</option>
+            <option value="20">20 rows</option>
+            <option value="50">50 rows</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Cell Padding</span>
+          <select id="cellPad">
+            <option value="2">Compact (2mm)</option>
+            <option value="3" selected>Normal (3mm)</option>
+            <option value="5">Comfortable (5mm)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TOGGLE OPTIONS -->
+      <div class="toggle-row">
+        <label class="tog active" id="tog-header"><input type="checkbox" checked> 🔤 Bold Headers</label>
+        <label class="tog active" id="tog-altrow"><input type="checkbox" checked> 🦓 Alternate Row Color</label>
+        <label class="tog active" id="tog-title"><input type="checkbox" checked> 📋 Show Sheet Title</label>
+        <label class="tog active" id="tog-footer"><input type="checkbox" checked> 📄 Footer (KJSynthora)</label>
+        <label class="tog active" id="tog-pagenum"><input type="checkbox" checked> 🔢 Page Numbers</label>
+        <label class="tog" id="tog-autofit"><input type="checkbox"> 📐 Auto-fit Columns</label>
+        <label class="tog" id="tog-borders"><input type="checkbox"> 🔲 Cell Borders</label>
+        <label class="tog" id="tog-skipempty"><input type="checkbox"> ⏭️ Skip Empty Rows</label>
+      </div>
+
+      <!-- PREVIEW STATS -->
+      <div class="preview-stats" id="previewStats" style="display:none"></div>
+
+      <!-- PREVIEW TABLE -->
+      <div class="preview-wrap" id="previewWrap">
+        <table id="previewTable"></table>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-label">
+          <span id="progressStep">Preparing...</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      </div>
+
+      <!-- CONVERT BUTTON -->
+      <button class="convert-btn" id="convertBtn" onclick="convertToPDF()">
+        ⚡ Convert to PDF & Download
+      </button>
+
+      <!-- ACTION ROW -->
+      <div class="action-row">
+        <button class="act-btn green" onclick="previewCurrentSheet()">👁️ Refresh Preview</button>
+        <button class="act-btn" onclick="copyTableCSV()">📋 Copy as CSV</button>
+        <button class="act-btn" onclick="downloadCSV()">↓ Download CSV</button>
+        <button class="act-btn" onclick="removeFile()">✕ Clear</button>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-box" id="resultBox">
+        <div class="result-icon" id="resultIcon">✅</div>
+        <div class="result-text" id="resultText">PDF downloaded!</div>
+      </div>
+
+      <!-- TRUST -->
+      <div class="trust-row">
+        <div class="trust-item"><span>🔒</span><span>Files never uploaded to server</span></div>
+        <div class="trust-item"><span>⚡</span><span>100% browser-based</span></div>
+        <div class="trust-item"><span>🆓</span><span>Completely free</span></div>
+        <div class="trust-item"><span>🚫</span><span>No watermarks</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /tool-wrap -->
+
+<!-- SEO SECTION -->
+<div class="seo-wrap">
+
+  <h2>Why Use KJSynthora Excel to PDF Converter?</h2>
+  <div class="feat-grid">
+    <div class="fc"><div class="fi">🔒</div><h3>100% Private</h3><p>Your Excel file is never uploaded anywhere. All processing happens locally in your browser.</p></div>
+    <div class="fc"><div class="fi">📊</div><h3>XLSX, XLS & CSV</h3><p>Supports all Excel formats — modern XLSX, legacy XLS, and CSV files too.</p></div>
+    <div class="fc"><div class="fi">📄</div><h3>Multi-Sheet</h3><p>Convert individual sheets or merge all sheets from a workbook into one PDF.</p></div>
+    <div class="fc"><div class="fi">🎨</div><h3>5 PDF Themes</h3><p>Dark, Green, Orange, Purple, or Minimal — choose a professional PDF theme.</p></div>
+    <div class="fc"><div class="fi">⚙️</div><h3>Custom Options</h3><p>Control page size, orientation, font size, cell padding, headers, footers, and more.</p></div>
+    <div class="fc"><div class="fi">🚫</div><h3>No Watermarks</h3><p>Generated PDFs are clean and professional — no KJSynthora watermark added.</p></div>
+  </div>
+
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is the Excel to PDF converter completely free?</div><div class="faq-a">Yes, 100% free. No signup, no account, no payment. All conversion features including multi-sheet, custom themes, and download are completely free with no limits.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is my Excel file safe and private?</div><div class="faq-a">Absolutely. Your Excel file is never uploaded to any server. All processing — reading, converting, and generating the PDF — happens entirely within your browser using JavaScript. Once you close the tab, everything is gone.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What Excel formats are supported?</div><div class="faq-a">We support XLSX (Excel 2007 and newer), XLS (older Excel format), and CSV files. Both small and large spreadsheets are handled well.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I convert multiple sheets to one PDF?</div><div class="faq-a">Yes! When you upload an Excel file with multiple sheets, you can either select a specific sheet to convert or choose "All Sheets" to merge all sheets into a single PDF document, each starting on a new page.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What page sizes and orientations are available?</div><div class="faq-a">You can choose A4, A3, Letter, or Legal page sizes. Both Portrait and Landscape orientations are available. Landscape is recommended for wide spreadsheets.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Will there be a watermark on the PDF?</div><div class="faq-a">No watermarks. The generated PDF is completely clean and professional — ready to share or print. Only a subtle footer "kjsynthora.com" is added, which you can disable in options.</div></div>
+
+  <h2 style="margin-top:2rem;">Related PDF Tools</h2>
+  <div class="rel-grid">
+    <a class="rel-card" href="https://kjsynthora.com/tools/pdf-to-excel.html"><div class="ri">📊</div><div class="rn">PDF to Excel</div><div class="rd">Extract tables from PDF</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/pdf-merge.html"><div class="ri">📄</div><div class="rn">PDF Merge</div><div class="rd">Combine multiple PDFs</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/word-to-pdf.html"><div class="ri">📝</div><div class="rn">Word to PDF</div><div class="rd">Convert DOCX to PDF</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/pdf-compress.html"><div class="ri">⚡</div><div class="rn">PDF Compress</div><div class="rd">Reduce PDF file size</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/pdf-protect.html"><div class="ri">🔒</div><div class="rn">PDF Protect</div><div class="rd">Add password to PDF</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/bank-statement-converter.html"><div class="ri">🏦</div><div class="rn">Bank Statement</div><div class="rd">Convert to Excel/CSV</div></a>
+  </div>
+
+  <!-- SUPPORT SECTION -->
+  <div class="support-section" style="margin-top:2rem;">
+    <h3>❤️ Support KJSynthora</h3>
+    <p>KJSynthora is built and maintained by one developer. If these free tools help you, consider supporting the project — it keeps new tools coming!</p>
+    <div class="support-btns">
+      <a href="https://kjsynthora.com/support.html" class="sup-btn upi">📱 UPI / PhonePe Support</a>
+      <a href="https://www.paypal.com/paypalme/kjsynthora" target="_blank" rel="noopener" class="sup-btn paypal">💙 PayPal Donation</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bb-links">
+    <a class="bb-link hl" href="https://kjsynthora.com/tools/pdf-to-excel.html">PDF→Excel</a>
+    <a class="bb-link" href="https://kjsynthora.com/tools/pdf-merge.html">PDF Merge</a>
+    <a class="bb-link" href="https://kjsynthora.com/tools/pdf-compress.html">PDF Compress</a>
+    <a class="bb-link" href="https://kjsynthora.com/">🏠 Home</a>
+  </div>
+  <a class="coffee-btn" href="https://kjsynthora.com/support.html">☕ Support KJSynthora</a>
+</div>
+
+<footer>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · Crafted by KJ · All Rights Reserved ·
+    <a href="https://kjsynthora.com/privacy-policy.html">Privacy</a> ·
+    <a href="https://kjsynthora.com/terms.html">Terms</a> ·
+    <a href="https://kjsynthora.com/about.html">About</a>
+  </p>
+</footer>
+<div class="toast" id="toast"></div>
+
 <script>
-const dropzone = document.getElementById('dropzone');
-dropzone.addEventListener('dragover', e=>{e.preventDefault();dropzone.classList.add('dragover');});
-dropzone.addEventListener('dragleave', ()=>dropzone.classList.remove('dragover'));
-dropzone.addEventListener('drop', e=>{
-  e.preventDefault();dropzone.classList.remove('dragover');
-  if(e.dataTransfer.files.length) fileSelected(null, e.dataTransfer.files[0]);
-});
-
+// ── STATE ──
 let workbook = null;
+let selectedFile = null;
+let activeSheet = null;
+let convertAllSheets = false;
 
-function fileSelected(input, droppedFile){
-  const file = droppedFile || input.files[0];
-  if(!file) return;
-  window._selectedFile = file;
+// ── THEME CONFIG ──
+const THEMES = {
+  dark:    {head:[20,30,60],   headText:[180,220,255], alt:[245,247,255]},
+  green:   {head:[20,70,50],   headText:[200,255,230], alt:[245,255,250]},
+  orange:  {head:[120,50,10],  headText:[255,230,200], alt:[255,250,245]},
+  minimal: {head:[240,240,240],headText:[40,40,40],    alt:[250,250,250]},
+  purple:  {head:[60,20,100],  headText:[220,200,255], alt:[248,245,255]},
+};
+
+// ── TOGGLES ──
+document.querySelectorAll('.tog').forEach(t => t.addEventListener('click', () => t.classList.toggle('active')));
+function isOn(id) { return document.getElementById(id).classList.contains('active'); }
+
+// ── DROPZONE ──
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+
+function fileSelected(input) { if(input.files[0]) processFile(input.files[0]); }
+
+function processFile(file) {
+  selectedFile = file;
   document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileSize').textContent = (file.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('fileMeta').textContent = formatBytes(file.size) + ' · ' + file.name.split('.').pop().toUpperCase();
   document.getElementById('fileChosen').classList.add('show');
-  document.getElementById('result').classList.remove('show','error');
-
+  document.getElementById('resultBox').classList.remove('show','error');
+  markStep(1);
   const reader = new FileReader();
-  reader.onload = function(e){
-    const data = new Uint8Array(e.target.result);
-    workbook = XLSX.read(data, {type:'array'});
-    const select = document.getElementById('sheetSelect');
-    select.innerHTML = '';
-    workbook.SheetNames.forEach(name=>{
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      select.appendChild(opt);
-    });
-    document.getElementById('sheetSelector').classList.add('show');
-    renderPreview();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      workbook = XLSX.read(data, {type:'array', cellDates:true});
+      renderSheetTabs();
+      activeSheet = workbook.SheetNames[0];
+      previewCurrentSheet();
+      markStep(2); markStep(3);
+    } catch(err) { showResult('error', '❌', 'Could not read file: ' + err.message); }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function renderPreview(){
+function removeFile() {
+  selectedFile = null; workbook = null; activeSheet = null; convertAllSheets = false;
+  document.getElementById('fileChosen').classList.remove('show');
+  document.getElementById('sheetTabsWrap').classList.remove('show');
+  document.getElementById('previewWrap').classList.remove('show');
+  document.getElementById('previewStats').style.display = 'none';
+  document.getElementById('resultBox').classList.remove('show','error');
+  document.getElementById('excelFile').value = '';
+  ['s1','s2','s3','s4'].forEach(id => document.getElementById(id).classList.remove('done'));
+}
+
+// ── SHEET TABS ──
+function renderSheetTabs() {
+  const wrap = document.getElementById('sheetTabsWrap');
+  const tabs = document.getElementById('sheetTabs');
+  const sheets = workbook.SheetNames;
+  tabs.innerHTML = '';
+  // All sheets button (only if multiple)
+  if(sheets.length > 1) {
+    const btn = document.createElement('button');
+    btn.className = 'sheet-tab all-sheets-btn';
+    btn.textContent = '📋 All Sheets (' + sheets.length + ')';
+    btn.onclick = () => { convertAllSheets = true; document.querySelectorAll('.sheet-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); previewCurrentSheet(); };
+    tabs.appendChild(btn);
+  }
+  sheets.forEach((name, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sheet-tab' + (i===0 ? ' active' : '');
+    btn.textContent = name;
+    btn.onclick = () => { convertAllSheets = false; activeSheet = name; document.querySelectorAll('.sheet-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); previewCurrentSheet(); };
+    tabs.appendChild(btn);
+  });
+  wrap.classList.add('show');
+}
+
+// ── PREVIEW ──
+function previewCurrentSheet() {
   if(!workbook) return;
-  const sheetName = document.getElementById('sheetSelect').value;
+  const sheetName = convertAllSheets ? workbook.SheetNames[0] : (activeSheet || workbook.SheetNames[0]);
   const ws = workbook.Sheets[sheetName];
-  const json = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-  const preview = document.getElementById('previewSection');
+  const json = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+  const maxR = parseInt(document.getElementById('previewRows').value) || 10;
+  const skipEmpty = isOn('tog-skipempty');
+  const filtered = skipEmpty ? json.filter(r => r.some(c => c !== '' && c !== null && c !== undefined)) : json;
+  const stats = document.getElementById('previewStats');
+  stats.style.display = 'block';
+  stats.textContent = `Sheet: "${sheetName}" · ${filtered.length} rows · ${(filtered[0]||[]).length} columns · Showing first ${Math.min(maxR, filtered.length-1)} data rows`;
+  const preview = document.getElementById('previewWrap');
   const table = document.getElementById('previewTable');
   table.innerHTML = '';
-  if(!json.length){preview.classList.remove('show');return;}
-
-  const maxRows = Math.min(json.length, 8);
-  const headers = json[0];
+  if(!filtered.length) { preview.classList.remove('show'); return; }
+  const headers = filtered[0];
   const thead = document.createElement('thead');
   const hrow = document.createElement('tr');
-  headers.forEach(h=>{
-    const th = document.createElement('th');
-    th.textContent = h;
-    hrow.appendChild(th);
-  });
-  thead.appendChild(hrow);
-  table.appendChild(thead);
-
+  headers.forEach(h => { const th=document.createElement('th'); th.textContent=String(h||'').substring(0,30); hrow.appendChild(th); });
+  thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
-  for(let i=1;i<maxRows;i++){
+  const dataRows = filtered.slice(1, maxR+1);
+  dataRows.forEach(row => {
     const tr = document.createElement('tr');
-    headers.forEach((_,ci)=>{
-      const td = document.createElement('td');
-      td.textContent = json[i][ci] ?? '';
-      tr.appendChild(td);
-    });
+    headers.forEach((_,ci) => { const td=document.createElement('td'); td.textContent=String(row[ci]??'').substring(0,40); tr.appendChild(td); });
     tbody.appendChild(tr);
-  }
+  });
   table.appendChild(tbody);
   preview.classList.add('show');
 }
 
-function setProgress(pct, step){
-  document.getElementById('progressFill').style.width = pct+'%';
-  document.getElementById('progressPct').textContent = pct+'%';
-  document.getElementById('progressStep').textContent = step;
-}
-
-async function convertExcelToPDF(){
-  const file = window._selectedFile || document.getElementById('excelFile').files[0];
-  const result = document.getElementById('result');
-  result.classList.remove('show','error');
-
-  if(!file || !workbook){
-    result.classList.add('show','error');
-    document.getElementById('resultIcon').textContent = '⚠️';
-    document.getElementById('resultText').textContent = 'Please select an Excel file first.';
-    return;
-  }
-
+// ── CONVERT ──
+async function convertToPDF() {
+  if(!workbook || !selectedFile) { showResult('error','⚠️','Please select an Excel file first.'); return; }
   const btn = document.getElementById('convertBtn');
   btn.disabled = true; btn.textContent = '⏳ Converting...';
   document.getElementById('progressWrap').classList.add('show');
-  setProgress(10, 'Reading spreadsheet...');
-
-  try{
-    const sheetName = document.getElementById('sheetSelect').value;
-    const ws = workbook.Sheets[sheetName];
-    const json = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-    setProgress(40, 'Building PDF layout...');
-
+  document.getElementById('resultBox').classList.remove('show','error');
+  setProgress(5, 'Initializing...');
+  try {
+    const pageSize = document.getElementById('pageSize').value;
+    const orient  = document.getElementById('orientation').value;
+    const fSize   = parseInt(document.getElementById('fontSize').value) || 8;
+    const theme   = THEMES[document.getElementById('pdfTheme').value] || THEMES.dark;
+    const cellPad = parseInt(document.getElementById('cellPad').value) || 3;
+    const boldHead  = isOn('tog-header');
+    const altRow    = isOn('tog-altrow');
+    const showTitle = isOn('tog-title');
+    const showFtr   = isOn('tog-footer');
+    const showPgNum = isOn('tog-pagenum');
+    const skipEmpty = isOn('tog-skipempty');
+    const borders   = isOn('tog-borders');
     const {jsPDF} = window.jspdf;
-    const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-
-    // Title
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(14);
-    doc.setTextColor(40,40,40);
-    doc.text(sheetName, 14, 15);
-    doc.setFontSize(9);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(120,120,120);
-    doc.text('Generated by KJSynthora · kjsynthora.com', 14, 21);
-
-    setProgress(60, 'Rendering table...');
-
-    if(json.length > 0){
-      const headers = json[0].map(h => String(h));
-      const body = json.slice(1).map(row => headers.map((_,i)=>String(row[i] ?? '')));
-
+    const doc = new jsPDF({orientation: orient, unit:'mm', format: pageSize});
+    const sheets = convertAllSheets ? workbook.SheetNames : [activeSheet || workbook.SheetNames[0]];
+    const totalSheets = sheets.length;
+    for(let si = 0; si < totalSheets; si++) {
+      const sheetName = sheets[si];
+      const pct = Math.round(10 + (si/totalSheets)*80);
+      setProgress(pct, `Processing sheet: "${sheetName}" (${si+1}/${totalSheets})...`);
+      if(si > 0) doc.addPage();
+      const ws = workbook.Sheets[sheetName];
+      let json = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+      if(skipEmpty) json = json.filter(r => r.some(c => c !== '' && c !== null));
+      if(!json.length) continue;
+      const headers = json[0].map(h => String(h||''));
+      const body = json.slice(1).map(row => headers.map((_,i) => String(row[i]??'')));
+      let startY = 14;
+      if(showTitle) {
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(13);
+        doc.setTextColor(theme.headText[0], theme.headText[1], theme.headText[2]);
+        // White text on dark header — use contrasting color for title
+        doc.setTextColor(40,40,40);
+        doc.text(sheetName, 14, startY);
+        doc.setFontSize(8);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(130,130,130);
+        doc.text('Generated: ' + new Date().toLocaleString() + ' · ' + (convertAllSheets ? 'All Sheets' : sheetName), 14, startY+5);
+        startY += 12;
+      }
+      const colStyles = {};
+      if(isOn('tog-autofit')) {
+        const maxW = (doc.internal.pageSize.getWidth()-28) / Math.max(headers.length, 1);
+        headers.forEach((_,i) => { colStyles[i] = {cellWidth: Math.min(maxW, 50)}; });
+      }
       doc.autoTable({
-        head:[headers],
-        body:body,
-        startY:26,
-        styles:{fontSize:8, cellPadding:3, overflow:'linebreak'},
-        headStyles:{fillColor:[30,30,50], textColor:[200,230,255], fontStyle:'bold'},
-        alternateRowStyles:{fillColor:[248,248,255]},
-        margin:{left:14, right:14},
+        head: [headers],
+        body: body,
+        startY: startY,
+        styles: {
+          fontSize: fSize,
+          cellPadding: cellPad,
+          overflow: 'linebreak',
+          lineWidth: borders ? 0.1 : 0,
+          lineColor: [200,200,220],
+        },
+        headStyles: {
+          fillColor: theme.head,
+          textColor: theme.headText,
+          fontStyle: boldHead ? 'bold' : 'normal',
+          fontSize: fSize + 1,
+        },
+        alternateRowStyles: altRow ? {fillColor: theme.alt} : {},
+        columnStyles: colStyles,
+        margin: {left:14, right:14, top:14, bottom:showFtr||showPgNum?16:10},
+        didDrawPage: function(data) {
+          if(showFtr || showPgNum) {
+            const pageH = doc.internal.pageSize.getHeight();
+            const pageW = doc.internal.pageSize.getWidth();
+            doc.setFontSize(7);
+            doc.setTextColor(160,160,160);
+            if(showFtr) doc.text('kjsynthora.com · Free Excel to PDF Converter', 14, pageH-6);
+            if(showPgNum) doc.text('Page ' + data.pageNumber, pageW-20, pageH-6);
+          }
+        }
       });
     }
-
-    setProgress(90, 'Downloading PDF...');
-    const outName = file.name.replace(/\.(xlsx|xls)$/i,'') + '_converted.pdf';
+    setProgress(95, 'Saving PDF...');
+    const outName = selectedFile.name.replace(/\.(xlsx|xls|csv)$/i,'') + '_converted.pdf';
     doc.save(outName);
-    setProgress(100,'Done!');
-
-    result.classList.add('show');
-    document.getElementById('resultIcon').textContent = '✅';
-    document.getElementById('resultText').textContent = `"${outName}" downloaded successfully!`;
-
-  } catch(err){
-    result.classList.add('show','error');
-    document.getElementById('resultIcon').textContent = '❌';
-    document.getElementById('resultText').textContent = 'Error: '+err.message;
+    setProgress(100, 'Done! ✅');
+    markStep(4);
+    showResult('success','✅', '"' + outName + '" downloaded successfully! (' + totalSheets + ' sheet' + (totalSheets>1?'s':'') + ')');
+    showToast('✅ PDF Downloaded!');
+  } catch(err) {
+    showResult('error','❌','Conversion failed: ' + err.message);
+    showToast('Error: ' + err.message, true);
   }
-
-  btn.disabled = false; btn.textContent = '⚡ Convert Excel to PDF';
+  btn.disabled = false; btn.textContent = '⚡ Convert to PDF & Download';
 }
+
+// ── SAMPLE DATA ──
+function loadSample() {
+  const data = [
+    ['Product','Category','Q1 Sales','Q2 Sales','Q3 Sales','Q4 Sales','Total','Growth %'],
+    ['Laptop Pro X','Electronics',450000,520000,610000,680000,2260000,51.1],
+    ['Wireless Headphones','Electronics',125000,148000,162000,195000,630000,56.0],
+    ['Office Chair','Furniture',89000,95000,102000,115000,401000,29.2],
+    ['Standing Desk','Furniture',210000,245000,280000,315000,1050000,50.0],
+    ['Monitor 4K','Electronics',320000,360000,410000,480000,1570000,50.0],
+    ['Keyboard MX','Electronics',45000,52000,61000,74000,232000,64.4],
+    ['Webcam HD','Electronics',38000,45000,54000,67000,204000,76.3],
+    ['Desk Lamp','Home',22000,25000,28000,32000,107000,45.5],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const ws2 = XLSX.utils.aoa_to_sheet([
+    ['Month','Revenue','Expenses','Profit','Margin %'],
+    ['Jan',850000,620000,230000,27.1],
+    ['Feb',920000,680000,240000,26.1],
+    ['Mar',1050000,720000,330000,31.4],
+    ['Apr',980000,700000,280000,28.6],
+    ['May',1120000,750000,370000,33.0],
+    ['Jun',1200000,800000,400000,33.3],
+  ]);
+  workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, ws, 'Sales Data');
+  XLSX.utils.book_append_sheet(workbook, ws2, 'Monthly P&L');
+  selectedFile = {name:'sample-data.xlsx', size:2048};
+  document.getElementById('fileName').textContent = 'sample-data.xlsx';
+  document.getElementById('fileMeta').textContent = '2 KB · XLSX (Sample)';
+  document.getElementById('fileChosen').classList.add('show');
+  renderSheetTabs();
+  activeSheet = 'Sales Data';
+  previewCurrentSheet();
+  markStep(1); markStep(2); markStep(3);
+  showToast('📄 Sample data loaded!');
+}
+
+// ── CSV ACTIONS ──
+function copyTableCSV() {
+  if(!workbook) { showToast('Load a file first!', true); return; }
+  const ws = workbook.Sheets[activeSheet || workbook.SheetNames[0]];
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  navigator.clipboard.writeText(csv).then(() => showToast('📋 CSV copied!'));
+}
+function downloadCSV() {
+  if(!workbook) { showToast('Load a file first!', true); return; }
+  const ws = workbook.Sheets[activeSheet || workbook.SheetNames[0]];
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (selectedFile?.name?.replace(/\.(xlsx|xls)$/i,'') || 'data') + '.csv';
+  a.click();
+  showToast('↓ CSV downloaded!');
+}
+
+// ── HELPERS ──
+function setProgress(pct, label) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressStep').textContent = label;
+}
+function showResult(type, icon, text) {
+  const box = document.getElementById('resultBox');
+  box.className = 'result-box show' + (type==='error'?' error':'');
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultText').textContent = text;
+}
+function markStep(n) { document.getElementById('s'+n).classList.add('done'); }
+function formatBytes(n) { if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (err?' error':'');
+  setTimeout(() => t.className='toast', 2500);
+}
+// Preview refresh on option change
+['previewRows','pdfTheme'].forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('change', previewCurrentSheet); });
+document.getElementById('tog-skipempty').addEventListener('click', () => setTimeout(previewCurrentSheet, 100));
 </script>
 </body>
 </html>
