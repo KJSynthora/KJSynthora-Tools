@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<!-- SEO STRATEGY -->
+<title>Cron Expression Generator & Parser — Live Crontab Builder | KJSynthora</title>
+<meta name="description" content="Easily build, test, and convert cron expressions into human-readable text. Supports Linux, AWS CloudWatch, and Spring crontab formats. Get next 10 execution times instantly.">
+<meta name="keywords" content="cron schedule expression generator, crontab guru alternative free, aws cloudwatch cron calculator, spring cron builder, cron translator">
+<link rel="canonical" href="https://kjsynthora.com/tools/cron-expression.html">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Cron Expression Generator & Parser — KJSynthora">
+<meta property="og:description" content="Visual cron builder with human-readable translations and execution time calculators.">
+<meta property="og:type" content="website">
+
+<!-- JSON-LD Schema for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "KJSynthora Cron Builder",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- Libraries for Cron Logic -->
+<script src="https://cdn.jsdelivr.net/npm/cronstrue@2.47.0/dist/cronstrue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cron-parser@4.9.0/dist/cron-parser.min.js"></script>
+
+<style>
+:root{
+  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;
+  --text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:200;background:rgba(6,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.brand-name{font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff,var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* APP LAYOUT */
+.app{display:grid;grid-template-columns:320px 1fr 300px;height:calc(100vh - 54px)}
+@media(max-width:1200px){.app{grid-template-columns:1fr;height:auto}}
+
+.panel{background:var(--s1);border-right:1px solid var(--border);padding:20px;overflow-y:auto}
+.main{background:var(--bg);padding:25px;overflow-y:auto}
+.right{background:var(--s1);border-left:1px solid var(--border);padding:20px}
+
+/* VISUAL BUILDER */
+.cron-input-container{background:var(--s2);padding:20px;border-radius:12px;border:1px solid var(--border);margin-bottom:20px}
+.cron-box{display:flex;gap:10px;margin-top:15px}
+.cron-part{flex:1;text-align:center}
+.cron-part input{width:100%;background:var(--s3);border:1px solid var(--border);padding:10px;border-radius:8px;color:var(--a1);font-family:'DM Mono';text-align:center;font-size:18px;font-weight:700}
+.cron-part label{font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;display:block}
+
+.human-readable{background:rgba(79,142,247,0.1);border-left:4px solid var(--a1);padding:15px;border-radius:4px;font-size:15px;font-weight:600;margin-top:10px;color:#fff}
+
+/* TABS FOR BUILDER */
+.builder-tabs{display:flex;gap:5px;margin-bottom:15px;background:var(--s2);padding:5px;border-radius:10px}
+.b-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--muted2);font-size:11px;font-weight:700;cursor:pointer;border-radius:6px}
+.b-tab.active{background:var(--s3);color:var(--a1)}
+
+.selection-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(60px, 1fr));gap:5px;margin-top:10px}
+.grid-item{padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;cursor:pointer}
+.grid-item.active{background:var(--a1);color:#fff}
+
+/* NEXT RUNS */
+.run-item{padding:10px;border-bottom:1px solid var(--border2);font-size:12px;font-family:'DM Mono'}
+.run-item:last-child{border:none}
+.run-item span{color:var(--a4);margin-right:10px}
+
+/* PRESETS */
+.preset-btn{width:100%;padding:10px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;text-align:left;font-size:12px;margin-bottom:8px;cursor:pointer}
+.preset-btn:hover{border-color:var(--a1)}
+
+/* BUTTONS */
+.btn{padding:12px 20px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:10px}
+.btn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff}
+
+/* SEO CONTENT */
+.seo-section{max-width:1000px;margin:60px auto;padding:20px}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.blog-card{background:var(--s1);padding:25px;border-radius:15px;border:1px solid var(--border)}
+.blog-card h3{color:var(--a1);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header class="header">
+    <div class="brand-name">KJSynthora Cron Genius</div>
+    <div style="display:flex;gap:15px;font-size:12px">
+        <span style="color:var(--a4)">● AWS CloudWatch</span>
+        <span style="color:var(--a1)">● Linux Crontab</span>
+        <span style="color:var(--a2)">● Spring Boot</span>
+    </div>
+</header>
+
+<div class="app">
+    <!-- LEFT: PRESETS & EXPORT -->
+    <aside class="panel">
+        <h3 style="font-size:14px;margin-bottom:15px">ENVIRONMENT PRESETS</h3>
+        <button class="preset-btn" onclick="setPreset('* * * * *')"><b>Linux Default:</b> Every Minute</button>
+        <button class="preset-btn" onclick="setPreset('0 0 * * *')"><b>Daily:</b> At Midnight</button>
+        <button class="preset-btn" onclick="setPreset('*/15 9-17 * * 1-5')"><b>Business:</b> Every 15m Mon-Fri</button>
+        <button class="preset-btn" onclick="setPreset('0 0 1 * *')"><b>Monthly:</b> 1st of Month</button>
+        <button class="preset-btn" onclick="setPreset('0 12 * * 6')"><b>Weekly:</b> Saturday Noon</button>
+
+        <h3 style="font-size:14px;margin:30px 0 15px">SAVED CRON JOBS</h3>
+        <div id="savedList" style="font-size:11px;color:var(--muted2)">No jobs saved yet.</div>
+        <button class="btn btn-primary" onclick="exportCrontab()">📥 DOWNLOAD CRONTAB FILE</button>
+    </aside>
+
+    <!-- CENTER: BUILDER -->
+    <main class="main">
+        <div class="cron-input-container">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;font-weight:700;color:var(--muted)">LIVE CRON EXPRESSION</span>
+                <span id="formatBadge" style="font-size:10px;background:var(--a1);padding:2px 8px;border-radius:4px">LINUX</span>
+            </div>
+            <div class="cron-box">
+                <div class="cron-part"><label>Min</label><input type="text" id="m" value="*" oninput="syncFromInput()"></div>
+                <div class="cron-part"><label>Hour</label><input type="text" id="h" value="*" oninput="syncFromInput()"></div>
+                <div class="cron-part"><label>Day</label><input type="text" id="dom" value="*" oninput="syncFromInput()"></div>
+                <div class="cron-part"><label>Mon</label><input type="text" id="mon" value="*" oninput="syncFromInput()"></div>
+                <div class="cron-part"><label>Week</label><input type="text" id="dow" value="*" oninput="syncFromInput()"></div>
+            </div>
+            <div class="human-readable" id="readableText">Every minute</div>
+        </div>
+
+        <div class="builder-tabs">
+            <button class="b-tab active" onclick="switchBuilder('min', this)">MINUTES</button>
+            <button class="b-tab" onclick="switchBuilder('hour', this)">HOURS</button>
+            <button class="b-tab" onclick="switchBuilder('day', this)">DAYS</button>
+            <button class="b-tab" onclick="switchBuilder('month', this)">MONTHS</button>
+            <button class="b-tab" onclick="switchBuilder('week', this)">WEEKDAYS</button>
+        </div>
+
+        <div id="builderControls" class="selection-grid">
+            <!-- Dynamic Buttons Generated by JS -->
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:40px" onclick="saveToCrontab()">➕ ADD TO CRONTAB LIST</button>
+    </main>
+
+    <!-- RIGHT: EXECUTION TIMES -->
+    <aside class="right">
+        <h3 style="font-size:13px;margin-bottom:15px;color:var(--a4)">NEXT 10 EXECUTIONS</h3>
+        <div id="nextRuns" style="background:var(--s2);border-radius:10px;border:1px solid var(--border)">
+            <!-- Runs list -->
+        </div>
+
+        <div style="margin-top:30px;background:rgba(255,255,255,0.02);padding:15px;border-radius:10px;border:1px solid var(--border)">
+            <h4 style="font-size:12px;margin-bottom:10px">DEBUGGER</h4>
+            <div style="font-size:11px;color:var(--muted2);line-height:1.6">
+                Status: <span style="color:var(--success)" id="debugStatus">Valid</span><br>
+                Timezone: <span id="tz">UTC</span><br>
+                Errors: <span id="debugError">None</span>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- SEO STRATEGY & BLOGS -->
+<section class="seo-section">
+    <div class="blog-grid">
+        <article class="blog-card">
+            <h3>The Ultimate Crontab Cheat Sheet</h3>
+            <p>Common syntax examples for developers. From daily backups at 2 AM to complex business hour scheduling. Learn why 0 0 * * * is different from * * * * *.</p>
+        </article>
+        <article class="blog-card">
+            <h3>Scheduling in Node.js with Cron</h3>
+            <p>How to use node-cron to automate background tasks. Trigger email notifications, database cleanups, and API polling using simple cron strings.</p>
+        </article>
+        <article class="blog-card">
+            <h3>Debugging Cron Jobs</h3>
+            <p>Why your scheduled script isn't running in production. Check environment paths, user permissions, and hidden line endings in your crontab file.</p>
+        </article>
+    </div>
+
+    <div style="margin-top:60px">
+        <h2 style="text-align:center;margin-bottom:30px">Frequently Asked Questions</h2>
+        <div class="blog-card" style="margin-bottom:15px">
+            <h4>What is a Cron Expression?</h4>
+            <p>A cron expression is a string consisting of five or six fields that represents a set of times, normally used to schedule repetitive tasks on Unix-like operating systems.</p>
+        </div>
+        <div class="blog-card">
+            <h4>AWS CloudWatch vs Standard Cron</h4>
+            <p>AWS CloudWatch Events use a 6-field cron syntax (minutes, hours, day-of-month, month, day-of-week, year), whereas Linux crontab usually uses only 5 fields.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    let currentTab = 'min';
+    let savedCrons = [];
+
+    // Initialize Builder
+    function switchBuilder(type, btn) {
+        currentTab = type;
+        document.querySelectorAll('.b-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderBuilder();
+    }
+
+    function renderBuilder() {
+        const grid = document.getElementById('builderControls');
+        grid.innerHTML = '';
+        let max = 59;
+        let prefix = "";
+        
+        if(currentTab === 'hour') max = 23;
+        if(currentTab === 'day') max = 31;
+        if(currentTab === 'month') max = 12;
+        if(currentTab === 'week') max = 6;
+
+        for(let i=(currentTab === 'day' || currentTab === 'month' ? 1 : 0); i<=max; i++) {
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+            item.innerText = i;
+            item.onclick = () => updateCronPart(i);
+            grid.appendChild(item);
+        }
+    }
+
+    function updateCronPart(val) {
+        const idMap = { min: 'm', hour: 'h', day: 'dom', month: 'mon', week: 'dow' };
+        const input = document.getElementById(idMap[currentTab]);
+        if(input.value === '*') input.value = val;
+        else if(input.value.includes(val)) return;
+        else input.value += ',' + val;
+        syncFromInput();
+    }
+
+    function syncFromInput() {
+        const cronStr = `${document.getElementById('m').value} ${document.getElementById('h').value} ${document.getElementById('dom').value} ${document.getElementById('mon').value} ${document.getElementById('dow').value}`;
+        
+        // 1. Human Readable Translation
+        try {
+            const readable = cronstrue.toString(cronStr);
+            document.getElementById('readableText').innerText = readable;
+            document.getElementById('debugStatus').innerText = "Valid";
+            document.getElementById('debugStatus').style.color = "var(--a4)";
+            document.getElementById('debugError').innerText = "None";
+            calculateNextRuns(cronStr);
+        } catch (e) {
+            document.getElementById('readableText').innerText = "Invalid Cron Expression";
+            document.getElementById('debugStatus').innerText = "Invalid";
+            document.getElementById('debugStatus').style.color = "var(--red)";
+            document.getElementById('debugError').innerText = e;
+        }
+    }
+
+    function calculateNextRuns(expression) {
+        const nextRunsDiv = document.getElementById('nextRuns');
+        nextRunsDiv.innerHTML = '';
+        try {
+            const interval = cronParser.parseExpression(expression);
+            for (let i = 0; i < 10; i++) {
+                const date = interval.next().toString();
+                const item = document.createElement('div');
+                item.className = 'run-item';
+                item.innerHTML = `<span>#${i+1}</span> ${date}`;
+                nextRunsDiv.appendChild(item);
+            }
+        } catch (err) {}
+    }
+
+    function setPreset(str) {
+        const parts = str.split(' ');
+        document.getElementById('m').value = parts[0];
+        document.getElementById('h').value = parts[1];
+        document.getElementById('dom').value = parts[2];
+        document.getElementById('mon').value = parts[3];
+        document.getElementById('dow').value = parts[4];
+        syncFromInput();
+    }
+
+    function saveToCrontab() {
+        const cronStr = `${document.getElementById('m').value} ${document.getElementById('h').value} ${document.getElementById('dom').value} ${document.getElementById('mon').value} ${document.getElementById('dow').value}`;
+        const desc = document.getElementById('readableText').innerText;
+        savedCrons.push({ cron: cronStr, desc: desc });
+        renderSavedList();
+    }
+
+    function renderSavedList() {
+        const list = document.getElementById('savedList');
+        list.innerHTML = '';
+        savedCrons.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = "background:var(--s2);padding:10px;border-radius:6px;margin-bottom:5px;border:1px solid var(--border)";
+            div.innerHTML = `<div style="color:var(--a1);font-weight:700">${item.cron}</div><div style="font-size:9px">${item.desc}</div>`;
+            list.appendChild(div);
+        });
+    }
+
+    function exportCrontab() {
+        if(savedCrons.length === 0) return alert("Save some jobs first!");
+        let content = "# Generated by KJSynthora Cron Builder\n# Environment: Linux Crontab\n\n";
+        savedCrons.forEach(item => {
+            content += `${item.cron} /path/to/command # ${item.desc}\n`;
+        });
+        const blob = new Blob([content], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'crontab.txt';
+        a.click();
+    }
+
+    // Start
+    renderBuilder();
+    syncFromInput();
+</script>
+</body>
+</html>
