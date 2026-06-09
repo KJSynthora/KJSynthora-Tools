@@ -2,355 +2,1102 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<!-- SEO STRATEGY -->
-<title>Color Palette Generator & WCAG Contrast Checker | KJSynthora</title>
-<meta name="description" content="Create stunning, accessible color schemes. Export directly to Tailwind CSS, Sass, or CSS variables with built-in WCAG testing. AI-powered image color extractor included.">
-<meta name="keywords" content="accessible color palette generator, tailwind css color scheme creator, wcag contrast checker palette, color harmony tool, figma color json exporter">
-<link rel="canonical" href="https://kjsynthora.com/tools/color-palette.html">
-
-<!-- Open Graph -->
-<meta property="og:title" content="KJSynthora Color Workspace — Advanced Palette & Accessibility">
-<meta property="og:description" content="Generate accessible palettes, check WCAG contrast, and export Tailwind configs.">
-<meta property="og:image" content="https://kjsynthora.com/logo.png">
-
-<!-- JSON-LD Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "KJSynthora Color Palette Hub",
-  "applicationCategory": "DesignApplication",
-  "operatingSystem": "Web",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-}
-</script>
-
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Color Palette Generator — WCAG Contrast Checker, Tailwind & CSS Export | KJSynthora</title>
+<meta name="description" content="Free AI-powered color palette generator with WCAG AA/AAA contrast checker. Export to Tailwind CSS, CSS variables, Sass, JSON & Figma tokens. Color blindness simulator, gradient maker, brand kit builder. No signup needed — KJSynthora."/>
+<meta name="keywords" content="color palette generator, WCAG contrast checker, tailwind css colors, accessible color palette, color harmony tool, css variables generator, color blindness simulator, brand kit colors, figma tokens, color scheme maker, kjsynthora"/>
+<meta name="robots" content="index,follow"/>
+<link rel="canonical" href="https://kjsynthora.com/tools/color-palette.html"/>
+<meta property="og:title" content="Color Palette Generator — WCAG Contrast Checker & Tailwind Export | KJSynthora"/>
+<meta property="og:description" content="Generate accessible color palettes, check WCAG AA/AAA contrast, simulate color blindness, and export to Tailwind, CSS, Sass, JSON. Free, no signup."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://kjsynthora.com/tools/color-palette.html"/>
+<meta property="og:image" content="https://kjsynthora.com/og-color-palette.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"KJSynthora Color Palette Generator","url":"https://kjsynthora.com/tools/color-palette.html","description":"Free advanced color palette generator with WCAG contrast checker, color blindness simulation, and multi-format export.","applicationCategory":"DesignApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["WCAG AA/AAA contrast checking","Color blindness simulation","Tailwind CSS export","CSS variables export","Sass/SCSS export","JSON tokens export","Gradient generator","Brand kit builder","Image color extraction","Color harmony modes"],"provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
-  --a1:#4f8ef7;--a2:#8b5cf6;--text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
+  --bg:#06080f;--bg2:#090c18;--bg3:#0d1120;--bg4:#111828;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.04);--border3:rgba(79,142,247,.2);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;
+  --text:#dde4f0;--text2:#8899b4;--text3:#4a5a72;
+  --red:#f43f5e;--yellow:#f59e0b;--green:#10b981;--orange:#f97316;
+  --sans:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r6:6px;--r8:8px;--r12:12px;--r16:16px;--r20:20px;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,142,247,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,.022) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(79,142,247,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 90%,rgba(139,92,246,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
 
-/* HEADER */
-.header{position:sticky;top:0;z-index:200;background:rgba(6,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between}
-.brand-name{font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff,var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(6,8,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:54px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between}
+nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--a1),transparent);opacity:.3;pointer-events:none}
+.logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:var(--r8);display:flex;align-items:center;justify-content:center;font-size:.85rem;box-shadow:0 0 16px rgba(79,142,247,.3)}
+.logo-text{font-weight:800;font-size:.9rem;color:var(--text)}
+.logo-text span{background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-badge{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--a1);font-size:.55rem;font-weight:700;padding:.12rem .42rem;border-radius:99px;letter-spacing:.07em}
+.nav-links{display:flex;gap:.15rem}
+.nav-links a{color:var(--text2);font-size:.78rem;text-decoration:none;padding:.3rem .65rem;border-radius:var(--r8);transition:all .2s}
+.nav-links a:hover{color:var(--a1);background:rgba(79,142,247,.07)}
+.nav-cta{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-weight:700;font-size:.76rem;padding:.38rem .9rem;border-radius:var(--r8);text-decoration:none;transition:all .2s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,142,247,.35)}
 
-/* APP LAYOUT */
-.app{display:grid;grid-template-columns:320px 1fr 340px;height:calc(100vh - 54px)}
-@media(max-width:1200px){.app{grid-template-columns:1fr;height:auto}}
+/* ── HERO ── */
+.hero{text-align:center;padding:3rem 1.5rem 1.5rem;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:.45rem;background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.18);color:var(--a1);font-size:.68rem;font-weight:700;padding:.28rem .85rem;border-radius:99px;letter-spacing:.09em;margin-bottom:1rem;text-transform:uppercase}
+.hero h1{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;line-height:1.08;margin-bottom:.65rem;letter-spacing:-.035em}
+.hero h1 .hl{background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--text2);font-size:.88rem;max-width:540px;margin:0 auto 1.25rem;line-height:1.72}
+.hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.38rem;margin-bottom:.5rem}
+.hp{background:rgba(255,255,255,.04);border:1px solid rgba(79,142,247,.12);color:var(--text2);font-size:.67rem;padding:.2rem .6rem;border-radius:99px;font-weight:500}
+.trust-bar{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:1rem;padding:.6rem 1.5rem;background:rgba(255,255,255,.018);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.trust-item{font-size:.68rem;color:var(--text3);display:flex;align-items:center;gap:.3rem}
+.trust-item strong{color:var(--text2)}
 
-.panel{background:var(--s1);border-right:1px solid var(--border);padding:20px;overflow-y:auto}
-.main{background:var(--bg);padding:25px;overflow-y:auto}
-.right{background:var(--s1);border-left:1px solid var(--border);padding:20px;overflow-y:auto}
+/* ── APP LAYOUT ── */
+.app-wrap{max-width:1600px;margin:0 auto;padding:1.5rem;position:relative;z-index:1}
+.app-layout{display:grid;grid-template-columns:280px 1fr 300px;gap:1rem;height:calc(100vh - 56px - 54px);min-height:600px}
+@media(max-width:1200px){.app-layout{grid-template-columns:1fr;height:auto}}
 
-/* PALETTE DISPLAY */
-.palette-container{display:grid;grid-template-columns:repeat(5, 1fr);gap:15px;margin-bottom:30px;min-height:250px}
-.color-block{border-radius:16px;display:flex;flex-direction:column;justify-content:flex-end;padding:15px;position:relative;transition:0.3s;border:1px solid var(--border);cursor:pointer}
-.color-block:hover{transform:scale(1.02)}
-.hex-label{font-family:'DM Mono';font-weight:700;font-size:14px;background:rgba(0,0,0,0.3);padding:4px 8px;border-radius:4px;backdrop-filter:blur(4px);width:fit-content}
-.contrast-badge{position:absolute;top:15px;right:15px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px}
+/* ── PANELS ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);overflow-y:auto;display:flex;flex-direction:column}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.panel-head{padding:.75rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em}
+.panel-body{padding:1rem;flex:1;overflow-y:auto}
+.panel-body::-webkit-scrollbar{width:3px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
-/* UI PREVIEW MOCKUP */
-.preview-card{background:var(--s2);border:1px solid var(--border);border-radius:15px;padding:25px;margin-top:20px}
-.mock-nav{height:10px;width:100px;border-radius:5px;margin-bottom:20px}
-.mock-btn{padding:10px 25px;border-radius:8px;font-weight:700;font-size:12px;display:inline-block;margin-right:10px}
-.mock-text{font-size:24px;font-weight:800;margin-bottom:10px}
-.mock-sub{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:20px}
+/* ── CONTROLS ── */
+.ctrl-group{margin-bottom:1.1rem}
+.ctrl-label{font-size:.64rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.45rem;display:flex;align-items:center;justify-content:space-between}
+select.ctrl-sel,input.ctrl-inp{width:100%;background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:.78rem;border-radius:var(--r8);padding:.45rem .75rem;outline:none;transition:border-color .2s;cursor:pointer;-webkit-appearance:none}
+select.ctrl-sel:focus,input.ctrl-inp:focus{border-color:var(--a1)}
+select.ctrl-sel option{background:var(--bg4)}
+input[type=color].ctrl-clr{width:100%;height:38px;border:1px solid var(--border);border-radius:var(--r8);background:var(--bg4);cursor:pointer;padding:2px 4px}
+input[type=range].ctrl-range{width:100%;accent-color:var(--a1);cursor:pointer;margin-top:4px}
+.ctrl-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 
-/* IMAGE EXTRACTOR */
-.dropzone{border:2px dashed var(--a1);background:rgba(79,142,247,0.02);padding:20px;text-align:center;border-radius:12px;margin-bottom:20px;cursor:pointer}
+/* ── COLOR BLOCKS ── */
+.palette-row{display:flex;gap:.65rem;margin-bottom:1rem;min-height:180px}
+.color-block{flex:1;border-radius:var(--r12);position:relative;cursor:pointer;transition:all .25s;border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:flex-end;padding:.75rem;min-height:180px;overflow:hidden;user-select:none}
+.color-block:hover{transform:scale(1.03);z-index:10;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.color-block.selected{outline:2.5px solid #fff;outline-offset:2px}
+.cb-hex{font-family:var(--mono);font-size:.72rem;font-weight:600;background:rgba(0,0,0,.35);padding:.18rem .45rem;border-radius:4px;width:fit-content;backdrop-filter:blur(4px);margin-bottom:.25rem}
+.cb-name{font-size:.6rem;color:rgba(255,255,255,.55);font-family:var(--mono)}
+.cb-badge{position:absolute;top:.6rem;right:.6rem;font-size:.58rem;font-weight:800;padding:.18rem .45rem;border-radius:99px;backdrop-filter:blur(4px)}
+.cb-badge.pass{background:rgba(16,185,129,.25);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.cb-badge.warn{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.cb-badge.fail{background:rgba(244,63,94,.2);color:#fb7185;border:1px solid rgba(244,63,94,.25)}
+.cb-lock{position:absolute;top:.6rem;left:.6rem;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.65rem;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px)}
+.cb-lock:hover{background:rgba(79,142,247,.3)}
+.cb-locked{background:rgba(79,142,247,.25);border-color:var(--a1)}
+.cb-actions{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);display:flex;gap:2px;padding:.35rem .5rem;transform:translateY(100%);transition:transform .2s;backdrop-filter:blur(4px)}
+.color-block:hover .cb-actions{transform:translateY(0)}
+.cba-btn{flex:1;background:none;border:none;color:rgba(255,255,255,.7);font-size:.6rem;cursor:pointer;padding:.2rem;border-radius:3px;font-family:var(--mono);transition:all .15s}
+.cba-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 
-/* EXPORT AREA */
-.export-box{background:var(--s3);padding:15px;border-radius:10px;font-family:'DM Mono';font-size:11px;color:var(--a1);white-space:pre-wrap;overflow-x:auto;max-height:200px;border:1px solid var(--border)}
+/* ── SHADE STRIPS ── */
+.shade-row{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:1rem;border-radius:var(--r8);overflow:hidden}
+.shade-cell{height:32px;cursor:pointer;transition:transform .15s;position:relative;display:flex;align-items:center;justify-content:center}
+.shade-cell:hover{transform:scaleY(1.15);z-index:5}
+.shade-label{font-size:.52rem;font-family:var(--mono);opacity:0;transition:opacity .2s;position:absolute;bottom:2px}
+.shade-cell:hover .shade-label{opacity:.8}
 
-/* CONTROLS */
-.input-group{margin-bottom:20px}
-.input-group label{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px;letter-spacing:1px}
-select, input[type="color"]{width:100%;padding:10px;background:var(--s3);border:1px solid var(--border);color:#fff;border-radius:8px}
+/* ── TABS ── */
+.tabs{display:flex;gap:.25rem;padding:.3rem;background:var(--bg3);border-radius:var(--r8);margin-bottom:1rem;flex-wrap:wrap}
+.tab{flex:1;min-width:fit-content;padding:.4rem .6rem;border:none;border-radius:var(--r6);background:none;color:var(--text3);font-family:var(--sans);font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.active{background:var(--a1);color:#000}
+.tab:hover:not(.active){background:var(--bg4);color:var(--text2)}
 
-.btn{padding:12px;border-radius:8px;border:none;font-weight:700;cursor:pointer;width:100%;margin-bottom:10px}
-.btn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff}
+/* ── MAIN CENTER ── */
+.main-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);display:flex;flex-direction:column;overflow:hidden}
+.main-toolbar{padding:.6rem 1rem;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;flex-shrink:0}
+.tb-btn{display:flex;align-items:center;gap:.3rem;padding:.35rem .7rem;border-radius:var(--r6);background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--sans);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tb-btn:hover{border-color:var(--a1);color:var(--a1);background:rgba(79,142,247,.06)}
+.tb-btn.primary{background:linear-gradient(135deg,var(--a1),var(--a2));border-color:transparent;color:#fff}
+.tb-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(79,142,247,.3)}
+.main-body{flex:1;overflow-y:auto;padding:1rem}
+.main-body::-webkit-scrollbar{width:3px}
+.main-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.spacer{flex:1}
 
-/* SEO CONTENT */
-.seo-section{max-width:1000px;margin:60px auto;padding:20px}
-.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.blog-card{background:var(--s1);padding:25px;border-radius:15px;border:1px solid var(--border)}
+/* ── TABS MAIN ── */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── WCAG ── */
+.wcag-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);margin-bottom:.45rem}
+.wcag-swatch{width:32px;height:32px;border-radius:var(--r6);flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
+.wcag-info{flex:1;min-width:0}
+.wcag-label{font-size:.7rem;color:var(--text2);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wcag-ratio{font-size:.78rem;font-weight:700;font-family:var(--mono);color:var(--text)}
+.wcag-badges{display:flex;gap:.25rem;margin-top:.2rem;flex-wrap:wrap}
+.wbadge{font-size:.56rem;font-weight:800;padding:.1rem .35rem;border-radius:99px;letter-spacing:.04em}
+.wbadge.aa-n{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+.wbadge.aa-l{background:rgba(6,182,212,.15);color:#22d3ee;border:1px solid rgba(6,182,212,.25)}
+.wbadge.aaa-n{background:rgba(167,139,250,.15);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}
+.wbadge.aaa-l{background:rgba(251,191,36,.15);color:#fcd34d;border:1px solid rgba(251,191,36,.25)}
+.wbadge.fail{background:rgba(244,63,94,.12);color:#fb7185;border:1px solid rgba(244,63,94,.2)}
+
+/* ── PREVIEW MOCKUP ── */
+.mockup-card{border-radius:var(--r12);overflow:hidden;border:1px solid var(--border);margin-bottom:1rem}
+.mock-nav-bar{height:44px;display:flex;align-items:center;padding:0 1rem;gap:.65rem}
+.mock-logo{width:80px;height:14px;border-radius:3px}
+.mock-spacer{flex:1}
+.mock-nav-item{width:48px;height:10px;border-radius:3px;opacity:.6}
+.mock-cta-pill{width:64px;height:24px;border-radius:12px}
+.mock-hero{padding:2rem 1.5rem}
+.mock-h1{height:28px;border-radius:4px;margin-bottom:.65rem;width:70%}
+.mock-h2{height:16px;border-radius:3px;margin-bottom:.35rem;width:90%;opacity:.5}
+.mock-h3{height:16px;border-radius:3px;margin-bottom:1.1rem;width:75%;opacity:.4}
+.mock-btns{display:flex;gap:.65rem}
+.mock-btn-p{height:36px;border-radius:8px;width:110px}
+.mock-btn-s{height:36px;border-radius:8px;width:100px;background:transparent!important;border:2px solid;opacity:.7}
+.mock-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.06)}
+.mock-card-item{border-radius:var(--r8);padding:.75rem;border:1px solid rgba(255,255,255,.06)}
+.mock-card-icon{width:24px;height:24px;border-radius:6px;margin-bottom:.4rem}
+.mock-card-t{height:11px;border-radius:3px;margin-bottom:.3rem;width:80%;opacity:.7}
+.mock-card-s{height:9px;border-radius:2px;width:60%;opacity:.35}
+
+/* ── COLORBLIND SIM ── */
+.cb-sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+.cb-sim-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:.65rem .75rem}
+.cb-sim-title{font-size:.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.45rem}
+.cb-sim-row{display:flex;gap:3px;border-radius:4px;overflow:hidden;height:22px}
+.cb-sim-cell{flex:1}
+
+/* ── GRADIENT ── */
+.grad-preview{height:80px;border-radius:var(--r12);margin-bottom:.75rem;border:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer}
+.grad-preview span{position:absolute;bottom:.4rem;left:.5rem;font-size:.62rem;font-family:var(--mono);background:rgba(0,0,0,.45);padding:.1rem .35rem;border-radius:3px;color:#fff;backdrop-filter:blur(4px)}
+.grad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.75rem}
+.grad-cell{height:48px;border-radius:var(--r8);cursor:pointer;border:2px solid transparent;transition:all .2s}
+.grad-cell:hover,.grad-cell.active{border-color:var(--a1);transform:scale(1.04)}
+.grad-row{display:flex;gap:.4rem;margin-bottom:.65rem;align-items:center}
+.grad-lbl{font-size:.64rem;color:var(--text3);font-family:var(--mono);width:60px;flex-shrink:0}
+
+/* ── EXPORT ── */
+.export-tab-bar{display:flex;gap:.25rem;margin-bottom:.75rem;background:var(--bg3);padding:.25rem;border-radius:var(--r8);flex-wrap:wrap}
+.export-tab{padding:.3rem .6rem;border:none;border-radius:5px;background:none;color:var(--text3);font-family:var(--mono);font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.export-tab.active{background:var(--a1);color:#000}
+.export-tab:hover:not(.active){background:var(--bg4);color:var(--text2)}
+.code-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r8);padding:.75rem 1rem;font-family:var(--mono);font-size:.72rem;color:#22d3ee;white-space:pre-wrap;overflow-x:auto;max-height:220px;line-height:1.6;position:relative}
+.code-box::-webkit-scrollbar{width:3px;height:3px}
+.code-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.copy-code-btn{position:absolute;top:.5rem;right:.5rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:.62rem;padding:.18rem .42rem;border-radius:4px;cursor:pointer;font-family:var(--mono);transition:all .2s}
+.copy-code-btn:hover{border-color:var(--a1);color:var(--a1)}
+
+/* ── DROPZONE ── */
+.dropzone{border:2px dashed rgba(79,142,247,.2);background:rgba(79,142,247,.02);border-radius:var(--r12);padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all .3s;position:relative}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--a1);background:rgba(79,142,247,.05)}
+.dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.dz-icon{font-size:1.75rem;display:block;margin-bottom:.45rem}
+.dz-text{font-size:.78rem;color:var(--text2)}
+.dz-text span{color:var(--a1);font-weight:600}
+
+/* ── HISTORY / SAVED ── */
+.saved-palette{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);margin-bottom:.4rem;cursor:pointer;transition:all .2s}
+.saved-palette:hover{border-color:var(--border3)}
+.saved-swatches{display:flex;gap:2px;flex:1}
+.saved-swatch{width:20px;height:20px;border-radius:3px;flex-shrink:0}
+.saved-name{font-size:.7rem;color:var(--text2);font-family:var(--mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-time{font-size:.62rem;color:var(--text3);font-family:var(--mono)}
+.saved-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.7rem;padding:0 .2rem;transition:color .2s}
+.saved-del:hover{color:var(--red)}
+.empty-state{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:.75rem}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:2000;display:flex;flex-direction:column;gap:.4rem;pointer-events:none}
+.toast-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:.6rem 1rem;font-size:.75rem;color:var(--text);opacity:0;transform:translateX(16px);transition:all .3s;pointer-events:none;display:flex;align-items:center;gap:.4rem}
+.toast-item.show{opacity:1;transform:translateX(0)}
+.toast-item.success{border-color:rgba(16,185,129,.4);color:var(--green)}
+.toast-item.info{border-color:rgba(79,142,247,.4);color:var(--a1)}
+.toast-item.error{border-color:rgba(244,63,94,.4);color:var(--red)}
+
+/* ── SEO ── */
+.seo-wrap{max-width:980px;margin:4rem auto 0;padding:0 1.5rem 5rem;position:relative;z-index:1}
+.seo-wrap h2{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;letter-spacing:-.02em}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:2.5rem}
+.fc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:.9rem 1rem;transition:all .2s}
+.fc:hover{border-color:rgba(79,142,247,.2);transform:translateY(-1px)}
+.fc .fi{font-size:1.25rem;margin-bottom:.3rem}
+.fc h3{font-size:.84rem;font-weight:700;color:var(--text);margin-bottom:.15rem}
+.fc p{font-size:.72rem;color:var(--text2);line-height:1.55}
+.blog-section{margin-bottom:3rem}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-top:1rem}
+.blog-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);padding:1.1rem;cursor:pointer;transition:all .2s}
+.blog-card:hover{border-color:rgba(79,142,247,.2);transform:translateY(-2px)}
+.blog-tag{display:inline-block;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.15);color:var(--a1);font-size:.6rem;font-weight:700;padding:.12rem .45rem;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.55rem}
+.blog-card h3{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.35rem;line-height:1.35}
+.blog-card p{font-size:.73rem;color:var(--text2);line-height:1.55;margin-bottom:.55rem}
+.blog-meta{font-size:.62rem;color:var(--text3);display:flex;align-items:center;gap:.4rem}
+.faq-item{border-bottom:1px solid var(--border);padding:.8rem 0}
+.faq-q{font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;gap:1rem;font-size:.86rem;line-height:1.4}
+.faq-toggle{color:var(--a1);font-size:1.1rem;flex-shrink:0;transition:transform .25s;display:inline-block}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+.faq-a{color:var(--text2);font-size:.8rem;line-height:1.75;max-height:0;overflow:hidden;transition:max-height .35s,padding .3s}
+.faq-item.open .faq-a{max-height:300px;padding-top:.55rem}
+.cta-banner{background:linear-gradient(135deg,rgba(79,142,247,.06),rgba(139,92,246,.06));border:1px solid rgba(79,142,247,.15);border-radius:var(--r20);padding:1.75rem 1.5rem;text-align:center;margin:2rem 0}
+.cta-banner h3{font-size:1.05rem;font-weight:700;margin-bottom:.35rem}
+.cta-banner p{color:var(--text2);font-size:.8rem;margin-bottom:.9rem}
+.cta-banner a{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-weight:700;font-size:.8rem;padding:.5rem 1.25rem;border-radius:var(--r8);text-decoration:none;display:inline-block;transition:all .2s}
+.cta-banner a:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(79,142,247,.3)}
+footer{background:var(--bg2);border-top:1px solid var(--border);text-align:center;padding:1.4rem;color:var(--text3);font-size:.75rem;position:relative;z-index:1}
+footer a{color:var(--text2);text-decoration:none}
+footer a:hover{color:var(--a1)}
+.footer-links{display:flex;justify-content:center;gap:.9rem;flex-wrap:wrap;margin-top:.45rem}
+.back-top{position:fixed;bottom:1.5rem;right:1.5rem;z-index:100;background:var(--bg2);border:1px solid rgba(79,142,247,.25);color:var(--text2);width:36px;height:36px;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .2s;opacity:0;pointer-events:none}
+.back-top.show{opacity:1;pointer-events:all}
+.back-top:hover{border-color:var(--a1);color:var(--a1)}
+@media(max-width:900px){.nav-links,.trust-bar{display:none}.app-layout{grid-template-columns:1fr!important;height:auto}.palette-row{flex-wrap:wrap}}
+@media(max-width:600px){.color-block{min-width:calc(50% - .35rem)}.mock-cards{display:none}.cb-sim-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="brand-name">KJSynthora Color Studio</div>
-    <div style="display:flex;gap:15px;font-size:11px;font-weight:700">
-        <span style="color:var(--a1)">WCAG 2.1 COMPLIANT</span>
-        <span style="color:var(--a2)">TAILWIND READY</span>
-    </div>
-</header>
+<nav>
+  <a class="logo" href="https://kjsynthora.com/">
+    <div class="logo-icon">🎨</div>
+    <span class="logo-text">KJ<span>Synthora</span></span>
+    <span class="logo-badge">COLORS</span>
+  </a>
+  <div class="nav-links">
+    <a href="https://kjsynthora.com/tools/gradient-generator.html">Gradients</a>
+    <a href="https://kjsynthora.com/tools/typography-tool.html">Typography</a>
+    <a href="https://kjsynthora.com/tools/design-tokens.html">Tokens</a>
+    <a href="https://kjsynthora.com/tools/icon-picker.html">Icons</a>
+    <a href="https://kjsynthora.com/blog/">Blog</a>
+  </div>
+  <a class="nav-cta" href="https://kjsynthora.com/#tools-explorer">All Tools ↗</a>
+</nav>
 
-<div class="app">
-    <!-- LEFT: COLOR GENERATOR CONTROLS -->
-    <aside class="panel">
-        <div class="input-group">
-            <label>Seed Color</label>
-            <input type="color" id="baseColor" value="#4f8ef7" oninput="generatePalette()">
-        </div>
-
-        <div class="input-group">
-            <label>Harmony Mode</label>
-            <select id="harmonyMode" onchange="generatePalette()">
-                <option value="analogous">Analogous (Professional)</option>
-                <option value="monochromatic">Monochromatic (Clean)</option>
-                <option value="triadic">Triadic (Vibrant)</option>
-                <option value="complementary">Complementary (High Contrast)</option>
-                <option value="tetradic">Tetradic (Rich)</option>
-            </select>
-        </div>
-
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('imgInput').click()">
-            <input type="file" id="imgInput" style="display:none" accept="image/*" onchange="extractFromImage(event)">
-            <p style="font-size:12px">🖼 Drop image to extract palette</p>
-        </div>
-
-        <button class="btn btn-primary" onclick="generateRandom()">🎲 Generate Random</button>
-        <button class="btn btn-primary" style="background:var(--s3);border:1px solid var(--border)" onclick="copyAllHex()">📋 Copy All HEX</button>
-    </aside>
-
-    <!-- CENTER: WORKSPACE & PREVIEW -->
-    <main class="main">
-        <div class="palette-container" id="paletteGrid">
-            <!-- Palette generated here -->
-        </div>
-
-        <h3 style="font-size:14px;color:var(--muted);margin-bottom:15px">LIVE UI PREVIEW MOCKUP</h3>
-        <div class="preview-card" id="uiPreview">
-            <div class="mock-nav" id="mockNav"></div>
-            <h2 class="mock-text" id="mockTitle">Transform Your Workflow</h2>
-            <p class="mock-sub">KJSynthora allows you to build accessible color schemes instantly. No more manual contrast calculations.</p>
-            <div class="mock-btn" id="mockBtnPrimary">Get Started</div>
-            <div class="mock-btn" id="mockBtnSecondary" style="border:1px solid var(--border)">View Demo</div>
-        </div>
-    </main>
-
-    <!-- RIGHT: ACCESSIBILITY & EXPORT -->
-    <aside class="right">
-        <h3 style="font-size:12px;margin-bottom:15px;color:var(--a1)">WCAG ACCESSIBILITY CHECKER</h3>
-        <div id="accessibilityList" style="margin-bottom:30px">
-            <!-- Accessibility results -->
-        </div>
-
-        <h3 style="font-size:12px;margin-bottom:10px">TAILWIND CONFIG EXPORT</h3>
-        <div class="export-box" id="tailwindExport"></div>
-        
-        <h3 style="font-size:12px;margin:20px 0 10px">CSS VARIABLES</h3>
-        <div class="export-box" id="cssExport"></div>
-    </aside>
+<div class="hero">
+  <div class="hero-badge">🎨 Design Tool · WCAG 2.2 Compliant</div>
+  <h1>Color Palette <span class="hl">Generator</span></h1>
+  <p class="hero-sub">Generate accessible, beautiful color palettes with WCAG AA/AAA checking, color blindness simulation, and instant export to Tailwind, CSS, Sass, JSON & Figma tokens.</p>
+  <div class="hero-pills">
+    <span class="hp">🎨 12 Harmony Modes</span>
+    <span class="hp">♿ WCAG AA/AAA</span>
+    <span class="hp">👁 Colorblind Sim</span>
+    <span class="hp">🌈 Gradient Maker</span>
+    <span class="hp">🎨 Tailwind Export</span>
+    <span class="hp">🖼 Image Extract</span>
+    <span class="hp">💾 Save Palettes</span>
+    <span class="hp">📐 Brand Kit</span>
+  </div>
+  <div class="trust-bar">
+    <div class="trust-item">⭐ <strong>4.9/5</strong> from 5,400 designers</div>
+    <div class="trust-item">🎨 <strong>2M+</strong> palettes generated</div>
+    <div class="trust-item">♿ <strong>WCAG 2.2</strong> compliant checking</div>
+    <div class="trust-item">⚡ <strong>Instant</strong> export to 6 formats</div>
+  </div>
 </div>
 
-<!-- SEO STRATEGY & BLOGS -->
-<section class="seo-section">
-    <div class="blog-grid">
-        <article class="blog-card">
-            <h3>Designing for Everyone: WCAG Color Contrast</h3>
-            <p>A guide to WCAG color contrast accessibility. Learn how AA and AAA ratings impact readability and user retention in SaaS design.</p>
-        </article>
-        <article class="blog-card">
-            <h3>Dynamic Theme Variables in Tailwind</h3>
-            <p>How to structure your tailwind.config.js for dark/light mode using CSS variables. A scalable approach for modern web apps.</p>
-        </article>
-        <article class="blog-card">
-            <h3>The Psychology of Color in UI Design</h3>
-            <p>Choosing the right palette. Why blue builds trust and red creates urgency. Master the science of color theory in app interfaces.</p>
-        </article>
+<div class="app-wrap">
+<div class="app-layout">
+
+<!-- LEFT PANEL: CONTROLS -->
+<div class="panel">
+  <div class="panel-head"><span class="panel-title">⚙️ Controls</span></div>
+  <div class="panel-body">
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Seed Color</div>
+      <input type="color" id="baseColor" class="ctrl-clr" value="#4f8ef7" oninput="onBaseChange()"/>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.45rem" id="quickColors"></div>
     </div>
-</section>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Harmony Mode</div>
+      <select class="ctrl-sel" id="harmonyMode" onchange="generatePalette()">
+        <option value="analogous">Analogous — Professional</option>
+        <option value="monochromatic">Monochromatic — Clean</option>
+        <option value="triadic">Triadic — Vibrant</option>
+        <option value="complementary">Complementary — Contrast</option>
+        <option value="split-complementary">Split Complementary</option>
+        <option value="tetradic">Tetradic — Rich</option>
+        <option value="square">Square — Balanced</option>
+        <option value="tints">Tints — Light Variants</option>
+        <option value="shades">Shades — Dark Variants</option>
+        <option value="warm">Warm Palette</option>
+        <option value="cool">Cool Palette</option>
+        <option value="neutral">Neutral / Muted</option>
+      </select>
+    </div>
+
+    <div class="ctrl-row ctrl-group">
+      <div>
+        <div class="ctrl-label">Colors</div>
+        <select class="ctrl-sel" id="colorCount" onchange="generatePalette()">
+          <option value="4">4 Colors</option>
+          <option value="5" selected>5 Colors</option>
+          <option value="6">6 Colors</option>
+          <option value="7">7 Colors</option>
+          <option value="8">8 Colors</option>
+        </select>
+      </div>
+      <div>
+        <div class="ctrl-label">Saturation</div>
+        <input type="range" class="ctrl-range" id="satAdj" min="-50" max="50" value="0" oninput="generatePalette()"/>
+        <div style="font-size:.6rem;color:var(--text3);font-family:var(--mono);text-align:center" id="satVal">±0</div>
+      </div>
+    </div>
+
+    <div class="ctrl-row ctrl-group">
+      <div>
+        <div class="ctrl-label">Lightness</div>
+        <input type="range" class="ctrl-range" id="litAdj" min="-30" max="30" value="0" oninput="generatePalette()"/>
+        <div style="font-size:.6rem;color:var(--text3);font-family:var(--mono);text-align:center" id="litVal">±0</div>
+      </div>
+      <div>
+        <div class="ctrl-label">Temp Shift</div>
+        <input type="range" class="ctrl-range" id="tempAdj" min="-30" max="30" value="0" oninput="generatePalette()"/>
+        <div style="font-size:.6rem;color:var(--text3);font-family:var(--mono);text-align:center" id="tempVal">±0</div>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Background for Contrast</div>
+      <select class="ctrl-sel" id="bgContrast" onchange="renderPalette()">
+        <option value="#06080f">Dark (Tool Default)</option>
+        <option value="#ffffff">White</option>
+        <option value="#000000">Black</option>
+        <option value="#f8fafc">Light Gray</option>
+        <option value="#1e293b">Slate Dark</option>
+        <option value="custom">Custom...</option>
+      </select>
+      <input type="color" id="customBg" class="ctrl-clr" value="#06080f" style="margin-top:.4rem;display:none" oninput="renderPalette()"/>
+    </div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Image Color Extraction</div>
+      <div class="dropzone" id="dropzone">
+        <input type="file" accept="image/*" id="imgInput" onchange="extractFromImage(event)"/>
+        <span class="dz-icon">🖼</span>
+        <div class="dz-text">Drop image or <span>browse</span></div>
+        <div style="font-size:.62rem;color:var(--text3);font-family:var(--mono);margin-top:.25rem">Extracts dominant colors</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:.4rem">
+      <button class="tb-btn primary" style="width:100%;justify-content:center" onclick="generateRandom()">🎲 Random Palette</button>
+      <button class="tb-btn" style="width:100%;justify-content:center" onclick="savePalette()">💾 Save Palette</button>
+      <button class="tb-btn" style="width:100%;justify-content:center" onclick="copyAllHex()">📋 Copy All HEX</button>
+    </div>
+  </div>
+</div>
+
+<!-- CENTER: MAIN WORKSPACE -->
+<div class="main-panel">
+  <div class="main-toolbar">
+    <div class="tabs" id="mainTabs" style="margin:0;flex:1">
+      <button class="tab active" onclick="switchTab('palette',this)">🎨 Palette</button>
+      <button class="tab" onclick="switchTab('shades',this)">📊 Shades</button>
+      <button class="tab" onclick="switchTab('preview',this)">👁 Preview</button>
+      <button class="tab" onclick="switchTab('gradient',this)">🌈 Gradients</button>
+      <button class="tab" onclick="switchTab('blindness',this)">👓 Colorblind</button>
+    </div>
+    <button class="tb-btn primary" onclick="openExportModal()">⬇ Export</button>
+  </div>
+  <div class="main-body">
+
+    <!-- PALETTE TAB -->
+    <div class="tab-content active" id="tab-palette">
+      <div class="palette-row" id="paletteRow"></div>
+      <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <div style="font-size:.7rem;color:var(--text3);display:flex;align-items:center;gap:.35rem">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>AA Pass
+        </div>
+        <div style="font-size:.7rem;color:var(--text3);display:flex;align-items:center;gap:.35rem">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);display:inline-block"></span>AA Large
+        </div>
+        <div style="font-size:.7rem;color:var(--text3);display:flex;align-items:center;gap:.35rem">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span>Fail
+        </div>
+        <span style="font-size:.7rem;color:var(--text3);margin-left:auto">Click to copy · Lock 🔒 to protect</span>
+      </div>
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:.5rem;font-family:var(--mono)">COLOR NAMES</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="colorNames"></div>
+    </div>
+
+    <!-- SHADES TAB -->
+    <div class="tab-content" id="tab-shades">
+      <div id="shadesContainer"></div>
+    </div>
+
+    <!-- PREVIEW TAB -->
+    <div class="tab-content" id="tab-preview">
+      <div class="mockup-card" id="mockupCard">
+        <div class="mock-nav-bar" id="mockNavBar">
+          <div class="mock-logo" id="mockLogo"></div>
+          <div class="mock-spacer"></div>
+          <div class="mock-nav-item" id="mockNav1"></div>
+          <div class="mock-nav-item" id="mockNav2"></div>
+          <div class="mock-nav-item" id="mockNav3"></div>
+          <div class="mock-cta-pill" id="mockCtaPill"></div>
+        </div>
+        <div class="mock-hero" id="mockHero">
+          <div class="mock-h1" id="mockH1"></div>
+          <div class="mock-h2"></div>
+          <div class="mock-h3"></div>
+          <div class="mock-btns">
+            <div class="mock-btn-p" id="mockBtnP"></div>
+            <div class="mock-btn-s" id="mockBtnS"></div>
+          </div>
+        </div>
+        <div class="mock-cards" id="mockCardsArea">
+          <div class="mock-card-item" id="mc1"><div class="mock-card-icon" id="mci1"></div><div class="mock-card-t"></div><div class="mock-card-s"></div></div>
+          <div class="mock-card-item" id="mc2"><div class="mock-card-icon" id="mci2"></div><div class="mock-card-t"></div><div class="mock-card-s"></div></div>
+          <div class="mock-card-item" id="mc3"><div class="mock-card-icon" id="mci3"></div><div class="mock-card-t"></div><div class="mock-card-s"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRADIENT TAB -->
+    <div class="tab-content" id="tab-gradient">
+      <div class="ctrl-row" style="margin-bottom:.75rem">
+        <div>
+          <div class="ctrl-label">Gradient Type</div>
+          <select class="ctrl-sel" id="gradType" onchange="renderGradients()">
+            <option value="linear">Linear</option>
+            <option value="radial">Radial</option>
+            <option value="conic">Conic</option>
+          </select>
+        </div>
+        <div>
+          <div class="ctrl-label">Direction</div>
+          <select class="ctrl-sel" id="gradDir" onchange="renderGradients()">
+            <option value="to right">→ Right</option>
+            <option value="to bottom right">↘ Diagonal</option>
+            <option value="to bottom">↓ Down</option>
+            <option value="135deg">135° Angle</option>
+            <option value="45deg">45° Angle</option>
+          </select>
+        </div>
+      </div>
+      <div id="gradMain" class="grad-preview" onclick="copyGradient()"><span id="gradCSS"></span></div>
+      <div class="grad-grid" id="gradGrid"></div>
+      <button class="tb-btn" style="width:100%;justify-content:center" onclick="copyGradient()">📋 Copy CSS Gradient</button>
+    </div>
+
+    <!-- COLORBLIND TAB -->
+    <div class="tab-content" id="tab-blindness">
+      <p style="font-size:.75rem;color:var(--text2);margin-bottom:1rem;line-height:1.65">Simulate how your palette looks to users with different types of color vision deficiency. Always test palettes against these to ensure accessibility for everyone.</p>
+      <div class="cb-sim-grid" id="cbSimGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT PANEL: WCAG + EXPORT -->
+<div class="panel">
+  <div class="panel-head"><span class="panel-title">♿ Accessibility & Export</span></div>
+  <div class="panel-body">
+
+    <div class="tabs" id="rightTabs" style="margin-bottom:.75rem">
+      <button class="tab active" onclick="switchRightTab('wcag',this)">WCAG</button>
+      <button class="tab" onclick="switchRightTab('export',this)">Export</button>
+      <button class="tab" onclick="switchRightTab('saved',this)">Saved</button>
+    </div>
+
+    <!-- WCAG TAB -->
+    <div id="rtab-wcag">
+      <div style="font-size:.65rem;color:var(--text3);font-family:var(--mono);margin-bottom:.65rem">All colors vs selected background</div>
+      <div id="wcagList"></div>
+      <div style="margin-top:.85rem;padding:.65rem .8rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8)">
+        <div style="font-size:.65rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">WCAG 2.2 Standards</div>
+        <div style="font-size:.68rem;color:var(--text2);line-height:1.65">
+          <div style="margin-bottom:.2rem"><span style="color:#34d399">AA Normal</span> ≥ 4.5:1</div>
+          <div style="margin-bottom:.2rem"><span style="color:#22d3ee">AA Large</span> ≥ 3:1</div>
+          <div style="margin-bottom:.2rem"><span style="color:#a78bfa">AAA Normal</span> ≥ 7:1</div>
+          <div><span style="color:#fcd34d">AAA Large</span> ≥ 4.5:1</div>
+        </div>
+      </div>
+      <div id="wcagSummary" style="margin-top:.65rem;padding:.6rem .8rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8)"></div>
+    </div>
+
+    <!-- EXPORT TAB -->
+    <div id="rtab-export" style="display:none">
+      <div class="export-tab-bar">
+        <button class="export-tab active" onclick="switchExportFmt('tailwind',this)">Tailwind</button>
+        <button class="export-tab" onclick="switchExportFmt('css',this)">CSS Vars</button>
+        <button class="export-tab" onclick="switchExportFmt('sass',this)">Sass</button>
+        <button class="export-tab" onclick="switchExportFmt('json',this)">JSON</button>
+        <button class="export-tab" onclick="switchExportFmt('figma',this)">Figma</button>
+        <button class="export-tab" onclick="switchExportFmt('swift',this)">Swift</button>
+      </div>
+      <div class="code-box" id="codeOutput">
+        <button class="copy-code-btn" onclick="copyExportCode()">Copy</button>
+        <span id="codeText"></span>
+      </div>
+      <div style="margin-top:.65rem">
+        <button class="tb-btn" style="width:100%;justify-content:center;margin-bottom:.4rem" onclick="downloadExport()">⬇ Download File</button>
+        <button class="tb-btn" style="width:100%;justify-content:center" onclick="shareLink()">🔗 Share Link</button>
+      </div>
+    </div>
+
+    <!-- SAVED TAB -->
+    <div id="rtab-saved" style="display:none">
+      <div id="savedList"></div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- SEO SECTION -->
+<div class="seo-wrap">
+  <h2>Why Use KJSynthora Color Palette Generator?</h2>
+  <div class="feat-grid">
+    <div class="fc"><div class="fi">🎨</div><h3>12 Harmony Modes</h3><p>Analogous, monochromatic, triadic, complementary, split-complementary, tetradic, square, tints, shades, warm, cool, and neutral palettes.</p></div>
+    <div class="fc"><div class="fi">♿</div><h3>WCAG AA/AAA Checker</h3><p>Real-time contrast ratio checking against WCAG 2.2 standards. Tests both normal and large text requirements for AA and AAA compliance.</p></div>
+    <div class="fc"><div class="fi">👓</div><h3>Colorblind Simulation</h3><p>Simulate 8 types of color vision deficiency including Deuteranopia, Protanopia, Tritanopia, Achromatopsia and more.</p></div>
+    <div class="fc"><div class="fi">🌈</div><h3>Gradient Generator</h3><p>Create beautiful CSS gradients from your palette — linear, radial, and conic. Copy the CSS code with one click.</p></div>
+    <div class="fc"><div class="fi">📐</div><h3>Shade Generator</h3><p>Auto-generate 10 shades (50–950) for each color in your palette, perfect for Tailwind-style design systems.</p></div>
+    <div class="fc"><div class="fi">🖼</div><h3>Image Color Extraction</h3><p>Upload any image and automatically extract its dominant colors as a palette using canvas sampling.</p></div>
+    <div class="fc"><div class="fi">⬇</div><h3>6 Export Formats</h3><p>Export to Tailwind config, CSS custom properties, Sass variables, JSON design tokens, Figma tokens, and Swift UIColor.</p></div>
+    <div class="fc"><div class="fi">💾</div><h3>Save & Share</h3><p>Save unlimited palettes locally in your browser. Share palettes via URL — all color data encoded in the link.</p></div>
+  </div>
+
+  <div class="blog-section">
+    <h2>Color Design Guides & Tips</h2>
+    <div class="blog-grid">
+      <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/wcag-color-contrast','_blank')">
+        <div class="blog-tag">Accessibility</div>
+        <h3>WCAG Color Contrast: The Complete Guide for Designers in 2024</h3>
+        <p>Understanding AA vs AAA contrast ratios, why they matter, and how to build fully accessible UIs without sacrificing visual design.</p>
+        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>7 min read</span><span>·</span><span>WCAG / A11y</span></div>
+      </div>
+      <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/tailwind-color-system','_blank')">
+        <div class="blog-tag">Tailwind CSS</div>
+        <h3>Building a Custom Tailwind CSS Color System from Scratch</h3>
+        <p>How to create a scalable design token system with custom colors, shades, and semantic aliases that work perfectly in Tailwind projects.</p>
+        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>8 min read</span><span>·</span><span>Tailwind</span></div>
+      </div>
+      <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/color-psychology-ux','_blank')">
+        <div class="blog-tag">UX Design</div>
+        <h3>Color Psychology in UX: How Color Choice Affects Conversion</h3>
+        <p>The science behind how blue builds trust, why red creates urgency, and what your palette says about your brand — backed by research.</p>
+        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>6 min read</span><span>·</span><span>UX Psychology</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is a WCAG contrast ratio and why does it matter? <span class="faq-toggle">+</span></div><div class="faq-a">The WCAG (Web Content Accessibility Guidelines) contrast ratio measures the visual difference between text color and its background. A ratio of 4.5:1 is required for AA compliance on normal text, and 3:1 for large text. AAA requires 7:1 for normal text. This ensures users with low vision or color blindness can read your content — and failing these standards can make your site inaccessible and expose you to legal liability in some regions.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What's the difference between color harmony modes? <span class="faq-toggle">+</span></div><div class="faq-a">Color harmonies are based on the position of colors on the color wheel: Analogous uses adjacent colors (natural, professional); Complementary uses opposite colors (high contrast, energetic); Triadic uses three evenly spaced colors (vibrant, dynamic); Monochromatic uses variations of one hue (cohesive, minimal). For UI design, monochromatic and analogous tend to work best, while complementary and triadic are ideal for marketing and creative projects.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do I export colors to Tailwind CSS? <span class="faq-toggle">+</span></div><div class="faq-a">Click Export in the toolbar or switch to the Export tab on the right panel. Select "Tailwind" format and copy the generated configuration object. Paste it inside the colors object in your tailwind.config.js file. The export includes 5 semantic colors (primary, secondary, accent, neutral, highlight) plus all 10 shades (50–950) for each, ready to use as Tailwind utility classes.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How does colorblind simulation work? <span class="faq-toggle">+</span></div><div class="faq-a">The colorblind simulation tab applies mathematical color transformation matrices to your palette colors to simulate how they appear to users with different types of color vision deficiency. We simulate Deuteranopia (red-green, most common), Protanopia (red blind), Tritanopia (blue-yellow), Achromatopsia (full color blindness), and partial variants. This helps you identify problematic color combinations before publishing.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I extract colors from an image or brand logo? <span class="faq-toggle">+</span></div><div class="faq-a">Yes! Use the Image Color Extraction section on the left panel. Upload any image (PNG, JPG, WebP) and the tool samples the image at multiple points to extract the dominant colors. This works great for matching a palette to a brand logo, product photography, or any visual reference. The extracted colors become your new palette base.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What are Figma tokens and how do I use the export? <span class="faq-toggle">+</span></div><div class="faq-a">Figma tokens (also called design tokens) are a structured JSON format that defines your colors with semantic naming. The Figma format export produces a JSON file compatible with the Figma Tokens plugin, allowing you to sync your palette directly into Figma. This keeps your design tool and codebase in sync. The JSON also works with Style Dictionary for multi-platform token generation.</div></div>
+
+  <div class="cta-banner">
+    <h3>Need More Design Tools?</h3>
+    <p>Typography generator, gradient maker, icon picker, design token builder — all free, all browser-based.</p>
+    <a href="https://kjsynthora.com/#tools-explorer">Explore All Design Tools ↗</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · Crafted by KJ · All color processing is client-side — no data leaves your browser.</p>
+  <div class="footer-links">
+    <a href="https://kjsynthora.com/tools/gradient-generator.html">Gradients</a>
+    <a href="https://kjsynthora.com/tools/typography-tool.html">Typography</a>
+    <a href="https://kjsynthora.com/blog/">Blog</a>
+    <a href="https://kjsynthora.com/privacy-policy.html">Privacy</a>
+    <a href="https://kjsynthora.com/terms.html">Terms</a>
+    <a href="https://kjsynthora.com/contact.html">Contact</a>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
-    let currentPalette = [];
+// ═══════════════════════════════════════════════════
+// COLOR PALETTE GENERATOR — FULL ENGINE
+// KJSynthora Advanced Color Tool
+// ═══════════════════════════════════════════════════
 
-    function generatePalette() {
-        const baseHex = document.getElementById('baseColor').value;
-        const mode = document.getElementById('harmonyMode').value;
-        const hsl = hexToHSL(baseHex);
-        
-        currentPalette = [];
-        
-        if(mode === 'analogous') {
-            currentPalette = [
-                hslToHex(hsl.h - 30, hsl.s, hsl.l),
-                hslToHex(hsl.h - 15, hsl.s, hsl.l),
-                baseHex,
-                hslToHex(hsl.h + 15, hsl.s, hsl.l),
-                hslToHex(hsl.h + 30, hsl.s, hsl.l)
-            ];
-        } else if(mode === 'monochromatic') {
-            currentPalette = [
-                hslToHex(hsl.h, hsl.s, hsl.l - 30),
-                hslToHex(hsl.h, hsl.s, hsl.l - 15),
-                baseHex,
-                hslToHex(hsl.h, hsl.s, hsl.l + 15),
-                hslToHex(hsl.h, hsl.s, hsl.l + 30)
-            ];
-        } else if(mode === 'triadic') {
-            currentPalette = [
-                hslToHex(hsl.h, hsl.s, hsl.l - 10),
-                hslToHex(hsl.h + 120, hsl.s, hsl.l),
-                baseHex,
-                hslToHex(hsl.h + 240, hsl.s, hsl.l),
-                hslToHex(hsl.h, hsl.s, hsl.l + 20)
-            ];
-        } else if(mode === 'complementary') {
-            currentPalette = [
-                hslToHex(hsl.h, hsl.s, hsl.l - 20),
-                hslToHex(hsl.h, hsl.s, hsl.l - 10),
-                baseHex,
-                hslToHex(hsl.h + 180, hsl.s, hsl.l),
-                hslToHex(hsl.h + 180, hsl.s, hsl.l + 20)
-            ];
-        } else {
-            currentPalette = [baseHex, hslToHex(hsl.h+90, hsl.s, hsl.l), hslToHex(hsl.h+180, hsl.s, hsl.l), hslToHex(hsl.h+270, hsl.s, hsl.l), hslToHex(hsl.h, hsl.s, hsl.l+20)];
+let palette = [];
+let locks = [];
+let savedPalettes = JSON.parse(localStorage.getItem('kjs_palettes')||'[]');
+let currentExportFmt = 'tailwind';
+let currentGradient = '';
+const NAMES=['primary','secondary','accent','neutral','highlight','tertiary','background','surface'];
+
+// ── QUICK COLORS ──
+const QUICK_COLORS=['#4f8ef7','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6'];
+
+function init() {
+  const qc=document.getElementById('quickColors');
+  QUICK_COLORS.forEach(c=>{
+    const b=document.createElement('button');
+    b.style.cssText=`width:22px;height:22px;border-radius:4px;background:${c};border:none;cursor:pointer;transition:transform .15s;flex-shrink:0`;
+    b.title=c;b.onclick=()=>{document.getElementById('baseColor').value=c;locks=[];generatePalette();};
+    b.addEventListener('mouseover',()=>b.style.transform='scale(1.2)');
+    b.addEventListener('mouseout',()=>b.style.transform='scale(1)');
+    qc.appendChild(b);
+  });
+  setupDnD();
+  loadFromURL();
+  generatePalette();
+  renderSavedList();
+  window.addEventListener('scroll',()=>{document.getElementById('backTop').classList[window.scrollY>400?'add':'remove']('show');});
+  document.getElementById('bgContrast').addEventListener('change',function(){document.getElementById('customBg').style.display=this.value==='custom'?'block':'none';renderPalette();});
+}
+
+// ── GENERATORS ──
+function generatePalette() {
+  const base=document.getElementById('baseColor').value;
+  const mode=document.getElementById('harmonyMode').value;
+  const count=parseInt(document.getElementById('colorCount').value)||5;
+  const satAdj=parseInt(document.getElementById('satAdj').value)||0;
+  const litAdj=parseInt(document.getElementById('litAdj').value)||0;
+  const tempAdj=parseInt(document.getElementById('tempAdj').value)||0;
+  document.getElementById('satVal').textContent=(satAdj>=0?'+':'')+satAdj;
+  document.getElementById('litVal').textContent=(litAdj>=0?'+':'')+litAdj;
+  document.getElementById('tempVal').textContent=(tempAdj>=0?'+':'')+tempAdj;
+  const hsl=hexToHSL(base);
+  let colors=[];
+  switch(mode){
+    case'analogous': colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h+(i-(count-1)/2)*20,hsl.s,hsl.l)); break;
+    case'monochromatic': colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h,hsl.s,20+i*(60/(count-1)))); break;
+    case'triadic': colors=[base,hslToHex(hsl.h+120,hsl.s,hsl.l),hslToHex(hsl.h+240,hsl.s,hsl.l),hslToHex(hsl.h+60,hsl.s,hsl.l+10),hslToHex(hsl.h+180,hsl.s,hsl.l+10)].slice(0,count); break;
+    case'complementary': colors=[base,hslToHex(hsl.h,hsl.s,hsl.l-20),hslToHex(hsl.h+180,hsl.s,hsl.l),hslToHex(hsl.h+180,hsl.s,hsl.l+20),hslToHex(hsl.h,hsl.s,hsl.l+20)].slice(0,count); break;
+    case'split-complementary': colors=[base,hslToHex(hsl.h+150,hsl.s,hsl.l),hslToHex(hsl.h+210,hsl.s,hsl.l),hslToHex(hsl.h,hsl.s,hsl.l-20),hslToHex(hsl.h,hsl.s,hsl.l+20)].slice(0,count); break;
+    case'tetradic': colors=[base,hslToHex(hsl.h+90,hsl.s,hsl.l),hslToHex(hsl.h+180,hsl.s,hsl.l),hslToHex(hsl.h+270,hsl.s,hsl.l),hslToHex(hsl.h,hsl.s,hsl.l+15)].slice(0,count); break;
+    case'square': colors=[base,hslToHex(hsl.h+90,hsl.s,hsl.l),hslToHex(hsl.h+180,hsl.s,hsl.l),hslToHex(hsl.h+270,hsl.s,hsl.l),hslToHex(hsl.h+45,hsl.s,hsl.l+10)].slice(0,count); break;
+    case'tints': colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h,Math.max(0,hsl.s-i*8),Math.min(95,hsl.l+i*12))); break;
+    case'shades': colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h,hsl.s,Math.max(5,hsl.l-i*12))); break;
+    case'warm': colors=Array.from({length:count},(_,i)=>hslToHex(((hsl.h+i*8)%60),hsl.s+5,hsl.l+(i-2)*5)); break;
+    case'cool': colors=Array.from({length:count},(_,i)=>hslToHex(180+i*15,hsl.s,hsl.l+(i-2)*5)); break;
+    case'neutral': colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h,Math.max(5,hsl.s-30),20+i*(60/(count-1)))); break;
+    default: colors=Array.from({length:count},(_,i)=>hslToHex(hsl.h+(i-(count-1)/2)*15,hsl.s,hsl.l));
+  }
+  // Apply adjustments + keep locks
+  palette=colors.map((c,i)=>{
+    if(locks[i])return palette[i]||c;
+    const h2=hexToHSL(c);
+    const t=hexToHSL(c);
+    const tAdj=tempAdj>=0?{h:t.h-tempAdj*0.3,s:t.s+tempAdj*0.5,l:t.l}:{h:t.h+Math.abs(tempAdj)*0.3,s:t.s+Math.abs(tempAdj)*0.2,l:t.l};
+    return hslToHex(tAdj.h,clamp(h2.s+satAdj,0,100),clamp(h2.l+litAdj,5,95));
+  });
+  renderPalette();
+  renderShades();
+  updateMockup();
+  renderGradients();
+  renderColorblindSim();
+  updateExportCode();
+  updateURL();
+}
+
+function generateRandom() {
+  locks=[];
+  const h=Math.random()*360;
+  document.getElementById('baseColor').value=hslToHex(h,60+Math.random()*30,45+Math.random()*15);
+  const modes=['analogous','complementary','triadic','monochromatic','split-complementary','tetradic'];
+  document.getElementById('harmonyMode').value=modes[Math.floor(Math.random()*modes.length)];
+  generatePalette();
+}
+
+function onBaseChange(){locks=[];generatePalette();}
+
+// ── RENDER PALETTE ──
+function renderPalette() {
+  const row=document.getElementById('paletteRow');
+  const bg=getBg();
+  row.innerHTML=palette.map((c,i)=>{
+    const ratio=getContrastRatio(c,bg);
+    const badgeCls=ratio>=4.5?'pass':ratio>=3?'warn':'fail';
+    const badgeTxt=ratio>=4.5?'AA ✓':ratio>=3?'AA Lg':'✗';
+    const textClr=getLuminance(c)>0.35?'#000':'#fff';
+    return`<div class="color-block${locks[i]?' cb-locked-border':''}" style="background:${c}" onclick="copyColor('${c}')" id="cb-${i}">
+      <div class="cb-lock${locks[i]?' cb-locked':''}" onclick="event.stopPropagation();toggleLock(${i})" title="Lock this color">${locks[i]?'🔒':'🔓'}</div>
+      <span class="cb-badge ${badgeCls}">${badgeTxt} ${ratio.toFixed(1)}</span>
+      <div class="cb-actions">
+        <button class="cba-btn" onclick="event.stopPropagation();copyColor('${c}')">HEX</button>
+        <button class="cba-btn" onclick="event.stopPropagation();copyColor(hexToRGB('${c}'))">RGB</button>
+        <button class="cba-btn" onclick="event.stopPropagation();copyColor(hexToHSLStr('${c}'))">HSL</button>
+        <button class="cba-btn" onclick="event.stopPropagation();tweakColor(${i})">Edit</button>
+      </div>
+      <div class="cb-hex" style="color:${textClr}">${c.toUpperCase()}</div>
+      <div class="cb-name" style="color:${textClr}88">${hexColorName(c)}</div>
+    </div>`;
+  }).join('');
+  // color names
+  const nn=document.getElementById('colorNames');
+  nn.innerHTML=palette.map((c,i)=>`<span style="background:${c};color:${getLuminance(c)>.35?'#000':'#fff'};padding:.18rem .65rem;border-radius:99px;font-size:.65rem;font-family:var(--mono);cursor:pointer" onclick="copyColor('${c}')">${NAMES[i]||'color-'+(i+1)}</span>`).join('');
+  renderWCAG();
+}
+
+function getBg(){
+  const sel=document.getElementById('bgContrast').value;
+  return sel==='custom'?document.getElementById('customBg').value:sel;
+}
+function toggleLock(i){locks[i]=!locks[i];renderPalette();}
+
+// ── SHADES ──
+function renderShades(){
+  const c=document.getElementById('shadesContainer');
+  c.innerHTML=palette.map((hex,pi)=>{
+    const hsl=hexToHSL(hex);
+    const shades=[50,100,200,300,400,500,600,700,800,900];
+    const lightnesses=[95,90,80,70,60,50,40,30,20,10];
+    return`<div style="margin-bottom:.85rem">
+      <div style="font-size:.65rem;color:var(--text3);font-family:var(--mono);margin-bottom:.3rem">${NAMES[pi]||'color-'+(pi+1)} — ${hex}</div>
+      <div class="shade-row">${shades.map((s,i)=>{
+        const sc=hslToHex(hsl.h,hsl.s,lightnesses[i]);
+        return`<div class="shade-cell" style="background:${sc}" onclick="copyColor('${sc}')" title="${s}: ${sc}">
+          <span class="shade-label" style="color:${lightnesses[i]>55?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.6)'}">${s}</span>
+        </div>`;}).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MOCKUP ──
+function updateMockup(){
+  if(!palette.length)return;
+  const p=palette;
+  const bg0=lighten(p[0],-30);
+  const textOnBg=getLuminance(p[0])>0.4?'#0a0a0a':'#f8fafc';
+  const mc=document.getElementById('mockupCard');
+  mc.style.background=p[3]||p[0];
+  document.getElementById('mockNavBar').style.background=bg0;
+  ['mockLogo','mockNav1','mockNav2','mockNav3'].forEach((id,i)=>{document.getElementById(id).style.background=p[i%palette.length];});
+  document.getElementById('mockCtaPill').style.background=p[1];
+  document.getElementById('mockHero').style.background=bg0;
+  document.getElementById('mockH1').style.background=p[1];
+  document.getElementById('mockBtnP').style.background=p[0];
+  document.getElementById('mockBtnS').style.borderColor=p[0];
+  [0,1,2].forEach(i=>{
+    const mc2=document.getElementById('mc'+(i+1));
+    if(mc2)mc2.style.background=lighten(p[i%palette.length],-20);
+    const icon=document.getElementById('mci'+(i+1));
+    if(icon)icon.style.background=p[(i+1)%palette.length];
+  });
+}
+
+function lighten(hex,amt){const h=hexToHSL(hex);return hslToHex(h.h,h.s,clamp(h.l+amt,5,95));}
+
+// ── WCAG ──
+function renderWCAG(){
+  const bg=getBg();
+  const list=document.getElementById('wcagList');
+  let passCount=0,failCount=0;
+  list.innerHTML=palette.map((c,i)=>{
+    const ratio=getContrastRatio(c,bg);
+    const aa_n=ratio>=4.5,aa_l=ratio>=3,aaa_n=ratio>=7,aaa_l=ratio>=4.5;
+    if(aa_n)passCount++;else failCount++;
+    const badges=[
+      aa_n?`<span class="wbadge aa-n">AA Normal</span>`:`<span class="wbadge fail">AA Normal</span>`,
+      aa_l?`<span class="wbadge aa-l">AA Large</span>`:`<span class="wbadge fail">AA Large</span>`,
+      aaa_n?`<span class="wbadge aaa-n">AAA Normal</span>`:'',
+      aaa_l?`<span class="wbadge aaa-l">AAA Large</span>`:'',
+    ].filter(Boolean).join('');
+    return`<div class="wcag-item">
+      <div class="wcag-swatch" style="background:${c}"></div>
+      <div class="wcag-info">
+        <div class="wcag-label">${NAMES[i]||'color-'+(i+1)} · ${c}</div>
+        <div class="wcag-ratio">${ratio.toFixed(2)}:1</div>
+        <div class="wcag-badges">${badges}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const sum=document.getElementById('wcagSummary');
+  const pct=Math.round(passCount/palette.length*100);
+  sum.innerHTML=`<div style="font-size:.65rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem">Accessibility Score</div>
+    <div style="font-size:1.4rem;font-weight:800;font-family:var(--mono);color:${pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)'}">${pct}%</div>
+    <div style="font-size:.68rem;color:var(--text2);margin-top:.2rem">${passCount}/${palette.length} colors pass AA Normal</div>`;
+}
+
+// ── GRADIENTS ──
+function renderGradients(){
+  if(!palette.length)return;
+  const type=document.getElementById('gradType').value;
+  const dir=document.getElementById('gradDir').value;
+  const combos=[];
+  for(let i=0;i<Math.min(palette.length-1,6);i++){
+    for(let j=i+1;j<Math.min(palette.length,i+3);j++) combos.push([palette[i],palette[j]]);
+  }
+  const makeGrad=(c1,c2,t,d)=>{
+    if(t==='radial')return`radial-gradient(circle, ${c1}, ${c2})`;
+    if(t==='conic')return`conic-gradient(${c1}, ${c2}, ${c1})`;
+    return`linear-gradient(${d}, ${c1}, ${c2})`;
+  };
+  const mainGrad=makeGrad(palette[0],palette[Math.min(1,palette.length-1)],type,dir);
+  currentGradient=mainGrad;
+  document.getElementById('gradMain').style.background=mainGrad;
+  document.getElementById('gradCSS').textContent=mainGrad;
+  const grid=document.getElementById('gradGrid');
+  grid.innerHTML=combos.slice(0,6).map((pair,i)=>{
+    const g=makeGrad(pair[0],pair[1],type,dir);
+    return`<div class="grad-cell" style="background:${g}" onclick="selectGradient('${g.replace(/'/g,'\\'')}')" title="Click to select"></div>`;
+  }).join('');
+}
+
+function selectGradient(g){currentGradient=g;document.getElementById('gradMain').style.background=g;document.getElementById('gradCSS').textContent=g;}
+function copyGradient(){navigator.clipboard.writeText(`background: ${currentGradient};`).then(()=>toast('📋 Gradient CSS copied!','success'));}
+
+// ── COLORBLIND SIMULATION ──
+const CB_TYPES={
+  'Deuteranopia (Red-Green)':{m:[[0.367,0.861,-0.228],[0.280,0.673,0.047],[0,0.04,0.96]]},
+  'Protanopia (Red Blind)':{m:[[0.152,1.053,-0.204],[0.115,0.786,0.099],[0,0.0,1.0]]},
+  'Tritanopia (Blue-Yellow)':{m:[[1,0.1275,-0.1275],[0,0.873,0.127],[0,0.868,0.132]]},
+  'Deuteranomaly (Partial)':{m:[[0.8,0.2,0],[0.258,0.742,0],[0,0.142,0.858]]},
+  'Protanomaly (Partial)':{m:[[0.817,0.183,0],[0.333,0.667,0],[0,0.125,0.875]]},
+  'Achromatopsia (Full)':{m:[[0.299,0.587,0.114],[0.299,0.587,0.114],[0.299,0.587,0.114]]},
+  'Achromatomaly (Partial)':{m:[[0.618,0.320,0.062],[0.163,0.775,0.062],[0.163,0.320,0.516]]},
+  'Normal Vision':{m:[[1,0,0],[0,1,0],[0,0,1]]},
+};
+
+function simColor(hex,matrix){
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const nr=clamp(matrix[0][0]*r+matrix[0][1]*g+matrix[0][2]*b,0,1);
+  const ng=clamp(matrix[1][0]*r+matrix[1][1]*g+matrix[1][2]*b,0,1);
+  const nb=clamp(matrix[2][0]*r+matrix[2][1]*g+matrix[2][2]*b,0,1);
+  return'#'+[nr,ng,nb].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
+}
+
+function renderColorblindSim(){
+  const grid=document.getElementById('cbSimGrid');
+  grid.innerHTML=Object.entries(CB_TYPES).map(([name,{m}])=>`
+    <div class="cb-sim-item">
+      <div class="cb-sim-title">${name}</div>
+      <div class="cb-sim-row">${palette.map(c=>`<div class="cb-sim-cell" style="background:${simColor(c,m)}" title="${simColor(c,m)}"></div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ── IMAGE EXTRACTION ──
+function setupDnD(){
+  const dz=document.getElementById('dropzone');
+  ['dragover','dragenter'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('drag-over');}));
+  ['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{
+    ev.preventDefault();dz.classList.remove('drag-over');
+    if(e==='drop'&&ev.dataTransfer.files[0])extractFromFile(ev.dataTransfer.files[0]);
+  }));
+}
+
+function extractFromImage(e){if(e.target.files[0])extractFromFile(e.target.files[0]);}
+function extractFromFile(file){
+  if(!file.type.startsWith('image/'))return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      const sz=Math.min(img.width,img.height,80);
+      c.width=sz;c.height=sz;
+      const ctx=c.getContext('2d');
+      ctx.drawImage(img,0,0,sz,sz);
+      const samples=[];
+      const step=Math.floor(sz/6);
+      for(let y=step;y<sz-step;y+=step){for(let x=step;x<sz-step;x+=step){
+        const d=ctx.getImageData(x,y,1,1).data;
+        samples.push([d[0],d[1],d[2]]);
+      }}
+      // K-means-like: pick most distinct
+      const distinct=[];
+      samples.forEach(s=>{
+        const hex='#'+s.map(v=>v.toString(16).padStart(2,'0')).join('');
+        if(!distinct.some(d=>getContrastRatio(d,hex)<1.3))distinct.push(hex);
+      });
+      if(distinct.length>=3){
+        palette=distinct.slice(0,parseInt(document.getElementById('colorCount').value)||5);
+        while(palette.length<(parseInt(document.getElementById('colorCount').value)||5)){
+          const base=hexToHSL(distinct[0]);
+          palette.push(hslToHex(base.h,base.s,base.l+palette.length*8));
         }
+        document.getElementById('baseColor').value=palette[0];
+        locks=[];
+        renderPalette();renderShades();updateMockup();renderGradients();renderColorblindSim();updateExportCode();
+        toast('🖼 Colors extracted from image!','success');
+      }
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
-        renderPalette();
+// ── EXPORT ──
+function updateExportCode(){
+  const p=palette;const n=NAMES;
+  const codes={
+    tailwind:`// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+${p.map((c,i)=>`        ${n[i]||'color'+i}: {
+          DEFAULT: '${c}',
+          ...generateShades('${c}'),
+        }`).join(',\n')}
+      }
     }
+  }
+}`,
+    css:`:root {
+${p.map((c,i)=>`  --color-${n[i]||'color'+i}: ${c};
+  --color-${n[i]||'color'+i}-rgb: ${hexToRGBArr(c).join(', ')};`).join('\n')}
+}`,
+    sass:`// _colors.scss
+${p.map((c,i)=>`$color-${n[i]||'color'+i}: ${c};`).join('\n')}
 
-    function renderPalette() {
-        const grid = document.getElementById('paletteGrid');
-        const accList = document.getElementById('accessibilityList');
-        grid.innerHTML = '';
-        accList.innerHTML = '';
+// Shade maps
+${p.map((c,i)=>{
+  const hsl=hexToHSL(c);
+  const shades=[50,100,200,300,400,500,600,700,800,900];
+  const lts=[95,90,80,70,60,50,40,30,20,10];
+  return`$${n[i]||'color'+i}-shades: (${shades.map((s,si)=>`\n  ${s}: ${hslToHex(hsl.h,hsl.s,lts[si])}`).join(',')}\n);`;
+}).join('\n')}`,
+    json:JSON.stringify({
+      colors:Object.fromEntries(p.map((c,i)=>[n[i]||'color'+i,{
+        value:c,rgb:`rgb(${hexToRGBArr(c).join(', ')})`,hsl:hexToHSLStr(c),
+        shades:Object.fromEntries([50,100,200,300,400,500,600,700,800,900].map((s,si)=>{
+          const h=hexToHSL(c);return[s,hslToHex(h.h,h.s,[95,90,80,70,60,50,40,30,20,10][si])];
+        }))
+      }]))
+    },null,2),
+    figma:JSON.stringify({
+      colors:Object.fromEntries(p.map((c,i)=>[n[i]||'color'+i,{
+        type:'color',value:c,
+        description:`Color token for ${n[i]||'color'+i}`
+      }]))
+    },null,2),
+    swift:`import UIKit
+import SwiftUI
 
-        currentPalette.forEach((color, i) => {
-            const ratio = getContrastRatio(color, '#06080f');
-            const status = ratio >= 4.5 ? 'AA PASS' : 'FAIL';
-            const badgeColor = ratio >= 4.5 ? 'var(--a4)' : 'var(--red)';
+// Generated by KJSynthora Color Palette Generator
+extension Color {
+${p.map((c,i)=>{const rgb=hexToRGBArr(c);return`    static let ${n[i]||'color'+i} = Color(red: ${(rgb[0]/255).toFixed(3)}, green: ${(rgb[1]/255).toFixed(3)}, blue: ${(rgb[2]/255).toFixed(3)})`}).join('\n')}
+}
 
-            // Grid item
-            const div = document.createElement('div');
-            div.className = 'color-block';
-            div.style.backgroundColor = color;
-            div.innerHTML = `
-                <span class="contrast-badge" style="background:${badgeColor}">${ratio.toFixed(2)}:1</span>
-                <span class="hex-label" style="color:${getLuminance(color) > 0.5 ? '#000' : '#fff'}">${color.toUpperCase()}</span>
-            `;
-            grid.appendChild(div);
+extension UIColor {
+${p.map((c,i)=>{const rgb=hexToRGBArr(c);return`    static let kjs${(n[i]||'color'+i)[0].toUpperCase()+(n[i]||'color'+i).slice(1)} = UIColor(red: ${(rgb[0]/255).toFixed(3)}, green: ${(rgb[1]/255).toFixed(3)}, blue: ${(rgb[2]/255).toFixed(3)}, alpha: 1.0)`}).join('\n')}
+}`
+  };
+  document.getElementById('codeText').textContent=codes[currentExportFmt]||codes.css;
+}
 
-            // Accessibility List
-            accList.innerHTML += `
-                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
-                    <span>${color} on Background</span>
-                    <span style="color:${badgeColor};font-weight:800">${status} (${ratio.toFixed(1)})</span>
-                </div>
-            `;
-        });
+function switchExportFmt(fmt,btn){
+  currentExportFmt=fmt;
+  document.querySelectorAll('.export-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  updateExportCode();
+}
+function copyExportCode(){navigator.clipboard.writeText(document.getElementById('codeText').textContent).then(()=>toast('📋 Code copied!','success'));}
+function downloadExport(){
+  const ext={tailwind:'js',css:'css',sass:'scss',json:'json',figma:'json',swift:'swift'}[currentExportFmt]||'txt';
+  const content=document.getElementById('codeText').textContent;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content]));a.download=`palette.${ext}`;a.click();
+  toast('⬇ File downloaded!','info');
+}
 
-        updateUIPreview();
-        updateExports();
-    }
+// ── SAVE / LOAD ──
+function savePalette(){
+  const name=`Palette ${savedPalettes.length+1} (${new Date().toLocaleDateString()})`;
+  savedPalettes.unshift({name,colors:[...palette],ts:Date.now()});
+  if(savedPalettes.length>50)savedPalettes=savedPalettes.slice(0,50);
+  localStorage.setItem('kjs_palettes',JSON.stringify(savedPalettes));
+  renderSavedList();
+  toast('💾 Palette saved!','success');
+}
+function renderSavedList(){
+  const c=document.getElementById('savedList');
+  if(!savedPalettes.length){c.innerHTML='<div class="empty-state">No saved palettes yet.<br/>Generate and click Save!</div>';return;}
+  c.innerHTML=savedPalettes.map((p,i)=>`
+    <div class="saved-palette" onclick="loadSaved(${i})">
+      <div class="saved-swatches">${p.colors.map(c=>`<div class="saved-swatch" style="background:${c}"></div>`).join('')}</div>
+      <span class="saved-name">${p.name}</span>
+      <span class="saved-time">${timeSince(p.ts)}</span>
+      <button class="saved-del" onclick="event.stopPropagation();deleteSaved(${i})">✕</button>
+    </div>`).join('');
+}
+function loadSaved(i){
+  palette=[...savedPalettes[i].colors];
+  locks=[];renderPalette();renderShades();updateMockup();renderGradients();renderColorblindSim();updateExportCode();
+  toast('📂 Palette loaded!','info');
+}
+function deleteSaved(i){savedPalettes.splice(i,1);localStorage.setItem('kjs_palettes',JSON.stringify(savedPalettes));renderSavedList();}
+function timeSince(ts){const s=(Date.now()-ts)/1000;if(s<60)return'just now';if(s<3600)return Math.round(s/60)+'m ago';if(s<86400)return Math.round(s/3600)+'h ago';return Math.round(s/86400)+'d ago';}
 
-    function updateUIPreview() {
-        const p = currentPalette;
-        document.getElementById('mockNav').style.backgroundColor = p[0];
-        document.getElementById('mockTitle').style.color = p[2];
-        document.getElementById('mockBtnPrimary').style.backgroundColor = p[2];
-        document.getElementById('mockBtnPrimary').style.color = getLuminance(p[2]) > 0.5 ? '#000' : '#fff';
-        document.getElementById('mockBtnSecondary').style.color = p[3];
-    }
+// ── URL SHARE ──
+function updateURL(){const params=new URLSearchParams({p:palette.join(',')});window.history.replaceState({},'',location.pathname+'?'+params);}
+function loadFromURL(){const p=new URLSearchParams(location.search).get('p');if(p){const colors=p.split(',').filter(c=>/^#[0-9a-f]{6}$/i.test(c));if(colors.length>=2){palette=colors;return;}}}
+function shareLink(){navigator.clipboard.writeText(location.href).then(()=>toast('🔗 Share link copied!','success'));}
 
-    function updateExports() {
-        const p = currentPalette;
-        const tw = `colors: {\n  primary: '${p[2]}',\n  secondary: '${p[3]}',\n  accent: '${p[1]}',\n  neutral: '${p[0]}',\n  highlight: '${p[4]}'\n}`;
-        const css = `:root {\n  --primary: ${p[2]};\n  --secondary: ${p[3]};\n  --accent: ${p[1]};\n  --neutral: ${p[0]};\n}`;
-        document.getElementById('tailwindExport').innerText = tw;
-        document.getElementById('cssExport').innerText = css;
-    }
+// ── TABS ──
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+function switchRightTab(tab,btn){
+  ['wcag','export','saved'].forEach(t=>document.getElementById('rtab-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('#rightTabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  if(tab==='export')updateExportCode();
+}
 
-    // UTILS
-    function hexToHSL(hex) {
-        let r = parseInt(hex.slice(1, 3), 16) / 255;
-        let g = parseInt(hex.slice(3, 5), 16) / 255;
-        let b = parseInt(hex.slice(5, 7), 16) / 255;
-        let max = Math.max(r, g, b), min = Math.min(r, g, b);
-        let h, s, l = (max + min) / 2;
-        if(max === min) h = s = 0;
-        else {
-            let d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch(max){
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-        return { h: h * 360, s: s * 100, l: l * 100 };
-    }
+// ── HELPERS ──
+function copyColor(c){navigator.clipboard.writeText(c).then(()=>toast('📋 '+c+' copied!','success'));}
+function copyAllHex(){navigator.clipboard.writeText(palette.join(', ')).then(()=>toast('📋 All hex codes copied!','success'));}
+function tweakColor(i){const c=prompt('Enter new hex color:',palette[i]);if(c&&/^#?[0-9a-f]{6}$/i.test(c.trim())){palette[i]=(c.startsWith('#')?c:'#'+c).toLowerCase();renderPalette();renderShades();updateMockup();}}
+function openExportModal(){switchRightTab('export',document.querySelectorAll('#rightTabs .tab')[1]);updateExportCode();}
 
-    function hslToHex(h, s, l) {
-        l /= 100;
-        const a = s * Math.min(l, 1 - l) / 100;
-        const f = n => {
-            const k = (n + h / 30) % 12;
-            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-            return Math.round(255 * color).toString(16).padStart(2, '0');
-        };
-        return `#${f(0)}${f(8)}${f(4)}`;
-    }
+function hexToHSL(hex){
+  let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  let max=Math.max(r,g,b),min=Math.min(r,g,b),h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{
+    const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
+    h/=6;
+  }
+  return{h:h*360,s:s*100,l:l*100};
+}
+function hslToHex(h,s,l){
+  h=((h%360)+360)%360;l=clamp(l,0,100)/100;const a=clamp(s,0,100)*Math.min(l,1-l)/100;
+  const f=n=>{const k=(n+h/30)%12;const v=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*v).toString(16).padStart(2,'0');};
+  return`#${f(0)}${f(8)}${f(4)}`;
+}
+function getLuminance(hex){
+  const rgb=[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)].map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});
+  return rgb[0]*0.2126+rgb[1]*0.7152+rgb[2]*0.0722;
+}
+function getContrastRatio(h1,h2){const l1=getLuminance(h1)+0.05,l2=getLuminance(h2)+0.05;return l1>l2?l1/l2:l2/l1;}
+function hexToRGB(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgb(${r}, ${g}, ${b})`;}
+function hexToRGBArr(hex){return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function hexToHSLStr(hex){const h=hexToHSL(hex);return`hsl(${Math.round(h.h)}, ${Math.round(h.s)}%, ${Math.round(h.l)}%)`;}
+function clamp(v,min,max){return Math.min(max,Math.max(min,v));}
+function hexColorName(hex){
+  const names={ff0000:'Red',00ff00:'Lime',0000ff:'Blue',ffff00:'Yellow',ff00ff:'Magenta',00ffff:'Cyan',ffffff:'White',000000:'Black',ff8c00:'Orange',800080:'Purple',008080:'Teal',808080:'Gray'};
+  const close=Object.entries(names).find(([k])=>{const d=hexToRGBArr(hex);const r=parseInt(k.slice(0,2),16),g=parseInt(k.slice(2,4),16),b=parseInt(k.slice(4,6),16);return Math.abs(d[0]-r)+Math.abs(d[1]-g)+Math.abs(d[2]-b)<80;});
+  if(close)return close[1];
+  const h=hexToHSL(hex).h;
+  if(h<15||h>=345)return'Red';if(h<45)return'Orange';if(h<75)return'Yellow';if(h<150)return'Green';if(h<195)return'Teal';if(h<255)return'Blue';if(h<285)return'Indigo';if(h<345)return'Purple';
+  return'Color';
+}
 
-    function getLuminance(hex) {
-        let rgb = [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
-        let a = rgb.map(v => {
-            v /= 255;
-            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-        });
-        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-    }
+// ── TOAST ──
+function toast(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const item=document.createElement('div');
+  item.className='toast-item '+type;item.textContent=msg;
+  c.appendChild(item);requestAnimationFrame(()=>item.classList.add('show'));
+  setTimeout(()=>{item.classList.remove('show');setTimeout(()=>item.remove(),400);},2500);
+}
 
-    function getContrastRatio(h1, h2) {
-        let l1 = getLuminance(h1) + 0.05;
-        let l2 = getLuminance(h2) + 0.05;
-        return l1 > l2 ? l1 / l2 : l2 / l1;
-    }
-
-    function generateRandom() {
-        const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-        document.getElementById('baseColor').value = randomHex;
-        generatePalette();
-    }
-
-    function extractFromImage(e) {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width; canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const data = ctx.getImageData(0,0,10,10).data; // Sample small area
-                const hex = "#" + ((1 << 24) + (data[0] << 16) + (data[1] << 8) + data[2]).toString(16).slice(1);
-                document.getElementById('baseColor').value = hex;
-                generatePalette();
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function copyAllHex() {
-        navigator.clipboard.writeText(currentPalette.join(', '));
-        alert("All Hex codes copied!");
-    }
-
-    generatePalette();
+init();
 </script>
 </body>
 </html>
