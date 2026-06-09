@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stopwatch & Timer Online Free — Lap Timer, Countdown | KJSynthora</title>
+<meta name="description" content="Free online stopwatch and countdown timer. Lap timer, split times, multiple timers, alarm sound, fullscreen mode. No signup needed. Works on any device. By KJSynthora."/>
+<meta name="keywords" content="stopwatch online, online timer, countdown timer, lap timer, split timer, free stopwatch, interval timer, pomodoro timer, kjsynthora"/>
+<meta name="author" content="KJSynthora"/>
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"/>
+<meta name="theme-color" content="#060810"/>
+<link rel="canonical" href="https://kjsynthora.com/tools/stopwatch-timer.html"/>
+<link rel="icon" href="https://kjsynthora.com/logo.png"/>
+<link rel="apple-touch-icon" href="https://kjsynthora.com/logo.png"/>
+<meta property="og:title" content="Stopwatch & Timer Online Free — Lap Timer, Countdown | KJSynthora"/>
+<meta property="og:description" content="Free online stopwatch and countdown timer with lap times, split times, alarm, fullscreen. No signup needed."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://kjsynthora.com/tools/stopwatch-timer.html"/>
+<meta property="og:image" content="https://kjsynthora.com/logo.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:site_name" content="KJSynthora"/>
+<meta property="og:locale" content="en_IN"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Stopwatch & Timer Online Free | KJSynthora"/>
+<meta name="twitter:description" content="Online stopwatch with lap timer, countdown, interval timer. Free, no signup."/>
+<meta name="twitter:image" content="https://kjsynthora.com/logo.png"/>
+<meta name="twitter:site" content="@KJSynthora"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+  {"@type":"WebApplication","name":"Stopwatch & Timer — KJSynthora","url":"https://kjsynthora.com/tools/stopwatch-timer.html","description":"Free online stopwatch and countdown timer with lap times, split times, interval timer, alarm sound, fullscreen mode. No signup needed.","applicationCategory":"UtilitiesApplication","operatingSystem":"All","browserRequirements":"Requires JavaScript","featureList":["Stopwatch with milliseconds","Lap timer","Split times","Countdown timer","Interval timer","Pomodoro timer","Alarm sound","Fullscreen mode","Keyboard shortcuts","Export lap times","Dark theme","Multiple presets"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"}},
+  {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://kjsynthora.com"},{"@type":"ListItem","position":2,"name":"Utility Tools","item":"https://kjsynthora.com/#tools-explorer"},{"@type":"ListItem","position":3,"name":"Stopwatch & Timer","item":"https://kjsynthora.com/tools/stopwatch-timer.html"}]},
+  {"@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"How do I use the online stopwatch?","acceptedAnswer":{"@type":"Answer","text":"Click Start to begin the stopwatch. Click Lap to record lap times while it runs. Click Stop to pause and Reset to clear. You can also use keyboard shortcuts: Space to start/stop, L for lap, R to reset."}},
+    {"@type":"Question","name":"Does the stopwatch work in the background?","acceptedAnswer":{"@type":"Answer","text":"Yes. The stopwatch uses high-resolution timestamps so it stays accurate even when you switch browser tabs. The display updates when you return to the tab."}},
+    {"@type":"Question","name":"Can I set a countdown timer?","acceptedAnswer":{"@type":"Answer","text":"Yes. Switch to the Timer tab, enter your hours, minutes, and seconds, then click Start. An alarm sound plays when the countdown reaches zero. You can use presets like 5 min, 10 min, 25 min (Pomodoro), or set a custom time."}},
+    {"@type":"Question","name":"What are lap times and split times?","acceptedAnswer":{"@type":"Answer","text":"Lap time is the time for each individual lap segment. Split time (also called cumulative time) is the total elapsed time at the moment you pressed Lap. Both are shown in the lap table."}},
+    {"@type":"Question","name":"Can I export my lap times?","acceptedAnswer":{"@type":"Answer","text":"Yes. Click the Export button to download your lap times as a CSV file, or click Copy to copy them to your clipboard."}},
+    {"@type":"Question","name":"What keyboard shortcuts are available?","acceptedAnswer":{"@type":"Answer","text":"Space: Start/Stop. L: Lap. R: Reset. F: Fullscreen. Escape: Exit fullscreen or reset timer."}}
+  ]}
+]}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060810;--bg2:#0a0d18;--bg3:#0f1425;--bg4:#141b28;
+  --bdr:#1c2540;--bdr2:#263050;
+  --ac:#6366f1;--ac2:#4facfe;--ac3:#10b981;--ac4:#f59e0b;--ac5:#f472b6;
+  --red:#f43f5e;
+  --text:#eef2ff;--text2:#94a3b8;--text3:#64748b;
+  --fn:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fn);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(99,102,241,.07),transparent),
+             radial-gradient(ellipse 50% 40% at 80% 80%,rgba(79,172,254,.05),transparent);
+  pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:4px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(6,8,16,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
+.logo{text-decoration:none;font-weight:800;font-size:1rem;white-space:nowrap}
+.logo .kj{color:var(--ac)}.logo .s{color:var(--text)}
+.nav-r{display:flex;align-items:center;gap:.5rem}
+.nb{color:var(--text2);font-size:.78rem;text-decoration:none;padding:.28rem .65rem;border-radius:6px;transition:all .18s;border:1px solid var(--bdr);background:rgba(255,255,255,.03)}
+.nb:hover{color:var(--ac);border-color:rgba(99,102,241,.35)}
+
+/* BREADCRUMB */
+.breadcrumb{max-width:1100px;margin:0 auto;padding:.5rem 1.5rem;display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--text3);position:relative;z-index:1}
+.breadcrumb a{color:var(--text3);text-decoration:none;transition:color .18s}
+.breadcrumb a:hover{color:var(--ac)}
+
+/* HERO */
+.hero{text-align:center;padding:2.5rem 1.5rem 1.5rem;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:.42rem;background:rgba(99,102,241,.09);border:1px solid rgba(99,102,241,.22);color:var(--ac);font-size:.7rem;font-weight:700;padding:.28rem .85rem;border-radius:99px;margin-bottom:.9rem;text-transform:uppercase;letter-spacing:.07em}
+.hero h1{font-size:clamp(1.6rem,4vw,2.7rem);font-weight:900;margin-bottom:.45rem;letter-spacing:-.02em}
+.hero h1 .g{background:linear-gradient(135deg,#6366f1,#4facfe,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text2);font-size:.88rem;max-width:520px;margin:0 auto .8rem;line-height:1.7}
+.hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem;margin-bottom:.5rem}
+.hpill{background:var(--bg3);border:1px solid var(--bdr);color:var(--text2);font-size:.67rem;padding:.15rem .55rem;border-radius:999px}
+
+/* MAIN WRAP */
+.wrap{max-width:1100px;margin:0 auto;padding:1.2rem 1.5rem;position:relative;z-index:1}
+
+/* MODE TABS */
+.mode-tabs{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mtab{padding:.45rem 1.4rem;border:1px solid var(--bdr2);border-radius:10px;background:var(--bg3);color:var(--text2);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all .2s}
+.mtab.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.mtab:hover:not(.on){border-color:var(--ac);color:var(--ac)}
+
+/* PANELS */
+.panel{display:none}
+.panel.on{display:block}
+
+/* ─── STOPWATCH ─── */
+.sw-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:2.5rem 2rem;text-align:center;max-width:640px;margin:0 auto 1.5rem}
+.sw-display{font-family:var(--mono);font-size:clamp(3.5rem,10vw,6.5rem);font-weight:300;letter-spacing:-.03em;color:var(--text);line-height:1;margin-bottom:.35rem;position:relative}
+.sw-ms{font-size:.45em;color:var(--text2)}
+.sw-label{font-size:.75rem;color:var(--text3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem}
+
+/* Progress ring */
+.ring-wrap{position:relative;display:inline-block;margin-bottom:1.2rem}
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--bdr2);stroke-width:4}
+.ring-fill{fill:none;stroke:var(--ac);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .1s linear}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* Buttons */
+.sw-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+.sw-btn{padding:.65rem 1.6rem;border-radius:12px;font-family:var(--fn);font-size:.85rem;font-weight:700;cursor:pointer;border:2px solid;transition:all .18s;display:flex;align-items:center;gap:.4rem}
+.sw-btn:active{transform:scale(.96)}
+.sw-btn.start{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 4px 20px rgba(99,102,241,.35)}
+.sw-btn.start:hover{opacity:.88}
+.sw-btn.stop{background:rgba(244,63,94,.15);border-color:var(--red);color:var(--red)}
+.sw-btn.stop:hover{background:rgba(244,63,94,.25)}
+.sw-btn.lap{background:rgba(79,172,254,.1);border-color:var(--ac2);color:var(--ac2)}
+.sw-btn.lap:hover{background:rgba(79,172,254,.2)}
+.sw-btn.lap:disabled{opacity:.35;cursor:not-allowed}
+.sw-btn.reset{background:rgba(255,255,255,.05);border-color:var(--bdr2);color:var(--text2)}
+.sw-btn.reset:hover{border-color:var(--text2)}
+.sw-btn.fs{background:rgba(255,255,255,.04);border-color:var(--bdr2);color:var(--text3);padding:.65rem 1rem}
+.sw-btn.fs:hover{color:var(--text)}
+
+/* Lap table */
+.lap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;max-width:640px;margin-left:auto;margin-right:auto}
+.lap-title{font-size:.78rem;font-weight:700;color:var(--text2);letter-spacing:.05em;text-transform:uppercase}
+.lap-actions{display:flex;gap:.35rem}
+.la-btn{padding:.22rem .65rem;border:1px solid var(--bdr2);border-radius:6px;background:rgba(255,255,255,.04);color:var(--text3);font-size:.68rem;cursor:pointer;font-family:var(--fn);transition:all .15s}
+.la-btn:hover{border-color:var(--ac);color:var(--ac)}
+.lap-wrap{max-width:640px;margin:0 auto;max-height:280px;overflow-y:auto;border-radius:12px;border:1px solid var(--bdr)}
+.lap-wrap::-webkit-scrollbar{width:3px}
+.lap-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.78rem}
+.lap-table th{padding:.5rem .85rem;background:var(--bg3);color:var(--text3);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;text-align:left;border-bottom:1px solid var(--bdr);font-family:var(--fn);position:sticky;top:0;z-index:2}
+.lap-table td{padding:.55rem .85rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text2)}
+.lap-table tr:last-child td{border:none}
+.lap-table tr:hover td{background:rgba(255,255,255,.025)}
+.lap-num{color:var(--text3);font-weight:400}
+.lap-best{color:var(--ac3) !important}
+.lap-worst{color:var(--red) !important}
+.lap-curr{background:rgba(99,102,241,.06) !important}
+.lap-curr td{color:var(--text) !important}
+.badge-best{background:rgba(16,185,129,.12);color:var(--ac3);padding:1px 6px;border-radius:4px;font-size:.6rem;font-family:var(--fn);font-weight:700}
+.badge-worst{background:rgba(244,63,94,.12);color:var(--red);padding:1px 6px;border-radius:4px;font-size:.6rem;font-family:var(--fn);font-weight:700}
+.no-laps{text-align:center;color:var(--text3);font-size:.78rem;padding:1.5rem;font-style:italic;font-family:var(--fn)}
+
+/* ─── COUNTDOWN TIMER ─── */
+.ct-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:2.5rem 2rem;text-align:center;max-width:640px;margin:0 auto 1.5rem}
+.ct-inputs{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.ct-field{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.ct-field label{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.ct-inp{width:90px;background:var(--bg3);border:2px solid var(--bdr2);color:var(--text);font-family:var(--mono);font-size:2.2rem;font-weight:300;text-align:center;border-radius:12px;padding:.5rem;outline:none;transition:border-color .2s}
+.ct-inp:focus{border-color:var(--ac)}
+.ct-sep{font-size:2rem;font-family:var(--mono);color:var(--text3);padding-bottom:.5rem}
+.ct-display{font-family:var(--mono);font-size:clamp(3.5rem,10vw,6rem);font-weight:300;color:var(--text);letter-spacing:-.03em;margin-bottom:.3rem;transition:color .3s}
+.ct-display.warning{color:var(--ac4)}
+.ct-display.danger{color:var(--red);animation:pulse .5s ease infinite}
+.ct-presets{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+.ct-preset{padding:.32rem .8rem;border:1px solid var(--bdr2);border-radius:7px;background:var(--bg3);color:var(--text2);font-size:.75rem;font-weight:600;cursor:pointer;font-family:var(--fn);transition:all .18s}
+.ct-preset:hover{border-color:var(--ac2);color:var(--ac2)}
+.ct-preset.on{background:rgba(79,172,254,.12);border-color:var(--ac2);color:var(--ac2)}
+.ct-bar-wrap{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden;margin:0 auto 1.5rem;max-width:400px}
+.ct-bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:3px;transition:width .5s linear,background .5s}
+.ct-bar.warn{background:linear-gradient(90deg,var(--ac4),#f97316)}
+.ct-bar.danger{background:linear-gradient(90deg,var(--red),#fb923c)}
+
+/* ─── INTERVAL TIMER ─── */
+.it-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:2rem;max-width:640px;margin:0 auto 1.5rem}
+.it-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.2rem}
+.it-field label{display:block;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.it-field input,.it-field select{width:100%;background:var(--bg3);border:1px solid var(--bdr2);color:var(--text);font-family:var(--fn);font-size:.85rem;border-radius:8px;padding:.45rem .7rem;outline:none;transition:border-color .2s}
+.it-field input:focus,.it-field select:focus{border-color:var(--ac)}
+.it-field select option{background:var(--bg3)}
+.it-display{text-align:center;padding:1.5rem 1rem;background:var(--bg3);border-radius:14px;margin-bottom:1.2rem}
+.it-phase{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem}
+.it-phase.work{color:var(--ac3)}
+.it-phase.rest{color:var(--ac2)}
+.it-time{font-family:var(--mono);font-size:3.5rem;font-weight:300;color:var(--text);line-height:1}
+.it-meta{font-size:.72rem;color:var(--text3);margin-top:.3rem;font-family:var(--mono)}
+
+/* ─── POMODORO ─── */
+.pomo-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:2rem;text-align:center;max-width:640px;margin:0 auto 1.5rem}
+.pomo-phases{display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem;flex-wrap:wrap}
+.pomo-phase{padding:.3rem .85rem;border-radius:7px;border:1px solid var(--bdr2);background:var(--bg3);font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all .18s;color:var(--text2)}
+.pomo-phase.on{background:rgba(244,114,182,.12);border-color:var(--ac5);color:var(--ac5)}
+.pomo-count{font-family:var(--mono);font-size:.75rem;color:var(--text3);margin-bottom:.5rem}
+.pomo-dots{display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem}
+.pomo-dot{width:12px;height:12px;border-radius:50%;background:var(--bdr2);transition:background .3s}
+.pomo-dot.done{background:var(--ac5)}
+.pomo-dot.curr{background:var(--ac);animation:pulse 1s ease infinite}
+
+/* FULLSCREEN */
+.fullscreen-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.fullscreen-overlay.on{display:flex}
+.fs-time{font-family:var(--mono);font-size:clamp(5rem,18vw,14rem);font-weight:200;color:var(--text);letter-spacing:-.05em;line-height:1}
+.fs-label{font-size:1.1rem;color:var(--text3);margin-top:.5rem;letter-spacing:3px;text-transform:uppercase}
+.fs-hint{position:absolute;bottom:1.5rem;font-size:.72rem;color:var(--text3);letter-spacing:1px}
+
+/* KEYBOARD HINTS */
+.kbd-hints{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.2rem;max-width:640px;margin-left:auto;margin-right:auto}
+.kbd{display:inline-flex;align-items:center;gap:.28rem;font-size:.65rem;color:var(--text3)}
+.kbd span{background:var(--bg3);border:1px solid var(--bdr2);border-radius:4px;padding:.1rem .38rem;font-family:var(--mono);font-size:.65rem;color:var(--text2)}
+
+/* SEO */
+.seo-sec{max-width:1000px;margin:0 auto;padding:3rem 1.5rem 5rem;position:relative;z-index:1}
+.seo-ey{display:inline-flex;align-items:center;gap:6px;font-size:.63rem;letter-spacing:2px;text-transform:uppercase;color:var(--ac);padding:3px 10px;border-radius:999px;background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);margin-bottom:10px;font-family:var(--mono)}
+.seo-h2{font-size:clamp(1.1rem,2.2vw,1.5rem);font-weight:800;margin-bottom:.85rem;color:var(--text)}
+.seo-h3{font-size:.93rem;font-weight:700;color:var(--text);margin:1.2rem 0 .45rem}
+.seo-p{font-size:.81rem;color:var(--text2);line-height:1.85;margin-bottom:.75rem}
+.seo-div{height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.22),transparent);margin:2.2rem 0}
+.ht-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:.68rem;margin:1rem 0 1.4rem}
+.ht-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:11px;padding:.88rem;position:relative;overflow:hidden}
+.ht-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.ht-num{font-family:var(--mono);font-size:.58rem;color:var(--ac);font-weight:700;margin-bottom:.38rem;letter-spacing:1px}
+.ht-ttl{font-size:.77rem;font-weight:700;color:var(--text);margin-bottom:.2rem}
+.ht-dsc{font-size:.68rem;color:var(--text3);line-height:1.6}
+.uc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.65rem;margin:1rem 0 1.4rem}
+.uc-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:11px;padding:.85rem}
+.uc-ico{font-size:1.2rem;margin-bottom:.35rem}
+.uc-ttl{font-size:.77rem;font-weight:700;color:var(--text);margin-bottom:.2rem}
+.uc-dsc{font-size:.68rem;color:var(--text2);line-height:1.55}
+.faq-item{border-bottom:1px solid var(--bdr);overflow:hidden}
+.faq-item:last-child{border:none}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:.82rem 0;font-family:var(--fn);font-size:.84rem;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.faq-q:hover{color:var(--ac)}
+.faq-arr{font-size:.65rem;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-body.open{max-height:260px}
+.faq-a{font-size:.8rem;color:var(--text2);line-height:1.82;padding-bottom:.85rem}
+.rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;margin-top:.85rem}
+.rt{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:.76rem;text-decoration:none;color:inherit;transition:.18s;display:flex;align-items:center;gap:.42rem}
+.rt:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px)}
+.rt-ico{font-size:.95rem;flex-shrink:0}
+.rt-lbl{font-size:.72rem;font-weight:600;color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;z-index:9999;background:var(--ac3);color:#000;font-weight:700;padding:.5rem 1rem;border-radius:8px;opacity:0;transform:translateY(8px);transition:all .24s;pointer-events:none;font-size:.8rem;white-space:nowrap}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.info{background:var(--ac);color:#fff}
+.toast.warn{background:var(--ac4);color:#000}
+
+footer{background:var(--bg2);border-top:1px solid var(--bdr);text-align:center;padding:1.2rem;color:var(--text3);font-size:.75rem;position:relative;z-index:1}
+footer a{color:var(--text2);text-decoration:none;margin:0 .35rem}
+footer a:hover{color:var(--ac)}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@media(max-width:600px){.it-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="https://kjsynthora.com/"><span class="kj">KJ</span><span class="s">Synthora</span></a>
+  <div class="nav-r">
+    <a class="nb" href="https://kjsynthora.com/#tools-explorer">All Tools ↗</a>
+    <a class="nb" href="https://kjsynthora.com">← Home</a>
+  </div>
+</nav>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="https://kjsynthora.com">Home</a><span>›</span>
+  <a href="https://kjsynthora.com/#tools-explorer">Utility Tools</a><span>›</span>
+  <span style="color:var(--text2)">Stopwatch & Timer</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">⏱ Utility Tool</div>
+  <h1>Stopwatch & <span class="g">Timer</span></h1>
+  <p>Precision stopwatch with lap times, countdown timer, interval timer and Pomodoro mode — all in one free tool.</p>
+  <div class="hero-pills">
+    <span class="hpill">⏱ Stopwatch</span>
+    <span class="hpill">🔢 Lap Timer</span>
+    <span class="hpill">⏳ Countdown</span>
+    <span class="hpill">🔄 Interval Timer</span>
+    <span class="hpill">🍅 Pomodoro</span>
+    <span class="hpill">⛶ Fullscreen</span>
+    <span class="hpill">⌨️ Keyboard Shortcuts</span>
+    <span class="hpill">📋 Export Laps</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- MODE TABS -->
+<div class="mode-tabs">
+  <button class="mtab on" onclick="setMode('sw',this)">⏱ Stopwatch</button>
+  <button class="mtab" onclick="setMode('ct',this)">⏳ Countdown</button>
+  <button class="mtab" onclick="setMode('it',this)">🔄 Interval</button>
+  <button class="mtab" onclick="setMode('pm',this)">🍅 Pomodoro</button>
+</div>
+
+<!-- ════ STOPWATCH ════ -->
+<div class="panel on" id="panel-sw">
+  <div class="sw-card">
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="220" height="220" viewBox="0 0 220 220">
+        <circle class="ring-bg" cx="110" cy="110" r="100"/>
+        <circle class="ring-fill" id="swRing" cx="110" cy="110" r="100"
+          stroke-dasharray="628" stroke-dashoffset="628"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="sw-display" id="swDisplay">
+          <span id="swHMS">00:00</span><span class="sw-ms">.<span id="swCents">00</span></span>
+        </div>
+        <div class="sw-label" id="swLabel">READY</div>
+      </div>
+    </div>
+    <div class="sw-btns">
+      <button class="sw-btn start" id="swStartBtn" onclick="swToggle()">▶ Start</button>
+      <button class="sw-btn lap" id="swLapBtn" onclick="swLap()" disabled>◎ Lap</button>
+      <button class="sw-btn reset" onclick="swReset()">↺ Reset</button>
+      <button class="sw-btn fs" onclick="openFullscreen('sw')" title="Fullscreen">⛶</button>
+    </div>
+    <div class="kbd-hints">
+      <span class="kbd"><span>Space</span> Start/Stop</span>
+      <span class="kbd"><span>L</span> Lap</span>
+      <span class="kbd"><span>R</span> Reset</span>
+      <span class="kbd"><span>F</span> Fullscreen</span>
+    </div>
+  </div>
+
+  <div class="lap-header">
+    <span class="lap-title">Lap Times — <span id="lapCount">0</span> laps</span>
+    <div class="lap-actions">
+      <button class="la-btn" onclick="copyLaps()">📋 Copy</button>
+      <button class="la-btn" onclick="exportLaps()">↓ CSV</button>
+      <button class="la-btn" onclick="clearLaps()">🗑 Clear</button>
+    </div>
+  </div>
+  <div class="lap-wrap">
+    <table class="lap-table">
+      <thead><tr><th>#</th><th>Lap Time</th><th>Split Time</th><th>+/- Best</th><th></th></tr></thead>
+      <tbody id="lapBody"><tr><td colspan="5" class="no-laps">No laps recorded yet — press Lap while stopwatch is running</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ COUNTDOWN ════ -->
+<div class="panel" id="panel-ct">
+  <div class="ct-card">
+    <div id="ctSetup">
+      <div class="ct-inputs">
+        <div class="ct-field"><label>Hours</label><input class="ct-inp" id="ctH" type="number" min="0" max="23" value="0"/></div>
+        <span class="ct-sep">:</span>
+        <div class="ct-field"><label>Minutes</label><input class="ct-inp" id="ctM" type="number" min="0" max="59" value="5"/></div>
+        <span class="ct-sep">:</span>
+        <div class="ct-field"><label>Seconds</label><input class="ct-inp" id="ctS" type="number" min="0" max="59" value="0"/></div>
+      </div>
+      <div class="ct-presets">
+        <button class="ct-preset" onclick="ctPreset(1,0)">1 min</button>
+        <button class="ct-preset" onclick="ctPreset(3,0)">3 min</button>
+        <button class="ct-preset on" onclick="ctPreset(5,0)">5 min</button>
+        <button class="ct-preset" onclick="ctPreset(10,0)">10 min</button>
+        <button class="ct-preset" onclick="ctPreset(15,0)">15 min</button>
+        <button class="ct-preset" onclick="ctPreset(25,0)">25 min 🍅</button>
+        <button class="ct-preset" onclick="ctPreset(30,0)">30 min</button>
+        <button class="ct-preset" onclick="ctPreset(60,0)">1 hour</button>
+      </div>
+    </div>
+    <div class="ct-display" id="ctDisplay">05:00</div>
+    <div class="ct-bar-wrap"><div class="ct-bar" id="ctBar" style="width:100%"></div></div>
+    <div class="sw-btns">
+      <button class="sw-btn start" id="ctStartBtn" onclick="ctToggle()">▶ Start</button>
+      <button class="sw-btn reset" onclick="ctReset()">↺ Reset</button>
+      <button class="sw-btn fs" onclick="openFullscreen('ct')" title="Fullscreen">⛶</button>
+    </div>
+    <div class="kbd-hints">
+      <span class="kbd"><span>Space</span> Start/Stop</span>
+      <span class="kbd"><span>R</span> Reset</span>
+      <span class="kbd"><span>F</span> Fullscreen</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ INTERVAL ════ -->
+<div class="panel" id="panel-it">
+  <div class="it-card">
+    <div class="it-grid">
+      <div class="it-field"><label>Work Time (sec)</label><input type="number" id="itWork" value="30" min="1"/></div>
+      <div class="it-field"><label>Rest Time (sec)</label><input type="number" id="itRest" value="10" min="1"/></div>
+      <div class="it-field"><label>Sets</label><input type="number" id="itSets" value="8" min="1" max="99"/></div>
+      <div class="it-field"><label>Sound</label>
+        <select id="itSound"><option value="beep">Beep</option><option value="bell">Bell</option><option value="none">None</option></select>
+      </div>
+    </div>
+    <div class="it-display">
+      <div class="it-phase work" id="itPhase">WORK</div>
+      <div class="it-time" id="itTime">00:30</div>
+      <div class="it-meta" id="itMeta">Set 1 of 8</div>
+    </div>
+    <div class="sw-btns">
+      <button class="sw-btn start" id="itStartBtn" onclick="itToggle()">▶ Start</button>
+      <button class="sw-btn reset" onclick="itReset()">↺ Reset</button>
+      <button class="sw-btn fs" onclick="openFullscreen('it')" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ POMODORO ════ -->
+<div class="panel" id="panel-pm">
+  <div class="pomo-card">
+    <div class="pomo-phases">
+      <button class="pomo-phase on" id="pmPhaseWork" onclick="setPomoPhase('work')">🔥 Focus</button>
+      <button class="pomo-phase" id="pmPhaseShort" onclick="setPomoPhase('short')">☕ Short Break</button>
+      <button class="pomo-phase" id="pmPhaseLong" onclick="setPomoPhase('long')">🛋 Long Break</button>
+    </div>
+    <div class="pomo-count" id="pmCount">Pomodoro 1 of 4</div>
+    <div class="pomo-dots" id="pmDots"></div>
+    <div class="ct-display" id="pmDisplay">25:00</div>
+    <div class="ct-bar-wrap"><div class="ct-bar" id="pmBar" style="width:100%"></div></div>
+    <div style="margin-bottom:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;max-width:320px;margin:0 auto 1rem">
+        <div class="it-field"><label>Focus (min)</label><input type="number" id="pmWork" value="25" min="1" onchange="pmReset()"/></div>
+        <div class="it-field"><label>Short Brk</label><input type="number" id="pmShort" value="5" min="1" onchange="pmReset()"/></div>
+        <div class="it-field"><label>Long Brk</label><input type="number" id="pmLong" value="15" min="1" onchange="pmReset()"/></div>
+      </div>
+    </div>
+    <div class="sw-btns">
+      <button class="sw-btn start" id="pmStartBtn" onclick="pmToggle()">▶ Start</button>
+      <button class="sw-btn reset" onclick="pmReset()">↺ Reset</button>
+      <button class="sw-btn fs" onclick="openFullscreen('pm')" title="Fullscreen">⛶</button>
+    </div>
+    <div class="kbd-hints">
+      <span class="kbd"><span>Space</span> Start/Stop</span>
+      <span class="kbd"><span>R</span> Reset</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<!-- FULLSCREEN OVERLAY -->
+<div class="fullscreen-overlay" id="fsOverlay" onclick="closeFullscreen()">
+  <div class="fs-time" id="fsTime">00:00.00</div>
+  <div class="fs-label" id="fsLabel">STOPWATCH</div>
+  <div class="fs-hint">Click anywhere or press Escape to exit</div>
+</div>
+
+<!-- ════════════════════
+     SEO BLOG SECTION
+════════════════════ -->
+<div class="seo-sec">
+
+  <div class="seo-ey">📖 Guide</div>
+  <h2 class="seo-h2">How to Use the Online Stopwatch & Timer</h2>
+  <p class="seo-p">KJSynthora's Stopwatch & Timer gives you four precision timing tools in one free page — a stopwatch with lap tracking, a countdown timer, an interval timer for workouts, and a Pomodoro timer for focused work sessions.</p>
+  <div class="ht-grid">
+    <div class="ht-card"><div class="ht-num">STOPWATCH</div><div class="ht-ttl">Start & Lap</div><div class="ht-dsc">Press Start or Space to begin. Press Lap or L to record split times. Export laps as CSV or copy to clipboard.</div></div>
+    <div class="ht-card"><div class="ht-num">COUNTDOWN</div><div class="ht-ttl">Set Time</div><div class="ht-dsc">Enter hours, minutes, seconds or use a quick preset. An alarm plays when countdown reaches zero.</div></div>
+    <div class="ht-card"><div class="ht-num">INTERVAL</div><div class="ht-ttl">Work & Rest</div><div class="ht-dsc">Set work time, rest time, and number of sets. Perfect for HIIT, Tabata, and workout circuits.</div></div>
+    <div class="ht-card"><div class="ht-num">POMODORO</div><div class="ht-ttl">Focus Mode</div><div class="ht-dsc">25 min focus + 5 min short break + 15 min long break. Customizable. Tracks sessions with dot indicators.</div></div>
+    <div class="ht-card"><div class="ht-num">FULLSCREEN</div><div class="ht-ttl">Distraction-Free</div><div class="ht-dsc">Press ⛶ or F for fullscreen mode. Large display for gym, classroom, or presentation use.</div></div>
+  </div>
+
+  <div class="seo-div"></div>
+
+  <div class="seo-ey">📚 Learn</div>
+  <h2 class="seo-h2">Stopwatch vs Timer — What's the Difference?</h2>
+  <p class="seo-p">A <strong>stopwatch</strong> counts up from zero and is used to measure elapsed time — how long something takes. A <strong>countdown timer</strong> counts down from a set time to zero and is used to track remaining time or enforce time limits. Both are available in this tool with millisecond precision.</p>
+
+  <h3 class="seo-h3">What Are Lap Times and Split Times?</h3>
+  <p class="seo-p"><strong>Lap time</strong> is the time for each individual segment — from one Lap press to the next. <strong>Split time</strong> (cumulative time) is the total elapsed time from start to that Lap press. If your lap times are 0:30, 0:32, 0:31 — your split times are 0:30, 1:02, 1:33. Both are shown in the lap table and exported to CSV.</p>
+
+  <h3 class="seo-h3">Use Cases for This Timer Tool</h3>
+  <div class="uc-grid">
+    <div class="uc-card"><div class="uc-ico">🏃</div><div class="uc-ttl">Running & Athletics</div><div class="uc-dsc">Track lap times for 400m, 800m, or any circuit. Export splits for training analysis.</div></div>
+    <div class="uc-card"><div class="uc-ico">🏋️</div><div class="uc-ttl">HIIT & Workouts</div><div class="uc-dsc">Use the Interval Timer for Tabata (20s work / 10s rest × 8) or custom circuits.</div></div>
+    <div class="uc-card"><div class="uc-ico">🍅</div><div class="uc-ttl">Pomodoro Technique</div><div class="uc-dsc">25 min focused work + 5 min break. Proven productivity method for studying and deep work.</div></div>
+    <div class="uc-card"><div class="uc-ico">🎓</div><div class="uc-ttl">Exams & Study</div><div class="uc-dsc">Countdown timer for timed practice tests. Know exactly how much time is remaining.</div></div>
+    <div class="uc-card"><div class="uc-ico">🍳</div><div class="uc-ttl">Cooking</div><div class="uc-dsc">Set countdowns for boiling, baking, or marinating. Alarm sounds when time is up.</div></div>
+    <div class="uc-card"><div class="uc-ico">🎤</div><div class="uc-ttl">Presentations</div><div class="uc-dsc">Use fullscreen mode to display a large countdown for speeches, demos, or class sessions.</div></div>
+    <div class="uc-card"><div class="uc-ico">🧪</div><div class="uc-ttl">Lab & Science</div><div class="uc-dsc">Precise millisecond timing for experiments. Export to CSV for data analysis.</div></div>
+    <div class="uc-card"><div class="uc-ico">🎮</div><div class="uc-ttl">Gaming & Speedruns</div><div class="uc-dsc">Track segment times for speedrunning. Lap feature records individual stage times.</div></div>
+  </div>
+
+  <div class="seo-div"></div>
+
+  <div class="seo-ey">❓ FAQ</div>
+  <h2 class="seo-h2">Frequently Asked Questions</h2>
+  <div style="margin-bottom:2.5rem">
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How do I use the online stopwatch? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Click Start or press Space to begin the stopwatch. Click Lap or press L while it's running to record lap times. Click Stop to pause and Reset to clear everything. Lap times are shown in the table below the stopwatch with lap time, split time, and comparison to the best lap.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does the stopwatch work in the background? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Yes. The stopwatch uses high-resolution timestamps (performance.now) to track elapsed time, so it stays accurate even when you switch browser tabs or minimize the window. The display updates when you return to the tab.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I set a countdown timer? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Yes. Switch to the Countdown tab, enter hours, minutes, and seconds, or click a quick preset (1 min, 5 min, 10 min, 25 min Pomodoro, etc.), then click Start. An alarm sound plays when the countdown reaches zero.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What are lap times and split times? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Lap time is the time for each individual segment — from one Lap press to the next. Split time is the total elapsed time from the start to that Lap press. Both are displayed in the lap table and included when you export to CSV.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I export my lap times? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Yes. Click the CSV button to download your lap times as a spreadsheet-compatible CSV file, or click Copy to copy them to your clipboard in a formatted table. Exported data includes lap number, lap time, split time, and the difference from the best lap.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What keyboard shortcuts are available? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">Space: Start or Stop the current timer. L: Record a Lap (stopwatch mode). R: Reset the current timer. F: Enter fullscreen mode. Escape: Exit fullscreen or cancel. Shortcuts work globally on the page when no input field is focused.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How does the Pomodoro timer work? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">The Pomodoro Technique uses 25-minute focused work sessions separated by 5-minute short breaks. After 4 Pomodoros, take a 15-minute long break. Switch to the Pomodoro tab, customize your work/break durations, and click Start. The tool tracks completed sessions with dot indicators.</p></div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What is the Interval Timer used for? <span class="faq-arr">▼</span></button><div class="faq-body"><p class="faq-a">The Interval Timer alternates between a work phase and a rest phase for a set number of rounds. It is commonly used for HIIT (High-Intensity Interval Training), Tabata (20s work / 10s rest × 8 sets), CrossFit, and other circuit workouts. An audio beep sounds at each phase transition.</p></div></div>
+  </div>
+
+  <div class="seo-ey">🔗 Related</div>
+  <h2 class="seo-h2">Related Utility Tools</h2>
+  <div class="rt-grid">
+    <a href="/tools/word-counter.html" class="rt"><span class="rt-ico">🔢</span><span class="rt-lbl">Word Counter</span></a>
+    <a href="/tools/calculator.html" class="rt"><span class="rt-ico">🧮</span><span class="rt-lbl">Calculator</span></a>
+    <a href="/tools/unit-converter.html" class="rt"><span class="rt-ico">📐</span><span class="rt-lbl">Unit Converter</span></a>
+    <a href="/tools/age-calculator.html" class="rt"><span class="rt-ico">🎂</span><span class="rt-lbl">Age Calculator</span></a>
+    <a href="/tools/random-number.html" class="rt"><span class="rt-ico">🎲</span><span class="rt-lbl">Random Number</span></a>
+    <a href="/tools/css-gradient-generator.html" class="rt"><span class="rt-ico">🌈</span><span class="rt-lbl">CSS Gradient</span></a>
+    <a href="/tools/json-formatter.html" class="rt"><span class="rt-ico">💻</span><span class="rt-lbl">JSON Formatter</span></a>
+    <a href="/tools/base64-encoder.html" class="rt"><span class="rt-ico">🔑</span><span class="rt-lbl">Base64 Encoder</span></a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · <a href="/privacy-policy.html">Privacy</a> · <a href="/terms.html">Terms</a></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+//  AUDIO ENGINE
+// ══════════════════════════════════════
+const AC=new (window.AudioContext||window.webkitAudioContext)();
+function beep(freq=880,dur=.15,vol=.3){
+  try{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.frequency.value=freq;g.gain.value=vol;
+    o.start();
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+    o.stop(AC.currentTime+dur);
+  }catch(e){}
+}
+function alarm(){beep(523,.15);setTimeout(()=>beep(659,.15),180);setTimeout(()=>beep(784,.3),360);}
+function bellSound(){beep(1046,.4,.2);setTimeout(()=>beep(784,.3,.15),200);}
+function tickSound(){beep(440,.05,.1);}
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function fmtMs(ms){
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  const cs=Math.floor((ms%1000)/10);
+  const hms=h>0?`${pad(h)}:${pad(m)}:${pad(s)}`:`${pad(m)}:${pad(s)}`;
+  return{hms,cs:pad(cs)};
+}
+function fmtMsFull(ms){const{hms,cs}=fmtMs(ms);return`${hms}.${cs}`;}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtSec(s){return`${pad(Math.floor(s/60))}:${pad(s%60)}`;}
+let toastTimer;
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast on '+(type||'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className='toast',2400);
+}
+function toggleFaq(btn){
+  const body=btn.nextElementSibling,arr=btn.querySelector('.faq-arr');
+  const open=body.classList.contains('open');
+  document.querySelectorAll('.faq-body.open').forEach(b=>{b.classList.remove('open');b.previousElementSibling.querySelector('.faq-arr').style.transform='';});
+  if(!open){body.classList.add('open');arr.style.transform='rotate(180deg)';}
+}
+
+// ══════════════════════════════════════
+//  MODE SWITCHER
+// ══════════════════════════════════════
+let currentMode='sw';
+function setMode(m,btn){
+  currentMode=m;
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('panel-'+m).classList.add('on');
+}
+
+// ══════════════════════════════════════
+//  STOPWATCH
+// ══════════════════════════════════════
+let swRunning=false,swStart=0,swElapsed=0,swRaf=null;
+let laps=[],lapStart=0;
+
+function swTick(){
+  const now=swElapsed+(performance.now()-swStart);
+  const{hms,cs}=fmtMs(now);
+  document.getElementById('swHMS').textContent=hms;
+  document.getElementById('swCents').textContent=cs;
+  // Ring: 60s cycle
+  const sec=(now/1000)%60;
+  const offset=628-(628*(sec/60));
+  document.getElementById('swRing').setAttribute('stroke-dashoffset',offset.toFixed(1));
+  // Fullscreen sync
+  if(document.getElementById('fsOverlay').classList.contains('on')&&currentMode==='sw'){
+    document.getElementById('fsTime').textContent=fmtMsFull(now);
+  }
+  swRaf=requestAnimationFrame(swTick);
+}
+
+function swToggle(){
+  if(AC.state==='suspended')AC.resume();
+  if(!swRunning){
+    swStart=performance.now();
+    if(swElapsed===0)lapStart=0;
+    swRunning=true;
+    document.getElementById('swStartBtn').className='sw-btn stop';
+    document.getElementById('swStartBtn').textContent='⏸ Stop';
+    document.getElementById('swLapBtn').disabled=false;
+    document.getElementById('swLabel').textContent='RUNNING';
+    swRaf=requestAnimationFrame(swTick);
+  } else {
+    swElapsed+=(performance.now()-swStart);
+    swRunning=false;
+    cancelAnimationFrame(swRaf);
+    document.getElementById('swStartBtn').className='sw-btn start';
+    document.getElementById('swStartBtn').textContent='▶ Resume';
+    document.getElementById('swLabel').textContent='PAUSED';
+  }
+}
+
+function swLap(){
+  if(!swRunning)return;
+  const now=swElapsed+(performance.now()-swStart);
+  const lapTime=now-(lapStart||0);
+  lapStart=now;
+  laps.push({n:laps.length+1,lap:lapTime,split:now});
+  renderLaps();
+  beep(660,.08);
+}
+
+function swReset(){
+  cancelAnimationFrame(swRaf);
+  swRunning=false;swElapsed=0;swStart=0;lapStart=0;
+  document.getElementById('swHMS').textContent='00:00';
+  document.getElementById('swCents').textContent='00';
+  document.getElementById('swRing').setAttribute('stroke-dashoffset','628');
+  document.getElementById('swStartBtn').className='sw-btn start';
+  document.getElementById('swStartBtn').textContent='▶ Start';
+  document.getElementById('swLapBtn').disabled=true;
+  document.getElementById('swLabel').textContent='READY';
+  document.getElementById('lapCount').textContent='0';
+  laps=[];lapStart=0;renderLaps();
+}
+
+function renderLaps(){
+  const body=document.getElementById('lapBody');
+  document.getElementById('lapCount').textContent=laps.length;
+  if(!laps.length){
+    body.innerHTML='<tr><td colspan="5" class="no-laps">No laps recorded yet — press Lap while stopwatch is running</td></tr>';
+    return;
+  }
+  const best=Math.min(...laps.map(l=>l.lap));
+  const worst=Math.max(...laps.map(l=>l.lap));
+  body.innerHTML=[...laps].reverse().map(l=>{
+    const isBest=l.lap===best&&laps.length>1;
+    const isWorst=l.lap===worst&&laps.length>1;
+    const diff=l.lap-best;
+    const diffStr=diff>0?`+${fmtMsFull(diff)}`:'Best';
+    return`<tr class="${isBest?'lap-best':isWorst?'lap-worst':''}">
+      <td class="lap-num">${l.n}</td>
+      <td>${fmtMsFull(l.lap)}${isBest?' <span class="badge-best">BEST</span>':isWorst?' <span class="badge-worst">SLOW</span>':''}</td>
+      <td>${fmtMsFull(l.split)}</td>
+      <td style="color:${diff===0?'var(--ac3)':isWorst?'var(--red)':'var(--text2)'}">${diffStr}</td>
+      <td></td>
+    </tr>`;
+  }).join('');
+}
+
+function copyLaps(){
+  if(!laps.length){toast('No laps to copy','warn');return;}
+  const lines=['#\tLap Time\tSplit Time',...laps.map(l=>`${l.n}\t${fmtMsFull(l.lap)}\t${fmtMsFull(l.split)}`)];
+  navigator.clipboard.writeText(lines.join('\n'));
+  toast('📋 Laps copied!');
+}
+
+function exportLaps(){
+  if(!laps.length){toast('No laps to export','warn');return;}
+  const csv='Lap,Lap Time,Split Time\n'+laps.map(l=>`${l.n},${fmtMsFull(l.lap)},${fmtMsFull(l.split)}`).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='lap-times.csv';a.click();
+  toast('↓ CSV exported!');
+}
+
+function clearLaps(){laps=[];lapStart=swElapsed+(swRunning?performance.now()-swStart:0);renderLaps();toast('🗑 Laps cleared');}
+
+// ══════════════════════════════════════
+//  COUNTDOWN TIMER
+// ══════════════════════════════════════
+let ctRunning=false,ctRemain=300,ctTotal=300,ctStart=0,ctElapsedAtStart=0,ctRaf=null;
+
+function ctPreset(min,sec){
+  const total=min*60+sec;
+  ctRemain=total;ctTotal=total;ctElapsedAtStart=0;
+  if(ctRunning)ctStop();
+  document.getElementById('ctH').value=Math.floor(min/60);
+  document.getElementById('ctM').value=min%60;
+  document.getElementById('ctS').value=sec;
+  document.getElementById('ctDisplay').textContent=fmtSec(total);
+  document.getElementById('ctDisplay').className='ct-display';
+  document.getElementById('ctBar').style.width='100%';
+  document.getElementById('ctBar').className='ct-bar';
+  document.querySelectorAll('.ct-preset').forEach(b=>b.classList.remove('on'));
+}
+
+function ctTick(){
+  const elapsed=(performance.now()-ctStart)/1000;
+  const rem=Math.max(0,ctRemain-elapsed);
+  const disp=document.getElementById('ctDisplay');
+  const bar=document.getElementById('ctBar');
+  disp.textContent=`${pad(Math.floor(rem/3600)>0?Math.floor(rem/3600)+':':'')}${pad(Math.floor((rem%3600)/60))}:${pad(Math.floor(rem%60))}`;
+  const pct=(rem/ctTotal)*100;
+  bar.style.width=pct+'%';
+  if(pct<=10){disp.className='ct-display danger';bar.className='ct-bar danger';}
+  else if(pct<=25){disp.className='ct-display warning';bar.className='ct-bar warn';}
+  if(rem<=0){
+    ctStop();alarm();
+    disp.textContent='00:00';disp.className='ct-display danger';
+    toast('⏰ Time is up!','warn');
+    return;
+  }
+  // Fullscreen sync
+  if(document.getElementById('fsOverlay').classList.contains('on')&&currentMode==='ct'){
+    document.getElementById('fsTime').textContent=disp.textContent;
+  }
+  ctRaf=requestAnimationFrame(ctTick);
+}
+
+function ctToggle(){
+  if(AC.state==='suspended')AC.resume();
+  if(!ctRunning){
+    const h=parseInt(document.getElementById('ctH').value)||0;
+    const m=parseInt(document.getElementById('ctM').value)||0;
+    const s=parseInt(document.getElementById('ctS').value)||0;
+    const total=h*3600+m*60+s;
+    if(total<=0){toast('Set a time greater than 0','warn');return;}
+    if(ctRemain===ctTotal){ctTotal=total;ctRemain=total;}
+    ctStart=performance.now();
+    ctRunning=true;
+    document.getElementById('ctStartBtn').className='sw-btn stop';
+    document.getElementById('ctStartBtn').textContent='⏸ Pause';
+    ctRaf=requestAnimationFrame(ctTick);
+  } else {
+    const elapsed=(performance.now()-ctStart)/1000;
+    ctRemain=Math.max(0,ctRemain-elapsed);
+    ctStop();
+    document.getElementById('ctStartBtn').className='sw-btn start';
+    document.getElementById('ctStartBtn').textContent='▶ Resume';
+  }
+}
+
+function ctStop(){
+  cancelAnimationFrame(ctRaf);ctRunning=false;
+  document.getElementById('ctStartBtn').className='sw-btn start';
+  document.getElementById('ctStartBtn').textContent='▶ Start';
+}
+
+function ctReset(){
+  ctStop();
+  const h=parseInt(document.getElementById('ctH').value)||0;
+  const m=parseInt(document.getElementById('ctM').value)||0;
+  const s=parseInt(document.getElementById('ctS').value)||0;
+  ctTotal=h*3600+m*60+s;ctRemain=ctTotal;
+  document.getElementById('ctDisplay').textContent=
+    `${h>0?pad(h)+':':''}${pad(m)}:${pad(s)}`;
+  document.getElementById('ctDisplay').className='ct-display';
+  document.getElementById('ctBar').style.width='100%';
+  document.getElementById('ctBar').className='ct-bar';
+}
+
+// ══════════════════════════════════════
+//  INTERVAL TIMER
+// ══════════════════════════════════════
+let itRunning=false,itPhase='work',itSet=1,itRemain=30,itStart=0,itRaf=null;
+
+function itTick(){
+  const elapsed=(performance.now()-itStart)/1000;
+  const rem=Math.max(0,itRemain-elapsed);
+  const work=parseInt(document.getElementById('itWork').value)||30;
+  const rest=parseInt(document.getElementById('itRest').value)||10;
+  const sets=parseInt(document.getElementById('itSets').value)||8;
+  document.getElementById('itTime').textContent=fmtSec(Math.ceil(rem));
+  document.getElementById('itMeta').textContent=`Set ${itSet} of ${sets}`;
+  if(document.getElementById('fsOverlay').classList.contains('on')&&currentMode==='it'){
+    document.getElementById('fsTime').textContent=fmtSec(Math.ceil(rem));
+    document.getElementById('fsLabel').textContent=itPhase==='work'?'WORK':'REST';
+  }
+  if(rem<=0){
+    if(itPhase==='work'){
+      itPhase='rest';itRemain=rest;
+      document.getElementById('itPhase').textContent='REST';
+      document.getElementById('itPhase').className='it-phase rest';
+      bellSound();
+    } else {
+      if(itSet>=sets){itStop();alarm();toast('🎉 Workout complete!');return;}
+      itSet++;itPhase='work';itRemain=work;
+      document.getElementById('itPhase').textContent='WORK';
+      document.getElementById('itPhase').className='it-phase work';
+      beep(880,.1);
+    }
+    itStart=performance.now();
+  }
+  itRaf=requestAnimationFrame(itTick);
+}
+
+function itToggle(){
+  if(AC.state==='suspended')AC.resume();
+  if(!itRunning){
+    itRunning=true;itStart=performance.now();
+    document.getElementById('itStartBtn').className='sw-btn stop';
+    document.getElementById('itStartBtn').textContent='⏸ Pause';
+    itRaf=requestAnimationFrame(itTick);
+  } else {
+    const elapsed=(performance.now()-itStart)/1000;
+    itRemain=Math.max(0,itRemain-elapsed);
+    itStop();
+    document.getElementById('itStartBtn').className='sw-btn start';
+    document.getElementById('itStartBtn').textContent='▶ Resume';
+  }
+}
+
+function itStop(){cancelAnimationFrame(itRaf);itRunning=false;}
+
+function itReset(){
+  itStop();
+  itPhase='work';itSet=1;
+  itRemain=parseInt(document.getElementById('itWork').value)||30;
+  document.getElementById('itTime').textContent=fmtSec(itRemain);
+  document.getElementById('itPhase').textContent='WORK';
+  document.getElementById('itPhase').className='it-phase work';
+  document.getElementById('itMeta').textContent=`Set 1 of ${document.getElementById('itSets').value||8}`;
+  document.getElementById('itStartBtn').className='sw-btn start';
+  document.getElementById('itStartBtn').textContent='▶ Start';
+}
+
+// ══════════════════════════════════════
+//  POMODORO
+// ══════════════════════════════════════
+let pmRunning=false,pmPhase='work',pmSession=1,pmRemain=25*60,pmTotal=25*60,pmStart=0,pmRaf=null;
+const POMO_MAX=4;
+
+function renderPomoDots(){
+  const dots=document.getElementById('pmDots');
+  dots.innerHTML=Array.from({length:POMO_MAX},(_,i)=>
+    `<div class="pomo-dot ${i<pmSession-1?'done':i===pmSession-1?'curr':''}"></div>`
+  ).join('');
+  document.getElementById('pmCount').textContent=`Pomodoro ${pmSession} of ${POMO_MAX}`;
+}
+
+function setPomoPhase(p){
+  pmPhase=p;
+  document.querySelectorAll('.pomo-phase').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pmPhase'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('on');
+  pmReset();
+}
+
+function pmTick(){
+  const elapsed=(performance.now()-pmStart)/1000;
+  const rem=Math.max(0,pmRemain-elapsed);
+  const m=Math.floor(rem/60),s=Math.floor(rem%60);
+  document.getElementById('pmDisplay').textContent=`${pad(m)}:${pad(s)}`;
+  document.getElementById('pmBar').style.width=((rem/pmTotal)*100)+'%';
+  if(document.getElementById('fsOverlay').classList.contains('on')&&currentMode==='pm'){
+    document.getElementById('fsTime').textContent=`${pad(m)}:${pad(s)}`;
+  }
+  if(rem<=0){
+    alarm();
+    if(pmPhase==='work'){
+      pmSession++;
+      if(pmSession>POMO_MAX){pmSession=1;toast('🎉 All Pomodoros complete! Take a long break.');}
+      else toast('✅ Pomodoro done! Take a break.');
+      pmPhase=pmSession%POMO_MAX===0?'long':'short';
+    } else {
+      toast('⏰ Break over! Time to focus.');
+      pmPhase='work';
+    }
+    pmReset();renderPomoDots();return;
+  }
+  pmRaf=requestAnimationFrame(pmTick);
+}
+
+function pmToggle(){
+  if(AC.state==='suspended')AC.resume();
+  if(!pmRunning){
+    pmRunning=true;pmStart=performance.now();
+    document.getElementById('pmStartBtn').className='sw-btn stop';
+    document.getElementById('pmStartBtn').textContent='⏸ Pause';
+    pmRaf=requestAnimationFrame(pmTick);
+  } else {
+    const elapsed=(performance.now()-pmStart)/1000;
+    pmRemain=Math.max(0,pmRemain-elapsed);
+    cancelAnimationFrame(pmRaf);pmRunning=false;
+    document.getElementById('pmStartBtn').className='sw-btn start';
+    document.getElementById('pmStartBtn').textContent='▶ Resume';
+  }
+}
+
+function pmReset(){
+  cancelAnimationFrame(pmRaf);pmRunning=false;
+  const workMin=parseInt(document.getElementById('pmWork').value)||25;
+  const shortMin=parseInt(document.getElementById('pmShort').value)||5;
+  const longMin=parseInt(document.getElementById('pmLong').value)||15;
+  const mins=pmPhase==='work'?workMin:pmPhase==='short'?shortMin:longMin;
+  pmTotal=mins*60;pmRemain=pmTotal;
+  document.getElementById('pmDisplay').textContent=`${pad(mins)}:00`;
+  document.getElementById('pmBar').style.width='100%';
+  document.getElementById('pmBar').className='ct-bar';
+  document.getElementById('pmStartBtn').className='sw-btn start';
+  document.getElementById('pmStartBtn').textContent='▶ Start';
+  renderPomoDots();
+}
+
+// ══════════════════════════════════════
+//  FULLSCREEN
+// ══════════════════════════════════════
+function openFullscreen(mode){
+  const ov=document.getElementById('fsOverlay');
+  currentMode=mode;
+  ov.classList.add('on');
+  const labels={sw:'STOPWATCH',ct:'COUNTDOWN',it:'INTERVAL',pm:'POMODORO'};
+  document.getElementById('fsLabel').textContent=labels[mode]||'TIMER';
+  if(mode==='sw'){
+    const now=swElapsed+(swRunning?performance.now()-swStart:0);
+    document.getElementById('fsTime').textContent=fmtMsFull(now);
+  }
+  ov.requestFullscreen?.().catch(()=>{});
+}
+function closeFullscreen(){
+  document.getElementById('fsOverlay').classList.remove('on');
+  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
+}
+
+// ══════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA')return;
+  if(e.key==='Escape'){closeFullscreen();return;}
+  switch(e.key){
+    case ' ':e.preventDefault();
+      if(currentMode==='sw')swToggle();
+      else if(currentMode==='ct')ctToggle();
+      else if(currentMode==='it')itToggle();
+      else if(currentMode==='pm')pmToggle();
+      break;
+    case 'l':case 'L':if(currentMode==='sw')swLap();break;
+    case 'r':case 'R':
+      if(currentMode==='sw')swReset();
+      else if(currentMode==='ct')ctReset();
+      else if(currentMode==='it')itReset();
+      else if(currentMode==='pm')pmReset();
+      break;
+    case 'f':case 'F':openFullscreen(currentMode);break;
+  }
+});
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+renderLaps();
+renderPomoDots();
+ctPreset(5,0);
+document.querySelectorAll('.ct-preset')[4].classList.add('on'); // 5 min
+</script>
+</body>
+</html>
