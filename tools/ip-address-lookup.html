@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP Address Lookup Free — Find IP Location, ISP, Country | KJSynthora</title>
+<meta name="description" content="Free IP address lookup tool. Find IP location, country, city, ISP, timezone, coordinates and more. Lookup any IP address or your own IP instantly. No signup needed.">
+<meta name="keywords" content="ip address lookup, ip lookup tool free, what is my ip address, ip location finder, ip geolocation, find ip address location, ip address tracker, ip to location, ip address checker, kjsynthora">
+<meta name="robots" content="index,follow">
+<meta name="author" content="KJSynthora">
+<link rel="canonical" href="https://kjsynthora.com/tools/ip-address-lookup.html">
+<meta property="og:title" content="IP Address Lookup Free — Find IP Location & ISP | KJSynthora">
+<meta property="og:description" content="Lookup any IP address instantly. Get country, city, ISP, timezone, coordinates and more. Free, no signup.">
+<meta property="og:url" content="https://kjsynthora.com/tools/ip-address-lookup.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://kjsynthora.com/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IP Address Lookup Free — KJSynthora">
+<meta name="twitter:description" content="Find IP location, ISP, country, timezone instantly. Free IP lookup tool.">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#04040e">
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"IP Address Lookup",
+  "url":"https://kjsynthora.com/tools/ip-address-lookup.html",
+  "description":"Free IP address lookup tool. Find IP geolocation, country, city, ISP, timezone, coordinates for any IP address.",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"},
+  "featureList":["IP Geolocation","Country & City Detection","ISP Provider Info","Timezone Detection","Coordinates (Lat/Long)","IPv4 & IPv6 Support","Bulk IP Lookup","Your IP Detection","Copy Results","Export JSON","No Signup","Free"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"What is an IP address lookup?","acceptedAnswer":{"@type":"Answer","text":"An IP address lookup finds the geographic location and network information associated with an IP address. It can reveal the country, city, ISP (Internet Service Provider), timezone, and approximate coordinates of any IP address."}},
+    {"@type":"Question","name":"How accurate is IP geolocation?","acceptedAnswer":{"@type":"Answer","text":"IP geolocation is typically accurate to the country level (95%+ accuracy) and region/city level (50-80% accuracy). VPNs, proxies, and mobile networks can reduce accuracy. It shows where the internet connection is registered, not the physical location of the user."}},
+    {"@type":"Question","name":"What is my IP address?","acceptedAnswer":{"@type":"Answer","text":"Click the 'Lookup My IP' button to instantly see your current public IP address along with your detected location, ISP, timezone and other network details."}},
+    {"@type":"Question","name":"Can I look up multiple IP addresses?","acceptedAnswer":{"@type":"Answer","text":"Yes! Use the Bulk Lookup tab to enter multiple IP addresses (one per line) and look them all up at once. Results can be exported as JSON or CSV."}},
+    {"@type":"Question","name":"Is the IP lookup tool free?","acceptedAnswer":{"@type":"Answer","text":"Yes, completely free with no signup. You can look up any IP address including IPv4 and IPv6 addresses without any account or payment."}}
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04040e;--surf:#0a0a1a;--s2:#0f1628;--s3:#151e35;--s4:#1c2540;
+  --border:rgba(79,142,247,0.15);--border2:rgba(255,255,255,0.04);
+  --a1:#4f8ef7;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;--a5:#f59e0b;
+  --red:#ef4444;--text:#dde4f0;--text2:#8899b4;--muted:#4a5568;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;width:600px;height:600px;background:radial-gradient(circle,rgba(79,142,247,0.08),transparent 65%);top:-150px;left:-150px;filter:blur(70px);z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.06),transparent 65%);bottom:-100px;right:-100px;filter:blur(60px);z-index:0;pointer-events:none;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--s3);border-radius:4px;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(4,4,14,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--text2);font-size:.77rem;text-decoration:none;padding:.27rem .62rem;border-radius:6px;transition:all .2s;}
+.nav-links a:hover{color:var(--a1);background:rgba(79,142,247,.07);}
+.nav-cta{padding:.38rem .9rem;border-radius:8px;text-decoration:none;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));font-size:.77rem;transition:opacity .2s;}
+.nav-cta:hover{opacity:.85;}
+
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:2.5rem 5% 1.5rem;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);border-radius:99px;padding:.3rem .9rem;font-size:.7rem;font-weight:700;color:var(--a1);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.85rem;}
+.hero-badge .dot{width:5px;height:5px;background:var(--a1);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;background:linear-gradient(135deg,#fff 40%,var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.45rem;}
+.hero p{color:var(--text2);font-size:.9rem;max-width:520px;margin:0 auto .75rem;line-height:1.65;}
+.hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;}
+.hp{background:var(--s2);border:1px solid var(--border);color:var(--text2);font-size:.68rem;padding:.15rem .55rem;border-radius:99px;}
+
+/* MAIN WRAP */
+.main-wrap{max-width:900px;margin:0 auto;padding:0 5% 2rem;position:relative;z-index:1;}
+
+/* AFF BANNER */
+.aff-banner{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(79,142,247,.04));border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:.8rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.aff-text{font-size:.8rem;color:var(--text);}
+.aff-text strong{color:var(--a5);}
+.aff-btn{background:var(--a5);color:#000;font-weight:700;font-size:.75rem;padding:.38rem .9rem;border-radius:7px;text-decoration:none;flex-shrink:0;transition:opacity .2s;}
+.aff-btn:hover{opacity:.85;}
+
+/* TABS */
+.tool-tabs{display:flex;gap:6px;margin-bottom:1.1rem;background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:5px;}
+.tool-tab{flex:1;padding:.55rem .5rem;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;}
+.tool-tab.active{background:var(--s2);color:var(--a1);border:1px solid var(--border);}
+.tool-tab:hover:not(.active){color:var(--text2);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* LOOKUP CARD */
+.lookup-card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:1.75rem;margin-bottom:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+
+/* INPUT ROW */
+.input-row{display:flex;gap:.65rem;margin-bottom:1rem;flex-wrap:wrap;}
+.ip-input{flex:1;min-width:200px;padding:.75rem 1rem;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:.95rem;outline:none;transition:border-color .2s;}
+.ip-input:focus{border-color:var(--a1);}
+.ip-input::placeholder{color:var(--muted);}
+.lookup-btn{padding:.75rem 1.35rem;border:none;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.lookup-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(79,142,247,.35);}
+.lookup-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.my-ip-btn{padding:.75rem 1.1rem;border:1px solid var(--border);border-radius:10px;background:var(--s2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.my-ip-btn:hover{border-color:var(--a3);color:var(--a3);}
+
+/* RESULTS GRID */
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-top:1rem;}
+.result-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;transition:border-color .2s;}
+.result-card:hover{border-color:rgba(79,142,247,.3);}
+.rc-label{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
+.rc-value{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--text);word-break:break-all;}
+.rc-icon{font-size:.9rem;margin-right:.35rem;}
+.rc-value.highlight{color:var(--a1);}
+.rc-value.green{color:var(--a4);}
+.rc-value.orange{color:var(--a5);}
+.rc-value.red{color:var(--red);}
+
+/* MAP PLACEHOLDER */
+.map-section{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:1rem;}
+.map-header{padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.map-title{font-size:.8rem;font-weight:700;color:var(--text2);}
+.map-coords{font-family:var(--mono);font-size:.72rem;color:var(--a1);}
+.map-frame{height:280px;background:linear-gradient(135deg,var(--s3),var(--s4));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.map-dot{width:18px;height:18px;background:var(--a1);border-radius:50%;box-shadow:0 0 0 6px rgba(79,142,247,.25),0 0 0 12px rgba(79,142,247,.1);animation:mapPulse 2s infinite;}
+@keyframes mapPulse{0%,100%{box-shadow:0 0 0 6px rgba(79,142,247,.25),0 0 0 12px rgba(79,142,247,.1);}50%{box-shadow:0 0 0 10px rgba(79,142,247,.35),0 0 0 20px rgba(79,142,247,.08);}}
+.map-open-btn{display:inline-flex;align-items:center;gap:.35rem;margin-top:.65rem;margin-left:auto;margin-right:auto;display:flex;width:fit-content;margin:0 auto;margin-top:.65rem;padding:.5rem 1rem;border:1px solid var(--border);border-radius:8px;background:var(--s3);color:var(--text2);font-size:.75rem;font-weight:600;text-decoration:none;transition:all .2s;}
+.map-open-btn:hover{border-color:var(--a1);color:var(--a1);}
+
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:.55rem;margin-top:1rem;flex-wrap:wrap;}
+.act-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:1px solid var(--border);border-radius:8px;background:var(--s2);color:var(--text2);font-size:.75rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.act-btn:hover{border-color:var(--a1);color:var(--a1);}
+.act-btn.green{border-color:rgba(16,185,129,.25);color:var(--a4);}
+
+/* BULK LOOKUP */
+.bulk-textarea{width:100%;height:180px;padding:.85rem 1rem;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:.82rem;outline:none;resize:vertical;line-height:1.65;}
+.bulk-textarea:focus{border-color:var(--a1);}
+.bulk-results{margin-top:1rem;max-height:350px;overflow-y:auto;}
+.bulk-results::-webkit-scrollbar{width:3px;}
+.bulk-results::-webkit-scrollbar-thumb{background:var(--s3);}
+.bulk-row{display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:.5rem;padding:.6rem .75rem;border-bottom:1px solid var(--border2);font-size:.72rem;font-family:var(--mono);}
+.bulk-row.header{background:var(--s3);font-weight:700;color:var(--text2);font-family:'DM Sans',sans-serif;border-radius:8px 8px 0 0;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;}
+.bulk-row .ip-cell{color:var(--a1);}
+
+/* HISTORY */
+.hist-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;background:var(--s2);border:1px solid var(--border);border-radius:9px;margin-bottom:.5rem;cursor:pointer;transition:all .2s;}
+.hist-item:hover{border-color:rgba(79,142,247,.3);}
+.hist-ip{font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--a1);min-width:130px;}
+.hist-info{font-size:.75rem;color:var(--text2);flex:1;}
+.hist-time{font-size:.65rem;color:var(--muted);}
+
+/* LOADING */
+.loading-spinner{display:none;text-align:center;padding:2rem;}
+.loading-spinner.show{display:block;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--a1);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .75rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* IP INFO DISPLAY */
+.ip-display{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.ip-big{font-family:var(--mono);font-size:1.75rem;font-weight:700;color:var(--a1);}
+.ip-type-badge{padding:.2rem .6rem;border-radius:6px;font-size:.68rem;font-weight:700;background:rgba(16,185,129,.12);color:var(--a4);border:1px solid rgba(16,185,129,.2);}
+.ip-flag{font-size:2rem;}
+
+/* VPN BADGE */
+.vpn-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .65rem;border-radius:6px;font-size:.7rem;font-weight:700;}
+.vpn-badge.detected{background:rgba(245,158,11,.1);color:var(--a5);border:1px solid rgba(245,158,11,.2);}
+.vpn-badge.clean{background:rgba(16,185,129,.1);color:var(--a4);border:1px solid rgba(16,185,129,.2);}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--muted);}
+.empty-state .es-icon{font-size:3rem;margin-bottom:.75rem;opacity:.3;}
+.empty-state p{font-size:.82rem;}
+
+/* SEO */
+.seo-wrap{max-width:900px;margin:2.5rem auto 0;padding:0 5% 4rem;position:relative;z-index:1;}
+.seo-wrap h2{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:1.2rem;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:.75rem;margin-bottom:2.25rem;}
+.fc{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem;}
+.fc .fi{font-size:1.2rem;margin-bottom:.28rem;}
+.fc h3{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.18rem;}
+.fc p{font-size:.75rem;color:var(--text2);line-height:1.55;}
+.faq-item{border-bottom:1px solid var(--border);padding:.8rem 0;}
+.faq-q{font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;gap:1rem;font-size:.86rem;}
+.faq-q::after{content:'+';color:var(--a1);font-size:1rem;flex-shrink:0;transition:transform .2s;}
+.faq-item.open .faq-q::after{transform:rotate(45deg);}
+.faq-a{color:var(--text2);font-size:.81rem;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
+.faq-item.open .faq-a{max-height:200px;padding-top:.55rem;}
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:.6rem;margin-top:1rem;}
+.rel-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:.75rem .9rem;text-decoration:none;transition:all .2s;display:block;}
+.rel-card:hover{border-color:var(--a1);transform:translateY(-2px);}
+.rel-card .ri{font-size:1.05rem;margin-bottom:.22rem;}
+.rel-card .rn{font-size:.8rem;font-weight:700;color:var(--text);}
+.rel-card .rd{font-size:.69rem;color:var(--text2);}
+
+/* SUPPORT */
+.support-section{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center;margin:1.75rem 0;}
+.support-section h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.35rem;}
+.support-section p{font-size:.8rem;color:var(--text2);margin-bottom:.85rem;line-height:1.6;}
+.sup-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;}
+.sup-btn{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;font-size:.78rem;padding:.42rem .9rem;border-radius:7px;text-decoration:none;transition:opacity .2s;}
+.sup-btn.upi{background:#5f259f;color:#fff;}
+.sup-btn.paypal{background:#003087;color:#fff;}
+.sup-btn:hover{opacity:.88;}
+
+/* BOTTOM BAR */
+.bottom-bar{background:var(--surf);border-top:1px solid var(--border);padding:1rem 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;position:relative;z-index:1;}
+.bb-links{display:flex;gap:.45rem;flex-wrap:wrap;}
+.bb-link{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);font-size:.74rem;font-weight:600;padding:.3rem .75rem;border-radius:6px;text-decoration:none;transition:all .2s;}
+.bb-link:hover{border-color:var(--a1);color:var(--a1);}
+.bb-link.hl{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border:none;}
+.coffee-btn{display:flex;align-items:center;gap:.35rem;background:#FFDD00;color:#000;font-weight:700;font-size:.75rem;padding:.38rem .85rem;border-radius:7px;text-decoration:none;transition:opacity .2s;}
+.coffee-btn:hover{opacity:.88;}
+footer{background:rgba(4,4,14,.98);border-top:1px solid var(--border);padding:1rem 5%;text-align:center;color:var(--text2);font-size:.76rem;position:relative;z-index:1;}
+footer a{color:var(--text);text-decoration:none;margin:0 .35rem;}
+footer a:hover{color:var(--a1);}
+.toast{position:fixed;bottom:1.25rem;right:1.25rem;background:var(--s2);border:1px solid var(--a4);color:var(--a4);padding:.6rem 1.1rem;border-radius:9px;font-size:.8rem;font-weight:700;z-index:9999;opacity:0;transform:translateY(6px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+@media(max-width:700px){.nav-links{display:none;}.results-grid{grid-template-columns:1fr 1fr;}.bulk-row{grid-template-columns:1fr 1fr;}.ip-big{font-size:1.25rem;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://kjsynthora.com/" class="nav-logo">KJSynthora</a>
+  <div class="nav-links">
+    <a href="https://kjsynthora.com/tools/password-generator.html">Password Gen</a>
+    <a href="https://kjsynthora.com/tools/uuid-generator.html">UUID Gen</a>
+    <a href="https://kjsynthora.com/tools/dns-lookup.html">DNS Lookup</a>
+    <a href="https://kjsynthora.com/tools/whois-lookup.html">WHOIS</a>
+  </div>
+  <a href="https://kjsynthora.com/#tools-explorer" class="nav-cta">All Tools ↗</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span>Real-time · IPv4 & IPv6 · Free · No Signup</div>
+  <h1>IP Address Lookup</h1>
+  <p>Find the location, ISP, timezone, and full network details of any IP address instantly. Supports IPv4 and IPv6.</p>
+  <div class="hero-pills">
+    <span class="hp">🌍 Country & City</span>
+    <span class="hp">📡 ISP Provider</span>
+    <span class="hp">🕐 Timezone</span>
+    <span class="hp">📍 Coordinates</span>
+    <span class="hp">🔒 VPN Detection</span>
+    <span class="hp">📦 Bulk Lookup</span>
+    <span class="hp">📋 Export JSON/CSV</span>
+    <span class="hp">📜 History</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- AFFILIATE BANNER -->
+  <div class="aff-banner">
+    <div class="aff-text"><strong>🔒 Worried about privacy?</strong> Use a VPN to hide your IP location. Protect your online identity with a trusted VPN service.</div>
+    <a href="https://nordvpn.com/" target="_blank" rel="noopener sponsored" class="aff-btn">Try NordVPN →</a>
+  </div>
+
+  <!-- TABS -->
+  <div class="tool-tabs">
+    <button class="tool-tab active" onclick="switchTab('single',this)">🔍 Single Lookup</button>
+    <button class="tool-tab" onclick="switchTab('bulk',this)">📦 Bulk Lookup</button>
+    <button class="tool-tab" onclick="switchTab('history',this)">📜 History</button>
+    <button class="tool-tab" onclick="switchTab('tools',this)">🛠️ Network Tools</button>
+  </div>
+
+  <!-- SINGLE LOOKUP TAB -->
+  <div class="tab-pane active" id="tab-single">
+    <div class="lookup-card">
+      <div class="input-row">
+        <input type="text" class="ip-input" id="ipInput" placeholder="Enter IP address (e.g. 8.8.8.8) or leave empty for your IP..." oninput="validateIPInput()">
+        <button class="lookup-btn" id="lookupBtn" onclick="lookupIP()">🔍 Lookup IP</button>
+        <button class="my-ip-btn" onclick="lookupMyIP()">📡 My IP</button>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <div style="font-size:.82rem;color:var(--text2);">Looking up IP address...</div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="resultsSection" style="display:none;">
+
+        <!-- IP DISPLAY -->
+        <div class="ip-display" id="ipDisplay">
+          <div>
+            <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;">IP Address</div>
+            <div class="ip-big" id="displayIP">—</div>
+          </div>
+          <span class="ip-type-badge" id="ipTypeBadge">IPv4</span>
+          <span class="ip-flag" id="countryFlag">🌍</span>
+          <span class="vpn-badge clean" id="vpnBadge">✓ Clean IP</span>
+        </div>
+
+        <!-- RESULTS GRID -->
+        <div class="results-grid" id="resultsGrid"></div>
+
+        <!-- MAP -->
+        <div class="map-section" id="mapSection">
+          <div class="map-header">
+            <span class="map-title">📍 Approximate Location</span>
+            <span class="map-coords" id="mapCoords">—</span>
+          </div>
+          <div class="map-frame" id="mapFrame">
+            <div class="map-dot"></div>
+          </div>
+          <div style="padding:.75rem;text-align:center;">
+            <a href="#" class="map-open-btn" id="mapOpenBtn" target="_blank" rel="noopener">🗺️ Open in Google Maps</a>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-row">
+          <button class="act-btn" onclick="copyResults()">📋 Copy Results</button>
+          <button class="act-btn" onclick="exportJSON()">📥 Export JSON</button>
+          <button class="act-btn" onclick="exportCSV()">📊 Export CSV</button>
+          <button class="act-btn green" onclick="shareIP()">🔗 Share URL</button>
+        </div>
+
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="emptyState">
+        <div class="es-icon">🌐</div>
+        <p>Enter an IP address above or click "My IP" to see your current IP details</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BULK LOOKUP TAB -->
+  <div class="tab-pane" id="tab-bulk">
+    <div class="lookup-card">
+      <div style="margin-bottom:.85rem;">
+        <div style="font-size:.8rem;font-weight:600;color:var(--text2);margin-bottom:.45rem;">Enter IP addresses (one per line, max 20):</div>
+        <textarea class="bulk-textarea" id="bulkInput" placeholder="8.8.8.8&#10;1.1.1.1&#10;208.67.222.222&#10;9.9.9.9"></textarea>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+        <button class="lookup-btn" onclick="bulkLookup()">📦 Lookup All IPs</button>
+        <button class="act-btn" onclick="loadSampleIPs()">📋 Load Sample IPs</button>
+        <button class="act-btn" onclick="clearBulk()">✕ Clear</button>
+        <button class="act-btn green" id="exportBulkBtn" onclick="exportBulkResults()" disabled>📥 Export CSV</button>
+      </div>
+      <div class="bulk-results" id="bulkResults">
+        <div class="empty-state"><div class="es-icon">📦</div><p>Enter IP addresses above and click Lookup All IPs</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="tab-pane" id="tab-history">
+    <div class="lookup-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+        <div style="font-size:.82rem;font-weight:600;color:var(--text2);">Recent Lookups (<span id="histCount">0</span>)</div>
+        <button class="act-btn" onclick="clearHistory()">🗑️ Clear History</button>
+      </div>
+      <div id="historyList"><div class="empty-state"><div class="es-icon">📜</div><p>No lookup history yet. Search for an IP to start.</p></div></div>
+    </div>
+  </div>
+
+  <!-- NETWORK TOOLS TAB -->
+  <div class="tab-pane" id="tab-tools">
+    <div class="lookup-card">
+      <div style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🛠️ Network Utilities</div>
+
+      <!-- IP Validator -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.45rem;">✅ IP Address Validator</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <input type="text" id="validateInput" class="ip-input" style="flex:1;" placeholder="Enter IP to validate (IPv4 or IPv6)">
+          <button class="lookup-btn" onclick="validateIPTool()">Validate</button>
+        </div>
+        <div id="validateResult" style="margin-top:.65rem;font-size:.8rem;font-family:var(--mono);"></div>
+      </div>
+
+      <!-- IP Range Check -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.45rem;">🔢 IP to Integer Converter</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <input type="text" id="ipToIntInput" class="ip-input" style="flex:1;" placeholder="Enter IPv4 (e.g. 192.168.1.1)">
+          <button class="lookup-btn" onclick="ipToInt()">Convert</button>
+        </div>
+        <div id="ipToIntResult" style="margin-top:.65rem;font-size:.8rem;font-family:var(--mono);"></div>
+      </div>
+
+      <!-- CIDR Calculator -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.45rem;">🧮 CIDR Subnet Calculator</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <input type="text" id="cidrInput" class="ip-input" style="flex:1;" placeholder="Enter CIDR (e.g. 192.168.1.0/24)">
+          <button class="lookup-btn" onclick="cidrCalc()">Calculate</button>
+        </div>
+        <div id="cidrResult" style="margin-top:.65rem;font-size:.8rem;"></div>
+      </div>
+
+      <!-- Common IP Reference -->
+      <div>
+        <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.65rem;">📚 Famous IP Addresses</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.5rem;">
+          <div onclick="lookupFromTool('8.8.8.8')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">8.8.8.8</div>
+            <div style="font-size:.68rem;color:var(--text2);">Google DNS (Primary)</div>
+          </div>
+          <div onclick="lookupFromTool('8.8.4.4')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">8.8.4.4</div>
+            <div style="font-size:.68rem;color:var(--text2);">Google DNS (Secondary)</div>
+          </div>
+          <div onclick="lookupFromTool('1.1.1.1')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">1.1.1.1</div>
+            <div style="font-size:.68rem;color:var(--text2);">Cloudflare DNS</div>
+          </div>
+          <div onclick="lookupFromTool('9.9.9.9')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">9.9.9.9</div>
+            <div style="font-size:.68rem;color:var(--text2);">Quad9 DNS</div>
+          </div>
+          <div onclick="lookupFromTool('208.67.222.222')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85mm;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">208.67.222.222</div>
+            <div style="font-size:.68rem;color:var(--text2);">OpenDNS</div>
+          </div>
+          <div onclick="lookupFromTool('192.168.1.1')" style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-family:var(--mono);color:var(--a1);font-size:.8rem;font-weight:600;">192.168.1.1</div>
+            <div style="font-size:.68rem;color:var(--text2);">Common Router Default</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main-wrap -->
+
+<!-- SEO SECTION -->
+<div class="seo-wrap">
+  <h2>Why Use KJSynthora IP Address Lookup?</h2>
+  <div class="feat-grid">
+    <div class="fc"><div class="fi">⚡</div><h3>Instant Lookup</h3><p>Get complete IP geolocation data in under a second. Country, city, ISP, timezone, coordinates.</p></div>
+    <div class="fc"><div class="fi">📦</div><h3>Bulk Lookup</h3><p>Look up 20 IP addresses at once. Perfect for log analysis, security auditing, and network monitoring.</p></div>
+    <div class="fc"><div class="fi">🔒</div><h3>VPN Detection</h3><p>Detect if an IP belongs to a VPN, proxy, datacenter, or TOR exit node.</p></div>
+    <div class="fc"><div class="fi">📍</div><h3>Map View</h3><p>See the approximate geographic location of any IP address on a map with coordinates.</p></div>
+    <div class="fc"><div class="fi">🛠️</div><h3>Network Tools</h3><p>IP validator, IP to integer converter, CIDR subnet calculator — all in one place.</p></div>
+    <div class="fc"><div class="fi">📊</div><h3>Export Results</h3><p>Export IP lookup results as JSON or CSV for further analysis or reporting.</p></div>
+  </div>
+
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is an IP address lookup?</div><div class="faq-a">An IP address lookup finds geographic and network information associated with an IP address. It can reveal the country, city, ISP (Internet Service Provider), timezone, latitude/longitude coordinates, and whether the IP is associated with a VPN or proxy. This tool uses free geolocation APIs to provide this information instantly.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How accurate is IP geolocation?</div><div class="faq-a">IP geolocation is typically 95%+ accurate at the country level, 50-80% accurate at the city level. Mobile networks, VPNs, and corporate proxies can reduce accuracy significantly. The location shows where the internet connection is registered (typically ISP headquarters or data center), not the exact physical location of the user.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is my IP address?</div><div class="faq-a">Click the "My IP" button to instantly see your current public IP address. This is the IP address that websites and online services see when you connect to the internet. If you're using a VPN, this will show the VPN server's IP, not your actual IP.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is the difference between IPv4 and IPv6?</div><div class="faq-a">IPv4 uses 32-bit addresses (e.g., 192.168.1.1) supporting about 4.3 billion unique addresses. IPv6 uses 128-bit addresses (e.g., 2001:db8::1) supporting virtually unlimited addresses. IPv6 was introduced to solve IPv4 exhaustion. Our tool supports both formats.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I look up multiple IP addresses at once?</div><div class="faq-a">Yes! Use the Bulk Lookup tab to enter up to 20 IP addresses (one per line) and look them all up simultaneously. Results can be exported as CSV for analysis in Excel or Google Sheets.</div></div>
+
+  <h2 style="margin-top:2rem;">Related Network & Security Tools</h2>
+  <div class="rel-grid">
+    <a class="rel-card" href="https://kjsynthora.com/tools/dns-lookup.html"><div class="ri">🌐</div><div class="rn">DNS Lookup</div><div class="rd">Query DNS records</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/whois-lookup.html"><div class="ri">🔎</div><div class="rn">WHOIS Lookup</div><div class="rd">Domain ownership info</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/password-generator.html"><div class="ri">🔐</div><div class="rn">Password Generator</div><div class="rd">Secure random passwords</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/uuid-generator.html"><div class="ri">🆔</div><div class="rn">UUID Generator</div><div class="rd">Generate unique IDs</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/hash-generator.html"><div class="ri">🔏</div><div class="rn">Hash Generator</div><div class="rd">MD5, SHA-256 hashes</div></a>
+    <a class="rel-card" href="https://kjsynthora.com/tools/regex-tester.html"><div class="ri">.*</div><div class="rn">Regex Tester</div><div class="rd">Test regex patterns</div></a>
+  </div>
+
+  <div class="support-section">
+    <h3>❤️ Support KJSynthora</h3>
+    <p>All 90+ tools are completely free. If this IP lookup tool saved your time, consider supporting!</p>
+    <div class="sup-btns">
+      <a href="https://kjsynthora.com/support.html" class="sup-btn upi">📱 UPI / PhonePe</a>
+      <a href="https://www.paypal.com/paypalme/kjsynthora" target="_blank" rel="noopener" class="sup-btn paypal">💙 PayPal</a>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="bb-links">
+    <a class="bb-link hl" href="https://kjsynthora.com/tools/dns-lookup.html">DNS Lookup</a>
+    <a class="bb-link" href="https://kjsynthora.com/tools/whois-lookup.html">WHOIS</a>
+    <a class="bb-link" href="https://kjsynthora.com/tools/password-generator.html">Password Gen</a>
+    <a class="bb-link" href="https://kjsynthora.com/">🏠 Home</a>
+  </div>
+  <a class="coffee-btn" href="https://kjsynthora.com/support.html">☕ Support KJSynthora</a>
+</div>
+
+<footer>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · All Rights Reserved ·
+    <a href="https://kjsynthora.com/privacy-policy.html">Privacy</a> ·
+    <a href="https://kjsynthora.com/terms.html">Terms</a> ·
+    <a href="https://kjsynthora.com/about.html">About</a>
+  </p>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let currentResult = null;
+let lookupHistory = JSON.parse(localStorage.getItem('ipHistory') || '[]');
+let bulkData = [];
+
+// ── TABS ──
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tool-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'history') renderHistory();
+}
+
+// ── VALIDATE INPUT ──
+function validateIPInput() {
+  const val = document.getElementById('ipInput').value.trim();
+  const btn = document.getElementById('lookupBtn');
+  btn.textContent = val ? '🔍 Lookup IP' : '📡 Auto-Detect';
+}
+
+// ── IP LOOKUP ──
+async function lookupIP() {
+  const ip = document.getElementById('ipInput').value.trim();
+  await performLookup(ip || '');
+}
+
+async function lookupMyIP() {
+  document.getElementById('ipInput').value = '';
+  await performLookup('');
+}
+
+function lookupFromTool(ip) {
+  switchTab('single', document.querySelectorAll('.tool-tab')[0]);
+  document.getElementById('ipInput').value = ip;
+  performLookup(ip);
+}
+
+async function performLookup(ip) {
+  const spinner = document.getElementById('loadingSpinner');
+  const resultsSection = document.getElementById('resultsSection');
+  const emptyState = document.getElementById('emptyState');
+  const btn = document.getElementById('lookupBtn');
+
+  spinner.classList.add('show');
+  resultsSection.style.display = 'none';
+  emptyState.style.display = 'none';
+  btn.disabled = true;
+
+  try {
+    const url = ip ? `https://ipapi.co/${ip}/json/` : `https://ipapi.co/json/`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.reason || 'Invalid IP');
+
+    currentResult = data;
+    renderResults(data);
+    addToHistory(data);
+
+    spinner.classList.remove('show');
+    resultsSection.style.display = 'block';
+  } catch(e) {
+    spinner.classList.remove('show');
+    emptyState.style.display = 'block';
+    emptyState.innerHTML = `<div class="es-icon">❌</div><p style="color:var(--red);">${e.message}</p>`;
+    showToast('❌ ' + e.message, 'error');
+  }
+  btn.disabled = false;
+}
+
+function renderResults(d) {
+  // IP DISPLAY
+  document.getElementById('displayIP').textContent = d.ip || '—';
+  document.getElementById('ipTypeBadge').textContent = d.version || 'IPv4';
+  document.getElementById('countryFlag').textContent = getFlag(d.country_code || '');
+  
+  // VPN detection heuristic
+  const isDatacenter = d.org && (d.org.toLowerCase().includes('amazon') || d.org.toLowerCase().includes('google') || d.org.toLowerCase().includes('digitalocean') || d.org.toLowerCase().includes('ovh') || d.org.toLowerCase().includes('linode') || d.org.toLowerCase().includes('vultr'));
+  const vpnBadge = document.getElementById('vpnBadge');
+  if (isDatacenter) {
+    vpnBadge.textContent = '⚠ Datacenter IP';
+    vpnBadge.className = 'vpn-badge detected';
+  } else {
+    vpnBadge.textContent = '✓ Clean IP';
+    vpnBadge.className = 'vpn-badge clean';
+  }
+
+  // RESULTS GRID
+  const grid = document.getElementById('resultsGrid');
+  const fields = [
+    { label: '🌍 Country', value: (d.country_name || '—') + ' (' + (d.country_code || '—') + ')', cls: 'highlight' },
+    { label: '🏙️ City', value: d.city || '—', cls: '' },
+    { label: '📍 Region', value: d.region || '—', cls: '' },
+    { label: '📡 ISP / Org', value: d.org || '—', cls: '' },
+    { label: '🏢 ASN', value: d.asn || '—', cls: '' },
+    { label: '🕐 Timezone', value: d.timezone || '—', cls: 'green' },
+    { label: '📮 Postal Code', value: d.postal || '—', cls: '' },
+    { label: '🌐 Country Code', value: d.country_code || '—', cls: '' },
+    { label: '📞 Country Calling', value: d.country_calling_code || '—', cls: '' },
+    { label: '💱 Currency', value: (d.currency_name || '—') + ' (' + (d.currency || '—') + ')', cls: '' },
+    { label: '🗣️ Languages', value: d.languages || '—', cls: '' },
+    { label: '🌐 Network', value: d.network || '—', cls: '' },
+  ];
+
+  grid.innerHTML = fields.map(f => `
+    <div class="result-card">
+      <div class="rc-label">${f.label}</div>
+      <div class="rc-value ${f.cls}">${f.value}</div>
+    </div>`).join('');
+
+  // MAP
+  const lat = d.latitude, lon = d.longitude;
+  if (lat && lon) {
+    document.getElementById('mapCoords').textContent = lat.toFixed(4) + '°, ' + lon.toFixed(4) + '°';
+    document.getElementById('mapOpenBtn').href = `https://www.google.com/maps?q=${lat},${lon}`;
+    // Load OpenStreetMap iframe
+    const frame = document.getElementById('mapFrame');
+    frame.innerHTML = `<iframe 
+      src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-2},${lat-2},${lon+2},${lat+2}&layer=mapnik&marker=${lat},${lon}"
+      width="100%" height="280" frameborder="0" scrolling="no" 
+      style="border:none;display:block;"
+      loading="lazy"></iframe>`;
+  }
+}
+
+// ── HISTORY ──
+function addToHistory(d) {
+  const entry = { ip: d.ip, country: d.country_name, city: d.city, org: d.org, time: new Date().toLocaleTimeString(), data: d };
+  lookupHistory = [entry, ...lookupHistory.filter(h => h.ip !== d.ip)].slice(0, 20);
+  try { localStorage.setItem('ipHistory', JSON.stringify(lookupHistory.map(h => ({...h, data: undefined})))); } catch(e) {}
+  document.getElementById('histCount').textContent = lookupHistory.length;
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  document.getElementById('histCount').textContent = lookupHistory.length;
+  if (!lookupHistory.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">📜</div><p>No lookup history yet.</p></div>';
+    return;
+  }
+  list.innerHTML = lookupHistory.map(h => `
+    <div class="hist-item" onclick="lookupFromTool('${h.ip}')">
+      <div class="hist-ip">${h.ip}</div>
+      <div class="hist-info">${h.country || '—'}, ${h.city || '—'}<br>${h.org || '—'}</div>
+      <div class="hist-time">${h.time}</div>
+    </div>`).join('');
+}
+
+function clearHistory() {
+  lookupHistory = [];
+  try { localStorage.removeItem('ipHistory'); } catch(e) {}
+  renderHistory();
+  showToast('History cleared');
+}
+
+// ── BULK LOOKUP ──
+async function bulkLookup() {
+  const lines = document.getElementById('bulkInput').value.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 20);
+  if (!lines.length) { showToast('⚠ Enter at least one IP', 'error'); return; }
+
+  const container = document.getElementById('bulkResults');
+  container.innerHTML = `<div class="bulk-row header"><span>IP Address</span><span>Country</span><span>City</span><span>ISP</span></div>`;
+  bulkData = [];
+
+  for (const ip of lines) {
+    try {
+      const res = await fetch(`https://ipapi.co/${ip}/json/`);
+      const d = await res.json();
+      if (!d.error) {
+        bulkData.push(d);
+        const row = document.createElement('div');
+        row.className = 'bulk-row';
+        row.innerHTML = `<span class="ip-cell">${d.ip}</span><span>${getFlag(d.country_code||'')} ${d.country_name||'—'}</span><span>${d.city||'—'}</span><span>${(d.org||'—').slice(0,25)}</span>`;
+        container.appendChild(row);
+      }
+    } catch(e) {
+      const row = document.createElement('div');
+      row.className = 'bulk-row';
+      row.innerHTML = `<span class="ip-cell" style="color:var(--red);">${ip}</span><span colspan="3">Error</span>`;
+      container.appendChild(row);
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+  document.getElementById('exportBulkBtn').disabled = bulkData.length === 0;
+  showToast('✅ Bulk lookup complete!');
+}
+
+function loadSampleIPs() {
+  document.getElementById('bulkInput').value = '8.8.8.8\n1.1.1.1\n208.67.222.222\n9.9.9.9\n185.228.168.9';
+}
+
+function clearBulk() {
+  document.getElementById('bulkInput').value = '';
+  document.getElementById('bulkResults').innerHTML = '<div class="empty-state"><div class="es-icon">📦</div><p>Enter IP addresses above and click Lookup All IPs</p></div>';
+  bulkData = [];
+  document.getElementById('exportBulkBtn').disabled = true;
+}
+
+function exportBulkResults() {
+  if (!bulkData.length) return;
+  const csv = ['IP,Country,City,Region,ISP,ASN,Timezone,Latitude,Longitude']
+    .concat(bulkData.map(d => `${d.ip},${d.country_name||''},${d.city||''},${d.region||''},${(d.org||'').replace(/,/g,' ')},${d.asn||''},${d.timezone||''},${d.latitude||''},${d.longitude||''}`))
+    .join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'ip-lookup-bulk.csv';
+  a.click();
+  showToast('📊 CSV exported!');
+}
+
+// ── EXPORT ──
+function copyResults() {
+  if (!currentResult) return;
+  const d = currentResult;
+  const text = `IP: ${d.ip}\nCountry: ${d.country_name}\nCity: ${d.city}\nISP: ${d.org}\nTimezone: ${d.timezone}\nCoords: ${d.latitude}, ${d.longitude}`;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Copied!'));
+}
+
+function exportJSON() {
+  if (!currentResult) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(currentResult, null, 2)], {type:'application/json'}));
+  a.download = `ip-${currentResult.ip}-lookup.json`;
+  a.click();
+  showToast('📥 JSON exported!');
+}
+
+function exportCSV() {
+  if (!currentResult) return;
+  const d = currentResult;
+  const csv = 'Field,Value\n' + Object.entries(d).map(([k,v]) => `${k},"${v}"`).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = `ip-${d.ip}-lookup.csv`;
+  a.click();
+  showToast('📊 CSV exported!');
+}
+
+function shareIP() {
+  const ip = currentResult?.ip || '';
+  const url = `${window.location.href.split('?')[0]}?ip=${ip}`;
+  navigator.clipboard.writeText(url).then(() => showToast('🔗 Share URL copied!'));
+}
+
+// ── NETWORK TOOLS ──
+function validateIPTool() {
+  const ip = document.getElementById('validateInput').value.trim();
+  const el = document.getElementById('validateResult');
+  if (!ip) { el.textContent = '⚠ Enter an IP address'; el.style.color = 'var(--a5)'; return; }
+  
+  const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
+  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+  
+  if (ipv4.test(ip)) {
+    const parts = ip.split('.').map(Number);
+    const valid = parts.every(p => p >= 0 && p <= 255);
+    el.innerHTML = valid ? 
+      `<span style="color:var(--a4);">✅ Valid IPv4 address</span><br><span style="color:var(--text2);font-size:.72rem;">Class: ${getIPClass(parts[0])} · Private: ${isPrivate(ip) ? 'Yes' : 'No'}</span>` :
+      `<span style="color:var(--red);">❌ Invalid IPv4 — octets must be 0-255</span>`;
+  } else if (ipv6.test(ip)) {
+    el.innerHTML = `<span style="color:var(--a4);">✅ Valid IPv6 address</span>`;
+  } else {
+    el.innerHTML = `<span style="color:var(--red);">❌ Invalid IP address format</span>`;
+  }
+}
+
+function getIPClass(first) {
+  if (first < 128) return 'Class A';
+  if (first < 192) return 'Class B';
+  if (first < 224) return 'Class C';
+  if (first < 240) return 'Class D (Multicast)';
+  return 'Class E (Reserved)';
+}
+
+function isPrivate(ip) {
+  const [a,b] = ip.split('.').map(Number);
+  return a===10 || (a===172&&b>=16&&b<=31) || (a===192&&b===168);
+}
+
+function ipToInt() {
+  const ip = document.getElementById('ipToIntInput').value.trim();
+  const el = document.getElementById('ipToIntResult');
+  const parts = ip.split('.');
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+    el.innerHTML = '<span style="color:var(--red);">❌ Enter a valid IPv4 address</span>'; return;
+  }
+  const int = ((parseInt(parts[0]) << 24) | (parseInt(parts[1]) << 16) | (parseInt(parts[2]) << 8) | parseInt(parts[3])) >>> 0;
+  const hex = '0x' + int.toString(16).toUpperCase().padStart(8, '0');
+  el.innerHTML = `<div style="display:grid;gap:4px;">
+    <div><span style="color:var(--muted);font-size:.68rem;">DECIMAL: </span><span style="color:var(--a1);">${int}</span></div>
+    <div><span style="color:var(--muted);font-size:.68rem;">HEX: </span><span style="color:var(--a4);">${hex}</span></div>
+    <div><span style="color:var(--muted);font-size:.68rem;">BINARY: </span><span style="color:var(--a2);font-size:.68rem;">${int.toString(2).padStart(32,'0')}</span></div>
+  </div>`;
+}
+
+function cidrCalc() {
+  const cidr = document.getElementById('cidrInput').value.trim();
+  const el = document.getElementById('cidrResult');
+  const [ip, prefix] = cidr.split('/');
+  const pfx = parseInt(prefix);
+  if (!ip || isNaN(pfx) || pfx < 0 || pfx > 32) {
+    el.innerHTML = '<span style="color:var(--red);">❌ Enter valid CIDR (e.g. 192.168.1.0/24)</span>'; return;
+  }
+  const mask = pfx === 0 ? 0 : (~0 << (32 - pfx)) >>> 0;
+  const maskStr = [(mask>>>24)&255,(mask>>>16)&255,(mask>>>8)&255,mask&255].join('.');
+  const parts = ip.split('.').map(Number);
+  const ipInt = ((parts[0]<<24)|(parts[1]<<16)|(parts[2]<<8)|parts[3]) >>> 0;
+  const netInt = (ipInt & mask) >>> 0;
+  const bcastInt = (netInt | (~mask >>> 0)) >>> 0;
+  const hosts = pfx >= 31 ? Math.pow(2,32-pfx) : Math.pow(2,32-pfx) - 2;
+  const intToIP = n => [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+  el.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">Network</div><div style="color:var(--a1);font-size:.78rem;">${intToIP(netInt)}</div></div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">Broadcast</div><div style="color:var(--a4);font-size:.78rem;">${intToIP(bcastInt)}</div></div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">Subnet Mask</div><div style="color:var(--text2);font-size:.78rem;">${maskStr}</div></div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">Usable Hosts</div><div style="color:var(--a5);font-size:.78rem;">${hosts.toLocaleString()}</div></div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">First Host</div><div style="color:var(--text);font-size:.78rem;">${intToIP(netInt+1)}</div></div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;"><div style="font-size:.65rem;color:var(--muted);">Last Host</div><div style="color:var(--text);font-size:.78rem;">${intToIP(bcastInt-1)}</div></div>
+  </div>`;
+}
+
+// ── UTILS ──
+function getFlag(code) {
+  if (!code || code.length !== 2) return '🌍';
+  try { return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E0 + c.charCodeAt(0) - 65)); }
+  catch(e) { return '🌍'; }
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type==='error' ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 2600);
+}
+
+// ── INIT ──
+renderHistory();
+document.getElementById('histCount').textContent = lookupHistory.length;
+
+// URL param auto-lookup
+const urlIP = new URLSearchParams(window.location.search).get('ip');
+if (urlIP) { document.getElementById('ipInput').value = urlIP; performLookup(urlIP); }
+else { lookupMyIP(); } // auto-detect on load
+</script>
+</body>
+</html>
