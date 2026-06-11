@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rewrite Desk — SEO Paraphraser & Blog Toolkit</title>
+<style>
+  :root{
+    --paper:#f6f1e7;
+    --ink:#23201b;
+    --ink-soft:#5a5247;
+    --rule:#d8cfbd;
+    --accent:#b3552c;
+    --accent-soft:#e9d3c4;
+    --good:#3f6b4f;
+    --good-bg:#e3ecе3;
+    --warn:#a8742c;
+    --mono: 'Courier New', ui-monospace, SFMono-Regular, monospace;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    background-image:
+      linear-gradient(var(--paper),var(--paper)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(90,82,71,0.05) 28px);
+  }
+  header{
+    border-bottom:3px double var(--ink);
+    padding:28px 24px 18px;
+    text-align:center;
+  }
+  header .kicker{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:6px;
+  }
+  header h1{
+    font-family:var(--serif);
+    font-size:42px;
+    margin:0;
+    font-weight:700;
+    letter-spacing:.5px;
+  }
+  header p{
+    font-family:var(--serif);
+    font-style:italic;
+    color:var(--ink-soft);
+    margin:8px 0 0;
+    font-size:15px;
+  }
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding:24px;
+  }
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    margin-bottom:16px;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .toolbar label{color:var(--ink-soft);}
+  select, button.btn{
+    font-family:var(--mono);
+    font-size:13px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    padding:8px 12px;
+    border-radius:0;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  select:hover, button.btn:hover{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  button.primary{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+    font-weight:bold;
+  }
+  button.primary:hover{
+    background:#8f3f1f;
+    border-color:#8f3f1f;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media(max-width:880px){.grid{grid-template-columns:1fr;}}
+  .panel{
+    border:2px solid var(--ink);
+    background:rgba(255,255,255,0.45);
+    display:flex;
+    flex-direction:column;
+  }
+  .panel-head{
+    border-bottom:2px solid var(--ink);
+    padding:8px 14px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--accent-soft);
+  }
+  textarea, .output{
+    width:100%;
+    border:none;
+    background:transparent;
+    resize:vertical;
+    min-height:320px;
+    padding:16px;
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.7;
+    color:var(--ink);
+  }
+  textarea:focus{outline:none;}
+  .output{overflow-y:auto;white-space:pre-wrap;}
+  mark.swap{
+    background:#f3e0ad;
+    padding:0 2px;
+    border-bottom:1px dashed var(--accent);
+    cursor:help;
+  }
+  .stats-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    border:2px solid var(--ink);
+    border-top:none;
+    margin-bottom:18px;
+  }
+  .stat{
+    flex:1;
+    min-width:120px;
+    text-align:center;
+    padding:10px 6px;
+    border-right:1px solid var(--rule);
+    font-family:var(--mono);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{font-size:22px;font-weight:bold;}
+  .stat .lbl{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-soft);}
+  section.tools{
+    margin-top:28px;
+  }
+  h2.section-title{
+    font-family:var(--serif);
+    font-size:22px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:6px;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  h2.section-title .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    background:var(--ink);
+    color:var(--paper);
+    padding:2px 8px;
+    letter-spacing:.15em;
+  }
+  .seo-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .card{
+    border:2px solid var(--ink);
+    background:rgba(255,255,255,0.45);
+    padding:14px;
+  }
+  .card h3{
+    font-family:var(--mono);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    margin:0 0 10px;
+    color:var(--accent);
+  }
+  .density-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px;}
+  .density-table th,.density-table td{
+    text-align:left;padding:4px 6px;border-bottom:1px solid var(--rule);
+  }
+  .bar{
+    height:6px;background:var(--rule);position:relative;margin-top:3px;
+  }
+  .bar i{
+    display:block;height:100%;background:var(--accent);
+  }
+  .meta-field{margin-bottom:12px;}
+  .meta-field label{
+    display:block;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px;
+  }
+  .meta-field textarea, .meta-field input{
+    width:100%;font-family:var(--serif);font-size:14px;
+    border:1.5px solid var(--rule);background:#fff;padding:8px;min-height:auto;
+  }
+  .meta-field .count{font-family:var(--mono);font-size:10px;color:var(--ink-soft);text-align:right;margin-top:2px;}
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .pill{
+    font-family:var(--mono);font-size:11px;border:1px solid var(--ink);padding:2px 8px;
+    background:var(--good-bg);
+  }
+  .readability-badge{
+    display:inline-block;font-family:var(--mono);font-weight:bold;
+    border:2px solid var(--ink);padding:6px 14px;font-size:14px;
+  }
+  footer{
+    text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+    padding:30px 0;letter-spacing:.1em;
+  }
+  ::selection{background:var(--accent-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Plain Words / SEO Edition</div>
+  <h1>Rewrite Desk</h1>
+  <p>A paraphraser & blog optimizer for writers who edit on paper before they edit on screen.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="toolbar">
+    <label for="mode">Tone:</label>
+    <select id="mode">
+      <option value="standard">Standard</option>
+      <option value="formal">Formal</option>
+      <option value="casual">Casual / Blog</option>
+      <option value="fluent">Fluency</option>
+      <option value="creative">Creative</option>
+      <option value="seo">SEO-friendly (keyword-aware)</option>
+      <option value="shorten">Shorten</option>
+      <option value="expand">Expand</option>
+    </select>
+
+    <label for="strength">Strength:</label>
+    <select id="strength">
+      <option value="0.3">Light</option>
+      <option value="0.6" selected>Balanced</option>
+      <option value="0.9">Heavy</option>
+    </select>
+
+    <label for="keyword">Focus keyword:</label>
+    <input id="keyword" type="text" placeholder="e.g. content marketing"
+      style="font-family:var(--mono);font-size:13px;border:1.5px solid var(--ink);padding:8px;background:#fff;min-width:160px;">
+
+    <button class="btn primary" id="rewriteBtn">Rewrite ⤳</button>
+    <button class="btn" id="copyBtn">Copy output</button>
+    <button class="btn" id="swapBtn">⇄ Use output as input</button>
+    <button class="btn" id="clearBtn">Clear</button>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head"><span>Original</span><span id="inCount">0 words</span></div>
+      <textarea id="inputText" placeholder="Paste your article, paragraph, or sentence here…"></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span>Rewritten <span style="font-weight:normal;opacity:.7">(swapped words underlined)</span></span><span id="outCount">0 words</span></div>
+      <div class="output" id="outputText">Your rewritten text will appear here.</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat"><div class="num" id="statWords">0</div><div class="lbl">Words</div></div>
+    <div class="stat"><div class="num" id="statChars">0</div><div class="lbl">Characters</div></div>
+    <div class="stat"><div class="num" id="statSentences">0</div><div class="lbl">Sentences</div></div>
+    <div class="stat"><div class="num" id="statReadTime">0 min</div><div class="lbl">Read Time</div></div>
+    <div class="stat"><div class="num" id="statGrade">–</div><div class="lbl">Grade Level</div></div>
+    <div class="stat"><div class="num" id="statSwaps">0</div><div class="lbl">Words Swapped</div></div>
+  </div>
+
+  <section class="tools">
+    <h2 class="section-title"><span class="tag">SEO</span> Keyword Density</h2>
+    <div class="seo-grid">
+      <div class="card">
+        <h3>Top Phrases (Original)</h3>
+        <table class="density-table" id="densityTable"><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <h3>Focus Keyword Check</h3>
+        <div id="kwCheck" style="font-family:var(--mono);font-size:13px;">Enter a focus keyword above and rewrite to analyze.</div>
+      </div>
+      <div class="card">
+        <h3>Readability Snapshot</h3>
+        <div id="readSnapshot" style="font-family:var(--mono);font-size:13px;line-height:2;"></div>
+      </div>
+    </div>
+
+    <h2 class="section-title"><span class="tag">Blog</span> Meta & Headline Generator</h2>
+    <div class="seo-grid">
+      <div class="card">
+        <h3>Meta Title</h3>
+        <div class="meta-field">
+          <textarea id="metaTitle" rows="2" readonly></textarea>
+          <div class="count" id="metaTitleCount">0 / 60 chars</div>
+        </div>
+        <h3 style="margin-top:14px;">Meta Description</h3>
+        <div class="meta-field">
+          <textarea id="metaDesc" rows="3" readonly></textarea>
+          <div class="count" id="metaDescCount">0 / 160 chars</div>
+        </div>
+        <button class="btn" id="genMetaBtn" style="width:100%;margin-top:6px;">Generate from rewritten text</button>
+      </div>
+      <div class="card">
+        <h3>Headline Variants</h3>
+        <div id="headlineList" style="font-family:var(--serif);font-size:14px;line-height:2;">Generate to see 5 SEO-style headline ideas.</div>
+        <button class="btn" id="genHeadlineBtn" style="width:100%;margin-top:6px;">Generate headlines</button>
+      </div>
+      <div class="card">
+        <h3>Slug & Tags</h3>
+        <div class="meta-field">
+          <label>URL slug</label>
+          <input id="slugOut" readonly>
+        </div>
+        <div class="meta-field">
+          <label>Suggested tags</label>
+          <div class="pill-row" id="tagOut"></div>
+        </div>
+        <button class="btn" id="genSlugBtn" style="width:100%;margin-top:6px;">Generate slug & tags</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>REWRITE DESK · 100% client-side · nothing you type leaves your browser</footer>
+
+<script>
+/* ========================================================================
+   SYNONYM DATABASE — common words mapped to alternates per register
+   ======================================================================== */
+const THESAURUS = {
+  "good":["great","solid","decent","fine","positive"],
+  "bad":["poor","weak","subpar","negative","unfavorable"],
+  "big":["large","sizable","substantial","major","considerable"],
+  "small":["minor","modest","compact","slight","limited"],
+  "important":["crucial","vital","key","significant","essential"],
+  "use":["utilize","employ","apply","leverage","make use of"],
+  "show":["demonstrate","reveal","display","illustrate","highlight"],
+  "help":["assist","support","aid","facilitate","enable"],
+  "make":["create","produce","build","generate","craft"],
+  "get":["obtain","acquire","gain","secure","receive"],
+  "start":["begin","launch","initiate","kick off","commence"],
+  "end":["finish","conclude","wrap up","complete","close"],
+  "think":["believe","consider","feel","reckon","suppose"],
+  "fast":["quick","rapid","swift","speedy","brisk"],
+  "slow":["gradual","unhurried","sluggish","leisurely","measured"],
+  "easy":["simple","straightforward","effortless","manageable","accessible"],
+  "hard":["difficult","challenging","tough","demanding","tricky"],
+  "very":["extremely","highly","remarkably","notably","exceptionally"],
+  "many":["numerous","several","plenty of","a range of","various"],
+  "few":["a handful of","limited","scarce","sparse","not many"],
+  "people":["individuals","folks","readers","audience","users"],
+  "company":["business","organization","firm","brand","enterprise"],
+  "product":["offering","solution","item","service","tool"],
+  "increase":["boost","raise","grow","elevate","amplify"],
+  "decrease":["reduce","lower","cut","diminish","shrink"],
+  "important":["crucial","vital","significant","key","essential"],
+  "but":["however","yet","that said","on the other hand","still"],
+  "also":["additionally","furthermore","moreover","plus","as well"],
+  "because":["since","as","given that","due to the fact that","considering that"],
+  "however":["nevertheless","that said","still","yet","on the flip side"],
+  "today":["nowadays","currently","these days","at present","right now"],
+  "shows":["demonstrates","reveals","indicates","highlights","reflects"],
+  "create":["build","develop","produce","craft","generate"],
+  "improve":["enhance","refine","upgrade","boost","optimize"],
+  "understand":["grasp","comprehend","recognize","follow","appreciate"],
+  "different":["distinct","varied","diverse","unique","alternative"],
+  "great":["excellent","outstanding","superb","fantastic","impressive"],
+  "issue":["problem","challenge","concern","matter","obstacle"],
+  "method":["approach","technique","process","strategy","procedure"],
+  "result":["outcome","effect","consequence","finding","conclusion"],
+  "idea":["concept","notion","approach","thought","plan"],
+  "way":["method","approach","manner","route","means"],
+  "need":["require","want","demand","call for","necessitate"],
+  "give":["provide","offer","deliver","supply","grant"],
+  "find":["discover","identify","locate","uncover","spot"],
+  "look":["appear","seem","look like","come across as","present as"],
+  "tell":["inform","explain to","let know","communicate to","notify"],
+  "say":["state","mention","note","remark","point out"],
+  "want":["wish","desire","seek","aim for","hope for"],
+  "key":["essential","central","critical","core","fundamental"],
+  "best":["top","optimal","finest","ideal","leading"],
+  "popular":["widely-used","well-known","trending","in-demand","favored"],
+  "current":["present","existing","ongoing","up-to-date","latest"],
+  "simple":["straightforward","basic","plain","uncomplicated","easy"],
+  "more":["additional","further","greater","extra","increased"],
+  "now":["currently","at this point","right now","presently","today"],
+  "however":["that said","nevertheless","still","yet","on the other hand"],
+  "therefore":["thus","hence","as a result","consequently","so"],
+  "additionally":["also","furthermore","moreover","on top of that","plus"]
+};
+
+const FILLERS = {
+  formal:[" indeed"," in fact"," notably"," importantly"," consequently"],
+  casual:[" honestly"," basically"," you know"," really"," to be fair"],
+  fluent:[" "," "," "],
+  creative:[" interestingly"," surprisingly"," remarkably"," strikingly"," vividly"]
+};
+
+const STOPWORDS = new Set(("a an the and or but if of to in on for with as at by from is are was were be been being this that these those it its "+
+  "i you he she we they will would can could should may might do does did not no so than then there here than which who whom").split(" "));
+
+/* ========================================================================
+   HELPERS
+   ======================================================================== */
+function wordList(text){
+  return (text.toLowerCase().match(/[a-z']+/g) || []);
+}
+function countSentences(text){
+  const m = text.match(/[^.!?]+[.!?]+|\S+$/g);
+  return m ? m.filter(s=>s.trim().length>0).length : (text.trim()?1:0);
+}
+function countSyllables(word){
+  word = word.toLowerCase().replace(/[^a-z]/g,"");
+  if(word.length<=3) return 1;
+  word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'');
+  word = word.replace(/^y/,'');
+  const m = word.match(/[aeiouy]{1,2}/g);
+  return m ? m.length : 1;
+}
+function fleschKincaid(text){
+  const words = wordList(text);
+  const sentences = Math.max(countSentences(text),1);
+  const syll = words.reduce((s,w)=>s+countSyllables(w),0);
+  if(words.length===0) return {grade:0,ease:0};
+  const ease = 206.835 - 1.015*(words.length/sentences) - 84.6*(syll/words.length);
+  const grade = 0.39*(words.length/sentences) + 11.8*(syll/words.length) - 15.59;
+  return {grade: Math.max(0,grade), ease: Math.max(0,Math.min(100,ease))};
+}
+function readingLevelLabel(grade){
+  if(grade<6) return "Very Easy";
+  if(grade<8) return "Easy";
+  if(grade<10) return "Fairly Easy";
+  if(grade<12) return "Standard";
+  if(grade<14) return "Fairly Hard";
+  return "Difficult / Academic";
+}
+function pickAlt(word, list, strength){
+  // chance to swap based on strength
+  if(Math.random() > strength) return null;
+  const idx = Math.floor(Math.random()*list.length);
+  return list[idx];
+}
+function matchCase(src, replacement){
+  if(src === src.toUpperCase() && src.length>1) return replacement.toUpperCase();
+  if(src[0] === src[0].toUpperCase()) return replacement.charAt(0).toUpperCase()+replacement.slice(1);
+  return replacement;
+}
+
+/* sentence splitter that keeps punctuation */
+function splitSentences(text){
+  return text.match(/[^.!?]+[.!?]*\s*/g) || [text];
+}
+
+/* ========================================================================
+   CORE PARAPHRASE ENGINE
+   ======================================================================== */
+function paraphrase(text, mode, strength, focusKeyword){
+  let swapCount = 0;
+  const sentences = splitSentences(text);
+  const fillerSet = FILLERS[mode] || FILLERS.fluent;
+
+  const out = sentences.map((sentRaw, sIdx) => {
+    let sent = sentRaw;
+    const trailingSpace = sent.match(/\s*$/)[0];
+    let core = sent.slice(0, sent.length - trailingSpace.length);
+
+    // tokenize keeping word boundaries
+    const tokens = core.split(/(\b)/);
+    let result = "";
+    for(let tok of tokens){
+      const lower = tok.toLowerCase();
+      const cleanWord = lower.replace(/[^a-z']/g,"");
+      if(THESAURUS[cleanWord] && !STOPWORDS.has(cleanWord)){
+        // don't swap the focus keyword itself, to preserve SEO targeting
+        const isFocus = focusKeyword && cleanWord === focusKeyword.toLowerCase().trim();
+        if(!isFocus){
+          const alt = pickAlt(cleanWord, THESAURUS[cleanWord], strength);
+          if(alt){
+            const replaced = matchCase(tok, alt);
+            const punctTrail = tok.match(/[^a-zA-Z']*$/)[0];
+            result += `<mark class="swap" title="original: ${tok.replace(/[^a-zA-Z']*$/,'')}">${replaced}</mark>${punctTrail}`;
+            swapCount++;
+            continue;
+          }
+        }
+      }
+      result += tok;
+    }
+    core = result;
+
+    // structural transforms by mode
+    if(mode==="formal"){
+      core = core.replace(/\bcan't\b/gi,"cannot").replace(/\bdon't\b/gi,"do not")
+                 .replace(/\bisn't\b/gi,"is not").replace(/\bit's\b/gi,"it is")
+                 .replace(/\bwon't\b/gi,"will not").replace(/\bI'm\b/gi,"I am");
+    }
+    if(mode==="casual"){
+      core = core.replace(/\bcannot\b/gi,"can't").replace(/\bdo not\b/gi,"don't")
+                 .replace(/\bis not\b/gi,"isn't").replace(/\bit is\b/gi,"it's");
+    }
+    if(mode==="seo" && focusKeyword){
+      // ensure focus keyword density isn't diluted; lightly reinforce in some sentences
+      if(sIdx % 4 === 0 && !core.toLowerCase().includes(focusKeyword.toLowerCase())){
+        core = core.trim();
+        if(core) core += ` — especially when it comes to ${focusKeyword}`;
+      }
+    }
+    if(mode==="shorten"){
+      core = core.replace(/,\s*(which|that|who)\s[^,.!?]*/gi,"")
+                 .replace(/\b(very|really|quite|just|actually|basically|simply)\s/gi,"")
+                 .replace(/\bin order to\b/gi,"to");
+    }
+    if(mode==="expand" && core.trim().length>0){
+      const expanders = [
+        " — a point worth dwelling on",
+        ", which deserves a closer look",
+        ", and this matters more than it might first appear",
+        ", a detail that shapes everything that follows"
+      ];
+      if(sIdx % 2 === 0){
+        core = core.replace(/([.!?])(\s*)$/, (m,p1,p2)=> expanders[sIdx % expanders.length] + p1 + p2);
+      }
+    }
+    if((mode==="formal"||mode==="casual"||mode==="creative") && Math.random() < strength*0.35 && core.trim().length>0){
+      const filler = fillerSet[Math.floor(Math.random()*fillerSet.length)];
+      core = core.replace(/^(\s*)(\w)/, (m,p1,p2)=> p1 + p2.toUpperCase() === p2 ? `${p1}${filler.trim().charAt(0).toUpperCase()+filler.trim().slice(1)}, ${p2.toLowerCase()}` : m);
+      // simplest safe approach: prepend filler as a clause
+      core = core.replace(/^(\s*)([A-Z])/, (m,p1,p2)=>{
+        const f = filler.trim();
+        return `${p1}${f.charAt(0).toUpperCase()+f.slice(1)}, ${p2.toLowerCase()}`;
+      });
+    }
+    if(mode==="creative" && Math.random() < strength*0.3){
+      core = core.replace(/\.\s*$/, "!");
+    }
+
+    return core + trailingSpace;
+  });
+
+  return {html: out.join(""), swapCount};
+}
+
+/* ========================================================================
+   KEYWORD DENSITY
+   ======================================================================== */
+function topPhrases(text, n=8){
+  const words = wordList(text).filter(w=>!STOPWORDS.has(w) && w.length>2);
+  const total = words.length || 1;
+  const freq = {};
+  // unigrams
+  words.forEach(w=> freq[w] = (freq[w]||0)+1 );
+  // bigrams
+  for(let i=0;i<words.length-1;i++){
+    const bg = words[i]+" "+words[i+1];
+    freq[bg] = (freq[bg]||0)+1;
+  }
+  return Object.entries(freq)
+    .filter(([k,v])=>v>1)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,n)
+    .map(([k,v])=>({phrase:k, count:v, pct: ((v / total)*100).toFixed(1)}));
+}
+
+/* ========================================================================
+   META / HEADLINE / SLUG GENERATION
+   ======================================================================== */
+function plainTextFromOutput(){
+  const div = document.getElementById('outputText');
+  return div.innerText || div.textContent || "";
+}
+
+function genMeta(){
+  const text = plainTextFromOutput().trim();
+  const kw = document.getElementById('keyword').value.trim();
+  const sentences = splitSentences(text).map(s=>s.trim()).filter(Boolean);
+  let title = sentences[0] || "Untitled Article";
+  title = title.replace(/[.!?]+$/,'');
+  if(kw && !title.toLowerCase().includes(kw.toLowerCase())){
+    title = `${capitalize(kw)}: ${title}`;
+  }
+  if(title.length>60) title = title.slice(0,57).trim()+"…";
+
+  let desc = sentences.slice(0,2).join(" ");
+  if(kw && !desc.toLowerCase().includes(kw.toLowerCase())){
+    desc = `${desc} Learn more about ${kw}.`;
+  }
+  if(desc.length>160) desc = desc.slice(0,157).trim()+"…";
+  if(!desc) desc = "Add some text and rewrite it to generate a description.";
+
+  document.getElementById('metaTitle').value = title;
+  document.getElementById('metaDesc').value = desc;
+  document.getElementById('metaTitleCount').textContent = `${title.length} / 60 chars`;
+  document.getElementById('metaDescCount').textContent = `${desc.length} / 160 chars`;
+}
+
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+function genHeadlines(){
+  const kw = document.getElementById('keyword').value.trim() || "Your Topic";
+  const k = capitalize(kw);
+  const templates = [
+    `${k}: A Complete Guide for 2026`,
+    `7 Things You Need to Know About ${k}`,
+    `How ${k} Can Improve Your Results — Starting Today`,
+    `The Ultimate Guide to ${k} (Updated)`,
+    `Why ${k} Matters More Than You Think`
+  ];
+  const list = document.getElementById('headlineList');
+  list.innerHTML = templates.map(t=>`<div>· ${t}</div>`).join("");
+}
+
+function genSlug(){
+  const titleEl = document.getElementById('metaTitle');
+  let base = titleEl.value.trim();
+  const kw = document.getElementById('keyword').value.trim();
+  if(!base) base = kw || plainTextFromOutput().split(/\s+/).slice(0,6).join(" ");
+  const slug = base.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g,"")
+    .trim()
+    .replace(/\s+/g,"-")
+    .replace(/-+/g,"-")
+    .slice(0,60).replace(/-$/,"");
+  document.getElementById('slugOut').value = "/" + (slug || "your-article-title");
+
+  const text = plainTextFromOutput();
+  const phrases = topPhrases(text, 6).map(p=>p.phrase);
+  const tags = [...new Set([kw.toLowerCase(), ...phrases].filter(Boolean))].slice(0,6);
+  document.getElementById('tagOut').innerHTML = tags.map(t=>`<span class="pill">#${t.replace(/\s+/g,'-')}</span>`).join("");
+}
+
+/* ========================================================================
+   STATS / DENSITY / READABILITY RENDER
+   ======================================================================== */
+function updateInputStats(){
+  const text = document.getElementById('inputText').value;
+  const words = wordList(text);
+  document.getElementById('inCount').textContent = `${words.length} words`;
+
+  const chars = text.length;
+  const sentences = countSentences(text);
+  const readMins = Math.max(1, Math.round(words.length/200));
+  const {grade} = fleschKincaid(text);
+
+  document.getElementById('statWords').textContent = words.length;
+  document.getElementById('statChars').textContent = chars;
+  document.getElementById('statSentences').textContent = sentences;
+  document.getElementById('statReadTime').textContent = `${readMins} min`;
+  document.getElementById('statGrade').textContent = words.length ? grade.toFixed(1) : "–";
+
+  // density table
+  const tbody = document.querySelector('#densityTable tbody');
+  const phrases = topPhrases(text);
+  if(phrases.length===0){
+    tbody.innerHTML = `<tr><td colspan="3" style="color:var(--ink-soft)">Add text to see repeated phrases.</td></tr>`;
+  } else {
+    tbody.innerHTML = `<tr><th>Phrase</th><th>Count</th><th>Density</th></tr>` +
+      phrases.map(p=>`
+        <tr>
+          <td>${p.phrase}</td>
+          <td>${p.count}</td>
+          <td style="min-width:90px">
+            ${p.pct}%
+            <div class="bar"><i style="width:${Math.min(100,p.pct*8)}%"></i></div>
+          </td>
+        </tr>`).join("");
+  }
+
+  // readability snapshot
+  const {ease} = fleschKincaid(text);
+  const label = readingLevelLabel(grade);
+  document.getElementById('readSnapshot').innerHTML = words.length ? `
+    <div>Flesch Reading Ease: <b>${ease.toFixed(1)}</b> / 100</div>
+    <div>Grade level: <span class="readability-badge">${grade.toFixed(1)} — ${label}</span></div>
+    <div>Avg. words/sentence: <b>${(words.length/Math.max(sentences,1)).toFixed(1)}</b></div>
+  ` : `<div style="color:var(--ink-soft)">Add text to see readability stats.</div>`;
+
+  // keyword check
+  updateKeywordCheck(text);
+}
+
+function updateKeywordCheck(text){
+  const kw = document.getElementById('keyword').value.trim().toLowerCase();
+  const box = document.getElementById('kwCheck');
+  if(!kw){ box.innerHTML = "Enter a focus keyword above and rewrite to analyze."; return; }
+  const words = wordList(text);
+  const total = words.length || 1;
+  const kwWords = kw.split(/\s+/);
+  let count = 0;
+  if(kwWords.length===1){
+    count = words.filter(w=>w===kwWords[0]).length;
+  } else {
+    const joined = words.join(" ");
+    const re = new RegExp("\\b"+kw.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&')+"\\b","gi");
+    count = (text.match(re)||[]).length;
+  }
+  const density = ((count*kwWords.length/total)*100).toFixed(2);
+  let verdict = "Too low — consider mentioning it more.";
+  let color = "var(--warn)";
+  if(density>=0.5 && density<=2.5){ verdict="Good density."; color="var(--good)"; }
+  if(density>2.5){ verdict="Too high — risk of keyword stuffing."; color="var(--accent)"; }
+  if(count===0){ verdict="Keyword not found in text."; color="var(--accent)"; }
+
+  box.innerHTML = `
+    <div>Keyword: <b>${kw}</b></div>
+    <div>Occurrences: <b>${count}</b></div>
+    <div>Density: <b>${density}%</b></div>
+    <div style="margin-top:6px;color:${color};font-weight:bold;">${verdict}</div>
+    <div style="margin-top:8px;font-size:11px;color:var(--ink-soft);">Tip: aim for 0.5%–2.5% density and place the keyword in your title and first paragraph.</div>
+  `;
+}
+
+function updateOutputStats(){
+  const text = plainTextFromOutput();
+  const words = wordList(text);
+  document.getElementById('outCount').textContent = `${words.length} words`;
+}
+
+/* ========================================================================
+   EVENTS
+   ======================================================================== */
+document.getElementById('rewriteBtn').addEventListener('click', ()=>{
+  const text = document.getElementById('inputText').value;
+  if(!text.trim()){
+    document.getElementById('outputText').textContent = "Type or paste some text on the left first.";
+    return;
+  }
+  const mode = document.getElementById('mode').value;
+  const strength = parseFloat(document.getElementById('strength').value);
+  const kw = document.getElementById('keyword').value;
+  const {html, swapCount} = paraphrase(text, mode, strength, kw);
+  document.getElementById('outputText').innerHTML = html;
+  document.getElementById('statSwaps').textContent = swapCount;
+  updateOutputStats();
+  updateKeywordCheck(plainTextFromOutput());
+});
+
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  const text = plainTextFromOutput();
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    const old = btn.textContent;
+    btn.textContent = "Copied ✓";
+    setTimeout(()=>btn.textContent=old, 1200);
+  });
+});
+
+document.getElementById('swapBtn').addEventListener('click', ()=>{
+  const text = plainTextFromOutput();
+  document.getElementById('inputText').value = text;
+  document.getElementById('outputText').textContent = "Your rewritten text will appear here.";
+  document.getElementById('statSwaps').textContent = "0";
+  updateInputStats();
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  document.getElementById('inputText').value = "";
+  document.getElementById('outputText').textContent = "Your rewritten text will appear here.";
+  document.getElementById('statSwaps').textContent = "0";
+  updateInputStats();
+  updateOutputStats();
+});
+
+document.getElementById('inputText').addEventListener('input', updateInputStats);
+document.getElementById('keyword').addEventListener('input', ()=>updateKeywordCheck(document.getElementById('inputText').value));
+
+document.getElementById('genMetaBtn').addEventListener('click', genMeta);
+document.getElementById('genHeadlineBtn').addEventListener('click', genHeadlines);
+document.getElementById('genSlugBtn').addEventListener('click', genSlug);
+
+// init
+updateInputStats();
+updateOutputStats();
+</script>
+</body>
+</html>
