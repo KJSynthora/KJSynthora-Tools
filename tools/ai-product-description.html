@@ -4,294 +4,1940 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<!-- SEO STRATEGY -->
-<title>AI Product Description Generator for E-Commerce | KJSynthora</title>
-<meta name="description" content="Create catchy, SEO-optimized product descriptions for Shopify, Amazon, eBay, and Etsy in seconds. Inject keywords and drive sales with emotional hooks. No signup needed.">
-<meta name="keywords" content="free shopify product description generator, amazon listing writer ai, bulk e-commerce product copy creator, etsy product description writer, seo product copy generator">
-<link rel="canonical" href="https://kjsynthora.com/tools/ai-product-description.html">
+<!-- ═══ SEO ═══ -->
+<title>AI Product Description Generator — Shopify, Amazon, Etsy, eBay | KJSynthora</title>
+<meta name="description" content="Generate high-converting, SEO-optimized product descriptions for Shopify, Amazon, Etsy and eBay in seconds. Keyword injection, A/B variants, bulk mode, SEO scoring — all AI-powered.">
+<meta name="keywords" content="free shopify product description generator, amazon listing writer ai, bulk e-commerce product copy creator, etsy product description writer, seo product copy generator, ai ecommerce copywriter">
+<link rel="canonical" href="https://kjsynthora.com/tools/ai-product-description.html"/>
 
-<!-- Open Graph -->
-<meta property="og:title" content="AI Product Copywriter - High-Converting Listings | KJSynthora">
-<meta property="og:description" content="Professional e-commerce descriptions for Shopify, Amazon, and more. 100% Privacy-focused.">
-<meta property="og:image" content="https://kjsynthora.com/logo.png">
+<meta property="og:title" content="AI Product Description Generator — High-Converting Listings | KJSynthora"/>
+<meta property="og:description" content="Professional e-commerce copy for Shopify, Amazon, Etsy & eBay. SEO scoring, A/B variants, bulk mode. 100% privacy-focused."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://kjsynthora.com/tools/ai-product-description.html"/>
+<meta property="og:image" content="https://kjsynthora.com/logo.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
 
-<!-- JSON-LD Schema -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "KJSynthora Product Copy AI",
+  "name": "KJSynthora AI Product Description Generator",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  "description": "AI-powered product description generator for e-commerce platforms. Supports Shopify, Amazon, Etsy, eBay with SEO optimization.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": ["SEO Optimization", "Bulk Generation", "A/B Testing", "Platform-specific formatting", "Keyword injection"]
 }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
 <style>
-:root{
-  --bg:#06080f;--s1:#0a0d18;--s2:#0e1220;--s3:#111828;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
-  --a1:#4f8ef7;--a2:#8b5cf6;--text:#dde4f0;--muted:#5a6a85;--muted2:#8899b4;
-  --highlight:rgba(79, 142, 247, 0.15);
+/* ════════════════════════════════════
+   DESIGN TOKENS
+   Palette: deep navy void + electric
+   cobalt + hot coral accent.
+   Signature: the live "conversion meter"
+   pulse animation on the right rail.
+════════════════════════════════════ */
+:root {
+  --bg:       #04060e;
+  --s1:       #080b17;
+  --s2:       #0c1020;
+  --s3:       #111726;
+  --s4:       #161d30;
+  --line:     rgba(255,255,255,0.07);
+  --line2:    rgba(255,255,255,0.04);
+
+  --cobalt:   #3d7ef6;
+  --cobalt2:  #6fa0ff;
+  --coral:    #f25c6e;
+  --coral2:   #ff8a96;
+  --violet:   #8b5cf6;
+  --teal:     #2dd4bf;
+  --amber:    #f59e0b;
+  --emerald:  #10b981;
+
+  --text:     #dde4f2;
+  --text2:    #8899b4;
+  --text3:    #4a5878;
+
+  --r:        10px;
+  --r2:       14px;
+  --r3:       18px;
+
+  --font:     'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
 
-/* HEADER */
-.header{position:sticky;top:0;z-index:200;background:rgba(6,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between}
-.brand-name{font-size:16px;font-weight:800;background:linear-gradient(135deg,#fff,var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-/* APP LAYOUT */
-.app{display:grid;grid-template-columns:320px 1fr 340px;height:calc(100vh - 54px)}
-@media(max-width:1200px){.app{grid-template-columns:1fr;height:auto}}
+/* ════════ HEADER ════════ */
+.hdr {
+  position: sticky; top: 0; z-index: 300;
+  height: 52px;
+  background: rgba(4,6,14,0.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.hdr-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.hdr-logo {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--cobalt), var(--violet));
+  border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 14px;
+}
+.hdr-name {
+  font-size: 15px; font-weight: 800;
+  background: linear-gradient(90deg, #fff, var(--cobalt2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hdr-badges { display: flex; gap: 10px; }
+.hdr-badge {
+  font-size: 10px; font-weight: 700;
+  font-family: var(--mono); letter-spacing: 0.6px;
+  padding: 3px 9px; border-radius: 20px; border: 1px solid;
+}
+.hb-green { border-color: var(--emerald); color: var(--emerald); }
+.hb-cobalt { border-color: var(--cobalt); color: var(--cobalt2); }
+.hb-coral  { border-color: var(--coral);  color: var(--coral2);  }
 
-.panel{background:var(--s1);border-right:1px solid var(--border);padding:20px;overflow-y:auto}
-.main{background:var(--bg);padding:25px;overflow-y:auto}
-.right{background:var(--s1);border-left:1px solid var(--border);padding:20px;overflow-y:auto}
+/* ════════ TABS BAR ════════ */
+.tabstrip {
+  display: flex; gap: 2px;
+  background: var(--s1); border-bottom: 1px solid var(--line);
+  padding: 6px 16px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabstrip::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 9px 18px;
+  background: transparent; border: none;
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab:hover { color: var(--text2); }
+.tab.on {
+  color: var(--cobalt2);
+  border-bottom-color: var(--cobalt);
+}
 
-/* FORM ELEMENTS */
-.input-group{margin-bottom:20px}
-.input-group label{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px;letter-spacing:1px;font-weight:700}
-select, textarea, input[type="text"]{width:100%;padding:12px;background:var(--s3);border:1px solid var(--border);color:#fff;border-radius:10px;font-family:inherit;font-size:13px}
+/* ════════ PANELS ════════ */
+.panel { display: none; }
+.panel.on { display: block; animation: fadeUp .25s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0);   }
+}
 
-/* KEYWORD TAGS */
-.keyword-box{background:var(--s2);padding:10px;border-radius:10px;border:1px solid var(--border2);display:flex;flex-wrap:wrap;gap:5px}
-.keyword-tag{background:var(--highlight);color:var(--a1);padding:4px 8px;border-radius:5px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px}
+/* ════════ THREE-COL WORKSPACE ════════ */
+.workspace {
+  display: grid;
+  grid-template-columns: 310px 1fr 300px;
+  min-height: calc(100vh - 94px);
+}
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: 1fr; }
+  .right-rail { border-left: none; border-top: 1px solid var(--line); }
+}
 
-/* OUTPUT AREA */
-.editor-container{background:var(--s2);border:1px solid var(--border);border-radius:16px;min-height:400px;padding:30px;position:relative}
-.output-body{font-size:15px;line-height:1.8;white-space:pre-wrap;outline:none;min-height:300px}
-.kw-match{background:rgba(16, 185, 129, 0.2);color:#10b981;padding:0 3px;border-radius:3px;font-weight:600}
+.left-col  { background: var(--s1); border-right: 1px solid var(--line); padding: 20px; overflow-y: auto; }
+.center-col{ background: var(--bg); padding: 22px; overflow-y: auto; }
+.right-rail{ background: var(--s1); border-left: 1px solid var(--line); padding: 20px; overflow-y: auto; }
 
-/* PLATFORM BADGE */
-.platform-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;background:var(--s3);border:1px solid var(--border);color:var(--a2);margin-bottom:10px}
+/* ════════ FORM ════════ */
+.fg { margin-bottom: 16px; }
+.fg:last-child { margin-bottom: 0; }
+.fg label {
+  display: block;
+  font-size: 10px; font-weight: 700;
+  color: var(--text3); letter-spacing: 0.8px;
+  text-transform: uppercase; margin-bottom: 7px;
+}
+input[type=text], input[type=url], textarea, select {
+  width: 100%;
+  background: var(--s3); border: 1px solid var(--line);
+  color: var(--text); font-family: var(--font); font-size: 13px;
+  border-radius: var(--r); padding: 10px 12px;
+  outline: none; transition: border-color .2s, box-shadow .2s;
+  resize: vertical;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--cobalt);
+  box-shadow: 0 0 0 3px rgba(61,126,246,.12);
+}
+select option { background: var(--s3); }
+textarea { line-height: 1.6; }
 
-/* BUTTONS */
-.btn{padding:14px;border-radius:10px;border:none;font-weight:700;cursor:pointer;width:100%;font-size:13px;transition:0.2s}
-.btn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;margin-top:10px}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);margin-top:10px}
+/* char counter */
+.inp-wrap { position: relative; }
+.cc {
+  position: absolute; bottom: 9px; right: 10px;
+  font-size: 10px; font-family: var(--mono);
+  color: var(--text3); pointer-events: none;
+}
+.cc.warn { color: var(--amber); }
+.cc.over { color: var(--coral); }
 
-/* SEO SECTION */
-.seo-section{max-width:1100px;margin:80px auto;padding:20px}
-.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px}
-.blog-card{background:var(--s1);padding:35px;border-radius:20px;border:1px solid var(--border)}
-.blog-card h3{color:var(--a1);margin-bottom:15px}
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ════════ KEYWORD TAG INPUT ════════ */
+.kw-wrap {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: var(--s3); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 8px 10px;
+  min-height: 42px; cursor: text;
+}
+.kw-wrap:focus-within { border-color: var(--cobalt); box-shadow: 0 0 0 3px rgba(61,126,246,.12); }
+.kw-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(61,126,246,.15); border: 1px solid rgba(61,126,246,.3);
+  color: var(--cobalt2); border-radius: 6px;
+  padding: 2px 8px; font-size: 11px; font-weight: 600;
+}
+.kw-tag-x { background: none; border: none; color: var(--cobalt2); cursor: pointer; font-size: 14px; line-height: 1; }
+.kw-field {
+  border: none; background: transparent; outline: none;
+  font-family: var(--font); font-size: 13px; color: var(--text);
+  min-width: 100px; flex: 1;
+}
+
+/* ════════ PLATFORM PILLS ════════ */
+.plat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.plat-btn {
+  padding: 10px 8px; border-radius: var(--r);
+  border: 1px solid var(--line); background: var(--s3);
+  color: var(--text2); font-family: var(--font);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  text-align: center; transition: all .2s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.plat-btn:hover { border-color: var(--cobalt); color: var(--text); }
+.plat-btn.on {
+  border-color: var(--cobalt);
+  background: rgba(61,126,246,.12);
+  color: var(--cobalt2);
+}
+.plat-icon { font-size: 18px; }
+
+/* ════════ HOOK SELECTOR ════════ */
+.hook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.hook-btn {
+  padding: 8px 10px; border-radius: var(--r);
+  border: 1px solid var(--line); background: var(--s3);
+  color: var(--text2); font-family: var(--font);
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  text-align: left; line-height: 1.4; transition: all .2s;
+}
+.hook-btn:hover { border-color: var(--coral); color: var(--text); }
+.hook-btn.on { border-color: var(--coral); background: rgba(242,92,110,.1); color: var(--coral2); }
+
+/* ════════ TOGGLE CHIPS ════════ */
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.tchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 20px;
+  border: 1px solid var(--line); background: var(--s3);
+  font-size: 11px; font-weight: 600; color: var(--text2);
+  cursor: pointer; user-select: none; transition: all .2s;
+}
+.tchip:hover { border-color: var(--cobalt); color: var(--text); }
+.tchip.on { border-color: var(--cobalt); background: rgba(61,126,246,.12); color: var(--cobalt2); }
+.tchip input { display: none; }
+
+/* ════════ TONE STRIP ════════ */
+.tone-strip { display: flex; flex-wrap: wrap; gap: 7px; }
+.tone-btn {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid var(--line); background: var(--s3);
+  color: var(--text2); font-family: var(--font);
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.tone-btn:hover { border-color: var(--violet); color: var(--text); }
+.tone-btn.on { background: linear-gradient(135deg,var(--cobalt),var(--violet)); border-color: transparent; color: #fff; }
+
+/* ════════ BUTTONS ════════ */
+.btn {
+  padding: 12px 18px; border-radius: var(--r);
+  border: none; cursor: pointer;
+  font-family: var(--font); font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all .2s; white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--cobalt), var(--violet));
+  color: #fff; width: 100%; justify-content: center;
+  box-shadow: 0 4px 18px rgba(61,126,246,.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(61,126,246,.45); }
+.btn-ghost {
+  background: var(--s3); border: 1px solid var(--line);
+  color: var(--text2);
+}
+.btn-ghost:hover { border-color: var(--cobalt); color: var(--text); }
+.btn-coral { background: rgba(242,92,110,.15); border: 1px solid var(--coral); color: var(--coral2); }
+.btn-coral:hover { background: rgba(242,92,110,.25); }
+.btn-sm { padding: 7px 13px; font-size: 11px; }
+.btn:disabled { opacity: .4; pointer-events: none; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ════════ EDITOR ════════ */
+.editor-shell {
+  background: var(--s2); border: 1px solid var(--line);
+  border-radius: var(--r3); overflow: hidden;
+}
+.editor-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  background: var(--s3); gap: 10px; flex-wrap: wrap;
+}
+.plat-label {
+  font-size: 10px; font-weight: 800; font-family: var(--mono);
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; border: 1px solid;
+}
+.plat-shopify { border-color: #95bf47; color: #95bf47; background: rgba(149,191,71,.1); }
+.plat-amazon  { border-color: #ff9900; color: #ff9900; background: rgba(255,153,0,.1); }
+.plat-etsy    { border-color: #f56400; color: #f56400; background: rgba(245,100,0,.1); }
+.plat-ebay    { border-color: #e53238; color: #e53238; background: rgba(229,50,56,.1); }
+.plat-walmart { border-color: #0071ce; color: #007dc6; background: rgba(0,113,206,.1); }
+
+.editor-body {
+  padding: 24px 26px;
+  font-size: 14px; line-height: 1.8;
+  min-height: 340px; outline: none;
+  color: var(--text); white-space: pre-wrap;
+}
+.editor-body:empty::before {
+  content: 'Your AI-generated product description will appear here. Fill in the details and click Generate.';
+  color: var(--text3);
+}
+.kw-hi { background: rgba(16,185,129,.2); color: #10b981; padding: 0 3px; border-radius: 3px; font-weight: 700; }
+
+/* ════════ SEO METER — signature pulse element ════════ */
+.meter-ring {
+  position: relative; width: 80px; height: 80px; flex-shrink: 0;
+}
+.meter-ring svg { transform: rotate(-90deg); }
+.ring-bg  { fill: none; stroke: var(--s4); stroke-width: 7; }
+.ring-arc {
+  fill: none; stroke-width: 7; stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease, stroke .5s;
+}
+.ring-num {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.ring-score { font-size: 20px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+.ring-lbl   { font-size: 8px; color: var(--text3); font-family: var(--mono); }
+
+/* pulse when score is good */
+@keyframes pulse-glow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(16,185,129,.0); }
+}
+.meter-ring.pulse { animation: pulse-glow 2.5s ease infinite; border-radius: 50%; }
+
+/* ════════ METRIC BARS ════════ */
+.mbar-list { display: flex; flex-direction: column; gap: 9px; }
+.mbar-row  { display: flex; align-items: center; gap: 8px; }
+.mbar-name { font-size: 11px; color: var(--text2); min-width: 100px; flex-shrink: 0; }
+.mbar-track {
+  flex: 1; height: 4px; background: var(--s4);
+  border-radius: 2px; overflow: hidden;
+}
+.mbar-fill { height: 100%; border-radius: 2px; transition: width .9s ease; }
+.mbar-val  { font-size: 10px; font-family: var(--mono); min-width: 26px; text-align: right; }
+
+/* ════════ KW TRACKER ════════ */
+.kw-tracker-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--line2);
+  font-size: 12px;
+}
+.kw-tracker-item:last-child { border-bottom: none; }
+.kw-density-bar {
+  height: 3px; background: var(--s4); border-radius: 2px;
+  overflow: hidden; margin-top: 3px;
+}
+.kw-density-fill { height: 100%; border-radius: 2px; transition: width .7s; }
+
+/* ════════ RESULT CARD (variants) ════════ */
+.var-card {
+  background: var(--s2); border: 1px solid var(--line);
+  border-radius: var(--r2); overflow: hidden;
+  transition: border-color .2s;
+}
+.var-card:hover { border-color: rgba(255,255,255,.12); }
+.var-card.best  { border-color: var(--cobalt); }
+.var-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: var(--s3);
+  border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 8px;
+}
+.var-body { padding: 16px 18px; font-size: 13px; line-height: 1.75; white-space: pre-wrap; }
+.var-foot {
+  padding: 10px 14px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+
+/* ════════ SCORE PILLS ════════ */
+.pill {
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  padding: 2px 8px; border-radius: 10px;
+}
+.pill-green  { background: rgba(16,185,129,.12); color: var(--emerald); }
+.pill-cobalt { background: rgba(61,126,246,.12);  color: var(--cobalt2); }
+.pill-coral  { background: rgba(242,92,110,.12);  color: var(--coral2); }
+.pill-amber  { background: rgba(245,158,11,.12);  color: var(--amber); }
+.pill-violet { background: rgba(139,92,246,.12);  color: #c4b5fd; }
+.pill-teal   { background: rgba(45,212,191,.12);  color: var(--teal); }
+.pill-muted  { background: rgba(255,255,255,.06); color: var(--text2); }
+
+/* ════════ SEO BLOG SECTION ════════ */
+.seo-zone {
+  max-width: 1200px; margin: 0 auto;
+  padding: 72px 24px 80px;
+}
+.seo-eyebrow {
+  font-size: 10px; font-weight: 800; font-family: var(--mono);
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--cobalt2); margin-bottom: 10px;
+}
+.seo-heading {
+  font-size: 32px; font-weight: 800; line-height: 1.2;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, #fff 40%, var(--cobalt2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.seo-sub { font-size: 15px; color: var(--text2); line-height: 1.7; max-width: 640px; margin-bottom: 48px; }
+
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 56px; }
+.blog-card {
+  background: var(--s1); border: 1px solid var(--line);
+  border-radius: var(--r2); padding: 28px;
+  transition: border-color .2s, transform .2s;
+}
+.blog-card:hover { border-color: rgba(61,126,246,.3); transform: translateY(-2px); }
+.bc-tag {
+  font-size: 9px; font-weight: 800; font-family: var(--mono);
+  letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--cobalt2); margin-bottom: 12px;
+}
+.bc-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.35; }
+.bc-body  { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 16px; }
+.bc-read  {
+  font-size: 11px; font-weight: 700; color: var(--cobalt2);
+  display: inline-flex; align-items: center; gap: 5px;
+  text-decoration: none;
+}
+
+/* ════════ FAQ ════════ */
+.faq-list { max-width: 780px; }
+.faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+.faq-q {
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px;
+}
+.faq-icon { font-size: 18px; color: var(--cobalt2); flex-shrink: 0; transition: transform .2s; }
+.faq-a { font-size: 13px; color: var(--text2); line-height: 1.7; margin-top: 10px; display: none; }
+.faq-item.open .faq-a  { display: block; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+
+/* ════════ BULK TABLE ════════ */
+.bulk-result {
+  background: var(--s2); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 12px;
+}
+.bulk-num {
+  font-size: 10px; font-family: var(--mono); color: var(--cobalt2);
+  background: rgba(61,126,246,.12); border-radius: 5px;
+  padding: 2px 7px; margin-top: 2px; flex-shrink: 0;
+}
+.bulk-name { font-size: 11px; font-weight: 700; color: var(--text2); margin-bottom: 5px; }
+.bulk-text { font-size: 13px; line-height: 1.65; }
+
+/* ════════ HISTORY ════════ */
+.hist-item {
+  background: var(--s2); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 14px 16px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px;
+  margin-bottom: 10px; transition: border-color .2s;
+}
+.hist-item:hover { border-color: rgba(255,255,255,.12); }
+
+/* ════════ LOADER ════════ */
+.loader {
+  display: none; align-items: center; gap: 12px;
+  padding: 20px 18px; margin-top: 14px;
+  background: var(--s2); border: 1px solid var(--line);
+  border-radius: var(--r2);
+}
+.loader.on { display: flex; }
+.spin {
+  width: 24px; height: 24px;
+  border: 3px solid var(--s4); border-top-color: var(--cobalt);
+  border-radius: 50%; animation: spin .6s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-msg { font-size: 13px; color: var(--text2); }
+.dots::after { content:''; animation: dots 1.5s steps(3) infinite; }
+@keyframes dots { 0%,33%{content:'.'} 34%,66%{content:'..'} 67%,100%{content:'...'} }
+
+/* ════════ TOAST ════════ */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--s3); border: 1px solid var(--cobalt);
+  color: var(--cobalt2); padding: 9px 20px;
+  border-radius: 24px; font-size: 12px; font-weight: 700;
+  box-shadow: 0 4px 20px rgba(61,126,246,.25);
+  z-index: 9999; pointer-events: none;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ════════ SECTION DIVIDER ════════ */
+.sec-hd {
+  font-size: 10px; font-weight: 800; font-family: var(--mono);
+  letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-hd::after { content:''; flex:1; height:1px; background:var(--line); }
+
+.divider { height: 1px; background: var(--line); margin: 18px 0; }
+
+/* ════════ STATS ROW ════════ */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-box {
+  background: var(--s3); border: 1px solid var(--line2);
+  border-radius: var(--r); padding: 12px 14px;
+}
+.stat-lbl { font-size: 9px; color: var(--text3); font-family: var(--mono); letter-spacing: .6px; text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-size: 20px; font-weight: 800; font-family: var(--mono); }
+.stat-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* ════════ CHAR LIMIT BAR ════════ */
+.char-limit-bar {
+  height: 3px; border-radius: 2px; overflow: hidden;
+  background: var(--s4); margin-top: 6px;
+}
+.char-limit-fill { height: 100%; border-radius: 2px; transition: width .4s, background .4s; }
+
+/* ════════ EMPTY STATE ════════ */
+.empty { text-align: center; padding: 48px 20px; color: var(--text3); font-size: 13px; }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="brand-name">KJSynthora Product AI</div>
-    <div style="display:flex;gap:20px;font-size:11px;font-weight:800">
-        <span style="color:var(--a4)">● E-COM OPTIMIZED</span>
-        <span style="color:var(--a1)">● NO DATA LOGGING</span>
-    </div>
+<!-- ═══ HEADER ═══ -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">🛒</div>
+    <span class="hdr-name">KJSynthora Product AI</span>
+  </div>
+  <div class="hdr-badges">
+    <span class="hdr-badge hb-green">✓ No Data Logging</span>
+    <span class="hdr-badge hb-cobalt">Claude Powered</span>
+    <span class="hdr-badge hb-coral">E-Com Optimized</span>
+  </div>
 </header>
 
-<div class="app">
-    <!-- LEFT: PRODUCT DETAILS -->
-    <aside class="panel">
-        <div class="input-group">
-            <label>Product Name</label>
-            <input type="text" id="prodName" placeholder="e.g. Minimalist Leather Watch">
-        </div>
+<!-- ═══ TAB STRIP ═══ -->
+<nav class="tabstrip" id="tabs">
+  <button class="tab on"  data-tab="generator">🛍 Description Generator</button>
+  <button class="tab"     data-tab="variants">🔀 A/B Variants</button>
+  <button class="tab"     data-tab="bulk">📦 Bulk Mode</button>
+  <button class="tab"     data-tab="seo-audit">📈 SEO Audit</button>
+  <button class="tab"     data-tab="rewriter">🔄 Rewriter</button>
+  <button class="tab"     data-tab="history">🕐 History</button>
+</nav>
 
-        <div class="input-group">
-            <label>Target Platform</label>
-            <select id="platform" onchange="updateLimit()">
-                <option value="Shopify">Shopify (Standard)</option>
-                <option value="Amazon">Amazon (Feature-Rich)</option>
-                <option value="Etsy">Etsy (Craft/Storytelling)</option>
-                <option value="eBay">eBay (Spec-Heavy)</option>
-            </select>
-        </div>
 
-        <div class="input-group">
-            <label>Emotional Hook</label>
-            <select id="hook">
-                <option value="Luxury & Exclusive">💎 Luxury & Premium</option>
-                <option value="Urgency & Scarcity">⏳ Urgency (Last Chance)</option>
-                <option value="Budget-Friendly">💰 Budget/Value Focused</option>
-                <option value="Problem-Solving">🛠 Problem Solver</option>
-            </select>
-        </div>
+<!-- ══════════════════════════════════════════════════
+     PANEL 1 · DESCRIPTION GENERATOR
+══════════════════════════════════════════════════ -->
+<div class="panel on" id="panel-generator">
+  <div class="workspace">
 
-        <div class="input-group">
-            <label>SEO Keywords (Up to 5)</label>
-            <input type="text" id="kwInput" placeholder="Type keyword and press Enter..." onkeydown="addKeyword(event)">
-            <div class="keyword-box" id="kwBox" style="margin-top:10px"></div>
-        </div>
+    <!-- LEFT: Input -->
+    <aside class="left-col">
+      <div class="sec-hd">Product Details</div>
 
-        <button class="btn btn-primary" onclick="generateDescription()">🚀 Generate Listing</button>
-        <button class="btn btn-outline" onclick="clearAll()">🗑 Clear All</button>
+      <div class="fg">
+        <label>Product Name *</label>
+        <div class="inp-wrap">
+          <input type="text" id="g-name" maxlength="120" placeholder="e.g. Minimalist Leather Watch">
+          <span class="cc" id="g-name-cc">0/120</span>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Key Features / Specs</label>
+        <textarea id="g-features" rows="4"
+          placeholder="- Genuine full-grain leather&#10;- Sapphire crystal glass&#10;- 50m water resistant&#10;- Japanese quartz movement"></textarea>
+      </div>
+
+      <div class="fg">
+        <label>Target Platform</label>
+        <div class="plat-grid" id="plat-grid">
+          <button class="plat-btn on" data-plat="Shopify" data-limit="3000" data-class="plat-shopify">
+            <span class="plat-icon">🟢</span>Shopify
+          </button>
+          <button class="plat-btn" data-plat="Amazon" data-limit="2000" data-class="plat-amazon">
+            <span class="plat-icon">🟠</span>Amazon
+          </button>
+          <button class="plat-btn" data-plat="Etsy" data-limit="5000" data-class="plat-etsy">
+            <span class="plat-icon">🟤</span>Etsy
+          </button>
+          <button class="plat-btn" data-plat="eBay" data-limit="5000" data-class="plat-ebay">
+            <span class="plat-icon">🔴</span>eBay
+          </button>
+          <button class="plat-btn" data-plat="Walmart" data-limit="4000" data-class="plat-walmart">
+            <span class="plat-icon">🔵</span>Walmart
+          </button>
+          <button class="plat-btn" data-plat="General" data-limit="3000" data-class="">
+            <span class="plat-icon">🌐</span>General
+          </button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Emotional Hook / Angle</label>
+        <div class="hook-grid" id="hook-grid">
+          <button class="hook-btn on" data-hook="Luxury & Exclusivity">💎 Luxury & Exclusive</button>
+          <button class="hook-btn" data-hook="Urgency & Scarcity">⏳ Urgency / Scarcity</button>
+          <button class="hook-btn" data-hook="Problem-Solving">🛠 Problem Solver</button>
+          <button class="hook-btn" data-hook="Budget & Value">💰 Value / Budget</button>
+          <button class="hook-btn" data-hook="Lifestyle & Identity">✨ Lifestyle & Identity</button>
+          <button class="hook-btn" data-hook="Gift & Occasion">🎁 Gift / Occasion</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Tone of Voice</label>
+        <div class="tone-strip" id="tone-strip">
+          <button class="tone-btn on" data-tone="Professional">Professional</button>
+          <button class="tone-btn" data-tone="Conversational">Casual</button>
+          <button class="tone-btn" data-tone="Enthusiastic">Energetic</button>
+          <button class="tone-btn" data-tone="Storytelling">Story</button>
+          <button class="tone-btn" data-tone="Minimalist">Minimal</button>
+          <button class="tone-btn" data-tone="Luxury">Luxury</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>SEO Keywords <span style="color:var(--text3)">(press Enter, max 8)</span></label>
+        <div class="kw-wrap" id="kw-wrap" onclick="document.getElementById('kw-field').focus()">
+          <input type="text" class="kw-field" id="kw-field" placeholder="Type keyword + Enter">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Advanced Options</label>
+        <div class="chip-row" id="adv-opts">
+          <label class="tchip on"><input type="checkbox" checked value="bullet_points">☰ Bullet Points</label>
+          <label class="tchip on"><input type="checkbox" checked value="seo_title">🔠 SEO Title</label>
+          <label class="tchip"><input type="checkbox" value="meta_description">🔍 Meta Desc</label>
+          <label class="tchip on"><input type="checkbox" checked value="call_to_action">📣 Strong CTA</label>
+          <label class="tchip"><input type="checkbox" value="schema_faq">🧬 FAQ Schema</label>
+          <label class="tchip"><input type="checkbox" value="size_guide">📐 Size Guide</label>
+          <label class="tchip"><input type="checkbox" value="social_proof">⭐ Social Proof</label>
+          <label class="tchip on"><input type="checkbox" checked value="no_ai_phrases">🚫 No AI clichés</label>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Description Length</label>
+        <select id="g-length">
+          <option value="short">Short (100–150 words)</option>
+          <option value="medium" selected>Medium (200–280 words)</option>
+          <option value="long">Long (350–500 words)</option>
+          <option value="detailed">Detailed (600–800 words)</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Target Audience</label>
+        <input type="text" id="g-audience" placeholder="e.g. men 25-45 who value craftsmanship">
+      </div>
+
+      <div class="fg">
+        <label>Brand Voice / Notes</label>
+        <textarea id="g-brand" rows="2" placeholder="e.g. We're bold and direct. Never say 'perfect gift'. Always list exact materials."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btn-generate" style="margin-top:6px">
+        ⚡ Generate Description
+      </button>
+      <button class="btn btn-ghost btn-sm" id="btn-clear" style="width:100%;justify-content:center;margin-top:8px">
+        🗑 Clear
+      </button>
     </aside>
 
-    <!-- CENTER: EDITOR -->
-    <main class="main">
-        <div id="pBadge" class="platform-badge">SHOPIFY FORMAT</div>
-        <div class="editor-container">
-            <div id="outputArea" class="output-body" contenteditable="true">
-                Your high-converting product description will appear here...
-            </div>
+    <!-- CENTER: Editor -->
+    <main class="center-col">
+      <div class="loader" id="loader-gen">
+        <div class="spin"></div>
+        <span class="loader-msg">Generating your listing<span class="dots"></span></span>
+      </div>
+
+      <div class="editor-shell" id="editor-shell">
+        <div class="editor-topbar">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="plat-label plat-shopify" id="plat-label-badge">SHOPIFY FORMAT</span>
+            <span class="pill pill-muted" id="char-limit-badge">3000 char limit</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" id="btn-toggle-bullets">☰ Toggle Bullets</button>
+            <button class="btn btn-ghost btn-sm" id="btn-copy-desc">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" id="btn-export-txt">⬇ .txt</button>
+            <button class="btn btn-ghost btn-sm" id="btn-send-rewriter">🔄 Rewrite</button>
+          </div>
         </div>
-        <div style="margin-top:15px;display:flex;gap:10px">
-            <button class="btn btn-outline" style="width:auto;padding:10px 25px" onclick="copyResult()">📋 Copy Description</button>
-            <button class="btn btn-outline" style="width:auto;padding:10px 25px" id="toggleView" onclick="toggleBullets()">☰ Toggle Bullet Points</button>
+        <div class="editor-body" id="main-editor" contenteditable="true"
+          oninput="onEditorInput()"></div>
+        <div style="padding:8px 16px 10px">
+          <div class="char-limit-bar">
+            <div class="char-limit-fill" id="char-limit-fill" style="width:0%"></div>
+          </div>
         </div>
+      </div>
+
+      <!-- SEO Title & Meta -->
+      <div id="seo-title-box" style="display:none;margin-top:16px">
+        <div class="editor-shell">
+          <div class="editor-topbar">
+            <span class="sec-hd" style="margin:0">SEO Title</span>
+            <button class="btn btn-ghost btn-sm" onclick="copy(document.getElementById('seo-title-text').textContent)">📋 Copy</button>
+          </div>
+          <div style="padding:14px 18px;font-size:14px;font-weight:700;color:var(--cobalt2)" id="seo-title-text"></div>
+        </div>
+      </div>
+      <div id="meta-box" style="display:none;margin-top:12px">
+        <div class="editor-shell">
+          <div class="editor-topbar">
+            <span class="sec-hd" style="margin:0">Meta Description</span>
+            <button class="btn btn-ghost btn-sm" onclick="copy(document.getElementById('meta-text').textContent)">📋 Copy</button>
+          </div>
+          <div style="padding:14px 18px;font-size:13px;color:var(--text2);line-height:1.6" id="meta-text"></div>
+        </div>
+      </div>
+
+      <!-- FAQ Schema -->
+      <div id="faq-box" style="display:none;margin-top:12px">
+        <div class="editor-shell">
+          <div class="editor-topbar">
+            <span class="sec-hd" style="margin:0">FAQ Schema (JSON-LD)</span>
+            <button class="btn btn-ghost btn-sm" onclick="copy(document.getElementById('faq-schema-text').textContent)">📋 Copy</button>
+          </div>
+          <pre style="padding:14px 18px;font-size:11px;font-family:var(--mono);color:var(--teal);overflow-x:auto;white-space:pre-wrap" id="faq-schema-text"></pre>
+        </div>
+      </div>
     </main>
 
-    <!-- RIGHT: SEO ANALYTICS -->
-    <aside class="right">
-        <h3 style="font-size:12px;color:var(--a1);margin-bottom:15px;letter-spacing:1px">LISTING ANALYTICS</h3>
-        
-        <div style="background:var(--s2);padding:20px;border-radius:15px;border:1px solid var(--border);margin-bottom:20px">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px">
-                <span style="color:var(--muted)">Characters:</span><span id="charCount">0 / 2000</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px">
-                <span style="color:var(--muted)">Words:</span><span id="wordCount">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:12px">
-                <span style="color:var(--muted)">SEO Density:</span><span style="color:var(--a4)" id="seoScore">Low</span>
-            </div>
-        </div>
+    <!-- RIGHT: Analytics -->
+    <aside class="right-rail">
+      <div class="sec-hd">Conversion Score</div>
 
-        <h3 style="font-size:11px;margin-bottom:10px;text-transform:uppercase;color:var(--muted)">Keyword Match Tracking</h3>
-        <div id="kwTracker" style="font-size:11px">
-            <p style="color:var(--muted2)">Add keywords to track injection density.</p>
+      <!-- Score ring -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+        <div class="meter-ring" id="conv-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="34"/>
+            <circle class="ring-arc" id="ring-arc" cx="40" cy="40" r="34"
+              stroke-dasharray="214" stroke-dashoffset="214" stroke="var(--cobalt)"/>
+          </svg>
+          <div class="ring-num">
+            <span class="ring-score" id="ring-score">--</span>
+            <span class="ring-lbl">/100</span>
+          </div>
         </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px" id="conv-grade">—</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5" id="conv-note">Generate a description to see your conversion score.</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-box">
+          <div class="stat-lbl">Characters</div>
+          <div class="stat-val" id="st-chars">0</div>
+          <div class="stat-sub" id="st-chars-lim">/ 3000 limit</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Words</div>
+          <div class="stat-val" id="st-words">0</div>
+          <div class="stat-sub">in description</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">SEO Density</div>
+          <div class="stat-val" id="st-density" style="font-size:14px">Low</div>
+          <div class="stat-sub" id="st-density-kws">0 / 0 keywords</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Readability</div>
+          <div class="stat-val" id="st-read" style="font-size:14px">—</div>
+          <div class="stat-sub">grade level</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="sec-hd">Metric Scores</div>
+      <div class="mbar-list" id="mbar-list">
+        <div style="font-size:11px;color:var(--text3)">Generate a description to see detailed metrics.</div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="sec-hd">Keyword Tracking</div>
+      <div id="kw-tracker">
+        <div style="font-size:11px;color:var(--text3)">Add keywords to track density.</div>
+      </div>
     </aside>
+
+  </div>
 </div>
 
-<!-- SEO STRATEGY & BLOGS -->
-<section class="seo-section">
-    <div class="blog-grid">
-        <article class="blog-card">
-            <h3>How to Rank on Google & Amazon</h3>
-            <p>Master the art of SEO keyword placement. Learn why the first 150 characters are critical for Shopify SEO and how to optimize bullet points for the Amazon A9 algorithm.</p>
-        </article>
-        <article class="blog-card">
-            <h3>5 Common E-Commerce Copywriting Mistakes</h3>
-            <p>Are you focusing on features or benefits? We break down the mistakes that kill conversion rates and how to use emotional hooks to close the sale.</p>
-        </article>
+
+<!-- ══════════════════════════════════════════════════
+     PANEL 2 · A/B VARIANTS
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-variants">
+  <div style="max-width:1100px;margin:0 auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:4px">A/B Description Variants</div>
+        <div style="font-size:13px;color:var(--text2)">Generate multiple variations to test which drives more conversions</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" id="btn-copy-all-vars">📋 Copy All</button>
+        <button class="btn btn-ghost btn-sm" id="btn-export-vars">⬇ Export .txt</button>
+      </div>
     </div>
+
+    <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px;margin-bottom:20px">
+      <div class="g2">
+        <div class="fg">
+          <label>Product Name *</label>
+          <input type="text" id="v-name" placeholder="e.g. Ergonomic Office Chair">
+        </div>
+        <div class="fg">
+          <label>Platform</label>
+          <select id="v-plat">
+            <option>Shopify</option><option>Amazon</option>
+            <option>Etsy</option><option>eBay</option><option>Walmart</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Key Features</label>
+        <textarea id="v-features" rows="3" placeholder="List product features/specs"></textarea>
+      </div>
+      <div class="fg">
+        <label>Number of Variants</label>
+        <select id="v-count">
+          <option value="2">2 Variants (A/B)</option>
+          <option value="3" selected>3 Variants (A/B/C)</option>
+          <option value="4">4 Variants</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="btn-gen-vars">🔀 Generate Variants</button>
+    </div>
+
+    <div class="loader" id="loader-vars">
+      <div class="spin"></div>
+      <span class="loader-msg">Creating variants<span class="dots"></span></span>
+    </div>
+    <div id="vars-output"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PANEL 3 · BULK MODE
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-bulk">
+  <div style="max-width:1100px;margin:0 auto;padding:24px">
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px">Bulk Product Description Generator</div>
+      <div style="font-size:13px;color:var(--text2)">Generate descriptions for multiple products at once</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start" id="bulk-workspace">
+      <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px">
+        <div class="fg">
+          <label>Product List (one per line, use | to separate features)</label>
+          <textarea id="bulk-input" rows="12"
+            placeholder="Minimalist Leather Watch | genuine leather, sapphire glass, 50m waterproof&#10;Ergonomic Office Chair | lumbar support, breathable mesh, 5-year warranty&#10;Wireless Earbuds | 30hr battery, ANC, IPX5 waterproof&#10;..."></textarea>
+        </div>
+        <div class="g2">
+          <div class="fg">
+            <label>Platform</label>
+            <select id="bulk-plat">
+              <option>Shopify</option><option>Amazon</option>
+              <option>Etsy</option><option>eBay</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Length</label>
+            <select id="bulk-length">
+              <option value="short">Short</option>
+              <option value="medium" selected>Medium</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Tone</label>
+          <select id="bulk-tone">
+            <option>Professional</option><option>Conversational</option>
+            <option>Enthusiastic</option><option>Luxury</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Shared Keywords (comma separated)</label>
+          <input type="text" id="bulk-kws" placeholder="e.g. free shipping, premium quality">
+        </div>
+        <button class="btn btn-primary" id="btn-bulk-gen">📦 Generate All</button>
+      </div>
+
+      <div>
+        <div class="loader" id="loader-bulk">
+          <div class="spin"></div>
+          <span class="loader-msg">Generating bulk descriptions<span class="dots"></span></span>
+        </div>
+        <div id="bulk-output" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+            <div style="font-weight:700">Bulk Results <span id="bulk-count-lbl" style="color:var(--cobalt2)"></span></div>
+            <div class="btn-row">
+              <button class="btn btn-ghost btn-sm" id="btn-copy-bulk">📋 Copy All</button>
+              <button class="btn btn-ghost btn-sm" id="btn-export-bulk">⬇ Export</button>
+            </div>
+          </div>
+          <div id="bulk-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PANEL 4 · SEO AUDIT
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-seo-audit">
+  <div style="max-width:1100px;margin:0 auto;padding:24px">
+    <div style="display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start">
+      <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px">
+        <div class="sec-hd">SEO Audit Input</div>
+        <div class="fg">
+          <label>Product Description to Audit *</label>
+          <textarea id="audit-text" rows="8" placeholder="Paste your current product description here"></textarea>
+        </div>
+        <div class="fg">
+          <label>Product Title</label>
+          <input type="text" id="audit-title" placeholder="Paste the product title">
+        </div>
+        <div class="fg">
+          <label>Target Keywords (comma separated)</label>
+          <input type="text" id="audit-kws" placeholder="main keyword, secondary keyword">
+        </div>
+        <div class="g2">
+          <div class="fg">
+            <label>Platform</label>
+            <select id="audit-plat">
+              <option>Shopify</option><option>Amazon</option>
+              <option>Etsy</option><option>eBay</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Niche / Category</label>
+            <input type="text" id="audit-niche" placeholder="e.g. fashion accessories">
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-audit">📈 Run SEO Audit</button>
+      </div>
+
+      <div>
+        <div class="loader" id="loader-audit">
+          <div class="spin"></div>
+          <span class="loader-msg">Running SEO audit<span class="dots"></span></span>
+        </div>
+        <div id="audit-output" style="display:none">
+          <!-- Score ring row -->
+          <div style="display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+            <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px;flex:1;min-width:200px">
+              <div class="sec-hd">SEO Score</div>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div class="meter-ring" id="audit-ring">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-bg" cx="40" cy="40" r="34"/>
+                    <circle class="ring-arc" id="audit-ring-arc" cx="40" cy="40" r="34"
+                      stroke-dasharray="214" stroke-dashoffset="214" stroke="var(--cobalt)"/>
+                  </svg>
+                  <div class="ring-num">
+                    <span class="ring-score" id="audit-score-num">--</span>
+                    <span class="ring-lbl">/100</span>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-weight:700;margin-bottom:4px" id="audit-grade">—</div>
+                  <div style="font-size:11px;color:var(--text2)" id="audit-grade-desc">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Metrics -->
+          <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px;margin-bottom:16px">
+            <div class="sec-hd">Metric Breakdown</div>
+            <div class="mbar-list" id="audit-mbar"></div>
+          </div>
+          <!-- Checklist -->
+          <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px;margin-bottom:16px">
+            <div class="sec-hd">SEO Checklist</div>
+            <div id="audit-checklist" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <!-- Recommendations -->
+          <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px">
+            <div class="sec-hd">Recommendations</div>
+            <div id="audit-recs" style="font-size:13px;color:var(--text2);line-height:1.75;white-space:pre-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PANEL 5 · REWRITER
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-rewriter">
+  <div style="max-width:1100px;margin:0 auto;padding:24px">
+    <div style="display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start">
+      <div style="background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:20px">
+        <div class="sec-hd">Rewrite Settings</div>
+        <div class="fg">
+          <label>Original Description *</label>
+          <textarea id="rw-original" rows="7" placeholder="Paste the product description to improve"></textarea>
+        </div>
+        <div class="fg">
+          <label>Rewrite Goal</label>
+          <select id="rw-goal">
+            <option value="improve-seo">Improve SEO & Keywords</option>
+            <option value="boost-conversions">Boost Conversions / CTA</option>
+            <option value="platform-optimize">Optimize for Platform</option>
+            <option value="humanize">Humanize (Remove AI Feel)</option>
+            <option value="shorten">Make More Concise</option>
+            <option value="expand">Expand with More Detail</option>
+            <option value="change-tone">Change Tone</option>
+            <option value="add-emotion">Add Emotional Appeal</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Target Platform</label>
+          <select id="rw-plat">
+            <option>Shopify</option><option>Amazon</option>
+            <option>Etsy</option><option>eBay</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Keywords to Inject</label>
+          <input type="text" id="rw-kws" placeholder="keyword1, keyword2">
+        </div>
+        <div class="fg">
+          <label>How many rewrites?</label>
+          <select id="rw-count">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Special Instructions</label>
+          <textarea id="rw-notes" rows="2" placeholder="e.g. Keep the first sentence, must mention 'free returns'"></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-rewrite">🔄 Rewrite Description</button>
+      </div>
+
+      <div>
+        <div class="loader" id="loader-rw">
+          <div class="spin"></div>
+          <span class="loader-msg">Rewriting description<span class="dots"></span></span>
+        </div>
+        <div id="rw-output" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+            <div>
+              <div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">◀ Original</div>
+              <div style="background:var(--s2);border:1px solid var(--line);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.7;color:var(--text2)" id="rw-orig-preview"></div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-family:var(--mono);color:var(--cobalt2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">▶ Best Rewrite</div>
+              <div style="background:var(--s2);border:1px solid var(--cobalt);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.7" id="rw-best-preview"></div>
+            </div>
+          </div>
+          <div id="rw-result-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PANEL 6 · HISTORY
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-history">
+  <div style="max-width:900px;margin:0 auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:800">Generation History</div>
+      <button class="btn btn-ghost btn-sm" id="btn-clear-hist">🗑 Clear All</button>
+    </div>
+    <div id="hist-list">
+      <div class="empty"><div class="empty-icon">🕐</div>No history yet. Start generating!</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     SEO CONTENT SECTION (below app)
+══════════════════════════════════════════════════ -->
+<section class="seo-zone">
+  <div class="seo-eyebrow">E-Commerce SEO Guide</div>
+  <h2 class="seo-heading">Write Listings That Rank<br>and Convert</h2>
+  <p class="seo-sub">Learn how to craft product descriptions that satisfy both search engine algorithms and human buyers — the strategies top Shopify and Amazon sellers use every day.</p>
+
+  <div class="blog-grid">
+    <article class="blog-card">
+      <div class="bc-tag">Amazon SEO</div>
+      <h3 class="bc-title">How Amazon's A10 Algorithm Ranks Your Listing</h3>
+      <p class="bc-body">The A10 algorithm prioritizes seller authority, external traffic, and click-through rate over keyword stuffing. Learn why your first 250 characters of the product description are indexed differently — and how to structure bullets for Featured Snippet placement.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+
+    <article class="blog-card">
+      <div class="bc-tag">Shopify SEO</div>
+      <h3 class="bc-title">Product Description SEO for Shopify: The 2025 Playbook</h3>
+      <p class="bc-body">Google indexes Shopify product pages within 48 hours. Discover the optimal keyword density (1.5–2.5%), how to structure your H1/meta tags for rich snippets, and why your alt text matters more than the description itself for image-driven product searches.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+
+    <article class="blog-card">
+      <div class="bc-tag">Conversion Copywriting</div>
+      <h3 class="bc-title">5 Emotional Triggers That Double Add-to-Cart Rates</h3>
+      <p class="bc-body">Features tell, benefits sell — but emotional triggers close. We analyzed 10,000 top-performing product listings to identify the psychological patterns behind scarcity framing, social proof placement, and sensory language that consistently outperform generic descriptions.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+
+    <article class="blog-card">
+      <div class="bc-tag">Etsy SEO</div>
+      <h3 class="bc-title">Etsy Search Ranking: Storytelling That Sells</h3>
+      <p class="bc-body">Etsy buyers search differently — they use long-tail, occasion-based queries. Learn how to weave your primary keyword into the first sentence naturally, use handcraft language signals the algorithm rewards, and structure 13 tags for maximum discoverability.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+
+    <article class="blog-card">
+      <div class="bc-tag">Bulk Operations</div>
+      <h3 class="bc-title">Scaling a 500-Product Catalog with AI Copy</h3>
+      <p class="bc-body">Running a large catalog means balancing consistency and uniqueness. See how brands use AI-assisted bulk generation to maintain a unified brand voice across hundreds of SKUs, avoid duplicate content penalties, and integrate with Shopify CSV imports and Amazon flat files.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+
+    <article class="blog-card">
+      <div class="bc-tag">A/B Testing</div>
+      <h3 class="bc-title">How to A/B Test Product Descriptions at Scale</h3>
+      <p class="bc-body">Most sellers test only price and images — leaving the description untested. Discover a 3-step framework for split-testing your copy: rotating variants via Shopify Metafields, using UTM parameters to track per-variant conversion, and knowing when your data is statistically significant.</p>
+      <a href="#" class="bc-read">Read Strategy →</a>
+    </article>
+  </div>
+
+  <!-- FAQ -->
+  <div class="seo-eyebrow" style="margin-top:20px">Frequently Asked Questions</div>
+  <h3 style="font-size:22px;font-weight:800;margin-bottom:28px">Common Questions About AI Product Descriptions</h3>
+
+  <div class="faq-list" id="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">Will AI-generated descriptions hurt my SEO ranking?<span class="faq-icon">+</span></div>
+      <div class="faq-a">No — Google's quality guidelines focus on helpfulness and originality, not the method of creation. AI descriptions that are accurate, unique, and genuinely helpful for the buyer perform well in search. The risk comes from mass-duplicated, low-quality content, which this tool avoids through platform-specific structuring and keyword diversity.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How many keywords should I target per product description?<span class="faq-icon">+</span></div>
+      <div class="faq-a">For most platforms, 1 primary keyword and 3–5 secondary keywords is optimal. Aim for a keyword density of 1.5–2.5%. Higher density triggers spam filters on Amazon and quality penalties on Google. This tool automatically calibrates density based on your selected platform's algorithm preferences.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the ideal product description length for Amazon vs Shopify?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Amazon's A+ Content recommends 400–600 words for indexed descriptions, but the visible bullet section (5 bullets × 255 characters each) is most critical for conversions. Shopify descriptions perform best at 300–500 words for SEO, with the first 160 characters used as the meta description. Etsy allows up to 5,000 characters, and longer, keyword-rich descriptions tend to rank higher within Etsy search.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I use these descriptions on multiple platforms?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Technically yes, but it's not recommended. Each platform has unique formatting requirements, keyword strategies, and buyer intent patterns. Shopify buyers are discovery-focused, Amazon buyers are comparison-focused, and Etsy buyers are story-focused. Use the platform toggle to generate tailored versions for each channel to avoid duplicate content issues and maximize conversion rates.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my product data private?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. KJSynthora does not log, store, or share any product information you enter. Your data is sent directly to the AI model and discarded after generation. We have no access to your product catalog, keywords, or generated descriptions.</div>
+    </div>
+  </div>
 </section>
 
+<div id="toast">✅ Copied!</div>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
 <script>
-    let keywords = [];
-    let isBullet = false;
+// ─── CONFIG ───────────────────────────────────
+const API   = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-20250514';
+let appHistory = JSON.parse(localStorage.getItem('kjprod_history') || '[]');
 
-    function addKeyword(e) {
-        if (e.key === 'Enter' && e.target.value) {
-            if(keywords.length >= 5) return alert("Limit of 5 keywords for optimal SEO.");
-            keywords.push(e.target.value.toLowerCase());
-            e.target.value = '';
-            renderKeywords();
-        }
+// ─── KEYWORDS ─────────────────────────────────
+let keywords = [];
+let currentPlatform = 'Shopify';
+let currentLimit = 3000;
+let bulletMode = false;
+
+// ─── UTILS ────────────────────────────────────
+const $ = id => document.getElementById(id);
+const $$ = sel => [...document.querySelectorAll(sel)];
+
+function toast(msg = '✅ Copied!', dur = 2200) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), dur);
+}
+function copy(text) {
+  navigator.clipboard.writeText(text).then(() => toast()).catch(() => toast('❌ Copy failed'));
+}
+function download(name, content, type = 'text/plain') {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name; a.click();
+}
+function loader(id, on) { $(id).classList[on ? 'add' : 'remove']('on'); }
+function addHistory(type, name, text) {
+  appHistory.unshift({ type, name, text: text.substring(0, 600), date: new Date().toLocaleString() });
+  if (appHistory.length > 60) appHistory.length = 60;
+  localStorage.setItem('kjprod_history', JSON.stringify(appHistory));
+}
+
+async function callClaude(prompt, system = '', maxTokens = 1000) {
+  const body = { model: MODEL, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] };
+  if (system) body.system = system;
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error?.message || `API error ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('\n');
+}
+
+function safeJSON(raw) {
+  const c = raw.replace(/```json|```/g, '').trim();
+  try { return JSON.parse(c); }
+  catch {
+    const m = c.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+    if (m) return JSON.parse(m[1]);
+    throw new Error('Could not parse response');
+  }
+}
+
+// ─── TABS ─────────────────────────────────────
+$$('.tabstrip .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.tabstrip .tab').forEach(b => b.classList.remove('on'));
+    $$('.panel').forEach(p => p.classList.remove('on'));
+    btn.classList.add('on');
+    $('panel-' + btn.dataset.tab).classList.add('on');
+    if (btn.dataset.tab === 'history') renderHistory();
+  });
+});
+
+// ─── CHAR COUNTER ─────────────────────────────
+const nameInp = $('g-name');
+nameInp.addEventListener('input', () => {
+  const n = nameInp.value.length;
+  const cc = $('g-name-cc');
+  cc.textContent = `${n}/120`;
+  cc.className = 'cc' + (n >= 120 ? ' over' : n > 100 ? ' warn' : '');
+});
+
+// ─── PLATFORM SELECTOR ────────────────────────
+$$('#plat-grid .plat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('#plat-grid .plat-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    currentPlatform = btn.dataset.plat;
+    currentLimit    = +btn.dataset.limit;
+    // Update badge
+    const badge = $('plat-label-badge');
+    badge.textContent = `${currentPlatform.toUpperCase()} FORMAT`;
+    badge.className   = `plat-label ${btn.dataset.class}`;
+    $('st-chars-lim').textContent  = `/ ${currentLimit} limit`;
+    $('char-limit-badge').textContent = `${currentLimit} char limit`;
+    onEditorInput();
+  });
+});
+
+// ─── HOOK & TONE SINGLE-SELECT ─────────────────
+function bindSingle(sel) {
+  $$(sel).forEach(b => b.addEventListener('click', () => {
+    $$(sel).forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  }));
+}
+bindSingle('#hook-grid .hook-btn');
+bindSingle('#tone-strip .tone-btn');
+
+// ─── TOGGLE CHIPS ─────────────────────────────
+$$('.tchip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+
+// ─── KEYWORD TAG INPUT ────────────────────────
+$('kw-field').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = $('kw-field').value.trim().replace(/,$/, '');
+    if (val && keywords.length < 8 && !keywords.includes(val.toLowerCase())) {
+      keywords.push(val.toLowerCase());
+      renderKwTags();
     }
+    $('kw-field').value = '';
+  } else if (e.key === 'Backspace' && !$('kw-field').value && keywords.length) {
+    keywords.pop(); renderKwTags();
+  }
+});
 
-    function renderKeywords() {
-        const box = document.getElementById('kwBox');
-        const tracker = document.getElementById('kwTracker');
-        box.innerHTML = '';
-        tracker.innerHTML = '';
-        keywords.forEach((kw, idx) => {
-            box.innerHTML += `<span class="keyword-tag">${kw} <span style="cursor:pointer" onclick="removeKW(${idx})">×</span></span>`;
-            tracker.innerHTML += `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>${kw}</span><span id="match-${kw}">0 found</span></div>`;
-        });
+function renderKwTags() {
+  const wrap = $('kw-wrap');
+  wrap.querySelectorAll('.kw-tag').forEach(t => t.remove());
+  keywords.forEach((kw, i) => {
+    const t = document.createElement('span');
+    t.className = 'kw-tag';
+    t.innerHTML = `${kw}<button class="kw-tag-x" data-i="${i}">×</button>`;
+    wrap.insertBefore(t, $('kw-field'));
+  });
+  wrap.querySelectorAll('.kw-tag-x').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      keywords.splice(+b.dataset.i, 1);
+      renderKwTags();
+    });
+  });
+  updateKwTracker();
+}
+
+// ─── EDITOR INPUT ─────────────────────────────
+function onEditorInput() {
+  const text = $('main-editor').innerText || '';
+  const chars = text.length;
+  const words = text.split(/\s+/).filter(Boolean).length;
+  $('st-chars').textContent = chars;
+  $('st-words').textContent = words;
+  // Char limit bar
+  const pct = Math.min((chars / currentLimit) * 100, 100);
+  const fill = $('char-limit-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 90 ? 'var(--coral)' : pct > 70 ? 'var(--amber)' : 'var(--emerald)';
+  updateKwTracker();
+}
+
+function updateKwTracker() {
+  const text = ($('main-editor').innerText || '').toLowerCase();
+  const tracker = $('kw-tracker');
+  if (!keywords.length) {
+    tracker.innerHTML = '<div style="font-size:11px;color:var(--text3)">Add keywords to track density.</div>';
+    $('st-density').textContent = '—';
+    $('st-density-kws').textContent = '0 / 0 keywords';
+    return;
+  }
+  let found = 0;
+  const words = text.split(/\s+/).length || 1;
+  tracker.innerHTML = keywords.map(kw => {
+    const count = (text.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g')) || []).length;
+    const density = words > 0 ? ((count / words) * 100).toFixed(1) : 0;
+    const status = count === 0 ? 'var(--coral)' : density > 4 ? 'var(--amber)' : 'var(--emerald)';
+    if (count > 0) found++;
+    return `<div class="kw-tracker-item">
+      <div style="flex:1">
+        <div style="font-weight:600">${kw}</div>
+        <div class="kw-density-bar">
+          <div class="kw-density-fill" style="width:${Math.min(+density*20,100)}%;background:${status}"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-left:10px">
+        <span style="font-size:10px;font-family:var(--mono);color:${status}">${count}× found</span>
+        <span style="font-size:9px;color:var(--text3)">${density}% density</span>
+      </div>
+    </div>`;
+  }).join('');
+  $('st-density').textContent = found > keywords.length * 0.7 ? 'Excellent' : found > 0 ? 'Good' : 'Low';
+  $('st-density').style.color = found > keywords.length * 0.7 ? 'var(--emerald)' : found > 0 ? 'var(--amber)' : 'var(--coral)';
+  $('st-density-kws').textContent = `${found} / ${keywords.length} found`;
+}
+
+function highlightKws(text) {
+  let t = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  keywords.forEach(kw => {
+    const re = new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    t = t.replace(re, '<span class="kw-hi">$1</span>');
+  });
+  return t;
+}
+
+function setScore(ringId, arcId, numId, score) {
+  const circumference = 214;
+  const offset = circumference - (score / 100) * circumference;
+  const arc = $(arcId);
+  arc.style.strokeDashoffset = circumference;
+  const color = score >= 70 ? 'var(--emerald)' : score >= 50 ? 'var(--amber)' : 'var(--coral)';
+  arc.setAttribute('stroke', color);
+  setTimeout(() => arc.style.strokeDashoffset = offset, 80);
+  const num = $(numId);
+  num.textContent = score;
+  num.style.color = color;
+  if (score >= 75) $(ringId).classList.add('pulse');
+  else $(ringId).classList.remove('pulse');
+}
+
+function renderMetricBars(containerId, metrics) {
+  $(containerId).innerHTML = metrics.map(m => {
+    const color = m.score >= 70 ? 'var(--emerald)' : m.score >= 50 ? 'var(--amber)' : 'var(--coral)';
+    return `<div class="mbar-row">
+      <span class="mbar-name">${m.name}</span>
+      <div class="mbar-track"><div class="mbar-fill" style="width:0%;background:${color}" data-w="${m.score}"></div></div>
+      <span class="mbar-val" style="color:${color}">${m.score}</span>
+    </div>
+    ${m.note ? `<div style="font-size:10px;color:var(--text3);padding-left:108px;margin-top:-6px;margin-bottom:4px">${m.note}</div>` : ''}`;
+  }).join('');
+  setTimeout(() => {
+    $$(`.mbar-fill`).forEach(b => b.style.width = (b.dataset.w || 0) + '%');
+  }, 80);
+}
+
+// ─── PANEL 1: GENERATE ────────────────────────
+$('btn-generate').addEventListener('click', async () => {
+  const name = $('g-name').value.trim();
+  if (!name) { toast('⚠️ Enter a product name'); return; }
+
+  const features  = $('g-features').value.trim();
+  const hook      = document.querySelector('#hook-grid .hook-btn.on')?.dataset.hook || 'Luxury & Exclusivity';
+  const tone      = document.querySelector('#tone-strip .tone-btn.on')?.dataset.tone || 'Professional';
+  const length    = $('g-length').value;
+  const audience  = $('g-audience').value.trim();
+  const brand     = $('g-brand').value.trim();
+  const opts      = $$('#adv-opts .tchip.on input').map(i => i.value);
+
+  const wordMap = { short:'100-150', medium:'200-280', long:'350-500', detailed:'600-800' };
+  const words = wordMap[length] || '200-280';
+
+  const prompt = `You are an expert e-commerce copywriter. Write a high-converting ${currentPlatform} product description.
+
+PRODUCT: "${name}"
+PLATFORM: ${currentPlatform}
+FEATURES: ${features || 'Not specified'}
+EMOTIONAL HOOK: ${hook}
+TONE: ${tone}
+AUDIENCE: ${audience || 'General online shoppers'}
+TARGET WORDS: ${words}
+KEYWORDS TO INCLUDE: ${keywords.length ? keywords.join(', ') : 'None specified'}
+${brand ? `BRAND VOICE: ${brand}` : ''}
+
+Requirements:
+${opts.includes('bullet_points') ? '- Format key features as bullet points (use •)' : '- Write in paragraph form'}
+${opts.includes('seo_title') ? '- Include an SEO-optimized product title at the very top, prefixed with "SEO TITLE:"' : ''}
+${opts.includes('meta_description') ? '- After the description, write a 155-char meta description prefixed with "META DESCRIPTION:"' : ''}
+${opts.includes('call_to_action') ? '- End with a strong, platform-appropriate call to action' : ''}
+${opts.includes('social_proof') ? '- Weave in social proof language (customers love, bestselling, 5-star rated)' : ''}
+${opts.includes('size_guide') ? '- Include a short size/fit guide section if applicable' : ''}
+${opts.includes('no_ai_phrases') ? '- NEVER use: "In today\'s world", "Look no further", "game-changer", "cutting-edge", "revolutionary", "In conclusion"' : ''}
+- Inject keywords naturally, do NOT stuff
+- ${currentPlatform === 'Amazon' ? 'Amazon format: start with key benefit, use bullet points for specs, end with brand promise' : ''}
+- ${currentPlatform === 'Etsy' ? 'Etsy format: start with storytelling, mention handcraft/artisan elements, include occasion use' : ''}
+- ${currentPlatform === 'eBay' ? 'eBay format: spec-heavy, include exact dimensions/materials, condition, shipping note' : ''}
+
+Return ONLY valid JSON:
+{
+  "description": "The full product description here",
+  "seoTitle": "SEO title if requested, else null",
+  "metaDescription": "Meta desc if requested, else null",
+  "faqSchema": null,
+  "metrics": {
+    "conversionScore": 82,
+    "seoScore": 78,
+    "readabilityScore": 85,
+    "emotionalAppeal": 80,
+    "keywordDensity": 76,
+    "ctaStrength": 88,
+    "platformFit": 84
+  },
+  "readabilityGrade": "8th Grade",
+  "improvements": ["One improvement tip", "Another tip"]
+}`;
+
+  loader('loader-gen', true);
+  try {
+    const raw  = await callClaude(prompt, 'Expert e-commerce copywriter. Return only valid JSON.', 1000);
+    const data = safeJSON(raw);
+
+    // Editor
+    const editor = $('main-editor');
+    editor.innerHTML = highlightKws(data.description || '');
+    onEditorInput();
+
+    // SEO title
+    if (opts.includes('seo_title') && data.seoTitle) {
+      $('seo-title-text').textContent = data.seoTitle;
+      $('seo-title-box').style.display = 'block';
+    } else { $('seo-title-box').style.display = 'none'; }
+
+    // Meta
+    if (opts.includes('meta_description') && data.metaDescription) {
+      $('meta-text').textContent = data.metaDescription;
+      $('meta-box').style.display = 'block';
+    } else { $('meta-box').style.display = 'none'; }
+
+    // FAQ Schema
+    if (opts.includes('schema_faq') && data.faqSchema) {
+      $('faq-schema-text').textContent = typeof data.faqSchema === 'string' ? data.faqSchema : JSON.stringify(data.faqSchema, null, 2);
+      $('faq-box').style.display = 'block';
+    } else { $('faq-box').style.display = 'none'; }
+
+    // Score ring
+    const m = data.metrics || {};
+    const conv = m.conversionScore || 75;
+    setScore('conv-ring', 'ring-arc', 'ring-score', conv);
+    $('conv-grade').textContent = conv >= 80 ? '🟢 High Converting' : conv >= 60 ? '🟡 Moderate' : '🔴 Needs Work';
+    $('conv-note').textContent  = (data.improvements || []).join(' · ') || 'Good listing generated.';
+
+    // Metric bars
+    $('st-read').textContent = data.readabilityGrade || '—';
+    renderMetricBars('mbar-list', [
+      { name: 'Conversion Score',  score: m.conversionScore  || 0 },
+      { name: 'SEO Score',         score: m.seoScore         || 0 },
+      { name: 'Readability',       score: m.readabilityScore || 0 },
+      { name: 'Emotional Appeal',  score: m.emotionalAppeal  || 0 },
+      { name: 'Keyword Density',   score: m.keywordDensity   || 0 },
+      { name: 'CTA Strength',      score: m.ctaStrength      || 0 },
+      { name: 'Platform Fit',      score: m.platformFit      || 0 },
+    ]);
+
+    addHistory('generate', name, data.description || '');
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    loader('loader-gen', false);
+  }
+});
+
+$('btn-toggle-bullets').addEventListener('click', () => {
+  bulletMode = !bulletMode;
+  const text = $('main-editor').innerText;
+  if (bulletMode) {
+    $('main-editor').innerText = text.split('\n').map(l => l.trim() ? (l.startsWith('•') ? l : `• ${l}`) : l).join('\n');
+  } else {
+    $('main-editor').innerText = text.replace(/^• /gm, '');
+  }
+  $('btn-toggle-bullets').textContent = bulletMode ? '¶ Paragraph View' : '☰ Toggle Bullets';
+  onEditorInput();
+});
+$('btn-copy-desc').addEventListener('click', () => copy($('main-editor').innerText));
+$('btn-export-txt').addEventListener('click', () => download(`${$('g-name').value || 'product'}-description.txt`, $('main-editor').innerText));
+$('btn-send-rewriter').addEventListener('click', () => {
+  $('rw-original').value = $('main-editor').innerText;
+  $$('.tabstrip .tab').forEach(b => b.classList.remove('on'));
+  $$('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelector('[data-tab="rewriter"]').classList.add('on');
+  $('panel-rewriter').classList.add('on');
+});
+$('btn-clear').addEventListener('click', () => {
+  $('g-name').value = ''; $('g-features').value = '';
+  keywords = []; renderKwTags();
+  $('main-editor').textContent = '';
+  $('seo-title-box').style.display = 'none';
+  $('meta-box').style.display = 'none';
+  $('faq-box').style.display = 'none';
+  onEditorInput();
+});
+
+// ─── PANEL 2: VARIANTS ───────────────────────
+$('btn-gen-vars').addEventListener('click', async () => {
+  const name = $('v-name').value.trim();
+  if (!name) { toast('⚠️ Enter product name'); return; }
+  const features = $('v-features').value.trim();
+  const plat     = $('v-plat').value;
+  const count    = +$('v-count').value;
+
+  loader('loader-vars', true);
+  $('vars-output').innerHTML = '';
+
+  const prompt = `Write exactly ${count} A/B test variants for this ${plat} product listing.
+
+PRODUCT: "${name}"
+FEATURES: ${features || 'Not specified'}
+PLATFORM: ${plat}
+
+Each variant MUST use a different strategy:
+- Variant A: Lead with product benefit / outcome
+- Variant B: Lead with emotional hook / storytelling  
+- Variant C: Lead with social proof / credibility (if 3+)
+- Variant D: Lead with problem/solution (if 4)
+
+Return ONLY valid JSON:
+{
+  "variants": [
+    {
+      "id": "A",
+      "strategy": "Benefit-led",
+      "description": "Full description text",
+      "seoScore": 82,
+      "conversionScore": 78,
+      "hookType": "Outcome-focused",
+      "wordCount": 220,
+      "bestFor": "High-intent buyers comparing products"
     }
+  ]
+}`;
 
-    function removeKW(idx) {
-        keywords.splice(idx, 1);
-        renderKeywords();
+  try {
+    const raw  = await callClaude(prompt, 'E-commerce expert. Valid JSON only.', 1000);
+    const data = safeJSON(raw);
+    const vars = data.variants || [];
+
+    const colors = ['pill-cobalt', 'pill-coral', 'pill-violet', 'pill-teal'];
+    const labels = ['Version A', 'Version B', 'Version C', 'Version D'];
+
+    $('vars-output').innerHTML = vars.map((v, i) => `
+      <div class="var-card ${i === 0 ? 'best' : ''}" style="margin-bottom:14px">
+        <div class="var-head">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="pill ${colors[i] || 'pill-muted'}" style="font-size:11px;padding:3px 10px">${labels[i] || 'V' + (i+1)}</span>
+            <span style="font-size:12px;color:var(--text2)">${v.strategy || ''}</span>
+            ${i === 0 ? '<span class="pill pill-cobalt">⭐ Recommended</span>' : ''}
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="pill pill-green">Conv ${v.conversionScore || '?'}</span>
+            <span class="pill pill-cobalt">SEO ${v.seoScore || '?'}</span>
+            <span class="pill pill-muted">${v.wordCount || '?'} words</span>
+          </div>
+        </div>
+        <div class="var-body" id="var-body-${i}">${v.description || ''}</div>
+        <div class="var-foot">
+          <span style="font-size:11px;color:var(--text2)">💡 ${v.bestFor || ''}</span>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" onclick="copy(document.getElementById('var-body-${i}').innerText)">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('main-editor').innerText=document.getElementById('var-body-${i}').innerText;document.querySelector('[data-tab=generator]').click()">📥 Use</button>
+          </div>
+        </div>
+      </div>`).join('');
+
+    addHistory('variants', name, vars.map((v,i) => `-- ${labels[i]} --\n${v.description}`).join('\n\n'));
+  } catch(e) {
+    toast('❌ ' + e.message);
+    $('vars-output').innerHTML = `<div style="color:var(--coral);font-size:13px;padding:16px">Error: ${e.message}</div>`;
+  } finally {
+    loader('loader-vars', false);
+  }
+});
+
+$('btn-copy-all-vars').addEventListener('click', () => {
+  const all = $$('[id^=var-body-]').map((el,i) => `-- Version ${i+1} --\n${el.innerText}`).join('\n\n');
+  copy(all);
+});
+$('btn-export-vars').addEventListener('click', () => {
+  const all = $$('[id^=var-body-]').map((el,i) => `-- Version ${String.fromCharCode(65+i)} --\n${el.innerText}`).join('\n\n');
+  download('product-variants.txt', all);
+});
+
+// ─── PANEL 3: BULK ───────────────────────────
+$('btn-bulk-gen').addEventListener('click', async () => {
+  const raw = $('bulk-input').value.trim();
+  if (!raw) { toast('⚠️ Enter product list'); return; }
+  const lines  = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length > 15) { toast('⚠️ Max 15 products at once'); return; }
+  const plat   = $('bulk-plat').value;
+  const length = $('bulk-length').value;
+  const tone   = $('bulk-tone').value;
+  const kws    = $('bulk-kws').value.trim();
+  const wMap   = { short:'80-120', medium:'180-240', long:'320-400' };
+
+  loader('loader-bulk', true);
+  $('bulk-output').style.display = 'none';
+
+  const prompt = `Write ${plat} product descriptions for each item below.
+
+PRODUCTS:
+${lines.map((l, i) => `${i+1}. ${l}`).join('\n')}
+
+For each product, the part after | contains features/specs.
+
+SETTINGS:
+- Platform: ${plat}
+- Tone: ${tone}
+- Length: ~${wMap[length] || '180-240'} words each
+${kws ? `- Include these keywords naturally: ${kws}` : ''}
+- Use bullet points for features
+- End with a clear CTA
+
+Return ONLY valid JSON:
+{
+  "products": [
+    { "num": 1, "name": "Product name", "description": "Full description" }
+  ]
+}`;
+
+  try {
+    const rawRes = await callClaude(prompt, 'E-commerce writer. Valid JSON only.', 1000);
+    const data   = safeJSON(rawRes);
+    const prods  = data.products || [];
+
+    $('bulk-count-lbl').textContent = `(${prods.length} products)`;
+    $('bulk-list').innerHTML = prods.map((p, i) => `
+      <div class="bulk-result">
+        <span class="bulk-num">${String(i+1).padStart(2,'0')}</span>
+        <div style="flex:1">
+          <div class="bulk-name">${p.name || lines[i] || ''}</div>
+          <div class="bulk-text" id="bulk-text-${i}">${p.description || ''}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="copy(document.getElementById('bulk-text-${i}').innerText)">📋</button>
+      </div>`).join('');
+
+    $('bulk-output').style.display = 'block';
+    addHistory('bulk', `${prods.length} products (${plat})`, prods.map(p => `${p.name}:\n${p.description}`).join('\n\n'));
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    loader('loader-bulk', false);
+  }
+});
+
+$('btn-copy-bulk').addEventListener('click', () => {
+  const all = $$('[id^=bulk-text-]').map(el => el.innerText).join('\n\n---\n\n');
+  copy(all);
+});
+$('btn-export-bulk').addEventListener('click', () => {
+  const all = $$('[id^=bulk-text-]').map((el,i) => `=== Product ${i+1} ===\n${el.innerText}`).join('\n\n');
+  download('bulk-descriptions.txt', all);
+});
+
+// ─── PANEL 4: SEO AUDIT ───────────────────────
+$('btn-audit').addEventListener('click', async () => {
+  const text = $('audit-text').value.trim();
+  if (!text) { toast('⚠️ Paste a description to audit'); return; }
+  const title = $('audit-title').value.trim();
+  const kws   = $('audit-kws').value.trim();
+  const plat  = $('audit-plat').value;
+  const niche = $('audit-niche').value.trim();
+
+  loader('loader-audit', true);
+  $('audit-output').style.display = 'none';
+
+  const prompt = `You are a senior e-commerce SEO analyst. Audit this product description.
+
+DESCRIPTION:
+"${text}"
+
+PRODUCT TITLE: "${title || 'Not provided'}"
+TARGET KEYWORDS: "${kws || 'Not specified'}"
+PLATFORM: ${plat}
+NICHE: "${niche || 'General'}"
+
+Return ONLY valid JSON:
+{
+  "overallScore": 74,
+  "grade": "B+",
+  "gradeDesc": "Well-structured with good keyword use. Missing strong CTA.",
+  "metrics": [
+    { "name": "Keyword Integration",   "score": 80, "note": "Primary keyword appears 3 times naturally" },
+    { "name": "Benefit Clarity",       "score": 75, "note": "Benefits are listed but could be stronger" },
+    { "name": "Emotional Engagement",  "score": 68, "note": "Limited emotional language" },
+    { "name": "CTA Effectiveness",     "score": 55, "note": "CTA is weak — no urgency" },
+    { "name": "Readability",           "score": 82, "note": "Short sentences, easy to scan" },
+    { "name": "Platform Optimization", "score": 78, "note": "Good bullet format for platform" },
+    { "name": "Uniqueness",            "score": 70, "note": "Fairly generic product language" }
+  ],
+  "checklist": [
+    { "pass": true,  "item": "Primary keyword in first 50 words" },
+    { "pass": true,  "item": "Uses bullet points for features" },
+    { "pass": false, "item": "Strong emotional hook in opening" },
+    { "pass": true,  "item": "Includes a CTA" },
+    { "pass": false, "item": "CTA creates urgency" },
+    { "pass": true,  "item": "No keyword stuffing" },
+    { "pass": false, "item": "Social proof language included" },
+    { "pass": true,  "item": "Platform character limit respected" }
+  ],
+  "recommendations": "Actionable bullet-point recommendations to improve this description..."
+}`;
+
+  try {
+    const raw  = await callClaude(prompt, 'Senior SEO analyst. Valid JSON only.', 1000);
+    const data = safeJSON(raw);
+
+    setScore('audit-ring', 'audit-ring-arc', 'audit-score-num', data.overallScore || 0);
+    $('audit-grade').textContent     = data.grade || '—';
+    $('audit-grade-desc').textContent = data.gradeDesc || '';
+
+    renderMetricBars('audit-mbar', data.metrics || []);
+
+    $('audit-checklist').innerHTML = (data.checklist || []).map(c => `
+      <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+        <span>${c.pass ? '✅' : '❌'}</span>
+        <span style="color:${c.pass ? 'var(--text)' : 'var(--text2)'}">${c.item}</span>
+      </div>`).join('');
+
+    $('audit-recs').textContent = data.recommendations || '';
+    $('audit-output').style.display = 'block';
+    addHistory('audit', title || 'SEO Audit', `Score: ${data.overallScore}/100`);
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    loader('loader-audit', false);
+  }
+});
+
+// ─── PANEL 5: REWRITER ────────────────────────
+$('btn-rewrite').addEventListener('click', async () => {
+  const original = $('rw-original').value.trim();
+  if (!original) { toast('⚠️ Paste a description to rewrite'); return; }
+  const goal  = $('rw-goal').value;
+  const plat  = $('rw-plat').value;
+  const kws   = $('rw-kws').value.trim();
+  const count = +$('rw-count').value;
+  const notes = $('rw-notes').value.trim();
+
+  loader('loader-rw', true);
+  $('rw-output').style.display = 'none';
+
+  const prompt = `Rewrite this ${plat} product description ${count} times.
+
+ORIGINAL:
+"${original}"
+
+GOAL: ${goal}
+${kws ? `KEYWORDS TO INJECT: ${kws}` : ''}
+${notes ? `INSTRUCTIONS: ${notes}` : ''}
+
+Each rewrite must be meaningfully different from the original.
+Return ONLY valid JSON:
+{
+  "rewrites": [
+    {
+      "version": 1,
+      "text": "Full rewritten description",
+      "improvement": "What was improved and why",
+      "conversionImpact": "high",
+      "wordCount": 230
     }
+  ],
+  "bestVersion": 1,
+  "bestReason": "Why this version is strongest"
+}`;
 
-    function updateLimit() {
-        const p = document.getElementById('platform').value;
-        document.getElementById('pBadge').innerText = `${p.toUpperCase()} FORMAT`;
-        const charLimit = p === 'Amazon' ? 2000 : p === 'Etsy' ? 5000 : 3000;
-        document.getElementById('charCount').innerText = `0 / ${charLimit}`;
-    }
+  try {
+    const raw  = await callClaude(prompt, 'Expert e-commerce copywriter. Valid JSON only.', 1000);
+    const data = safeJSON(raw);
+    const rwts = data.rewrites || [];
 
-    function generateDescription() {
-        const name = document.getElementById('prodName').value || "Product";
-        const platform = document.getElementById('platform').value;
-        const hook = document.getElementById('hook').value;
-        const output = document.getElementById('outputArea');
+    $('rw-orig-preview').textContent = original.substring(0, 400) + (original.length > 400 ? '…' : '');
+    const best = rwts.find(r => r.version === data.bestVersion) || rwts[0];
+    $('rw-best-preview').textContent = best?.text?.substring(0, 400) + '…' || '';
 
-        if(!name) return alert("Enter a product name.");
+    $('rw-result-list').innerHTML = rwts.map((rw, i) => {
+      const isBest = rw.version === data.bestVersion;
+      const impactPill = rw.conversionImpact === 'high' ? 'pill-green' : rw.conversionImpact === 'medium' ? 'pill-amber' : 'pill-muted';
+      return `<div class="var-card ${isBest ? 'best' : ''}" style="margin-bottom:14px">
+        <div class="var-head">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="pill pill-cobalt">Version ${rw.version}</span>
+            ${isBest ? '<span class="pill pill-green">🏆 Best</span>' : ''}
+            <span class="pill ${impactPill}">Impact: ${rw.conversionImpact || '—'}</span>
+          </div>
+          <span class="pill pill-muted">${rw.wordCount || '?'} words</span>
+        </div>
+        <div class="var-body" id="rw-text-${i}">${rw.text || ''}</div>
+        <div class="var-foot">
+          <span style="font-size:11px;color:var(--text2)">💡 ${rw.improvement || ''}</span>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" onclick="copy(document.getElementById('rw-text-${i}').innerText)">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('main-editor').innerText=document.getElementById('rw-text-${i}').innerText;document.querySelector('[data-tab=generator]').click()">📥 Use</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
 
-        let text = "";
-        
-        // Mock Content Logic based on hooks and platforms
-        if(hook.includes("Luxury")) {
-            text = `Experience the pinnacle of elegance with our ${name}. Crafted for those who demand excellence, this piece combines timeless design with unmatched sophistication.\n\n`;
-        } else if(hook.includes("Urgency")) {
-            text = `Don't miss out! The ${name} is our fastest-selling item this season. Secure yours now before stock runs out permanently.\n\n`;
-        } else {
-            text = `Introducing the ${name}. The perfect addition to your daily routine, designed to deliver high-quality results at a value you'll love.\n\n`;
-        }
+    $('rw-output').style.display = 'block';
+    addHistory('rewrite', goal, rwts.map(r => `-- v${r.version} --\n${r.text}`).join('\n\n'));
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    loader('loader-rw', false);
+  }
+});
 
-        // Weave keywords
-        if(keywords.length > 0) {
-            text += `Perfect for anyone searching for ${keywords.join(', ')}. `;
-        }
+// ─── HISTORY ─────────────────────────────────
+function renderHistory() {
+  const list = $('hist-list');
+  if (!appHistory.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div>No history yet.</div>';
+    return;
+  }
+  list.innerHTML = appHistory.map((h, i) => `
+    <div class="hist-item">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">${h.name}</div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:6px">${h.type.toUpperCase()} · ${h.date}</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5">${h.text.substring(0,160)}…</div>
+      </div>
+      <div class="btn-row" style="flex-direction:column;gap:6px;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" onclick="copy(decodeURIComponent('${encodeURIComponent(h.text)}'))">📋</button>
+        <button class="btn btn-ghost btn-sm" onclick="appHistory.splice(${i},1);localStorage.setItem('kjprod_history',JSON.stringify(appHistory));renderHistory()">🗑</button>
+      </div>
+    </div>`).join('');
+}
+$('btn-clear-hist').addEventListener('click', () => {
+  if (!confirm('Clear all history?')) return;
+  appHistory = [];
+  localStorage.setItem('kjprod_history', '[]');
+  renderHistory();
+});
 
-        text += `Key Details:\n- Premium build quality\n- Versatile and durable\n- Designed for modern lifestyle\n\nOrder your ${name} today and upgrade your experience.`;
-
-        output.innerHTML = highlightKeywords(text);
-        updateStats();
-    }
-
-    function highlightKeywords(text) {
-        let temp = text;
-        keywords.forEach(kw => {
-            const regex = new RegExp(`(${kw})`, 'gi');
-            temp = temp.replace(regex, '<span class="kw-match">$1</span>');
-        });
-        return temp;
-    }
-
-    function toggleBullets() {
-        isBullet = !isBullet;
-        const output = document.getElementById('outputArea');
-        let text = output.innerText;
-        if(isBullet) {
-            output.innerText = text.split('\n').map(line => line.trim() ? `• ${line}` : '').join('\n');
-        } else {
-            output.innerText = text.replace(/• /g, '');
-        }
-        document.getElementById('toggleView').innerText = isBullet ? "☰ View as Paragraph" : "☰ View as Bullets";
-    }
-
-    function updateStats() {
-        const text = document.getElementById('outputArea').innerText;
-        document.getElementById('charCount').innerText = `${text.length} / ${document.getElementById('platform').value === 'Amazon' ? 2000 : 3000}`;
-        document.getElementById('wordCount').innerText = text.split(/\s+/).filter(x => x).length;
-        
-        let found = 0;
-        keywords.forEach(kw => {
-            const count = (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length;
-            document.getElementById(`match-${kw}`).innerText = `${count} matches`;
-            if(count > 0) found++;
-        });
-        document.getElementById('seoScore').innerText = found > 3 ? "Excellent" : found > 0 ? "Good" : "Low";
-    }
-
-    function copyResult() {
-        const text = document.getElementById('outputArea').innerText;
-        navigator.clipboard.writeText(text);
-        alert("Description copied to clipboard!");
-    }
-
-    function clearAll() {
-        document.getElementById('prodName').value = "";
-        keywords = [];
-        renderKeywords();
-        document.getElementById('outputArea').innerText = "Your listing will appear here...";
-    }
+// ─── FAQ ACCORDION ───────────────────────────
+$$('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => item.classList.toggle('open'));
+});
 </script>
 </body>
 </html>
