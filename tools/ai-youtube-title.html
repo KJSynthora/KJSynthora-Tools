@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI YouTube Title & SEO Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --surface3: #1e1e28;
+    --border: #2a2a38;
+    --border2: #363648;
+    --accent: #7c6af7;
+    --accent2: #a78bfa;
+    --accent3: #c4b5fd;
+    --red: #f43f5e;
+    --green: #22c55e;
+    --yellow: #fbbf24;
+    --cyan: #06b6d4;
+    --orange: #f97316;
+    --text: #e8e8f0;
+    --text2: #9898b0;
+    --text3: #5a5a72;
+    --glow: rgba(124,106,247,0.15);
+    --glow2: rgba(124,106,247,0.06);
+    --radius: 12px;
+    --radius2: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── BACKGROUND AMBIENT ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(124,106,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(ellipse, rgba(6,182,212,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── LAYOUT ─── */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* ─── HEADER ─── */
+  header {
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 20px;
+    box-shadow: 0 0 24px rgba(124,106,247,0.4);
+  }
+  .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo-text span { color: var(--accent2); }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+  }
+  .badge-purple { border-color: var(--accent); color: var(--accent2); background: rgba(124,106,247,0.1); }
+  .badge-cyan { border-color: var(--cyan); color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .badge-green { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+
+  /* ─── TABS ─── */
+  .tabs-bar {
+    display: flex; gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1; min-width: 120px;
+    padding: 9px 16px;
+    border-radius: var(--radius2);
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 7px; justify-content: center;
+  }
+  .tab:hover { color: var(--text); background: var(--surface2); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124,106,247,0.3);
+  }
+
+  /* ─── PANELS ─── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ─── FORM ELEMENTS ─── */
+  .form-row { margin-bottom: 18px; }
+  label {
+    display: block;
+    font-size: 12px; font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 7px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow2);
+  }
+  select option { background: var(--surface2); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ─── CHAR COUNTER ─── */
+  .input-wrap { position: relative; }
+  .char-count {
+    position: absolute; bottom: 10px; right: 12px;
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    color: var(--text3); pointer-events: none;
+  }
+  .char-count.warn { color: var(--yellow); }
+  .char-count.over { color: var(--red); }
+
+  /* ─── RANGE SLIDER ─── */
+  .range-wrap { display: flex; align-items: center; gap: 12px; }
+  input[type="range"] {
+    flex: 1; accent-color: var(--accent);
+    height: 4px; cursor: pointer;
+  }
+  .range-val {
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2); min-width: 28px; text-align: right;
+  }
+
+  /* ─── TOGGLES ─── */
+  .toggle-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .toggle-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    font-size: 13px; font-weight: 500;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .toggle-chip:hover { border-color: var(--accent); }
+  .toggle-chip.on {
+    border-color: var(--accent);
+    background: rgba(124,106,247,0.12);
+    color: var(--accent2);
+  }
+  .toggle-chip input { display: none; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    padding: 12px 22px;
+    border-radius: var(--radius2);
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(124,106,247,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(124,106,247,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .btn-icon { padding: 8px; border-radius: 8px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  /* ─── CARD / BOX ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--text2); letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ─── OUTPUT SECTION ─── */
+  .output-section {
+    margin-top: 28px;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── TITLE RESULT CARDS ─── */
+  .title-list { display: flex; flex-direction: column; gap: 10px; }
+  .title-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .title-card:hover { border-color: var(--accent); background: var(--surface3); }
+  .title-card.selected { border-color: var(--accent); background: rgba(124,106,247,0.08); }
+  .title-num {
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    color: var(--accent); background: rgba(124,106,247,0.12);
+    border-radius: 6px; padding: 2px 7px; margin-top: 2px;
+    min-width: 28px; text-align: center;
+  }
+  .title-text { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.5; }
+  .title-meta { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .pill {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px; font-family: 'JetBrains Mono', monospace;
+  }
+  .pill-blue { background: rgba(6,182,212,0.12); color: var(--cyan); }
+  .pill-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .pill-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); }
+  .pill-red { background: rgba(244,63,94,0.12); color: var(--red); }
+  .pill-purple { background: rgba(124,106,247,0.12); color: var(--accent2); }
+  .title-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+  /* ─── SEO SCORE METER ─── */
+  .seo-meter-wrap { margin: 20px 0; }
+  .seo-score-big {
+    font-size: 52px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .seo-score-big.good { color: var(--green); }
+  .seo-score-big.ok { color: var(--yellow); }
+  .seo-score-big.bad { color: var(--red); }
+  .score-bar-wrap { margin-top: 12px; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .score-bar.good { background: linear-gradient(90deg, #16a34a, #22c55e); }
+  .score-bar.ok { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .score-bar.bad { background: linear-gradient(90deg, #be123c, #f43f5e); }
+
+  /* ─── KEYWORD TABLE ─── */
+  .kw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .kw-table th {
+    text-align: left; padding: 10px 12px;
+    background: var(--surface3);
+    color: var(--text2); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .kw-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .kw-table tr:last-child td { border-bottom: none; }
+  .kw-table tr:hover td { background: var(--surface3); }
+  .diff-bar { height: 5px; border-radius: 3px; background: var(--surface3); overflow: hidden; margin-top: 4px; }
+  .diff-fill { height: 100%; border-radius: 3px; }
+
+  /* ─── BLOG OUTPUT ─── */
+  .blog-output {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    font-size: 15px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .blog-output h1, .blog-output h2, .blog-output h3 {
+    color: var(--accent2);
+    margin: 1.2em 0 0.5em;
+  }
+
+  /* ─── LOADING SPINNER ─── */
+  .spinner-wrap {
+    display: none;
+    align-items: center; gap: 14px;
+    padding: 24px 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 20px;
+  }
+  .spinner-wrap.show { display: flex; }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-msg { font-size: 14px; color: var(--text2); }
+  .spinner-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+  }
+  @keyframes dots {
+    0%,20% { content: '.'; }
+    40%,60% { content: '..'; }
+    80%,100% { content: '...'; }
+  }
+
+  /* ─── COPY TOAST ─── */
+  #toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface3); border: 1px solid var(--accent);
+    color: var(--accent2);
+    padding: 10px 20px; border-radius: 24px;
+    font-size: 13px; font-weight: 600;
+    transition: transform 0.3s ease;
+    z-index: 999; pointer-events: none;
+    box-shadow: 0 4px 20px rgba(124,106,247,0.3);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── HISTORY ─── */
+  .history-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-meta { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+
+  /* ─── ANALYTICS GRID ─── */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 16px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-val { font-size: 26px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+  .stat-unit { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ─── COMPARATOR ─── */
+  .compare-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: start; }
+  .vs-badge {
+    font-size: 11px; font-weight: 700; padding: 6px 10px;
+    background: var(--surface3); border: 1px solid var(--border2);
+    border-radius: 50%; color: var(--text2); text-align: center;
+    margin-top: 32px;
+  }
+
+  /* ─── A/B TEST ─── */
+  .ab-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ab-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .ab-label {
+    font-size: 11px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 10px;
+    padding: 3px 10px; border-radius: 4px;
+    display: inline-block;
+  }
+  .ab-a { background: rgba(6,182,212,0.12); color: var(--cyan); }
+  .ab-b { background: rgba(249,115,22,0.12); color: var(--orange); }
+
+  /* ─── TAG INPUT ─── */
+  .tag-input-wrap {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 8px 10px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius2);
+    min-height: 44px; cursor: text;
+  }
+  .tag-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow2); }
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(124,106,247,0.15); border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent3); border-radius: 6px;
+    padding: 2px 8px; font-size: 12px; font-weight: 500;
+  }
+  .tag-remove {
+    cursor: pointer; color: var(--accent); font-size: 14px;
+    line-height: 1; background: none; border: none; color: var(--accent2);
+    padding: 0;
+  }
+  .tag-input-field {
+    border: none; background: transparent; outline: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; color: var(--text);
+    min-width: 120px; flex: 1;
+  }
+
+  /* ─── SECTION DIVIDER ─── */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .section-header { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-header span { color: var(--accent2); }
+
+  /* ─── STREAMED TEXT ─── */
+  .stream-cursor::after {
+    content: '▌';
+    color: var(--accent);
+    animation: blink 0.8s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    .grid-2, .grid-3, .ab-row, .compare-vs { grid-template-columns: 1fr; }
+    .vs-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🎬</div>
+        <div>
+          <div class="logo-text">AI YouTube <span>Studio</span></div>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace">Title · SEO · Blog · Analytics</div>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-purple">Claude Powered</span>
+        <span class="badge badge-cyan">SEO Engine</span>
+        <span class="badge badge-green">Blog Generator</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── TABS ─── -->
+  <div class="tabs-bar" id="tabs">
+    <button class="tab active" data-tab="titles">🎯 Title Generator</button>
+    <button class="tab" data-tab="seo">📈 SEO Analyzer</button>
+    <button class="tab" data-tab="blog">✍️ Blog Generator</button>
+    <button class="tab" data-tab="keywords">🔑 Keyword Research</button>
+    <button class="tab" data-tab="abtests">⚖️ A/B Tester</button>
+    <button class="tab" data-tab="history">🕐 History</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 1 · TITLE GENERATOR                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel active" id="panel-titles">
+
+    <div class="grid-2">
+      <!-- Left: Input -->
+      <div>
+        <div class="card">
+          <div class="card-title">📋 Content Details</div>
+
+          <div class="form-row">
+            <label>Topic / Main Keyword *</label>
+            <div class="input-wrap">
+              <input type="text" id="t-topic" placeholder="e.g. How to make money online with AI" maxlength="120">
+              <span class="char-count" id="t-topic-cc">0/120</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Target Audience</label>
+            <input type="text" id="t-audience" placeholder="e.g. Beginners, Students, Entrepreneurs">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-row">
+              <label>Content Category</label>
+              <select id="t-category">
+                <option value="how-to">How-To / Tutorial</option>
+                <option value="review">Review / Comparison</option>
+                <option value="listicle">Listicle / Top 10</option>
+                <option value="story">Story / Vlog</option>
+                <option value="news">News / Commentary</option>
+                <option value="challenge">Challenge / Experiment</option>
+                <option value="motivation">Motivation / Mindset</option>
+                <option value="finance">Finance / Money</option>
+                <option value="tech">Tech / AI</option>
+                <option value="health">Health / Fitness</option>
+                <option value="education">Education</option>
+                <option value="gaming">Gaming</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Tone</label>
+              <select id="t-tone">
+                <option value="clickbait">Clickbait (High CTR)</option>
+                <option value="professional">Professional</option>
+                <option value="casual">Casual / Friendly</option>
+                <option value="urgent">Urgent / FOMO</option>
+                <option value="educational">Educational</option>
+                <option value="controversial">Controversial</option>
+                <option value="inspiring">Inspiring</option>
+                <option value="humorous">Humorous</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Number of Titles</label>
+            <div class="range-wrap">
+              <input type="range" id="t-count" min="5" max="25" value="10">
+              <span class="range-val" id="t-count-val">10</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Title Features</label>
+            <div class="toggle-grid" id="t-features">
+              <label class="toggle-chip on"><input type="checkbox" checked value="numbers">🔢 Power Numbers</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="emojis">✨ Emojis</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="questions">❓ Questions</label>
+              <label class="toggle-chip"><input type="checkbox" value="brackets">[Brackets]</label>
+              <label class="toggle-chip"><input type="checkbox" value="yearTag">📅 Year Tag</label>
+              <label class="toggle-chip"><input type="checkbox" value="secretWords">🔐 Secret Words</label>
+              <label class="toggle-chip"><input type="checkbox" value="negative">⚠️ Negative</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="seoOptimized">🎯 SEO Focus</label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Max Title Length (chars)</label>
+            <div class="range-wrap">
+              <input type="range" id="t-maxlen" min="40" max="100" value="70">
+              <span class="range-val" id="t-maxlen-val">70</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Competing Channels (optional)</label>
+            <input type="text" id="t-competitors" placeholder="e.g. MrBeast, TechLead, Graham Stephan">
+          </div>
+
+          <div class="btn-row" style="margin-top:20px">
+            <button class="btn btn-primary" id="btn-gen-titles">
+              ⚡ Generate Titles
+            </button>
+            <button class="btn btn-secondary" id="btn-clear-titles">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Output -->
+      <div>
+        <div class="spinner-wrap" id="spinner-titles">
+          <div class="spinner"></div>
+          <span class="spinner-msg">Generating viral titles<span class="spinner-dots"></span></span>
+        </div>
+
+        <div id="titles-output" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="section-header" style="margin:0">🏆 Generated Titles <span id="title-count-badge"></span></div>
+            <div class="btn-row">
+              <button class="btn btn-secondary btn-sm" id="btn-copy-all-titles">📋 Copy All</button>
+              <button class="btn btn-secondary btn-sm" id="btn-export-titles">💾 Export CSV</button>
+            </div>
+          </div>
+          <div class="title-list" id="title-list"></div>
+
+          <div class="divider"></div>
+          <div class="card" id="title-analysis-card" style="display:none">
+            <div class="card-title">📊 Title Performance Insights</div>
+            <div id="title-analysis-content" style="font-size:14px;line-height:1.7;color:var(--text2)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 2 · SEO ANALYZER                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel" id="panel-seo">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">🔍 SEO Analysis Input</div>
+
+          <div class="form-row">
+            <label>YouTube Title to Analyze</label>
+            <div class="input-wrap">
+              <input type="text" id="seo-title" placeholder="Paste your YouTube title here" maxlength="100">
+              <span class="char-count" id="seo-title-cc">0/100</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Video Description (optional)</label>
+            <textarea id="seo-desc" rows="4" placeholder="Paste your video description (500+ chars for deeper analysis)"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label>Primary Keywords (comma separated)</label>
+            <div class="tag-input-wrap" id="seo-kw-wrap">
+              <input type="text" class="tag-input-field" id="seo-kw-input" placeholder="Type keyword and press Enter">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Video Category</label>
+            <select id="seo-category">
+              <option value="education">Education</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="howto">How-To & Style</option>
+              <option value="science">Science & Technology</option>
+              <option value="finance">Finance</option>
+              <option value="gaming">Gaming</option>
+              <option value="news">News & Politics</option>
+              <option value="travel">Travel</option>
+              <option value="health">Health & Fitness</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label>Niche Competitors</label>
+            <input type="text" id="seo-competitors" placeholder="Top channels in your niche">
+          </div>
+
+          <button class="btn btn-primary" id="btn-analyze-seo" style="width:100%;margin-top:8px">
+            📈 Analyze SEO
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="spinner-wrap" id="spinner-seo">
+          <div class="spinner"></div>
+          <span class="spinner-msg">Analyzing SEO factors<span class="spinner-dots"></span></span>
+        </div>
+
+        <div id="seo-output" style="display:none">
+          <!-- Score -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">Overall SEO Score</div>
+            <div style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap">
+              <div>
+                <div class="seo-score-big" id="seo-score-num">--</div>
+                <div style="font-size:13px;color:var(--text2);margin-top:4px">out of 100</div>
+              </div>
+              <div style="flex:1;min-width:160px">
+                <div class="score-bar-wrap"><div class="score-bar" id="seo-score-bar" style="width:0%"></div></div>
+                <div id="seo-score-label" style="font-size:12px;color:var(--text2);margin-top:8px"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics grid -->
+          <div class="stat-grid" id="seo-metrics" style="margin-bottom:16px"></div>
+
+          <!-- Detailed analysis -->
+          <div class="card">
+            <div class="card-title">🧪 Detailed Breakdown</div>
+            <div id="seo-analysis-text" style="font-size:14px;line-height:1.75;color:var(--text2);white-space:pre-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 3 · BLOG GENERATOR                 -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel" id="panel-blog">
+    <div class="grid-2" style="align-items:start">
+      <div>
+        <div class="card">
+          <div class="card-title">✍️ Blog Settings</div>
+
+          <div class="form-row">
+            <label>Blog Topic / Title</label>
+            <input type="text" id="blog-topic" placeholder="e.g. 10 Ways to Make Money with YouTube in 2025">
+          </div>
+
+          <div class="form-row">
+            <label>Primary Focus Keyword</label>
+            <input type="text" id="blog-keyword" placeholder="e.g. make money youtube">
+          </div>
+
+          <div class="form-row">
+            <label>Secondary Keywords</label>
+            <input type="text" id="blog-secondary-kw" placeholder="comma separated, e.g. youtube income, monetize channel">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-row">
+              <label>Article Type</label>
+              <select id="blog-type">
+                <option value="howto">How-To Guide</option>
+                <option value="listicle">Listicle (Top N)</option>
+                <option value="review">Review / Comparison</option>
+                <option value="explainer">Explainer / Deep Dive</option>
+                <option value="case-study">Case Study</option>
+                <option value="opinion">Opinion / Editorial</option>
+                <option value="news">News Article</option>
+                <option value="pillar">Pillar Page</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Word Count Target</label>
+              <select id="blog-length">
+                <option value="500">Short (~500 words)</option>
+                <option value="1000" selected>Medium (~1000 words)</option>
+                <option value="1500">Long (~1500 words)</option>
+                <option value="2500">Pillar (~2500 words)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-row">
+              <label>Tone</label>
+              <select id="blog-tone">
+                <option value="professional">Professional</option>
+                <option value="conversational">Conversational</option>
+                <option value="educational">Educational</option>
+                <option value="friendly">Friendly</option>
+                <option value="authoritative">Authoritative</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Target Audience</label>
+              <input type="text" id="blog-audience" placeholder="e.g. beginners, marketers">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Blog Features</label>
+            <div class="toggle-grid" id="blog-features">
+              <label class="toggle-chip on"><input type="checkbox" checked value="meta">🔍 Meta Title+Desc</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="toc">📑 Table of Contents</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="faq">❓ FAQ Section</label>
+              <label class="toggle-chip"><input type="checkbox" value="schema">🧬 Schema JSON-LD</label>
+              <label class="toggle-chip on"><input type="checkbox" checked value="cta">📣 CTA Sections</label>
+              <label class="toggle-chip"><input type="checkbox" value="stats">📊 Stats & Data</label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btn-gen-blog" style="width:100%;margin-top:12px">
+            ✍️ Generate Blog Post
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="spinner-wrap" id="spinner-blog">
+          <div class="spinner"></div>
+          <span class="spinner-msg">Writing your blog post<span class="spinner-dots"></span></span>
+        </div>
+
+        <div id="blog-output" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+            <div class="section-header" style="margin:0">📄 Generated Blog Post</div>
+            <div class="btn-row">
+              <button class="btn btn-secondary btn-sm" id="btn-copy-blog">📋 Copy</button>
+              <button class="btn btn-secondary btn-sm" id="btn-export-blog-md">⬇️ Export .md</button>
+              <button class="btn btn-secondary btn-sm" id="btn-export-blog-html">⬇️ Export .html</button>
+            </div>
+          </div>
+          <div class="blog-output" id="blog-content" contenteditable="true"></div>
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+            <div id="blog-wordcount" style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 4 · KEYWORD RESEARCH               -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel" id="panel-keywords">
+    <div class="grid-2" style="align-items:start">
+      <div>
+        <div class="card">
+          <div class="card-title">🔑 Keyword Research</div>
+
+          <div class="form-row">
+            <label>Seed Keyword / Topic *</label>
+            <input type="text" id="kw-seed" placeholder="e.g. passive income, AI tools, weight loss">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-row">
+              <label>Platform Focus</label>
+              <select id="kw-platform">
+                <option value="youtube">YouTube</option>
+                <option value="google">Google Search</option>
+                <option value="both">Both Platforms</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Intent Type</label>
+              <select id="kw-intent">
+                <option value="all">All Intents</option>
+                <option value="informational">Informational</option>
+                <option value="commercial">Commercial</option>
+                <option value="transactional">Transactional</option>
+                <option value="navigational">Navigational</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Number of Keywords</label>
+            <div class="range-wrap">
+              <input type="range" id="kw-count" min="10" max="50" value="20">
+              <span class="range-val" id="kw-count-val">20</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Niche / Industry</label>
+            <input type="text" id="kw-niche" placeholder="e.g. personal finance, fitness, SaaS">
+          </div>
+
+          <button class="btn btn-primary" id="btn-research-kw" style="width:100%;margin-top:12px">
+            🔍 Research Keywords
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="spinner-wrap" id="spinner-kw">
+          <div class="spinner"></div>
+          <span class="spinner-msg">Researching keywords<span class="spinner-dots"></span></span>
+        </div>
+
+        <div id="kw-output" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="section-header" style="margin:0">🔑 Keyword Ideas</div>
+            <button class="btn btn-secondary btn-sm" id="btn-export-kw">💾 Export CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="kw-table" id="kw-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Keyword</th>
+                  <th>Volume Est.</th>
+                  <th>Difficulty</th>
+                  <th>Intent</th>
+                  <th>Platform</th>
+                </tr>
+              </thead>
+              <tbody id="kw-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 5 · A/B TESTER                     -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel" id="panel-abtests">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">⚖️ Title A/B Comparison</div>
+      <div class="ab-row">
+        <div>
+          <label>Version A</label>
+          <input type="text" id="ab-a" placeholder="Your first title variant">
+        </div>
+        <div>
+          <label>Version B</label>
+          <input type="text" id="ab-b" placeholder="Your second title variant">
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:16px">
+        <label>Target Audience Context</label>
+        <input type="text" id="ab-audience" placeholder="e.g. tech enthusiasts aged 18-35 on YouTube">
+      </div>
+      <button class="btn btn-primary" id="btn-ab-test" style="margin-top:12px">
+        🔬 Run A/B Analysis
+      </button>
+    </div>
+
+    <div class="spinner-wrap" id="spinner-ab">
+      <div class="spinner"></div>
+      <span class="spinner-msg">Analyzing both variants<span class="spinner-dots"></span></span>
+    </div>
+
+    <div id="ab-output" style="display:none">
+      <div class="ab-row" style="margin-bottom:20px">
+        <div class="ab-card">
+          <span class="ab-label ab-a">VERSION A</span>
+          <div style="font-size:16px;font-weight:600;margin-bottom:12px" id="ab-a-text"></div>
+          <div id="ab-a-metrics"></div>
+        </div>
+        <div class="ab-card">
+          <span class="ab-label ab-b">VERSION B</span>
+          <div style="font-size:16px;font-weight:600;margin-bottom:12px" id="ab-b-text"></div>
+          <div id="ab-b-metrics"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏆 Recommendation</div>
+        <div id="ab-recommendation" style="font-size:14px;line-height:1.75;color:var(--text2)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANEL 6 · HISTORY                        -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="panel" id="panel-history">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="section-header" style="margin:0">🕐 Generation History</div>
+      <button class="btn btn-secondary btn-sm" id="btn-clear-history">🗑 Clear All</button>
+    </div>
+    <div id="history-list" style="display:flex;flex-direction:column;gap:10px">
+      <div style="text-align:center;padding:40px;color:var(--text3);font-size:14px">No history yet. Start generating!</div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<div id="toast">✅ Copied!</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════════
+const API_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-20250514";
+let history = JSON.parse(localStorage.getItem('yt_studio_history') || '[]');
+let seoKeywords = [];
+
+// ─── TABS ───
+document.getElementById('tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  if (tab.dataset.tab === 'history') renderHistory();
+});
+
+// ─── CHAR COUNTERS ───
+function setupCharCounter(inputId, counterId, max) {
+  const inp = document.getElementById(inputId);
+  const ctr = document.getElementById(counterId);
+  if (!inp || !ctr) return;
+  inp.addEventListener('input', () => {
+    const n = inp.value.length;
+    ctr.textContent = `${n}/${max}`;
+    ctr.className = 'char-count' + (n > max * 0.9 ? (n >= max ? ' over' : ' warn') : '');
+  });
+}
+setupCharCounter('t-topic', 't-topic-cc', 120);
+setupCharCounter('seo-title', 'seo-title-cc', 100);
+
+// ─── RANGE SLIDERS ───
+function bindRange(id, valId) {
+  const r = document.getElementById(id), v = document.getElementById(valId);
+  if (!r || !v) return;
+  r.addEventListener('input', () => v.textContent = r.value);
+}
+bindRange('t-count', 't-count-val');
+bindRange('t-maxlen', 't-maxlen-val');
+bindRange('kw-count', 'kw-count-val');
+
+// ─── TOGGLE CHIPS ───
+document.querySelectorAll('.toggle-chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('on'));
+});
+
+// ─── SEO TAG INPUT ───
+const kwInput = document.getElementById('seo-kw-input');
+if (kwInput) {
+  document.getElementById('seo-kw-wrap').addEventListener('click', () => kwInput.focus());
+  kwInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = kwInput.value.trim().replace(/,$/, '');
+      if (val && !seoKeywords.includes(val)) {
+        seoKeywords.push(val);
+        renderSeoTags();
+      }
+      kwInput.value = '';
+    } else if (e.key === 'Backspace' && !kwInput.value && seoKeywords.length) {
+      seoKeywords.pop();
+      renderSeoTags();
+    }
+  });
+}
+
+function renderSeoTags() {
+  const wrap = document.getElementById('seo-kw-wrap');
+  wrap.querySelectorAll('.tag').forEach(t => t.remove());
+  seoKeywords.forEach((kw, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${kw}<button class="tag-remove" data-i="${i}">×</button>`;
+    wrap.insertBefore(tag, kwInput);
+  });
+  wrap.querySelectorAll('.tag-remove').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      seoKeywords.splice(+btn.dataset.i, 1);
+      renderSeoTags();
+    });
+  });
+}
+
+// ─── TOAST ───
+function toast(msg = '✅ Copied!') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ─── COPY ───
+function copy(text) {
+  navigator.clipboard.writeText(text).then(() => toast());
+}
+
+// ─── SPINNER ───
+function showSpinner(id) { document.getElementById(id).classList.add('show'); }
+function hideSpinner(id) { document.getElementById(id).classList.remove('show'); }
+
+// ─── HISTORY ───
+function addHistory(type, topic, result) {
+  history.unshift({ type, topic, result, date: new Date().toLocaleString() });
+  if (history.length > 50) history.pop();
+  localStorage.setItem('yt_studio_history', JSON.stringify(history));
+}
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!history.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:14px">No history yet.</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => `
+    <div class="history-item">
+      <div>
+        <div style="font-size:14px;font-weight:600">${h.topic}</div>
+        <div class="history-meta">${h.type.toUpperCase()} · ${h.date}</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-sm" onclick="copy(decodeURIComponent('${encodeURIComponent(h.result)}'))">📋 Copy</button>
+        <button class="btn btn-secondary btn-sm" onclick="history.splice(${i},1);localStorage.setItem('yt_studio_history',JSON.stringify(history));renderHistory()">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+document.getElementById('btn-clear-history').addEventListener('click', () => {
+  if (confirm('Clear all history?')) {
+    history = [];
+    localStorage.setItem('yt_studio_history', '[]');
+    renderHistory();
+  }
+});
+
+// ─── API CALL ───
+async function callClaude(prompt, systemPrompt = '') {
+  const messages = [{ role: 'user', content: prompt }];
+  const body = { model: MODEL, max_tokens: 1000 };
+  if (systemPrompt) body.system = systemPrompt;
+  body.messages = messages;
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('\n');
+}
+
+// ═══════════════════════════════════════════════════════
+// SECTION 1 · TITLE GENERATOR
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-gen-titles').addEventListener('click', async () => {
+  const topic = document.getElementById('t-topic').value.trim();
+  if (!topic) { toast('⚠️ Enter a topic first'); return; }
+
+  const audience   = document.getElementById('t-audience').value.trim();
+  const category   = document.getElementById('t-category').value;
+  const tone       = document.getElementById('t-tone').value;
+  const count      = document.getElementById('t-count').value;
+  const maxlen     = document.getElementById('t-maxlen').value;
+  const competitors= document.getElementById('t-competitors').value.trim();
+  const features   = [...document.querySelectorAll('#t-features .toggle-chip.on input')].map(i => i.value);
+
+  showSpinner('spinner-titles');
+  document.getElementById('titles-output').style.display = 'none';
+
+  const prompt = `You are an expert YouTube SEO and viral title strategist.
+Generate exactly ${count} YouTube video titles for the topic: "${topic}"
+
+Requirements:
+- Category: ${category}
+- Tone: ${tone}
+- Target Audience: ${audience || 'General audience'}
+- Max title length: ${maxlen} characters
+- Features to include: ${features.join(', ')}
+${competitors ? `- Study style of: ${competitors}` : ''}
+- Each title must be unique, non-repetitive
+- Mix different title structures (questions, numbers, how-to, secrets, etc.)
+
+Return ONLY a JSON array in this exact format, nothing else:
+[
+  {
+    "title": "Full YouTube Title Here",
+    "score": 85,
+    "tags": ["clickbait", "question"],
+    "charCount": 65,
+    "emotionalTrigger": "Curiosity"
+  }
+]`;
+
+  const systemPrompt = `You are a YouTube viral title expert. Always respond with valid JSON only. No markdown, no extra text.`;
+
+  try {
+    const raw = await callClaude(prompt, systemPrompt);
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const titles = JSON.parse(cleaned);
+
+    const list = document.getElementById('title-list');
+    list.innerHTML = '';
+    document.getElementById('title-count-badge').innerHTML = `<span class="badge badge-purple">${titles.length} titles</span>`;
+
+    titles.forEach((t, i) => {
+      const div = document.createElement('div');
+      div.className = 'title-card';
+      div.innerHTML = `
+        <span class="title-num">${String(i+1).padStart(2,'0')}</span>
+        <div style="flex:1">
+          <div class="title-text">${t.title}</div>
+          <div class="title-meta">
+            <span class="pill pill-green">Score ${t.score || '~'}/100</span>
+            <span class="pill pill-blue">${t.charCount || t.title.length} chars</span>
+            <span class="pill pill-yellow">${t.emotionalTrigger || ''}</span>
+            ${(t.tags||[]).map(tag => `<span class="pill pill-purple">${tag}</span>`).join('')}
+          </div>
+          <div class="title-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copy('${t.title.replace(/'/g,"\\'")}')">📋 Copy</button>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('seo-title').value='${t.title.replace(/'/g,"\\'")}';document.querySelectorAll('.tab')[1].click()">📈 Analyze SEO</button>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('ab-a').value='${t.title.replace(/'/g,"\\'")}';document.querySelectorAll('.tab')[4].click()">⚖️ A/B Test</button>
+          </div>
+        </div>`;
+      list.appendChild(div);
+    });
+
+    // Analysis section
+    const analysis = await callClaude(
+      `Analyze these ${count} YouTube titles for topic "${topic}". Give 3-4 short bullet insights on: best performing patterns used, what emotional triggers dominate, and one tip to improve CTR. Keep it concise.`,
+      'You are a YouTube analytics expert. Be concise and actionable.'
+    );
+    document.getElementById('title-analysis-content').textContent = analysis;
+    document.getElementById('title-analysis-card').style.display = 'block';
+
+    document.getElementById('titles-output').style.display = 'block';
+    addHistory('titles', topic, titles.map((t,i)=>`${i+1}. ${t.title}`).join('\n'));
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    hideSpinner('spinner-titles');
+  }
+});
+
+document.getElementById('btn-clear-titles').addEventListener('click', () => {
+  document.getElementById('t-topic').value = '';
+  document.getElementById('titles-output').style.display = 'none';
+});
+
+document.getElementById('btn-copy-all-titles').addEventListener('click', () => {
+  const texts = [...document.querySelectorAll('.title-text')].map((el,i) => `${i+1}. ${el.textContent}`).join('\n');
+  copy(texts);
+});
+
+document.getElementById('btn-export-titles').addEventListener('click', () => {
+  const rows = [...document.querySelectorAll('.title-card')].map((card, i) => {
+    const title = card.querySelector('.title-text').textContent;
+    const pills = [...card.querySelectorAll('.pill')].map(p => p.textContent).join(' | ');
+    return `"${i+1}","${title.replace(/"/g,'""')}","${pills}"`;
+  });
+  const csv = `"#","Title","Metrics"\n` + rows.join('\n');
+  download('youtube_titles.csv', csv, 'text/csv');
+});
+
+// ═══════════════════════════════════════════════════════
+// SECTION 2 · SEO ANALYZER
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-analyze-seo').addEventListener('click', async () => {
+  const title    = document.getElementById('seo-title').value.trim();
+  if (!title) { toast('⚠️ Enter a title to analyze'); return; }
+  const desc     = document.getElementById('seo-desc').value.trim();
+  const kws      = seoKeywords.join(', ');
+  const category = document.getElementById('seo-category').value;
+  const comp     = document.getElementById('seo-competitors').value.trim();
+
+  showSpinner('spinner-seo');
+  document.getElementById('seo-output').style.display = 'none';
+
+  const prompt = `You are a YouTube SEO expert. Analyze this title and content thoroughly.
+
+TITLE: "${title}"
+${desc ? `DESCRIPTION: "${desc.substring(0,500)}"` : ''}
+KEYWORDS: ${kws || 'Not provided'}
+CATEGORY: ${category}
+${comp ? `COMPETITORS: ${comp}` : ''}
+
+Return ONLY valid JSON, this exact format:
+{
+  "overallScore": 78,
+  "metrics": {
+    "titleLength": 72,
+    "keywordInTitle": true,
+    "titleLengthScore": 85,
+    "readability": 80,
+    "emotionalPower": 70,
+    "clickThroughPotential": 75,
+    "searchIntentMatch": 80,
+    "competitivenessScore": 65
+  },
+  "strengths": ["Strength 1", "Strength 2", "Strength 3"],
+  "weaknesses": ["Weakness 1", "Weakness 2"],
+  "suggestions": ["Suggestion 1", "Suggestion 2", "Suggestion 3"],
+  "improvedTitle": "A better version of the title here",
+  "detailedAnalysis": "Multi-line detailed text analysis covering all factors..."
+}`;
+
+  try {
+    const raw = await callClaude(prompt, 'Return only valid JSON, no markdown, no extra text.');
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    // Score
+    const score = data.overallScore;
+    const cls = score >= 70 ? 'good' : score >= 45 ? 'ok' : 'bad';
+    document.getElementById('seo-score-num').textContent = score;
+    document.getElementById('seo-score-num').className = `seo-score-big ${cls}`;
+    document.getElementById('seo-score-bar').style.width = score + '%';
+    document.getElementById('seo-score-bar').className = `score-bar ${cls}`;
+    document.getElementById('seo-score-label').textContent =
+      score >= 70 ? '🟢 Good SEO — competitive and well-optimized' :
+      score >= 45 ? '🟡 Moderate — room for significant improvement' :
+      '🔴 Poor — needs major optimization';
+
+    // Metrics
+    const m = data.metrics || {};
+    const metricsMap = [
+      ['Title Length', m.titleLength + ' chars', 'pill-blue'],
+      ['Title Length Score', m.titleLengthScore + '/100', 'pill-green'],
+      ['Readability', m.readability + '/100', 'pill-green'],
+      ['Emotional Power', m.emotionalPower + '/100', 'pill-yellow'],
+      ['CTR Potential', m.clickThroughPotential + '/100', 'pill-purple'],
+      ['Search Intent', m.searchIntentMatch + '/100', 'pill-blue'],
+      ['Keyword Present', m.keywordInTitle ? 'Yes ✅' : 'No ❌', m.keywordInTitle ? 'pill-green' : 'pill-red'],
+      ['Competition', m.competitivenessScore + '/100', 'pill-yellow'],
+    ];
+    document.getElementById('seo-metrics').innerHTML = metricsMap.map(([label, val, cls2]) => `
+      <div class="stat-box">
+        <div class="stat-label">${label}</div>
+        <div class="stat-val" style="font-size:18px"><span class="pill ${cls2}">${val}</span></div>
+      </div>`).join('');
+
+    // Detailed
+    let html = '';
+    if (data.strengths?.length) html += `<strong style="color:var(--green)">✅ Strengths</strong>\n${data.strengths.map(s=>`• ${s}`).join('\n')}\n\n`;
+    if (data.weaknesses?.length) html += `<strong style="color:var(--red)">❌ Weaknesses</strong>\n${data.weaknesses.map(s=>`• ${s}`).join('\n')}\n\n`;
+    if (data.suggestions?.length) html += `<strong style="color:var(--cyan)">💡 Suggestions</strong>\n${data.suggestions.map(s=>`• ${s}`).join('\n')}\n\n`;
+    if (data.improvedTitle) html += `<strong style="color:var(--yellow)">⚡ Improved Title</strong>\n"${data.improvedTitle}"\n\n`;
+    if (data.detailedAnalysis) html += `<strong style="color:var(--text2)">📊 Detailed Analysis</strong>\n${data.detailedAnalysis}`;
+    document.getElementById('seo-analysis-text').innerHTML = html;
+
+    document.getElementById('seo-output').style.display = 'block';
+    addHistory('seo', title, `SEO Score: ${score}/100\n\n` + html.replace(/<[^>]+>/g,''));
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    hideSpinner('spinner-seo');
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// SECTION 3 · BLOG GENERATOR
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-gen-blog').addEventListener('click', async () => {
+  const topic   = document.getElementById('blog-topic').value.trim();
+  if (!topic) { toast('⚠️ Enter a blog topic'); return; }
+  const keyword = document.getElementById('blog-keyword').value.trim();
+  const secKws  = document.getElementById('blog-secondary-kw').value.trim();
+  const type    = document.getElementById('blog-type').value;
+  const length  = document.getElementById('blog-length').value;
+  const tone    = document.getElementById('blog-tone').value;
+  const audience= document.getElementById('blog-audience').value.trim();
+  const features= [...document.querySelectorAll('#blog-features .toggle-chip.on input')].map(i => i.value);
+
+  showSpinner('spinner-blog');
+  document.getElementById('blog-output').style.display = 'none';
+
+  const prompt = `Write a complete SEO-optimized blog post:
+
+Topic: "${topic}"
+Primary Keyword: "${keyword || topic}"
+Secondary Keywords: ${secKws || 'None'}
+Type: ${type}
+Target Word Count: ~${length} words
+Tone: ${tone}
+Target Audience: ${audience || 'General'}
+Include: ${features.join(', ')}
+
+Instructions:
+- Use proper H1, H2, H3 heading structure with the keyword naturally
+- Include keyword in first paragraph
+- Write engaging, human, non-AI-sounding content
+- Add smooth transitions between sections
+${features.includes('meta') ? '- Start with: <!-- META\nTitle: [SEO title 50-60 chars]\nDescription: [meta description 150-160 chars]\n-->' : ''}
+${features.includes('toc') ? '- Include a Table of Contents after the intro' : ''}
+${features.includes('faq') ? '- Add an FAQ section with 4-5 Q&As at the end' : ''}
+${features.includes('schema') ? '- End with a JSON-LD schema block for Article' : ''}
+${features.includes('cta') ? '- Add 1-2 call-to-action sections' : ''}
+${features.includes('stats') ? '- Include statistics and data points (can be illustrative)' : ''}
+
+Write the complete article now:`;
+
+  try {
+    const result = await callClaude(prompt,
+      `You are a professional SEO content writer. Write complete, publish-ready blog content. No truncation.`
+    );
+
+    const content = document.getElementById('blog-content');
+    content.textContent = result;
+    const wc = result.split(/\s+/).filter(Boolean).length;
+    document.getElementById('blog-wordcount').textContent = `📝 ~${wc} words`;
+    document.getElementById('blog-output').style.display = 'block';
+    addHistory('blog', topic, result.substring(0, 500) + '...');
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    hideSpinner('spinner-blog');
+  }
+});
+
+document.getElementById('btn-copy-blog').addEventListener('click', () => {
+  copy(document.getElementById('blog-content').textContent);
+});
+document.getElementById('btn-export-blog-md').addEventListener('click', () => {
+  const text = document.getElementById('blog-content').textContent;
+  download('blog-post.md', text, 'text/markdown');
+});
+document.getElementById('btn-export-blog-html').addEventListener('click', () => {
+  const text = document.getElementById('blog-content').textContent;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Blog Post</title></head><body><pre style="white-space:pre-wrap;font-family:Georgia;max-width:800px;margin:40px auto;line-height:1.8;font-size:16px">${text.replace(/</g,'&lt;')}</pre></body></html>`;
+  download('blog-post.html', html, 'text/html');
+});
+
+// ═══════════════════════════════════════════════════════
+// SECTION 4 · KEYWORD RESEARCH
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-research-kw').addEventListener('click', async () => {
+  const seed  = document.getElementById('kw-seed').value.trim();
+  if (!seed) { toast('⚠️ Enter a seed keyword'); return; }
+  const platform= document.getElementById('kw-platform').value;
+  const intent  = document.getElementById('kw-intent').value;
+  const count   = document.getElementById('kw-count').value;
+  const niche   = document.getElementById('kw-niche').value.trim();
+
+  showSpinner('spinner-kw');
+  document.getElementById('kw-output').style.display = 'none';
+
+  const prompt = `You are a keyword research expert. Generate ${count} keyword ideas for:
+Seed Keyword: "${seed}"
+Platform: ${platform}
+Intent: ${intent}
+Niche: ${niche || 'General'}
+
+Return ONLY a JSON array:
+[
+  {
+    "keyword": "keyword phrase",
+    "volumeEst": "10K-100K",
+    "difficulty": 45,
+    "intent": "informational",
+    "platform": "YouTube"
+  }
+]
+- Difficulty 0-100 (higher = harder)
+- Include long-tail, question-based, and competitive variations
+- volumeEst: use ranges like "1K-10K", "10K-100K", "100K+", "<1K"`;
+
+  try {
+    const raw = await callClaude(prompt, 'Return only valid JSON array. No markdown, no extra text.');
+    const kws = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    const tbody = document.getElementById('kw-tbody');
+    tbody.innerHTML = kws.map((k, i) => {
+      const diff = k.difficulty;
+      const diffColor = diff < 33 ? '#22c55e' : diff < 66 ? '#fbbf24' : '#f43f5e';
+      return `<tr>
+        <td style="color:var(--text3);font-family:'JetBrains Mono',monospace">${i+1}</td>
+        <td style="font-weight:500">${k.keyword}</td>
+        <td><span class="pill pill-blue">${k.volumeEst}</span></td>
+        <td>
+          <div style="color:${diffColor};font-size:12px;font-family:'JetBrains Mono',monospace">${diff}/100</div>
+          <div class="diff-bar"><div class="diff-fill" style="width:${diff}%;background:${diffColor}"></div></div>
+        </td>
+        <td><span class="pill pill-yellow">${k.intent}</span></td>
+        <td><span class="pill pill-purple">${k.platform}</span></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('kw-output').style.display = 'block';
+    addHistory('keywords', seed, kws.map(k=>`${k.keyword} | ${k.volumeEst} | Diff:${k.difficulty}`).join('\n'));
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    hideSpinner('spinner-kw');
+  }
+});
+
+document.getElementById('btn-export-kw').addEventListener('click', () => {
+  const rows = [...document.querySelectorAll('#kw-tbody tr')].map(tr => {
+    const cells = [...tr.querySelectorAll('td')];
+    return cells.map(c => `"${c.textContent.trim().replace(/"/g,'""')}"`).join(',');
+  });
+  download('keywords.csv', '"#","Keyword","Volume Est.","Difficulty","Intent","Platform"\n'+rows.join('\n'), 'text/csv');
+});
+
+// ═══════════════════════════════════════════════════════
+// SECTION 5 · A/B TESTER
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-ab-test').addEventListener('click', async () => {
+  const a = document.getElementById('ab-a').value.trim();
+  const b = document.getElementById('ab-b').value.trim();
+  if (!a || !b) { toast('⚠️ Enter both title variants'); return; }
+  const audience = document.getElementById('ab-audience').value.trim();
+
+  showSpinner('spinner-ab');
+  document.getElementById('ab-output').style.display = 'none';
+
+  const prompt = `You are a YouTube CTR optimization expert. Compare these two title variants:
+
+VERSION A: "${a}"
+VERSION B: "${b}"
+Audience: ${audience || 'General YouTube viewers'}
+
+Analyze both on:
+- Click-Through Rate potential (0-100)
+- SEO score (0-100)
+- Emotional appeal (0-100)
+- Keyword strength (0-100)
+- Readability (0-100)
+
+Return ONLY valid JSON:
+{
+  "versionA": {
+    "ctr": 72, "seo": 68, "emotion": 80, "keyword": 65, "readability": 85,
+    "summary": "2-3 sentence assessment of version A"
+  },
+  "versionB": {
+    "ctr": 81, "seo": 74, "emotion": 90, "keyword": 78, "readability": 78,
+    "summary": "2-3 sentence assessment of version B"
+  },
+  "winner": "B",
+  "winnerReason": "Explanation of why B wins",
+  "recommendation": "Final recommendation + tips to make even better"
+}`;
+
+  try {
+    const raw = await callClaude(prompt, 'Return only valid JSON. No markdown.');
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    document.getElementById('ab-a-text').textContent = a;
+    document.getElementById('ab-b-text').textContent = b;
+
+    function metricBar(label, val) {
+      const color = val >= 70 ? 'var(--green)' : val >= 50 ? 'var(--yellow)' : 'var(--red)';
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px">
+          <span>${label}</span><span style="color:${color};font-family:'JetBrains Mono',monospace">${val}/100</span>
+        </div>
+        <div style="height:5px;background:var(--surface3);border-radius:3px">
+          <div style="height:100%;width:${val}%;background:${color};border-radius:3px;transition:width 1s"></div>
+        </div>
+      </div>`;
+    }
+
+    const vA = data.versionA;
+    const vB = data.versionB;
+    document.getElementById('ab-a-metrics').innerHTML =
+      metricBar('CTR Potential', vA.ctr) +
+      metricBar('SEO Score', vA.seo) +
+      metricBar('Emotional Appeal', vA.emotion) +
+      metricBar('Keyword Strength', vA.keyword) +
+      metricBar('Readability', vA.readability) +
+      `<div style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.6">${vA.summary}</div>`;
+
+    document.getElementById('ab-b-metrics').innerHTML =
+      metricBar('CTR Potential', vB.ctr) +
+      metricBar('SEO Score', vB.seo) +
+      metricBar('Emotional Appeal', vB.emotion) +
+      metricBar('Keyword Strength', vB.keyword) +
+      metricBar('Readability', vB.readability) +
+      `<div style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.6">${vB.summary}</div>`;
+
+    document.getElementById('ab-recommendation').innerHTML =
+      `<div style="margin-bottom:12px">
+        <span class="badge ${data.winner === 'A' ? 'badge-cyan' : 'badge-green'}" style="font-size:14px;padding:6px 14px">
+          🏆 Version ${data.winner} Wins
+        </span>
+      </div>
+      <p style="margin-bottom:10px"><strong style="color:var(--text)">Why:</strong> ${data.winnerReason}</p>
+      <p><strong style="color:var(--text)">💡 Recommendation:</strong> ${data.recommendation}</p>`;
+
+    document.getElementById('ab-output').style.display = 'block';
+    addHistory('ab-test', `${a} vs ${b}`, `Winner: ${data.winner}\n${data.recommendation}`);
+  } catch(e) {
+    toast('❌ ' + e.message);
+  } finally {
+    hideSpinner('spinner-ab');
+  }
+});
+
+// ─── DOWNLOAD HELPER ───
+function download(filename, content, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = filename;
+  a.click();
+}
+</script>
+</body>
+</html>
