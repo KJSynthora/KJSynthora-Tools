@@ -157,14 +157,18 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:var(--ink)}::-webkit-scrollbar-thumb{background:rgba(79,172,254,0.4);border-radius:2px}
 
 /* ===== INTRO LOADER (visual only, no audio) ===== */
-.intro-loader{position:fixed;inset:0;z-index:99999;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .6s ease,visibility .6s ease;}
+.intro-loader{position:fixed;inset:0;z-index:99999;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;transition:opacity .6s ease,visibility .6s ease;overflow:hidden;}
 .intro-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
-.il-mark{width:64px;height:64px;animation:ilPulse 1.6s ease-in-out infinite;}
-.il-text{font-family:'Syne',sans-serif;font-size:13px;letter-spacing:6px;text-transform:uppercase;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:ilFade .8s ease .3s forwards;}
-.il-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--ice3);opacity:0;animation:ilFade .8s ease .55s forwards;}
-@keyframes ilPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 12px rgba(79,172,254,0.25))}50%{transform:scale(1.08);filter:drop-shadow(0 0 28px rgba(167,139,250,0.4))}}
+.il-spark{position:absolute;border-radius:50%;background:#fff;opacity:0;animation:ilSpark 2.2s ease-in-out infinite;}
+@keyframes ilSpark{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+.il-wordmark{font-family:'Syne',sans-serif;font-weight:800;letter-spacing:2px;font-size:clamp(34px,8vw,72px);display:flex;white-space:nowrap;position:relative;z-index:1;}
+.il-wordmark .il-kj{background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:ilPulse 1.8s ease-in-out infinite;display:inline-block;}
+.il-wordmark .il-rest{background:var(--g3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;max-width:0;overflow:hidden;white-space:nowrap;animation:ilType 1s steps(8) .9s forwards;letter-spacing:2px;}
+@keyframes ilType{to{max-width:280px}}
+@keyframes ilPulse{0%,100%{filter:drop-shadow(0 0 10px rgba(79,172,254,0.3))}50%{filter:drop-shadow(0 0 26px rgba(167,139,250,0.5))}}
+.il-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--ice3);text-transform:uppercase;opacity:0;animation:ilFade .8s ease 1.7s forwards;margin-top:4px;}
 @keyframes ilFade{to{opacity:1}}
-@media(prefers-reduced-motion:reduce){.il-mark{animation:none}.il-text,.il-sub{animation:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.il-wordmark .il-rest{animation:none;max-width:280px}.il-sub{animation:none;opacity:1}.il-spark{animation:none;display:none}.il-kj{animation:none}}
 
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(3,5,10,0.55);backdrop-filter:blur(32px) saturate(200%);border-bottom:1px solid var(--b1);transition:background .3s;}
@@ -304,8 +308,12 @@ nav.scrolled{background:rgba(3,5,10,0.92)}
 .tc::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(79,172,254,0.06),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none;}
 .tc:hover::after{opacity:1}
 .tc:hover{border-color:rgba(79,172,254,0.22);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 0 1px rgba(79,172,254,0.08),inset 0 1px 0 rgba(255,255,255,0.06);}
-.tc::before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,rgba(79,172,254,0.35),transparent);opacity:0;transition:opacity .3s;}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,linear-gradient(90deg,transparent,rgba(79,172,254,0.35),transparent));opacity:.55;transition:opacity .3s;}
 .tc:hover::before{opacity:1}
+.tc-shimmer{position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.08) 50%,transparent 60%);background-size:250% 250%;background-position:150% 150%;opacity:0;transition:opacity .2s;pointer-events:none;}
+.tc:hover .tc-shimmer{opacity:1;animation:tcShine 1.1s ease forwards;}
+@keyframes tcShine{from{background-position:150% 150%}to{background-position:-50% -50%}}
+.c-pdf{--accent:#f87171}.c-ai{--accent:#a78bfa}.c-img{--accent:#34d399}.c-fin{--accent:#fbbf24}.c-util{--accent:#4facfe}.c-dev{--accent:#22d3ee}
 .tc-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;flex-shrink:0;}
 .tc-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 .tc-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:999px;font-weight:700;}
@@ -466,18 +474,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--b1);padding:50px 5
 
 <!-- INTRO LOADER (silent visual splash) -->
 <div class="intro-loader" id="introLoader" aria-hidden="true">
-  <svg class="il-mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="ilg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#4facfe"/>
-        <stop offset="1" stop-color="#a78bfa"/>
-      </linearGradient>
-    </defs>
-    <path d="M14 8 L14 56 M14 32 L40 8 M14 32 L40 56" stroke="url(#ilg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <circle cx="50" cy="32" r="5" fill="url(#ilg)"/>
-  </svg>
-  <div class="il-text">KJSynthora</div>
-  <div class="il-sub">BUILD · CREATE · AUTOMATE</div>
+  <div class="il-spark" style="width:4px;height:4px;top:30%;left:25%;animation-delay:0s"></div>
+  <div class="il-spark" style="width:3px;height:3px;top:65%;left:70%;animation-delay:.4s"></div>
+  <div class="il-spark" style="width:5px;height:5px;top:25%;left:75%;animation-delay:.8s"></div>
+  <div class="il-spark" style="width:3px;height:3px;top:70%;left:30%;animation-delay:1.2s"></div>
+  <div class="il-spark" style="width:4px;height:4px;top:50%;left:15%;animation-delay:.2s"></div>
+  <div class="il-spark" style="width:3px;height:3px;top:45%;left:85%;animation-delay:1.5s"></div>
+  <div class="il-wordmark"><span class="il-kj">KJ</span><span class="il-rest">Synthora</span></div>
+  <div class="il-sub">Build · Create · Automate</div>
 </div>
 
 <div class="aurora">
@@ -491,18 +495,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--b1);padding:50px 5
 <!-- NAV -->
 <nav id="mainNav">
   <a href="/" class="nav-logo" aria-label="KJSynthora Home">
-    <div class="nl-monogram">
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="navg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#4facfe"/>
-            <stop offset="1" stop-color="#a78bfa"/>
-          </linearGradient>
-        </defs>
-        <path d="M14 8 L14 56 M14 32 L40 8 M14 32 L40 56" stroke="url(#navg)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <circle cx="50" cy="32" r="5.5" fill="url(#navg)"/>
-      </svg>
-    </div>
+    <div class="nl-monogram"><span style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;">KJ</span></div>
     <div>
       <span class="nl-name">KJSynthora</span>
       <span class="nl-tag">90+ Tools · Zero Limits</span>
@@ -1120,18 +1113,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--b1);padding:50px 5
   <div class="ft-top">
     <div>
       <div class="ft-brand-row">
-        <div class="ft-brand-mark">
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="ftg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#4facfe"/>
-                <stop offset="1" stop-color="#a78bfa"/>
-              </linearGradient>
-            </defs>
-            <path d="M14 8 L14 56 M14 32 L40 8 M14 32 L40 56" stroke="url(#ftg)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <circle cx="50" cy="32" r="5.5" fill="url(#ftg)"/>
-          </svg>
-        </div>
+        <div class="ft-brand-mark"><span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;">KJ</span></div>
         <div class="ft-brand-name">KJSynthora</div>
       </div>
       <p class="ft-brand-desc">90+ free AI and productivity tools — PDF, Image, Finance, AI and Developer workflows. No signup, no cost, always free.</p>
@@ -1353,6 +1335,7 @@ function renderTools(list){
   if(!list.length){g.innerHTML='<div class="no-res">No tools found. Try a different search term.</div>';return}
   g.innerHTML=list.map(t=>`
     <a href="${t.h}" class="tc ${CC[t.c]||''}" role="listitem" aria-label="${t.n} — ${t.d}">
+      <div class="tc-shimmer" aria-hidden="true"></div>
       <div class="tc-row"><div class="tc-ico" aria-hidden="true">${t.i}</div><span class="tc-badge">${BL[t.c]||t.c}</span></div>
       <div class="tc-name">${t.n}</div>
       <div class="tc-desc">${t.d}</div>
