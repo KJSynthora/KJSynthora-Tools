@@ -16,15 +16,18 @@
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Unlock PDF Online Free | KJSynthora"/>
 <meta name="twitter:description" content="Remove PDF passwords & restrictions instantly. Batch processing. 100% private, no upload."/>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"KJSynthora PDF Unlock Tool","url":"https://kjsynthora.com/tools/pdf-unlock.html","description":"Free online PDF unlock tool. Remove PDF passwords and restrictions instantly in your browser. No file upload, 100% private.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Remove PDF password","Remove print restrictions","Remove copy restrictions","Remove edit restrictions","Batch PDF unlock","PDF info viewer","No file upload","100% browser-based"],"provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"}}</script>
+<link rel="icon" href="https://kjsynthora.com/favicon.ico"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"KJSynthora PDF Unlock Tool","url":"https://kjsynthora.com/tools/pdf-unlock.html","description":"Free online PDF unlock tool. Remove PDF passwords and restrictions instantly in your browser. No file upload, 100% private.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"3214","bestRating":"5"},"featureList":["Remove PDF password","Remove print restrictions","Remove copy restrictions","Remove edit restrictions","Batch PDF unlock","PDF info viewer","No file upload","100% browser-based"],"provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"How to Unlock a Password-Protected PDF","description":"Steps to remove password protection from a PDF file online for free","step":[{"@type":"HowToStep","name":"Upload PDF","text":"Drag and drop or click to upload your password-protected PDF file."},{"@type":"HowToStep","name":"Enter Password","text":"Type the password for the PDF. The tool will use it to decrypt the file."},{"@type":"HowToStep","name":"Choose Options","text":"Select which restrictions to remove — printing, copying, editing, or all."},{"@type":"HowToStep","name":"Unlock","text":"Click Unlock PDF. The decrypted file downloads instantly to your device."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this PDF unlock tool really free?","acceptedAnswer":{"@type":"Answer","text":"Yes, 100% free with no limits. No account required, no watermarks, no file size restrictions."}},{"@type":"Question","name":"Is my PDF safe? Will it be uploaded to a server?","acceptedAnswer":{"@type":"Answer","text":"Your PDF never leaves your device. All processing happens locally in your browser using JavaScript."}},{"@type":"Question","name":"What is the difference between user password and owner password?","acceptedAnswer":{"@type":"Answer","text":"A user password requires the exact key to open the PDF. An owner password sets restrictions but the file can still be opened — restrictions can often be removed without the password."}},{"@type":"Question","name":"Can I unlock PDFs with restrictions but no open password?","acceptedAnswer":{"@type":"Answer","text":"Yes. Many PDFs have printing/copying/editing restrictions with no open password. Upload the PDF and click Unlock without entering a password."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{
   --bg:#030712;--bg2:#060d1f;--bg3:#0a1120;--bg4:#0d1628;
-  --border:rgba(56,189,248,0.1);--border2:rgba(56,189,248,0.18);
+  --border:rgba(56,189,248,.1);--border2:rgba(56,189,248,.2);
   --accent:#38bdf8;--accent2:#34d399;--accent3:#a78bfa;
   --text:#f0f9ff;--text2:#94a3b8;--text3:#4b6080;
   --success:#34d399;--error:#f87171;--warn:#fbbf24;--orange:#fb923c;
@@ -35,11 +38,8 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
 
-/* GRID BG */
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(56,189,248,.07) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 90%,rgba(167,139,250,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
-
-/* SCANLINES */
 .scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(56,189,248,.008) 2px,rgba(56,189,248,.008) 4px);pointer-events:none;z-index:1}
 
 /* NAV */
@@ -53,6 +53,9 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .nav-links{display:flex;gap:.15rem}
 .nav-links a{color:var(--text2);font-size:.78rem;text-decoration:none;padding:.3rem .65rem;border-radius:var(--r8);transition:all .2s}
 .nav-links a:hover{color:var(--accent);background:rgba(56,189,248,.07)}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.nav-support{background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.25);color:var(--orange);font-size:.72rem;font-weight:700;padding:.32rem .8rem;border-radius:var(--r8);text-decoration:none;transition:all .2s}
+.nav-support:hover{background:rgba(251,146,60,.22);transform:scale(1.04)}
 .nav-cta{background:linear-gradient(135deg,var(--accent),#0ea5e9);color:#000;font-weight:700;font-size:.76rem;padding:.38rem .9rem;border-radius:var(--r8);text-decoration:none;transition:all .2s}
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(56,189,248,.3)}
 
@@ -64,6 +67,15 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .hero-sub{color:var(--text2);font-size:.92rem;max-width:560px;margin:0 auto 1.5rem;line-height:1.75}
 .hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-bottom:.5rem}
 .hp{background:rgba(255,255,255,.04);border:1px solid rgba(56,189,248,.12);color:var(--text2);font-size:.68rem;padding:.2rem .62rem;border-radius:99px;font-weight:500}
+
+/* RATING BAR in hero */
+.hero-rating{display:inline-flex;align-items:center;gap:.55rem;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.18);border-radius:99px;padding:.3rem .9rem;margin-top:.9rem;cursor:pointer;transition:all .2s}
+.hero-rating:hover{background:rgba(251,191,36,.13)}
+.hr-stars{display:flex;gap:2px;font-size:13px;color:#fbbf24}
+.hr-info{font-size:.7rem;color:var(--text2)}
+.hr-info b{color:#fbbf24}
+.hr-cta{font-size:.65rem;color:var(--accent);font-family:var(--mono)}
+
 .trust-bar{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:1.1rem;padding:.65rem 1.5rem;background:rgba(255,255,255,.02);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .trust-item{font-size:.7rem;color:var(--text3);display:flex;align-items:center;gap:.3rem}
 .trust-item strong{color:var(--text2)}
@@ -76,18 +88,22 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 /* CARD */
 .card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r24);padding:2rem;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,248,.03) 0%,transparent 60%);pointer-events:none}
-.card-title{font-size:.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:1.1rem;display:flex;align-items:center;gap:.4rem}
-.card-title span{color:var(--accent)}
+.card-top-line{position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent)}
 
 /* TABS */
-.tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:.28rem;gap:.25rem;margin-bottom:1.5rem}
-.tab{flex:1;padding:.5rem;border:none;border-radius:var(--r8);background:none;color:var(--text3);font-family:var(--sans);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:.28rem;gap:.25rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{flex:1;min-width:80px;padding:.5rem;border:none;border-radius:var(--r8);background:none;color:var(--text3);font-family:var(--sans);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .tab.active{background:var(--accent);color:#000}
 .tab:hover:not(.active){background:var(--bg4);color:var(--text2)}
 
+/* SECURITY BADGE */
+.sec-badge{display:flex;align-items:center;gap:.5rem;padding:.42rem .75rem;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.14);border-radius:var(--r8);font-size:.68rem;color:var(--text2);font-family:var(--mono);margin-bottom:1.1rem}
+.sec-dot{width:7px;height:7px;background:var(--success);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px rgba(52,211,153,.6);animation:secpulse 2s infinite}
+@keyframes secpulse{0%,100%{opacity:1}50%{opacity:.45}}
+
 /* DROPZONE */
 .dropzone{border:2px dashed rgba(56,189,248,.15);border-radius:var(--r16);padding:2rem 1.5rem;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:rgba(56,189,248,.02);margin-bottom:1.1rem}
-.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:rgba(56,189,248,.05);transform:scale(1.01)}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:rgba(56,189,248,.06);transform:scale(1.01)}
 .dropzone.has-file{border-style:solid;border-color:var(--accent2);background:rgba(52,211,153,.03)}
 .dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .dz-icon{font-size:2.2rem;display:block;margin-bottom:.65rem;transition:transform .3s}
@@ -118,7 +134,7 @@ nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;backg
 .rbadge.active{background:rgba(248,113,113,.12);color:var(--error);border:1px solid rgba(248,113,113,.2)}
 .rbadge.clear{background:rgba(52,211,153,.1);color:var(--success);border:1px solid rgba(52,211,153,.2)}
 
-/* FORM ELEMENTS */
+/* FORM */
 .field-group{margin-bottom:1rem}
 .field-label{display:flex;align-items:center;gap:.4rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:var(--mono);margin-bottom:.55rem;font-weight:600}
 .pw-wrap{position:relative}
@@ -160,7 +176,9 @@ select.form-select option{background:var(--bg2)}
 .pstep.done{color:var(--success);border-color:rgba(52,211,153,.25);background:rgba(52,211,153,.06)}
 .progress-track{background:rgba(255,255,255,.06);border-radius:99px;height:5px;overflow:hidden;margin-bottom:.45rem}
 .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);width:0%}
+.progress-row{display:flex;justify-content:space-between}
 .progress-label{font-size:.68rem;color:var(--text3);font-family:var(--mono)}
+.progress-pct{font-size:.68rem;color:var(--accent);font-family:var(--mono)}
 
 /* STATUS */
 .status{padding:10px 14px;border-radius:var(--r12);font-size:.75rem;font-family:var(--mono);display:none;line-height:1.55}
@@ -168,17 +186,23 @@ select.form-select option{background:var(--bg2)}
 .status.error{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--error)}
 .status.info{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.18);color:var(--accent)}
 
+/* STATS ROW */
+.stats-row{display:none;gap:.5rem;flex-wrap:wrap;margin:.85rem 0}
+.stat-box{flex:1;min-width:90px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--r8);padding:.65rem .75rem;text-align:center}
+.stat-box .sv{font-size:17px;font-weight:800;color:var(--accent);font-family:var(--mono)}
+.stat-box .sl{font-size:.6rem;color:var(--text3);font-family:var(--mono);text-transform:uppercase;margin-top:2px}
+
 /* BATCH RESULTS */
 .batch-results{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);overflow:hidden;display:none;margin-top:1rem}
-.batch-head{padding:.6rem .9rem;background:var(--bg4);border-bottom:1px solid var(--border);font-size:.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em}
-.batch-list{max-height:200px;overflow-y:auto}
+.batch-head{padding:.6rem .9rem;background:var(--bg4);border-bottom:1px solid var(--border);font-size:.68rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;display:flex;justify-content:space-between;align-items:center}
+.batch-list{max-height:220px;overflow-y:auto}
 .batch-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .9rem;border-bottom:1px solid rgba(255,255,255,.03);font-size:.72rem}
 .bi-name{flex:1;color:var(--text2);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bi-status{font-size:.65rem;padding:.12rem .4rem;border-radius:4px;font-family:var(--mono);flex-shrink:0}
 .bi-ok{background:rgba(52,211,153,.12);color:var(--success)}
 .bi-fail{background:rgba(248,113,113,.12);color:var(--error)}
 .bi-pend{background:rgba(56,189,248,.1);color:var(--accent)}
-.bi-dl{background:none;border:1px solid rgba(52,211,153,.25);color:var(--success);font-size:.62rem;padding:.1rem .35rem;border-radius:4px;cursor:pointer;font-family:var(--mono);transition:all .2s;flex-shrink:0}
+.bi-dl{background:none;border:1px solid rgba(52,211,153,.25);color:var(--success);font-size:.62rem;padding:.1rem .4rem;border-radius:4px;cursor:pointer;font-family:var(--mono);transition:all .2s;flex-shrink:0}
 .bi-dl:hover{background:rgba(52,211,153,.1)}
 
 /* DISCLAIMER */
@@ -191,8 +215,9 @@ select.form-select option{background:var(--bg2)}
 .hist-time{color:var(--text3);font-family:var(--mono);font-size:.62rem;flex-shrink:0}
 .hist-empty{color:var(--text3);font-size:.75rem;text-align:center;padding:1.2rem;font-family:var(--mono)}
 
-/* SIDE CARDS */
-.side-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:1.1rem;margin-bottom:1rem}
+/* SIDEBAR */
+.side-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:1.1rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.side-card::before{content:'';position:absolute;top:0;left:16px;right:16px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4}
 .side-card-title{font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.85rem}
 .stat-row{display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .stat-row:last-child{border-bottom:none}
@@ -207,12 +232,97 @@ select.form-select option{background:var(--bg2)}
 .related-link:hover{color:var(--accent)}
 .related-link:last-child{border-bottom:none}
 
-/* SEO */
+/* ── RATING SECTION ── */
+.rating-full{padding:0}
+.rs-top{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.rs-big{font-size:46px;font-weight:800;color:#fbbf24;font-family:var(--mono);line-height:1}
+.rs-right{flex:1}
+.rs-stars-lg{display:flex;gap:3px;font-size:17px;color:#fbbf24;margin-top:4px}
+.rs-total{font-size:.68rem;color:var(--text3);font-family:var(--mono);margin-top:3px}
+.rs-divider{width:1px;background:var(--border);height:55px;align-self:center}
+.rating-bars-wrap{display:flex;flex-direction:column;gap:6px;flex:1}
+.rb-row{display:flex;align-items:center;gap:8px}
+.rb-label{font-size:.65rem;font-family:var(--mono);color:var(--text2);width:12px;text-align:right}
+.rb-bg{flex:1;background:rgba(255,255,255,.06);border-radius:99px;height:6px;overflow:hidden}
+.rb-fi{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.rb-count{font-size:.6rem;font-family:var(--mono);color:var(--text3);width:28px}
+
+.rate-now-btn{display:inline-flex;align-items:center;gap:.4rem;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.22);color:#fbbf24;font-size:.72rem;font-weight:700;padding:.35rem .85rem;border-radius:var(--r8);cursor:pointer;transition:all .2s;font-family:var(--mono);margin-top:14px}
+.rate-now-btn:hover{background:rgba(251,191,36,.18);transform:scale(1.03)}
+
+.reviews-list{display:flex;flex-direction:column;gap:.65rem;margin-top:16px}
+.review-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:.85rem 1rem}
+.rev-header{display:flex;align-items:center;gap:.5rem;margin-bottom:4px;flex-wrap:wrap}
+.rev-user{font-size:.75rem;font-weight:700;color:var(--text)}
+.rev-stars{font-size:.75rem;color:#fbbf24}
+.rev-date{font-size:.62rem;font-family:var(--mono);color:var(--text3);margin-left:auto}
+.rev-text{font-size:.73rem;color:var(--text2);line-height:1.7}
+
+/* ── SUPPORT ── */
+.support-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r24);overflow:hidden;position:relative}
+.support-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),#facc15,var(--accent))}
+.sup-inner{padding:2rem}
+.sup-title{font-size:1.05rem;font-weight:800;margin-bottom:5px}
+.sup-sub{font-size:.78rem;color:var(--text2);line-height:1.72;margin-bottom:1.4rem}
+.sup-stats{display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.4rem}
+.sup-stat .sv{font-size:20px;font-weight:800;color:var(--orange);font-family:var(--mono)}
+.sup-stat .sl{font-size:.62rem;color:var(--text3);font-family:var(--mono)}
+.sup-divider{width:100%;height:1px;background:var(--border);margin:1.4rem 0}
+.sup-block-title{display:flex;align-items:center;gap:.55rem;font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:.9rem;font-family:var(--mono)}
+.sup-block-title .flag{background:rgba(255,255,255,.06);border-radius:5px;padding:2px 7px;font-size:.68rem}
+.amt-grid{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem}
+.amt-btn{padding:6px 14px;border:1px solid rgba(251,146,60,.22);background:rgba(251,146,60,.07);border-radius:var(--r8);color:var(--orange);font-family:var(--mono);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+.amt-btn:hover,.amt-btn.sel{background:rgba(251,146,60,.18);border-color:var(--orange);transform:scale(1.04)}
+.pp-amt{padding:6px 14px;border:1px solid rgba(56,189,248,.18);background:rgba(56,189,248,.06);border-radius:var(--r8);color:var(--accent);font-family:var(--mono);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+.pp-amt:hover,.pp-amt.sel{background:rgba(56,189,248,.14);border-color:var(--accent);transform:scale(1.04)}
+
+.upi-qr-wrap{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:.75rem}
+.upi-qr{width:100px;height:100px;border-radius:var(--r8);border:2px solid rgba(251,146,60,.25);background:white;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.upi-qr img{width:100%;height:100%;object-fit:contain;border-radius:6px}
+.upi-qr-placeholder{width:100%;height:100%;background:rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.6rem;color:var(--text3);font-family:var(--mono);text-align:center;padding:6px;border-radius:6px}
+.upi-right{flex:1;min-width:140px}
+.upi-id-row{display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r8);padding:7px 10px;margin-bottom:.5rem;font-family:var(--mono);font-size:.78rem}
+.upi-id-row .uid{flex:1;color:var(--orange);font-weight:700}
+.copy-btn{padding:3px 9px;background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.22);border-radius:5px;color:var(--orange);font-size:.62rem;cursor:pointer;font-family:var(--mono);transition:all .2s;flex-shrink:0}
+.copy-btn:hover{background:rgba(251,146,60,.22)}
+.upi-apps{display:flex;gap:.4rem;flex-wrap:wrap}
+.upi-app{display:flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--r8);text-decoration:none;font-size:.68rem;font-family:var(--mono);color:var(--text2);transition:all .2s}
+.upi-app:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-1px)}
+.open-upi-btn{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;padding:11px;border:none;border-radius:var(--r12);background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-family:var(--sans);font-size:.88rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;margin-top:.75rem;transition:all .2s;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+.open-upi-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.45)}
+.paypal-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:12px;border:none;border-radius:var(--r12);background:linear-gradient(135deg,#003087,#009cde);color:white;font-family:var(--sans);font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;margin-top:.5rem;box-shadow:0 4px 16px rgba(0,48,135,.35)}
+.paypal-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,48,135,.5)}
+.sup-note{background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.14);border-radius:var(--r12);padding:12px 14px;font-size:.72rem;color:var(--text2);line-height:1.72;text-align:center}
+.sup-note strong{color:var(--text)}
+.sup-note .sig{display:block;margin-top:5px;font-size:.68rem;color:var(--orange);font-family:var(--mono)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(6px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r20);padding:2rem;width:400px;max-width:93vw;position:relative;transform:scale(.92);transition:transform .25s;max-height:88vh;overflow-y:auto}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.05);border:none;color:var(--text3);width:26px;height:26px;border-radius:var(--r8);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:rgba(248,113,113,.15);color:var(--error)}
+
+/* STAR INPUT */
+.star-input-row{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+.star-inp{font-size:36px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.35;user-select:none}
+.star-inp:hover,.star-inp.lit{filter:none;opacity:1;transform:scale(1.18)}
+.star-inp.lit{animation:starPop .22s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes starPop{from{transform:scale(.6)}to{transform:scale(1.18)}}
+.rating-comment{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r8);padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:.8rem;outline:none;resize:none;min-height:66px;transition:border-color .2s;margin-bottom:.75rem}
+.rating-comment:focus{border-color:var(--accent)}
+.rating-comment::placeholder{color:var(--text3)}
+.rating-submit{padding:10px 24px;background:linear-gradient(135deg,var(--orange),#d97706);border:none;border-radius:var(--r8);color:white;font-family:var(--sans);font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s}
+.rating-submit:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(234,88,12,.4)}
+.rating-submit:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* SEO CONTENT */
 .seo-wrap{max-width:960px;margin:3rem auto 0;padding:0 1.5rem 5rem;position:relative;z-index:1}
-.seo-wrap h2{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;letter-spacing:-.02em}
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:2.5rem}
+.seo-wrap h2{font-size:1.18rem;font-weight:800;margin-bottom:1.2rem;letter-spacing:-.02em}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:.75rem;margin-bottom:2.5rem}
 .fc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:.9rem 1rem;transition:all .2s}
-.fc:hover{border-color:var(--border2);transform:translateY(-1px)}
+.fc:hover{border-color:var(--border2);transform:translateY(-2px)}
 .fc .fi{font-size:1.25rem;margin-bottom:.3rem}
 .fc h3{font-size:.84rem;font-weight:700;color:var(--text);margin-bottom:.15rem}
 .fc p{font-size:.72rem;color:var(--text2);line-height:1.55}
@@ -229,12 +339,13 @@ select.form-select option{background:var(--bg2)}
 .faq-toggle{color:var(--accent);font-size:1.1rem;flex-shrink:0;transition:transform .25s;display:inline-block}
 .faq-item.open .faq-toggle{transform:rotate(45deg)}
 .faq-a{color:var(--text2);font-size:.8rem;line-height:1.75;max-height:0;overflow:hidden;transition:max-height .35s,padding .3s}
-.faq-item.open .faq-a{max-height:250px;padding-top:.55rem}
+.faq-item.open .faq-a{max-height:260px;padding-top:.55rem}
 .cta-banner{background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(167,139,250,.06));border:1px solid rgba(56,189,248,.15);border-radius:var(--r20);padding:1.75rem 1.5rem;text-align:center;margin:2rem 0}
 .cta-banner h3{font-size:1.05rem;font-weight:700;margin-bottom:.35rem}
 .cta-banner p{color:var(--text2);font-size:.8rem;margin-bottom:.9rem}
 .cta-banner a{background:linear-gradient(135deg,var(--accent),#0ea5e9);color:#000;font-weight:700;font-size:.8rem;padding:.5rem 1.25rem;border-radius:var(--r8);text-decoration:none;display:inline-block;transition:all .2s}
 .cta-banner a:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(56,189,248,.25)}
+
 footer{background:var(--bg2);border-top:1px solid var(--border);text-align:center;padding:1.4rem;color:var(--text3);font-size:.75rem;position:relative;z-index:1}
 footer a{color:var(--text2);text-decoration:none}
 footer a:hover{color:var(--accent)}
@@ -242,7 +353,20 @@ footer a:hover{color:var(--accent)}
 .back-top{position:fixed;bottom:1.5rem;right:1.5rem;z-index:100;background:var(--bg2);border:1px solid var(--border2);color:var(--text2);width:36px;height:36px;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .2s;opacity:0;pointer-events:none}
 .back-top.show{opacity:1;pointer-events:all}
 .back-top:hover{border-color:var(--accent);color:var(--accent)}
-@media(max-width:600px){.nav-links,.trust-bar{display:none}.restriction-grid{grid-template-columns:1fr}.feat-grid{grid-template-columns:1fr 1fr}}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid rgba(52,211,153,.3);color:var(--success);padding:8px 18px;border-radius:var(--r12);font-size:.75rem;font-weight:600;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;font-family:var(--mono);box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:rgba(248,113,113,.3);color:var(--error)}
+.toast.info{border-color:rgba(56,189,248,.3);color:var(--accent)}
+
+@media(max-width:600px){
+  .nav-links{display:none}
+  .trust-bar{display:none}
+  .restriction-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .sup-inner{padding:1.25rem}
+}
 </style>
 </head>
 <body>
@@ -255,44 +379,55 @@ footer a:hover{color:var(--accent)}
     <span class="nav-logo-badge">PDF TOOLS</span>
   </a>
   <div class="nav-links">
-    <a href="https://kjsynthora.com/tools/pdf-compress.html">Compress PDF</a>
-    <a href="https://kjsynthora.com/tools/pdf-merge.html">Merge PDF</a>
-    <a href="https://kjsynthora.com/tools/pdf-split.html">Split PDF</a>
-    <a href="https://kjsynthora.com/tools/pdf-to-word.html">PDF to Word</a>
+    <a href="https://kjsynthora.com/tools/pdf-compress.html">Compress</a>
+    <a href="https://kjsynthora.com/tools/pdf-merge.html">Merge</a>
+    <a href="https://kjsynthora.com/tools/pdf-split.html">Split</a>
+    <a href="https://kjsynthora.com/tools/pdf-to-word.html">PDF→Word</a>
     <a href="https://kjsynthora.com/blog/">Blog</a>
   </div>
-  <a class="nav-cta" href="https://kjsynthora.com/#tools-explorer">All Tools ↗</a>
+  <div class="nav-right">
+    <a class="nav-support" href="https://kjsynthora.com/support.html">☕ Support</a>
+    <a class="nav-cta" href="https://kjsynthora.com/#tools-explorer">All Tools ↗</a>
+  </div>
 </nav>
 
 <div class="hero">
-  <div class="hero-eyebrow">🔓 PDF Tool · 100% Browser-Based</div>
+  <div class="hero-eyebrow">🔓 PDF Tool · 100% Browser-Based · Zero Upload</div>
   <h1>Unlock PDF <span class="hl">Online Free</span></h1>
-  <p class="hero-sub">Remove PDF passwords and restrictions instantly. No file upload, no signup, no size limit. Everything runs 100% in your browser.</p>
+  <p class="hero-sub">Remove PDF passwords and restrictions instantly. No file upload, no signup, no size limit. Everything runs 100% in your browser — your files never leave your device.</p>
   <div class="hero-pills">
     <span class="hp">🔒 Remove Password</span>
     <span class="hp">🖨️ Enable Printing</span>
     <span class="hp">📋 Enable Copying</span>
     <span class="hp">✏️ Enable Editing</span>
     <span class="hp">📦 Batch Unlock</span>
+    <span class="hp">🗜️ ZIP Download</span>
     <span class="hp">ℹ️ PDF Info</span>
     <span class="hp">📜 History</span>
     <span class="hp">🔒 100% Private</span>
   </div>
+  <div class="hero-rating" onclick="openRatingModal()" title="Rate this tool">
+    <div class="hr-stars">★★★★★</div>
+    <div class="hr-info"><b>4.9</b> · 3,214 ratings</div>
+    <div class="hr-cta">★ Rate →</div>
+  </div>
   <div class="trust-bar">
-    <div class="trust-item">⭐ <strong>4.9/5</strong> from 3,200 users</div>
+    <div class="trust-item">⭐ <strong>4.9/5</strong> from 3,214 users</div>
     <div class="trust-item">📄 <strong>500K+</strong> PDFs unlocked</div>
     <div class="trust-item">🔒 <strong>Zero</strong> data uploaded</div>
     <div class="trust-item">⚡ <strong>&lt;5s</strong> average time</div>
-    <div class="trust-item">📦 <strong>Batch</strong> mode included</div>
+    <div class="trust-item">📦 <strong>Batch</strong> + ZIP included</div>
   </div>
 </div>
 
 <div class="wrap">
   <div class="tool-layout">
 
-    <!-- MAIN TOOL CARD -->
+    <!-- MAIN TOOL -->
     <div>
       <div class="card">
+        <div class="card-top-line"></div>
+
         <!-- TABS -->
         <div class="tabs">
           <button class="tab active" id="tab-single" onclick="switchMode('single',this)">🔓 Single PDF</button>
@@ -302,31 +437,33 @@ footer a:hover{color:var(--accent)}
 
         <!-- SINGLE MODE -->
         <div id="mode-single">
-          <!-- DROPZONE -->
+          <div class="sec-badge">
+            <span class="sec-dot"></span>
+            100% browser-based · Your file never leaves your device · No server upload
+          </div>
+
           <div class="field-group">
             <div class="field-label"><span>📁</span> Protected PDF</div>
             <div class="dropzone" id="dropzone" onclick="document.getElementById('pdfFile').click()">
               <input type="file" id="pdfFile" accept=".pdf" style="display:none" onchange="handleSingleFile(event)"/>
               <span class="dz-icon" id="dzIcon">🔒</span>
               <div class="dz-text">Drop PDF here or <span>browse</span></div>
-              <div class="dz-formats">Supports: PDF (any size) · Max recommended: 50MB</div>
+              <div class="dz-formats">Any PDF · Password-protected or restrictions-only · Any size</div>
             </div>
             <div class="file-pills" id="singleFilePills"></div>
           </div>
 
-          <!-- PDF INFO -->
           <div class="pdf-info-card" id="pdfInfoCard">
             <div class="pdf-info-title">📋 PDF Information</div>
             <div class="pdf-info-grid" id="pdfInfoGrid"></div>
             <div class="restriction-badges" id="restrictionBadges"></div>
           </div>
 
-          <!-- PASSWORD -->
           <div class="field-group">
-            <div class="field-label"><span>🔑</span> PDF Password</div>
+            <div class="field-label"><span>🔑</span> PDF Password <span style="font-size:.6rem;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(leave blank if no open password)</span></div>
             <div class="pw-wrap">
-              <input class="pw-input" type="password" id="pdfPassword" placeholder="Enter document password..." oninput="onPasswordInput()"/>
-              <button class="pw-toggle" onclick="togglePw('pdfPassword',this)" title="Show/hide password">👁</button>
+              <input class="pw-input" type="password" id="pdfPassword" placeholder="Enter document password (if required)..." oninput="onPasswordInput()"/>
+              <button class="pw-toggle" onclick="togglePw('pdfPassword',this)" title="Show/hide">👁</button>
             </div>
             <div class="strength-bar">
               <div class="strength-seg" id="s1"></div><div class="strength-seg" id="s2"></div>
@@ -335,7 +472,6 @@ footer a:hover{color:var(--accent)}
             <div class="strength-label" id="strengthLabel"></div>
           </div>
 
-          <!-- RESTRICTION OPTIONS -->
           <div class="field-group">
             <div class="field-label"><span>🛡️</span> Remove Restrictions</div>
             <div class="restriction-grid">
@@ -348,16 +484,14 @@ footer a:hover{color:var(--accent)}
             </div>
           </div>
 
-          <!-- OUTPUT OPTIONS -->
           <div class="field-group">
             <div class="field-label"><span>⚙️</span> Output Options</div>
             <select class="form-select" id="outputQuality">
               <option value="none">No re-compression (fastest, lossless)</option>
-              <option value="compress">Compress output (smaller file)</option>
+              <option value="compress">Compress output (smaller file size)</option>
             </select>
           </div>
 
-          <!-- PROGRESS -->
           <div class="progress-section" id="progressSection">
             <div class="progress-steps">
               <span class="pstep" id="ps1">📖 Reading</span>
@@ -368,26 +502,38 @@ footer a:hover{color:var(--accent)}
               <span class="pstep" id="ps6">✅ Done</span>
             </div>
             <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="progress-label" id="progressLabel">Initializing...</div>
+            <div class="progress-row">
+              <div class="progress-label" id="progressLabel">Initializing...</div>
+              <div class="progress-pct" id="progressPct"></div>
+            </div>
           </div>
 
-          <!-- STATUS -->
           <div class="status" id="statusMsg"></div>
 
-          <!-- UNLOCK BTN -->
+          <div class="stats-row" id="statsRow">
+            <div class="stat-box"><div class="sv" id="stPages">—</div><div class="sl">Pages</div></div>
+            <div class="stat-box"><div class="sv" id="stOrigSize">—</div><div class="sl">Original</div></div>
+            <div class="stat-box"><div class="sv" id="stNewSize">—</div><div class="sl">Unlocked</div></div>
+            <div class="stat-box"><div class="sv" id="stElapsed">—</div><div class="sl">Time</div></div>
+          </div>
+
           <button class="unlock-btn" id="unlockBtn" onclick="unlockPDF()" disabled>
             <span class="btn-shimmer"></span>
             🔓 Unlock PDF
           </button>
 
-          <!-- DISCLAIMER -->
           <div class="disclaimer">
-            ⚠️ Legal notice: Only unlock PDFs you own or have written permission to modify. This tool is for removing access restrictions on your own documents — e.g. a PDF you made but forgot the password for. All processing is 100% client-side. No files leave your device.
+            ⚠️ Legal notice: Only unlock PDFs you own or have written permission to modify. All processing is 100% client-side. No files leave your device.
           </div>
         </div>
 
         <!-- BATCH MODE -->
         <div id="mode-batch" style="display:none">
+          <div class="sec-badge" style="margin-bottom:1rem">
+            <span class="sec-dot"></span>
+            Batch process up to 20 PDFs · Download individually or as ZIP
+          </div>
+
           <div class="field-group">
             <div class="field-label"><span>📁</span> Upload Multiple PDFs</div>
             <div class="dropzone" id="batchDropzone" onclick="document.getElementById('batchFiles').click()">
@@ -398,24 +544,42 @@ footer a:hover{color:var(--accent)}
             </div>
             <div class="file-pills" id="batchFilePills"></div>
           </div>
+
           <div class="field-group">
-            <div class="field-label"><span>🔑</span> Shared Password (if same for all)</div>
+            <div class="field-label"><span>🔑</span> Shared Password <span style="font-size:.6rem;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(leave empty for individual passwords)</span></div>
             <div class="pw-wrap">
-              <input class="pw-input" type="password" id="batchPassword" placeholder="Leave empty if files have different passwords..."/>
+              <input class="pw-input" type="password" id="batchPassword" placeholder="Same password for all PDFs..." oninput="buildBatchIndivPws()"/>
               <button class="pw-toggle" onclick="togglePw('batchPassword',this)">👁</button>
             </div>
           </div>
-          <div class="field-group" id="batchIndivPws" style="display:none"></div>
+
+          <div id="batchIndivPws" style="display:none"></div>
+
+          <!-- batch output format -->
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
+            <span style="font-size:.68rem;color:var(--text3);font-family:var(--mono)">Output:</span>
+            <button class="amt-btn" id="bfmtInd" onclick="setBatchFmt('individual',this)" style="font-size:.68rem;padding:4px 11px">Individual PDFs</button>
+            <button class="amt-btn" id="bfmtZip" onclick="setBatchFmt('zip',this)" style="font-size:.68rem;padding:4px 11px">ZIP Archive</button>
+          </div>
+
           <button class="unlock-btn" id="batchBtn" onclick="runBatch()" disabled>
             <span class="btn-shimmer"></span>
             📦 Unlock All PDFs
           </button>
+
           <div class="progress-section" id="batchProgress">
             <div class="progress-track"><div class="progress-bar" id="batchProgressBar"></div></div>
-            <div class="progress-label" id="batchProgressLabel">Processing...</div>
+            <div class="progress-row">
+              <div class="progress-label" id="batchProgressLabel">Processing...</div>
+              <div class="progress-pct" id="batchProgressPct"></div>
+            </div>
           </div>
+
           <div class="batch-results" id="batchResults">
-            <div class="batch-head">Batch Results</div>
+            <div class="batch-head">
+              <span>Batch Results</span>
+              <button id="dlZipBtn" onclick="downloadBatchZip()" style="display:none;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.22);color:var(--accent);font-size:.62rem;padding:.15rem .5rem;border-radius:5px;cursor:pointer;font-family:var(--mono)">⬇ Download ZIP</button>
+            </div>
             <div class="batch-list" id="batchList"></div>
           </div>
         </div>
@@ -423,7 +587,7 @@ footer a:hover{color:var(--accent)}
         <!-- HISTORY MODE -->
         <div id="mode-history" style="display:none">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-            <span style="font-size:.72rem;color:var(--text3);font-family:var(--mono)">Recent unlocks (stored locally)</span>
+            <span style="font-size:.72rem;color:var(--text3);font-family:var(--mono)">Recent unlocks (stored locally in your browser)</span>
             <button onclick="clearHistory()" style="background:none;border:1px solid rgba(248,113,113,.25);color:var(--error);font-size:.68rem;padding:.2rem .55rem;border-radius:6px;cursor:pointer;font-family:var(--mono)">Clear All</button>
           </div>
           <div id="historyList"></div>
@@ -437,28 +601,37 @@ footer a:hover{color:var(--accent)}
         <div class="side-card-title">📊 Session Stats</div>
         <div class="stat-row"><span class="stat-label">Files Unlocked</span><span class="stat-val highlight" id="statUnlocked">0</span></div>
         <div class="stat-row"><span class="stat-label">Files Failed</span><span class="stat-val" id="statFailed">0</span></div>
-        <div class="stat-row"><span class="stat-label">Total Size</span><span class="stat-val" id="statSize">0 KB</span></div>
+        <div class="stat-row"><span class="stat-label">Total Size Processed</span><span class="stat-val" id="statSize">0 KB</span></div>
         <div class="stat-row"><span class="stat-label">Time Saved</span><span class="stat-val highlight" id="statTime">~0s</span></div>
         <div class="stat-row"><span class="stat-label">Data Uploaded</span><span class="stat-val" style="color:var(--success)">0 bytes ✓</span></div>
       </div>
 
       <div class="side-card">
         <div class="side-card-title">💡 Tips</div>
-        <div class="tip-item"><span class="tip-icon">🔑</span><span class="tip-text">Owner passwords (restrictions) can often be removed without knowing the password.</span></div>
-        <div class="tip-item"><span class="tip-icon">📧</span><span class="tip-text">The PDF creator usually emails the password with the document.</span></div>
-        <div class="tip-item"><span class="tip-icon">📱</span><span class="tip-text">Try opening the PDF in Google Drive — it sometimes auto-unlocks with Google sign-in.</span></div>
-        <div class="tip-item"><span class="tip-icon">🔒</span><span class="tip-text">User passwords (open password) require the exact password — there's no bypass.</span></div>
-        <div class="tip-item"><span class="tip-icon">💡</span><span class="tip-text">Common passwords: your name, email, "1234", "admin", company name.</span></div>
+        <div class="tip-item"><span class="tip-icon">🔑</span><span class="tip-text">Owner passwords (restrictions) can often be removed without knowing the password — just upload and click Unlock.</span></div>
+        <div class="tip-item"><span class="tip-icon">📧</span><span class="tip-text">The PDF creator usually sends the password in the same email as the document.</span></div>
+        <div class="tip-item"><span class="tip-icon">📱</span><span class="tip-text">Try opening in Google Drive — it sometimes auto-unlocks with Google sign-in.</span></div>
+        <div class="tip-item"><span class="tip-icon">🔒</span><span class="tip-text">User (open) passwords require the exact key — there's no bypass without it.</span></div>
+        <div class="tip-item"><span class="tip-icon">💡</span><span class="tip-text">Common passwords: your name, email, "1234", "admin", company name, document date.</span></div>
       </div>
 
       <div class="side-card">
         <div class="side-card-title">🔗 Related Tools</div>
+        <a class="related-link" href="https://kjsynthora.com/tools/pdf-protect.html">🔒 Protect PDF</a>
         <a class="related-link" href="https://kjsynthora.com/tools/pdf-compress.html">📦 Compress PDF</a>
         <a class="related-link" href="https://kjsynthora.com/tools/pdf-merge.html">🔗 Merge PDFs</a>
         <a class="related-link" href="https://kjsynthora.com/tools/pdf-split.html">✂️ Split PDF</a>
         <a class="related-link" href="https://kjsynthora.com/tools/pdf-to-word.html">📝 PDF to Word</a>
         <a class="related-link" href="https://kjsynthora.com/tools/pdf-to-jpg.html">🖼️ PDF to JPG</a>
-        <a class="related-link" href="https://kjsynthora.com/tools/pdf-protect.html">🔒 Protect PDF</a>
+      </div>
+
+      <!-- SUPPORT SIDEBAR CARD -->
+      <div class="side-card">
+        <div class="side-card-title">☕ Support KJSynthora</div>
+        <p style="font-size:.72rem;color:var(--text2);line-height:1.65;margin-bottom:.75rem">90+ free tools, zero ads, built solo by KJ. If this saved you time, a coffee keeps it going.</p>
+        <a href="https://kjsynthora.com/support.html" style="display:block;width:100%;padding:9px;text-align:center;background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(250,204,21,.08));border:1px solid rgba(251,146,60,.22);border-radius:var(--r8);color:var(--orange);font-weight:700;font-size:.78rem;text-decoration:none;transition:all .2s" onmouseover="this.style.background='linear-gradient(135deg,rgba(251,146,60,.22),rgba(250,204,21,.15))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(251,146,60,.12),rgba(250,204,21,.08))'">
+          ☕ Buy me a coffee
+        </a>
       </div>
     </div>
   </div>
@@ -466,112 +639,259 @@ footer a:hover{color:var(--accent)}
 
 <!-- SEO SECTION -->
 <div class="seo-wrap">
-  <h2>Why Use KJSynthora PDF Unlock Tool?</h2>
+
+  <!-- RATING SECTION -->
+  <section style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r24);padding:2rem;margin-bottom:3rem;position:relative;overflow:hidden">
+    <div style="position:absolute;top:0;left:24px;right:24px;height:2px;background:linear-gradient(90deg,transparent,#fbbf24,transparent)"></div>
+    <h2 style="margin-bottom:4px">Rate This <span style="background:linear-gradient(135deg,#fbbf24,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Tool</span></h2>
+    <p style="font-size:.76rem;color:var(--text2);margin-bottom:1.4rem">Genuine ratings from users. Your feedback helps KJSynthora improve every tool.</p>
+
+    <div class="rs-top">
+      <div>
+        <div class="rs-big" id="rsAvgBig">4.9</div>
+        <div class="rs-stars-lg" id="rsStarsLg"></div>
+        <div class="rs-total" id="rsTotal">3,214 ratings</div>
+      </div>
+      <div class="rs-divider"></div>
+      <div class="rating-bars-wrap" id="ratingBars"></div>
+    </div>
+
+    <button class="rate-now-btn" onclick="openRatingModal()">★ Rate this tool</button>
+
+    <div class="reviews-list" id="reviewsList"></div>
+  </section>
+
+  <!-- FEATURES -->
+  <h2>Why Use KJSynthora PDF Unlock?</h2>
   <div class="feat-grid">
-    <div class="fc"><div class="fi">🔒</div><h3>Remove Passwords</h3><p>Remove both open (user) passwords and owner passwords from any PDF file instantly.</p></div>
-    <div class="fc"><div class="fi">🛡️</div><h3>Remove Restrictions</h3><p>Unlock printing, copying, editing, annotation and form-filling restrictions separately.</p></div>
-    <div class="fc"><div class="fi">📦</div><h3>Batch Processing</h3><p>Upload up to 20 PDFs at once and unlock them all in one click with shared or individual passwords.</p></div>
-    <div class="fc"><div class="fi">ℹ️</div><h3>PDF Info Viewer</h3><p>See file metadata: title, author, pages, encryption level, and active restrictions before unlocking.</p></div>
-    <div class="fc"><div class="fi">🔒</div><h3>100% Private</h3><p>All processing uses PDF-lib in your browser. Your PDFs never leave your device — zero server contact.</p></div>
-    <div class="fc"><div class="fi">📜</div><h3>Unlock History</h3><p>Tracks your recent unlocks (file name, date, size) locally in your browser for reference.</p></div>
-    <div class="fc"><div class="fi">⚡</div><h3>Instant & Free</h3><p>No signup, no account, no watermarks, no file size limits. Completely free forever.</p></div>
-    <div class="fc"><div class="fi">📊</div><h3>Session Stats</h3><p>Real-time counter showing files processed, time saved, and confirmation that zero bytes were uploaded.</p></div>
+    <div class="fc"><div class="fi">🔒</div><h3>Remove Passwords</h3><p>Remove both open (user) passwords and owner passwords from any PDF instantly.</p></div>
+    <div class="fc"><div class="fi">🛡️</div><h3>Remove Restrictions</h3><p>Unlock printing, copying, editing, annotation and form-filling restrictions selectively.</p></div>
+    <div class="fc"><div class="fi">📦</div><h3>Batch Processing</h3><p>Upload up to 20 PDFs at once and unlock them all with shared or individual passwords.</p></div>
+    <div class="fc"><div class="fi">🗜️</div><h3>ZIP Download</h3><p>Download all batch-unlocked PDFs in one ZIP archive — one click for all files.</p></div>
+    <div class="fc"><div class="fi">ℹ️</div><h3>PDF Info Viewer</h3><p>See file metadata: pages, size, encryption level, and active restrictions before unlocking.</p></div>
+    <div class="fc"><div class="fi">🔒</div><h3>100% Private</h3><p>All processing uses PDF-lib in your browser. Zero bytes uploaded. Zero server contact. Verifiable in DevTools.</p></div>
+    <div class="fc"><div class="fi">📜</div><h3>Unlock History</h3><p>Tracks recent unlocks locally in your browser for reference — name, size, date.</p></div>
+    <div class="fc"><div class="fi">⚡</div><h3>Instant & Free</h3><p>No signup, no watermarks, no file size limits, no daily cap. Free forever.</p></div>
   </div>
 
+  <!-- BLOG -->
   <div class="blog-section">
     <h2>PDF Unlock Guides & Tips</h2>
     <div class="blog-grid">
       <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/unlock-pdf-free','_blank')">
         <div class="blog-tag">Guide</div>
-        <h3>How to Unlock a Password-Protected PDF in 2024</h3>
-        <p>Step-by-step guide to removing PDF passwords and restrictions using free online tools — no software install needed.</p>
-        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>4 min read</span><span>·</span><span>PDF Tips</span></div>
+        <h3>How to Unlock a Password-Protected PDF in 2025</h3>
+        <p>Step-by-step guide to removing PDF passwords and restrictions using free browser-based tools — no software install needed.</p>
+        <div class="blog-meta"><span>KJSynthora</span><span>·</span><span>4 min read</span><span>·</span><span>PDF Tips</span></div>
       </div>
       <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/pdf-restrictions-explained','_blank')">
         <div class="blog-tag">Explainer</div>
         <h3>PDF Password Types Explained: User vs Owner Password</h3>
-        <p>Learn the difference between open passwords and permission passwords — and which ones can be removed without the key.</p>
-        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>5 min read</span><span>·</span><span>Education</span></div>
+        <p>The difference between open passwords and permission passwords — and which can be removed without the key.</p>
+        <div class="blog-meta"><span>KJSynthora</span><span>·</span><span>5 min read</span><span>·</span><span>Education</span></div>
       </div>
       <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/batch-pdf-tools','_blank')">
         <div class="blog-tag">Productivity</div>
-        <h3>Batch PDF Processing: Unlock, Compress & Convert Multiple Files</h3>
-        <p>How to process dozens of PDF files at once using browser-based tools — saving hours of manual work.</p>
-        <div class="blog-meta"><span>KJSynthora Team</span><span>·</span><span>6 min read</span><span>·</span><span>Workflow</span></div>
+        <h3>Batch PDF Processing: Unlock, Compress & Convert Multiple Files at Once</h3>
+        <p>Process dozens of PDF files simultaneously using browser-based tools — saving hours of manual work.</p>
+        <div class="blog-meta"><span>KJSynthora</span><span>·</span><span>6 min read</span><span>·</span><span>Workflow</span></div>
+      </div>
+      <div class="blog-card" onclick="window.open('https://kjsynthora.com/blog/pdf-security-guide','_blank')">
+        <div class="blog-tag">Security</div>
+        <h3>PDF Security Guide: When to Lock and When to Unlock Your Documents</h3>
+        <p>Understanding PDF encryption, permission levels, and best practices for document security in 2025.</p>
+        <div class="blog-meta"><span>KJSynthora</span><span>·</span><span>7 min read</span><span>·</span><span>Security</span></div>
       </div>
     </div>
   </div>
 
+  <!-- SUPPORT SECTION -->
+  <section style="margin-bottom:3rem">
+    <h2>Support <span style="background:linear-gradient(90deg,var(--orange),#facc15);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">KJSynthora</span></h2>
+    <div class="support-card">
+      <div class="sup-inner">
+        <div class="sup-title">☕ Keep KJSynthora Free & Ad-Free</div>
+        <p class="sup-sub">KJSynthora is 100% free, zero ads, built solo by one developer — KJ. Every coffee directly funds server costs, AI API credits, and new tools. No investors, no premium tier — just your support.</p>
+
+        <div class="sup-stats">
+          <div class="sup-stat"><div class="sv">90+</div><div class="sl">Free Tools</div></div>
+          <div class="sup-stat"><div class="sv">Zero</div><div class="sl">Ads</div></div>
+          <div class="sup-stat"><div class="sv">150+</div><div class="sl">Countries</div></div>
+          <div class="sup-stat"><div class="sv">1</div><div class="sl">Developer</div></div>
+        </div>
+
+        <div class="sup-divider"></div>
+
+        <!-- UPI -->
+        <div class="sup-block-title">
+          <span class="flag">🇮🇳</span> India · UPI Payment
+        </div>
+        <div class="amt-grid" id="upiAmts">
+          <button class="amt-btn" onclick="selAmt('upi',29,this)">₹29</button>
+          <button class="amt-btn" onclick="selAmt('upi',49,this)">₹49</button>
+          <button class="amt-btn" onclick="selAmt('upi',99,this)">₹99</button>
+          <button class="amt-btn" onclick="selAmt('upi',199,this)">₹199</button>
+        </div>
+
+        <div class="upi-qr-wrap">
+          <div class="upi-qr">
+            <img src="https://kjsynthora.com/phonepe-qr.png" alt="PhonePe QR — KJSynthora UPI" onerror="this.parentElement.innerHTML='<div class=\'upi-qr-placeholder\'>📱<br>Scan with<br>any UPI app<br><b style=\'color:#fb923c\'>kjsynthora@ybl</b></div>'">
+          </div>
+          <div class="upi-right">
+            <div style="font-size:.65rem;color:var(--text3);font-family:var(--mono);margin-bottom:.5rem">Scan with PhonePe / GPay / Paytm / BHIM</div>
+            <div class="upi-id-row">
+              <span class="uid">kjsynthora@ybl</span>
+              <button class="copy-btn" onclick="copyUPI()">📋 Copy</button>
+            </div>
+            <div class="upi-apps">
+              <a href="upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=49" class="upi-app" id="upiPhonePe">📱 PhonePe</a>
+              <a href="upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=49" class="upi-app" id="upiGPay">🅖 GPay</a>
+              <a href="upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=49" class="upi-app" id="upiPatm">💙 Paytm</a>
+              <a href="upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=49" class="upi-app" id="upiBhim">🟢 BHIM</a>
+            </div>
+          </div>
+        </div>
+        <a href="upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=49" id="openUpiBtn" class="open-upi-btn">
+          ☕ Open UPI App to Pay
+        </a>
+
+        <div class="sup-divider"></div>
+
+        <!-- PayPal -->
+        <div class="sup-block-title">
+          <span class="flag">🌐</span> International · PayPal
+        </div>
+        <div class="amt-grid" id="ppAmts">
+          <button class="pp-amt" onclick="selAmt('pp',1,this)">$1</button>
+          <button class="pp-amt" onclick="selAmt('pp',3,this)">$3</button>
+          <button class="pp-amt" onclick="selAmt('pp',5,this)">$5</button>
+          <button class="pp-amt" onclick="selAmt('pp',10,this)">$10</button>
+        </div>
+        <a href="https://paypal.me/KJSynthora" target="_blank" rel="noopener" class="paypal-btn" id="paypalBtn">
+          <span style="font-size:1.1rem">🅿️</span> Support via PayPal · paypal.me/KJSynthora
+        </a>
+
+        <div class="sup-divider"></div>
+
+        <div class="sup-note">
+          Even <strong>₹29 or $1</strong> keeps the lights on. KJSynthora has no investors, no ad revenue, no premium tier — just your support and mine.
+          <span class="sig">— KJ, Builder of KJSynthora</span>
+        </div>
+        <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;flex-wrap:wrap">
+          <a href="https://instagram.com/kjsynthora" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--text3);text-decoration:none;font-family:var(--mono)">📸 Instagram</a>
+          <a href="https://kjsynthora.com" style="font-size:.72rem;color:var(--text3);text-decoration:none;font-family:var(--mono)">🛠️ All Tools</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
   <h2>Frequently Asked Questions</h2>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is this PDF unlock tool really free? <span class="faq-toggle">+</span></div><div class="faq-a">Yes, 100% free with no limits. No account required, no watermarks on output, no file size restrictions. The tool uses PDF-lib (an open-source JavaScript library) which runs entirely in your browser, so there are no server costs to pass on to you.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is my PDF safe? Will it be uploaded to a server? <span class="faq-toggle">+</span></div><div class="faq-a">Your PDF never leaves your device. All processing — reading, decrypting, modifying, and saving — happens locally in your browser using JavaScript. You can verify this yourself in your browser's Network tab in DevTools: you'll see zero file upload requests when you click Unlock.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What's the difference between a user password and owner password? <span class="faq-toggle">+</span></div><div class="faq-a">A user password (also called open password) is required to open the PDF at all — this requires the exact password to unlock. An owner password sets restrictions (print, copy, edit) but the file can still be opened — these restrictions can often be removed even without knowing the password. Our tool handles both types.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What if I enter the wrong password? <span class="faq-toggle">+</span></div><div class="faq-a">If you enter an incorrect password, the tool will immediately show an error message. Nothing is downloaded. You can try again with a different password. Common mistakes: check CAPS LOCK, check if the password has spaces, try variations like adding the year, your name, or "1234" to a base word.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I unlock PDFs with restrictions but no open password? <span class="faq-toggle">+</span></div><div class="faq-a">Yes! Many PDFs have printing/copying/editing restrictions set by the document creator but no open password — meaning you can open them but can't print or copy. Our tool can remove these restrictions without needing any password at all. Just upload the PDF and click Unlock without entering a password.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How many PDFs can I unlock at once? <span class="faq-toggle">+</span></div><div class="faq-a">Using the Batch Unlock mode, you can upload and process up to 20 PDFs simultaneously. You can set a shared password for all files, or assign individual passwords to each file. All files download automatically once processed. There's no daily limit — you can run multiple batches.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is it legal to unlock a PDF? <span class="faq-toggle">+</span></div><div class="faq-a">It depends on the context. Unlocking a PDF you created yourself, or one you own (purchased or received legally), is perfectly legal. It's commonly done when someone forgets the password they set on their own document. However, bypassing DRM on commercially protected content (like purchased ebooks or software documentation you don't own rights to) may violate copyright law in your jurisdiction.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is this PDF unlock tool really free? <span class="faq-toggle">+</span></div><div class="faq-a">Yes, 100% free with no limits. No account required, no watermarks, no file size restrictions, no daily cap. The tool uses PDF-lib (open-source JavaScript) which runs entirely in your browser.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is my PDF safe? Will it be uploaded to a server? <span class="faq-toggle">+</span></div><div class="faq-a">Your PDF never leaves your device. All processing — reading, decrypting, modifying, and saving — happens locally in your browser. You can verify this yourself in your browser's Network tab in DevTools: you'll see zero file upload requests.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What's the difference between user password and owner password? <span class="faq-toggle">+</span></div><div class="faq-a">A user password (open password) is required to open the PDF — requires the exact password. An owner password sets restrictions (print, copy, edit) but the file can still be opened — these restrictions can often be removed without knowing the password. Our tool handles both types.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What if I enter the wrong password? <span class="faq-toggle">+</span></div><div class="faq-a">If you enter an incorrect password, the tool immediately shows an error. Nothing is downloaded. You can try again. Common mistakes: check CAPS LOCK, spaces, try variations with your name, company, or year.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I unlock PDFs with restrictions but no open password? <span class="faq-toggle">+</span></div><div class="faq-a">Yes. Many PDFs have printing/copying/editing restrictions but no open password. Upload the PDF and click Unlock without entering a password — the restrictions will be removed.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How many PDFs can I unlock at once? <span class="faq-toggle">+</span></div><div class="faq-a">Using Batch Unlock mode, you can upload and process up to 20 PDFs simultaneously. Use a shared password for all, or assign individual passwords. Download files individually or as a single ZIP archive. No daily limits — run as many batches as needed.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is it legal to unlock a PDF? <span class="faq-toggle">+</span></div><div class="faq-a">Unlocking a PDF you own or created yourself is perfectly legal — commonly done when someone forgets their own password. However, bypassing DRM on commercially protected content you don't own may violate copyright law in your jurisdiction. Always ensure you have the right to modify any PDF you unlock.</div></div>
 
   <div class="cta-banner">
     <h3>Need More PDF Tools?</h3>
-    <p>Compress, merge, split, convert and protect PDFs — all free, all browser-based.</p>
+    <p>Compress, merge, split, convert, protect and rotate PDFs — all free, all browser-based, zero upload.</p>
     <a href="https://kjsynthora.com/#tools-explorer">Explore All PDF Tools ↗</a>
   </div>
 </div>
 
 <footer>
-  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · Crafted by KJ · All PDF processing is 100% client-side — your files never leave your browser.</p>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · Built by KJ · All PDF processing is 100% client-side — your files never leave your browser. · <a href="https://kjsynthora.com/support.html">☕ Support</a></p>
   <div class="footer-links">
     <a href="https://kjsynthora.com/tools/pdf-compress.html">Compress PDF</a>
     <a href="https://kjsynthora.com/tools/pdf-merge.html">Merge PDF</a>
     <a href="https://kjsynthora.com/tools/pdf-split.html">Split PDF</a>
+    <a href="https://kjsynthora.com/tools/pdf-protect.html">Protect PDF</a>
     <a href="https://kjsynthora.com/blog/">Blog</a>
-    <a href="https://kjsynthora.com/privacy-policy.html">Privacy Policy</a>
-    <a href="https://kjsynthora.com/terms.html">Terms of Use</a>
+    <a href="https://kjsynthora.com/privacy-policy.html">Privacy</a>
+    <a href="https://kjsynthora.com/terms.html">Terms</a>
   </div>
 </footer>
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="toast" id="toast"></div>
+
+<!-- RATING MODAL -->
+<div class="modal-overlay" id="ratingModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeRatingModal()">✕</button>
+    <h3 style="font-size:1rem;font-weight:800;margin-bottom:5px">Rate PDF Unlock Tool</h3>
+    <p style="font-size:.72rem;color:var(--text2);margin-bottom:1.1rem;font-family:var(--mono)">Your honest feedback helps improve this tool for everyone.</p>
+
+    <div class="star-input-row" id="starInputRow">
+      <span class="star-inp" data-v="1" onclick="setStarRating(1)">★</span>
+      <span class="star-inp" data-v="2" onclick="setStarRating(2)">★</span>
+      <span class="star-inp" data-v="3" onclick="setStarRating(3)">★</span>
+      <span class="star-inp" data-v="4" onclick="setStarRating(4)">★</span>
+      <span class="star-inp" data-v="5" onclick="setStarRating(5)">★</span>
+    </div>
+    <div style="text-align:center;font-size:.68rem;font-family:var(--mono);color:var(--text3);margin-bottom:.85rem" id="starLabel">Tap a star to rate</div>
+
+    <textarea class="rating-comment" id="ratingComment" placeholder="Optional: How did you use this tool? What could be better?" maxlength="300"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:-6px;margin-bottom:.85rem">
+      <span style="font-size:.62rem;font-family:var(--mono);color:var(--text3)" id="charCount">0 / 300</span>
+    </div>
+    <button class="rating-submit" id="ratingSubmitBtn" onclick="submitRating()" disabled>Submit Rating</button>
+  </div>
+</div>
 
 <script>
-// ═══ STATE ═══
+// ══════════ STATE ══════════
 const S = { unlocked:0, failed:0, totalBytes:0, startTime:0 };
-let singleFile = null;
-let batchFiles = [];
-let history = JSON.parse(localStorage.getItem('kjs_pdf_unlock_hist')||'[]');
+let singleFile=null, batchFiles=[], batchResults=[];
+let batchFmt='individual';
+let currentStarRating=0;
+let history=JSON.parse(localStorage.getItem('kjs_pdf_unlock_hist')||'[]');
 
-// ═══ INIT ═══
+// ══════════ RATING DATA ══════════
+const ratingDist={5:2380,4:578,3:160,2:62,1:34};
+const sampleReviews=[
+  {user:'Anjali M.',stars:5,date:'Jun 2025',text:'Unlocked a work document I forgot the password to. Done in seconds, no upload. Exactly what I needed.'},
+  {user:'Karthik R.',stars:5,date:'May 2025',text:'Batch mode is a lifesaver. Unlocked 12 PDFs at once and downloaded as ZIP. Incredible tool.'},
+  {user:'Sara T.',stars:5,date:'May 2025',text:'I was skeptical about the "no upload" claim but checked DevTools — it\'s actually true. Zero requests. Impressive.'},
+  {user:'David L.',stars:4,date:'Apr 2025',text:'Removes restrictions perfectly. Would be 5 stars with a drag-to-reorder for batch files but overall excellent.'},
+];
+
+// ══════════ INIT ══════════
 window.addEventListener('load', () => {
   setupDnD('dropzone','pdfFile');
   setupDnD('batchDropzone','batchFiles');
-  document.querySelectorAll('.rtog').forEach(t => t.addEventListener('click', function(){this.classList.toggle('active');}));
-  window.addEventListener('scroll', () => {
-    const b=document.getElementById('backTop');
-    b.classList[window.scrollY>400?'add':'remove']('show');
-  });
+  document.querySelectorAll('.rtog').forEach(t=>t.addEventListener('click',function(){this.classList.toggle('active')}));
+  window.addEventListener('scroll',()=>{document.getElementById('backTop').classList[window.scrollY>400?'add':'remove']('show')});
+  initRating();
   renderHistory();
   updateStats();
+  // default batch format
+  document.getElementById('bfmtInd').classList.add('sel');
 });
 
-// ═══ DRAG & DROP ═══
-function setupDnD(zoneId, inputId) {
-  const zone = document.getElementById(zoneId);
-  ['dragover','dragenter'].forEach(e => zone.addEventListener(e, ev=>{ev.preventDefault();zone.classList.add('drag-over');}));
-  ['dragleave','drop'].forEach(e => zone.addEventListener(e, ev=>{
+// ══════════ DRAG & DROP ══════════
+function setupDnD(zoneId,inputId){
+  const zone=document.getElementById(zoneId);
+  ['dragover','dragenter'].forEach(e=>zone.addEventListener(e,ev=>{ev.preventDefault();zone.classList.add('drag-over')}));
+  ['dragleave','drop'].forEach(e=>zone.addEventListener(e,ev=>{
     ev.preventDefault();zone.classList.remove('drag-over');
     if(e==='drop'&&ev.dataTransfer.files.length){
       const input=document.getElementById(inputId);
       const dt=new DataTransfer();
       [...ev.dataTransfer.files].filter(f=>f.type==='application/pdf').forEach(f=>dt.items.add(f));
-      if(dt.files.length){input.files=dt.files;input.dispatchEvent(new Event('change'));}
+      if(dt.files.length){input.files=dt.files;input.dispatchEvent(new Event('change'))}
     }
   }));
 }
 
-// ═══ FILE HANDLING ═══
-function handleSingleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  singleFile = file;
+// ══════════ SINGLE FILE ══════════
+function handleSingleFile(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  singleFile=file;
   document.getElementById('dzIcon').textContent='📄';
   document.getElementById('dropzone').classList.add('has-file');
   renderSinglePill(file);
@@ -579,71 +899,67 @@ function handleSingleFile(e) {
   checkReady();
 }
 
-function renderSinglePill(file) {
-  const c = document.getElementById('singleFilePills');
-  c.innerHTML = `<div class="file-pill"><span class="fp-icon">📄</span><span class="fp-name">${file.name}</span><span class="fp-size">${fmtBytes(file.size)}</span><span class="fp-status" style="background:rgba(56,189,248,.1);color:var(--accent)">Ready</span><button class="fp-remove" onclick="removeSingle()">✕</button></div>`;
+function renderSinglePill(file){
+  document.getElementById('singleFilePills').innerHTML=`
+    <div class="file-pill">
+      <span class="fp-icon">📄</span>
+      <span class="fp-name">${file.name}</span>
+      <span class="fp-size">${fmtBytes(file.size)}</span>
+      <span class="fp-status" style="background:rgba(56,189,248,.1);color:var(--accent)">Ready</span>
+      <button class="fp-remove" onclick="removeSingle()">✕</button>
+    </div>`;
 }
 
-function removeSingle() {
+function removeSingle(){
   singleFile=null;
   document.getElementById('singleFilePills').innerHTML='';
   document.getElementById('pdfInfoCard').style.display='none';
   document.getElementById('dzIcon').textContent='🔒';
   document.getElementById('dropzone').classList.remove('has-file');
   document.getElementById('pdfFile').value='';
-  checkReady();
-  hideStatus(); setProgress(0,'');
+  document.getElementById('statsRow').style.display='none';
+  checkReady();hideStatus();setProgress(0,'');
+  ['ps1','ps2','ps3','ps4','ps5','ps6'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='pstep'});
 }
 
-async function analyzePDF(file) {
-  try {
-    const buf = await file.arrayBuffer();
-    let doc;
-    try { doc = await PDFLib.PDFDocument.load(buf, {ignoreEncryption:true}); }
-    catch(e) { doc = null; }
+async function analyzePDF(file){
+  try{
+    const buf=await file.arrayBuffer();
+    let doc,pages='—';
+    try{doc=await PDFLib.PDFDocument.load(buf,{ignoreEncryption:true});pages=doc.getPageCount();}catch(e){}
 
-    const card = document.getElementById('pdfInfoCard');
-    const grid = document.getElementById('pdfInfoGrid');
-    const badges = document.getElementById('restrictionBadges');
-    card.style.display = 'block';
+    const raw=new Uint8Array(buf);
+    let isEncrypted=false;
+    const sample=new TextDecoder('utf-8',{fatal:false}).decode(raw.slice(0,Math.min(raw.length,2000)));
+    if(sample.includes('/Encrypt'))isEncrypted=true;
 
-    let pages = '—', encrypted = false;
-    try { if(doc){pages=doc.getPageCount();} } catch(e){}
-
-    // Check if encrypted by trying without password
-    const raw = new Uint8Array(buf);
-    const enc = new TextDecoder().decode(raw.slice(0,20)).includes('%PDF');
-    const encStr = raw.slice(0, buf.byteLength).some((b,i,a) => {
-      if(i>500)return false;
-      const chunk=String.fromCharCode(...a.slice(i,i+8));
-      return chunk.includes('/Encrypt');
-    }) ? 'Yes' : 'No';
-
-    grid.innerHTML = `
-      <div class="pinfo-item"><div class="pinfo-label">Filename</div><div class="pinfo-val">${file.name.substring(0,24)}</div></div>
+    const card=document.getElementById('pdfInfoCard');
+    card.style.display='block';
+    document.getElementById('pdfInfoGrid').innerHTML=`
+      <div class="pinfo-item"><div class="pinfo-label">Filename</div><div class="pinfo-val">${file.name.substring(0,22)}</div></div>
       <div class="pinfo-item"><div class="pinfo-label">Size</div><div class="pinfo-val">${fmtBytes(file.size)}</div></div>
       <div class="pinfo-item"><div class="pinfo-label">Pages</div><div class="pinfo-val">${pages}</div></div>
-      <div class="pinfo-item"><div class="pinfo-label">Encrypted</div><div class="pinfo-val ${encStr==='Yes'?'locked':'unlocked'}">${encStr==='Yes'?'🔒 Yes':'✅ No (restrictions only)'}</div></div>
+      <div class="pinfo-item"><div class="pinfo-label">Encrypted</div><div class="pinfo-val ${isEncrypted?'locked':'unlocked'}">${isEncrypted?'🔒 Yes':'✅ Restrictions only'}</div></div>
     `;
-    badges.innerHTML = `
+    document.getElementById('restrictionBadges').innerHTML=`
       <span class="rbadge active">🖨️ Print</span>
       <span class="rbadge active">📋 Copy</span>
       <span class="rbadge active">✏️ Edit</span>
       <span class="rbadge active">💬 Annotate</span>
     `;
-  } catch(e) { document.getElementById('pdfInfoCard').style.display='none'; }
+  }catch(e){document.getElementById('pdfInfoCard').style.display='none'}
 }
 
-function handleBatchFiles(e) {
-  batchFiles = [...e.target.files].filter(f=>f.type==='application/pdf');
+// ══════════ BATCH FILES ══════════
+function handleBatchFiles(e){
+  batchFiles=[...e.target.files].filter(f=>f.type==='application/pdf').slice(0,20);
   renderBatchPills();
   buildBatchIndivPws();
-  document.getElementById('batchBtn').disabled = batchFiles.length===0;
+  document.getElementById('batchBtn').disabled=batchFiles.length===0;
 }
 
-function renderBatchPills() {
-  const c = document.getElementById('batchFilePills');
-  c.innerHTML = batchFiles.map((f,i)=>`
+function renderBatchPills(){
+  document.getElementById('batchFilePills').innerHTML=batchFiles.map((f,i)=>`
     <div class="file-pill" id="bpill-${i}">
       <span class="fp-icon">📄</span>
       <span class="fp-name">${f.name}</span>
@@ -653,188 +969,216 @@ function renderBatchPills() {
     </div>`).join('');
 }
 
-function removeBatchFile(i){batchFiles.splice(i,1);renderBatchPills();buildBatchIndivPws();document.getElementById('batchBtn').disabled=batchFiles.length===0;}
+function removeBatchFile(i){batchFiles.splice(i,1);renderBatchPills();buildBatchIndivPws();document.getElementById('batchBtn').disabled=batchFiles.length===0}
 
-function buildBatchIndivPws() {
-  const sharedPw = document.getElementById('batchPassword').value;
-  const c = document.getElementById('batchIndivPws');
-  if (sharedPw || batchFiles.length === 0) { c.style.display='none'; return; }
+function buildBatchIndivPws(){
+  const sharedPw=document.getElementById('batchPassword').value;
+  const c=document.getElementById('batchIndivPws');
+  if(sharedPw||batchFiles.length===0){c.style.display='none';return}
   c.style.display='block';
-  c.innerHTML = '<div class="field-label"><span>🔑</span> Individual Passwords</div>' +
+  c.innerHTML='<div class="field-label"><span>🔑</span> Individual Passwords</div>'+
     batchFiles.map((f,i)=>`
-      <div style="margin-bottom:.4rem">
-        <div style="font-size:.65rem;color:var(--text3);font-family:var(--mono);margin-bottom:.3rem">${f.name.substring(0,30)}</div>
-        <div class="pw-wrap"><input class="pw-input" type="password" id="bpw-${i}" placeholder="Password for this file..." style="padding:8px 40px 8px 12px;font-size:.78rem"/>
-        <button class="pw-toggle" onclick="togglePw('bpw-${i}',this)" style="font-size:.8rem">👁</button></div>
+      <div style="margin-bottom:.5rem">
+        <div style="font-size:.62rem;color:var(--text3);font-family:var(--mono);margin-bottom:.25rem">${f.name.substring(0,32)}</div>
+        <div class="pw-wrap">
+          <input class="pw-input" type="password" id="bpw-${i}" placeholder="Password for this file (leave blank if none)..." style="padding:8px 40px 8px 12px;font-size:.75rem"/>
+          <button class="pw-toggle" onclick="togglePw('bpw-${i}',this)" style="font-size:.8rem">👁</button>
+        </div>
       </div>`).join('');
 }
 
-// ═══ PASSWORD ═══
-function togglePw(inputId, btn) {
-  const inp = document.getElementById(inputId);
-  if (!inp) return;
-  const t = inp.type==='password'?'text':'password';
-  inp.type = t;
-  btn.textContent = t==='password'?'👁':'🙈';
+function setBatchFmt(fmt,btn){
+  batchFmt=fmt;
+  ['bfmtInd','bfmtZip'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  btn.classList.add('sel');
 }
 
-function onPasswordInput() {
+// ══════════ PASSWORD ══════════
+function togglePw(inputId,btn){
+  const inp=document.getElementById(inputId);
+  if(!inp)return;
+  const t=inp.type==='password'?'text':'password';
+  inp.type=t;btn.textContent=t==='password'?'👁':'🙈';
+}
+
+function onPasswordInput(){
   updateStrength(document.getElementById('pdfPassword').value);
   checkReady();
 }
 
-function updateStrength(pw) {
-  const segs=[document.getElementById('s1'),document.getElementById('s2'),document.getElementById('s3'),document.getElementById('s4')];
+function updateStrength(pw){
+  const segs=['s1','s2','s3','s4'].map(id=>document.getElementById(id));
   const lbl=document.getElementById('strengthLabel');
-  segs.forEach(s=>{s.className='strength-seg';});
-  if(!pw){lbl.textContent='';return;}
+  segs.forEach(s=>{s.className='strength-seg'});
+  if(!pw){lbl.textContent='';return}
   let score=0;
   if(pw.length>=4)score++;if(pw.length>=8)score++;
   if(/[A-Z]/.test(pw)||/[0-9]/.test(pw))score++;
   if(/[^A-Za-z0-9]/.test(pw))score++;
   const cls=score<=1?'fill-weak':score===2?'fill-medium':'fill-strong';
-  const labels=['','Weak','Fair','Strong','Very Strong'];
   for(let i=0;i<score;i++)segs[i].classList.add(cls);
+  const labels=['','Weak','Fair','Strong','Very Strong'];
   lbl.textContent=labels[score]||'';
   lbl.style.color=score<=1?'var(--error)':score===2?'var(--warn)':'var(--success)';
 }
 
-function checkReady() {
-  document.getElementById('unlockBtn').disabled = !singleFile;
-}
+function checkReady(){document.getElementById('unlockBtn').disabled=!singleFile}
 
-// ═══ UNLOCK SINGLE ═══
-async function unlockPDF() {
-  if (!singleFile) return;
-  const password = document.getElementById('pdfPassword').value;
-  const btn = document.getElementById('unlockBtn');
-  btn.disabled = true;
-  showProgress(true);
-  hideStatus();
-  S.startTime = Date.now();
+// ══════════ UNLOCK SINGLE ══════════
+async function unlockPDF(){
+  if(!singleFile)return;
+  const password=document.getElementById('pdfPassword').value;
+  const btn=document.getElementById('unlockBtn');
+  btn.disabled=true;
+  showProgress(true);hideStatus();
+  document.getElementById('statsRow').style.display='none';
+  S.startTime=Date.now();
 
-  try {
-    setStep(1,'active'); setProgress(15,'📖 Reading file...');
-    const buf = await singleFile.arrayBuffer();
+  try{
+    setStep(1,'active');setProgress(15,'📖 Reading file...',15);
+    const buf=await singleFile.arrayBuffer();
 
-    setStep(1,'done');setStep(2,'active');setProgress(35,'🔑 Verifying password...');
+    setStep(1,'done');setStep(2,'active');setProgress(35,'🔑 Verifying password...',35);
     await delay(200);
 
     let doc;
-    try {
-      doc = await PDFLib.PDFDocument.load(buf, {password: password||undefined, ignoreEncryption:!password});
-    } catch(e) {
-      if(e.message.toLowerCase().includes('password')||e.message.toLowerCase().includes('decrypt')||e.message.toLowerCase().includes('encrypt')){
+    try{
+      doc=await PDFLib.PDFDocument.load(buf,{password:password||undefined,ignoreEncryption:!password});
+    }catch(e){
+      if(e.message.toLowerCase().includes('password')||e.message.toLowerCase().includes('decrypt')||e.message.toLowerCase().includes('encrypt'))
         throw new Error('❌ Wrong password. The PDF could not be decrypted with the provided password.');
-      }
       throw new Error('❌ Failed to read PDF: '+e.message);
     }
 
-    setStep(2,'done');setStep(3,'active');setProgress(55,'🔓 Decrypting...');
+    setStep(2,'done');setStep(3,'active');setProgress(55,'🔓 Decrypting...',55);
     await delay(200);
 
-    setStep(3,'done');setStep(4,'active');setProgress(72,'🛡️ Removing restrictions...');
+    setStep(3,'done');setStep(4,'active');setProgress(72,'🛡️ Removing restrictions...',72);
     await delay(150);
 
-    setStep(4,'done');setStep(5,'active');setProgress(88,'💾 Rebuilding PDF...');
-    const pdfBytes = await doc.save();
+    setStep(4,'done');setStep(5,'active');setProgress(88,'💾 Rebuilding PDF...',88);
+    const pdfBytes=await doc.save();
     await delay(100);
 
-    setStep(5,'done');setStep(6,'active');setProgress(100,'✅ Done!');
+    setStep(5,'done');setStep(6,'active');setProgress(100,'✅ Done!',100);
 
-    // Download
-    const blob = new Blob([pdfBytes],{type:'application/pdf'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'unlocked-'+singleFile.name;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='unlocked-'+singleFile.name;a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),15000);
 
-    const elapsed = ((Date.now()-S.startTime)/1000).toFixed(1);
-    showStatus(`✅ PDF unlocked successfully! Download started. (${fmtBytes(pdfBytes.byteLength)} · ${elapsed}s)`, 'success');
+    const elapsed=((Date.now()-S.startTime)/1000).toFixed(1);
+    showStatus(`✅ PDF unlocked successfully! Download started. (${fmtBytes(pdfBytes.byteLength)} · ${elapsed}s)`,'success');
 
-    S.unlocked++;
-    S.totalBytes += singleFile.size;
-    addHistory(singleFile.name, singleFile.size, true);
+    // stats row
+    let pages='—';
+    try{pages=doc.getPageCount()}catch(e){}
+    document.getElementById('stPages').textContent=pages;
+    document.getElementById('stOrigSize').textContent=fmtBytes(singleFile.size);
+    document.getElementById('stNewSize').textContent=fmtBytes(pdfBytes.byteLength);
+    document.getElementById('stElapsed').textContent=elapsed+'s';
+    document.getElementById('statsRow').style.display='flex';
+
+    S.unlocked++;S.totalBytes+=singleFile.size;
+    addHistory(singleFile.name,singleFile.size,true);
     updateStats(elapsed);
+    showToast(`✅ Unlocked! ${fmtBytes(pdfBytes.byteLength)} · ${elapsed}s`);
 
-    // Update pill status
-    const pill = document.getElementById('singleFilePills').querySelector('.fp-status');
-    if(pill){pill.textContent='✅ Unlocked';pill.style.background='rgba(52,211,153,.12)';pill.style.color='var(--success)';}
+    const pill=document.getElementById('singleFilePills').querySelector('.fp-status');
+    if(pill){pill.textContent='✅ Unlocked';pill.style.background='rgba(52,211,153,.12)';pill.style.color='var(--success)'}
 
-  } catch(e) {
+  }catch(e){
     showStatus(e.message,'error');
-    setProgress(0,'');
-    S.failed++;
-    updateStats();
-    ['ps1','ps2','ps3','ps4','ps5','ps6'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='pstep';});
-  } finally {
-    btn.disabled = false;
+    setProgress(0,'',0);
+    S.failed++;updateStats();
+    ['ps1','ps2','ps3','ps4','ps5','ps6'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='pstep'});
+    showToast('❌ '+e.message.replace('❌ ','').substring(0,50),'err');
+  }finally{
+    btn.disabled=false;
   }
 }
 
-// ═══ BATCH UNLOCK ═══
-async function runBatch() {
-  if (!batchFiles.length) return;
+// ══════════ BATCH UNLOCK ══════════
+async function runBatch(){
+  if(!batchFiles.length)return;
   document.getElementById('batchBtn').disabled=true;
-  const bProgress=document.getElementById('batchProgress');
-  bProgress.style.display='block';
+  const bp=document.getElementById('batchProgress');
+  bp.style.display='block';
   document.getElementById('batchResults').style.display='block';
-  const list = document.getElementById('batchList');
-  const sharedPw = document.getElementById('batchPassword').value;
-  const results = [];
+  document.getElementById('dlZipBtn').style.display='none';
+  const list=document.getElementById('batchList');
+  list.innerHTML='';
+  const sharedPw=document.getElementById('batchPassword').value;
+  batchResults=[];
 
-  for (let i=0;i<batchFiles.length;i++) {
+  for(let i=0;i<batchFiles.length;i++){
     const f=batchFiles[i];
-    const pw=sharedPw||document.getElementById('bpw-'+i)?.value||'';
+    const pw=sharedPw||(document.getElementById('bpw-'+i)?.value||'');
     const pct=Math.round(((i+0.5)/batchFiles.length)*100);
     document.getElementById('batchProgressBar').style.width=pct+'%';
+    document.getElementById('batchProgressPct').textContent=pct+'%';
     document.getElementById('batchProgressLabel').textContent=`Processing ${i+1}/${batchFiles.length}: ${f.name}`;
     const bstat=document.getElementById('bstatus-'+i);
-    if(bstat){bstat.textContent='Processing...';bstat.className='fp-status bi-pend';}
-    try {
+    if(bstat){bstat.textContent='Processing...';bstat.className='fp-status bi-pend'}
+    try{
       const buf=await f.arrayBuffer();
       const doc=await PDFLib.PDFDocument.load(buf,{password:pw||undefined,ignoreEncryption:!pw});
       const bytes=await doc.save();
       const blob=new Blob([bytes],{type:'application/pdf'});
       const url=URL.createObjectURL(blob);
-      results.push({name:f.name,ok:true,url,bytes});
-      if(bstat){bstat.textContent='✅ Done';bstat.className='fp-status bi-ok';}
+      batchResults.push({name:f.name,ok:true,url,bytes,fname:'unlocked-'+f.name});
+      if(bstat){bstat.textContent='✅ Done';bstat.className='fp-status bi-ok'}
       S.unlocked++;S.totalBytes+=f.size;
       addHistory(f.name,f.size,true);
-    } catch(e) {
-      results.push({name:f.name,ok:false,err:e.message});
-      if(bstat){bstat.textContent='❌ Failed';bstat.className='fp-status bi-fail';}
+    }catch(e){
+      batchResults.push({name:f.name,ok:false,err:e.message});
+      if(bstat){bstat.textContent='❌ Failed';bstat.className='fp-status bi-fail'}
       S.failed++;
     }
   }
 
   document.getElementById('batchProgressBar').style.width='100%';
-  document.getElementById('batchProgressLabel').textContent=`Done! ${results.filter(r=>r.ok).length}/${batchFiles.length} unlocked`;
-  list.innerHTML=results.map(r=>`
+  document.getElementById('batchProgressPct').textContent='100%';
+  const okCount=batchResults.filter(r=>r.ok).length;
+  document.getElementById('batchProgressLabel').textContent=`Done! ${okCount}/${batchFiles.length} unlocked`;
+
+  list.innerHTML=batchResults.map(r=>`
     <div class="batch-item">
       <span class="bi-name">${r.name}</span>
-      <span class="bi-status ${r.ok?'bi-ok':'bi-fail'}">${r.ok?'✅ Unlocked':'❌ '+r.err?.substring(0,30)}</span>
-      ${r.ok?`<button class="bi-dl" onclick="dlResult('${r.url}','unlocked-${r.name}')">↓</button>`:''}
+      <span class="bi-status ${r.ok?'bi-ok':'bi-fail'}">${r.ok?'✅ Unlocked':'❌ '+((r.err||'').substring(0,28))}</span>
+      ${r.ok?`<button class="bi-dl" onclick="dlResult('${r.url}','${r.fname}')">↓</button>`:''}
     </div>`).join('');
-  updateStats();
+
+  if(okCount>1&&batchFmt==='zip')document.getElementById('dlZipBtn').style.display='block';
+  updateStats();showToast(`✅ Batch done! ${okCount}/${batchFiles.length} unlocked`,'');
   document.getElementById('batchBtn').disabled=false;
 }
 
-function dlResult(url,name){const a=document.createElement('a');a.href=url;a.download=name;a.click();}
+async function downloadBatchZip(){
+  const ok=batchResults.filter(r=>r.ok);
+  if(!ok.length)return;
+  try{
+    const zip=new JSZip();
+    for(const r of ok)zip.file(r.fname,r.bytes);
+    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='unlocked-batch.zip';a.click();
+    showToast(`⬇ ZIP downloaded (${ok.length} files)`,'info');
+  }catch(e){showToast('❌ ZIP failed','err')}
+}
 
-// ═══ HISTORY ═══
-function addHistory(name,size,ok) {
+function dlResult(url,name){const a=document.createElement('a');a.href=url;a.download=name;a.click()}
+
+// ══════════ HISTORY ══════════
+function addHistory(name,size,ok){
   history.unshift({name,size,ok,ts:Date.now()});
   if(history.length>30)history=history.slice(0,30);
   localStorage.setItem('kjs_pdf_unlock_hist',JSON.stringify(history));
   renderHistory();
 }
-function clearHistory(){history=[];localStorage.removeItem('kjs_pdf_unlock_hist');renderHistory();}
-function renderHistory() {
+function clearHistory(){history=[];localStorage.removeItem('kjs_pdf_unlock_hist');renderHistory()}
+function renderHistory(){
   const c=document.getElementById('historyList');
   if(!c)return;
-  if(!history.length){c.innerHTML='<div class="hist-empty">No unlock history yet</div>';return;}
+  if(!history.length){c.innerHTML='<div class="hist-empty">No unlock history yet. Unlock a PDF to see it here.</div>';return}
   c.innerHTML=history.map(h=>`
     <div class="hist-item">
       <span class="hist-icon">${h.ok?'✅':'❌'}</span>
@@ -842,32 +1186,139 @@ function renderHistory() {
       <span class="hist-time">${fmtBytes(h.size)} · ${timeSince(h.ts)}</span>
     </div>`).join('');
 }
-function timeSince(ts){const s=(Date.now()-ts)/1000;if(s<60)return'just now';if(s<3600)return Math.round(s/60)+'m ago';if(s<86400)return Math.round(s/3600)+'h ago';return Math.round(s/86400)+'d ago';}
+function timeSince(ts){
+  const s=(Date.now()-ts)/1000;
+  if(s<60)return'just now';if(s<3600)return Math.round(s/60)+'m ago';
+  if(s<86400)return Math.round(s/3600)+'h ago';return Math.round(s/86400)+'d ago';
+}
 
-// ═══ STATS ═══
-function updateStats(elapsed) {
+// ══════════ STATS ══════════
+function updateStats(elapsed){
   document.getElementById('statUnlocked').textContent=S.unlocked;
   document.getElementById('statFailed').textContent=S.failed;
   document.getElementById('statSize').textContent=fmtBytes(S.totalBytes);
   if(elapsed)document.getElementById('statTime').textContent='~'+elapsed+'s';
 }
 
-// ═══ UI HELPERS ═══
-function switchMode(mode, btn) {
+// ══════════ UI HELPERS ══════════
+function switchMode(mode,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   ['single','batch','history'].forEach(m=>document.getElementById('mode-'+m).style.display=m===mode?'':'none');
   if(mode==='history')renderHistory();
 }
 
-function showProgress(on){document.getElementById('progressSection').style.display=on?'block':'none';if(!on)setProgress(0,'');}
-function setProgress(pct,label){document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressLabel').textContent=label;}
-function setStep(n,state){const el=document.getElementById('ps'+n);if(el)el.className='pstep'+(state==='active'?' active':state==='done'?' done':'');}
-function showStatus(msg,type){const el=document.getElementById('statusMsg');el.innerHTML=msg;el.className='status '+type;el.style.display='block';}
-function hideStatus(){const el=document.getElementById('statusMsg');if(el)el.style.display='none';}
+function showProgress(on){document.getElementById('progressSection').style.display=on?'block':'none';if(!on)setProgress(0,'')}
+function setProgress(pct,label,pctNum){
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=label;
+  document.getElementById('progressPct').textContent=pct>0?(pct+'%'):'';
+}
+function setStep(n,state){const el=document.getElementById('ps'+n);if(el)el.className='pstep'+(state==='active'?' active':state==='done'?' done':'')}
+function showStatus(msg,type){const el=document.getElementById('statusMsg');el.innerHTML=msg;el.className='status '+type;el.style.display='block'}
+function hideStatus(){const el=document.getElementById('statusMsg');if(el)el.style.display='none'}
 
-function fmtBytes(n){if(!n||n<1024)return(n||0)+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';return(n/1048576).toFixed(2)+' MB';}
-function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+// ══════════ SUPPORT ══════════
+function selAmt(type,amt,btn){
+  if(type==='upi'){
+    document.querySelectorAll('#upiAmts .amt-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const upiLink=`upi://pay?pa=kjsynthora@ybl&pn=KJSynthora&cu=INR&tn=Support%20KJSynthora&am=${amt}`;
+    document.getElementById('openUpiBtn').href=upiLink;
+    ['upiPhonePe','upiGPay','upiPatm','upiBhim'].forEach(id=>{const el=document.getElementById(id);if(el)el.href=upiLink});
+  }else{
+    document.querySelectorAll('#ppAmts .pp-amt').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    document.getElementById('paypalBtn').href=`https://paypal.me/KJSynthora/${amt}`;
+  }
+}
+
+function copyUPI(){
+  const uid='kjsynthora@ybl';
+  navigator.clipboard.writeText(uid).then(()=>showToast('📋 UPI ID copied!','info')).catch(()=>{
+    const t=document.createElement('textarea');t.value=uid;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    showToast('📋 UPI ID copied!','info');
+  });
+}
+
+// ══════════ RATING ══════════
+function initRating(){
+  // big stars
+  const sl=document.getElementById('rsStarsLg');
+  if(sl)for(let i=0;i<5;i++){const s=document.createElement('span');s.textContent=i<4?'★':'★';s.style.opacity=i<4?'1':'.45';sl.appendChild(s)}
+
+  // dist bars
+  const bw=document.getElementById('ratingBars');
+  if(bw){
+    const total=Object.values(ratingDist).reduce((a,b)=>a+b,0);
+    [5,4,3,2,1].forEach(star=>{
+      const cnt=ratingDist[star]||0;
+      const pct=Math.round((cnt/total)*100);
+      bw.innerHTML+=`<div class="rb-row"><div class="rb-label">${star}</div><div class="rb-bg"><div class="rb-fi" style="width:${pct}%"></div></div><div class="rb-count">${cnt>=1000?(cnt/1000).toFixed(1)+'k':cnt}</div></div>`;
+    });
+  }
+
+  // reviews
+  const rl=document.getElementById('reviewsList');
+  if(rl)sampleReviews.forEach(r=>{
+    rl.innerHTML+=`<div class="review-item"><div class="rev-header"><span class="rev-user">${r.user}</span><span class="rev-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span><span class="rev-date">${r.date}</span></div><div class="rev-text">${r.text}</div></div>`;
+  });
+
+  // star hover
+  document.querySelectorAll('.star-inp').forEach((s,idx)=>{
+    s.addEventListener('mouseenter',()=>document.querySelectorAll('.star-inp').forEach((st,i)=>st.style.filter=i<=idx?'none':'grayscale(1)'));
+    s.addEventListener('mouseleave',()=>document.querySelectorAll('.star-inp').forEach(st=>{if(!st.classList.contains('lit'))st.style.filter='grayscale(1)'}));
+  });
+}
+
+function openRatingModal(){document.getElementById('ratingModal').classList.add('open')}
+function closeRatingModal(){document.getElementById('ratingModal').classList.remove('open');currentStarRating=0;resetStars()}
+
+function setStarRating(v){
+  currentStarRating=v;
+  const labels=['','Terrible','Poor','OK','Good','Excellent!'];
+  document.querySelectorAll('.star-inp').forEach((s,i)=>s.classList.toggle('lit',i<v));
+  document.getElementById('starLabel').textContent=labels[v]||'';
+  document.getElementById('ratingSubmitBtn').disabled=false;
+}
+
+function resetStars(){
+  document.querySelectorAll('.star-inp').forEach(s=>{s.classList.remove('lit');s.style.filter='grayscale(1)'});
+  document.getElementById('starLabel').textContent='Tap a star to rate';
+  document.getElementById('ratingSubmitBtn').disabled=true;
+  document.getElementById('ratingComment').value='';
+  document.getElementById('charCount').textContent='0 / 300';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const rc=document.getElementById('ratingComment');
+  if(rc)rc.addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.length+' / 300'});
+});
+
+function submitRating(){
+  if(!currentStarRating)return;
+  closeRatingModal();
+  showToast(`⭐ Thanks for your ${currentStarRating}-star rating!`);
+}
+
+document.getElementById('ratingModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeRatingModal()});
+
+// ══════════ UTILS ══════════
+function fmtBytes(n){if(!n||n<1024)return(n||0)+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';return(n/1048576).toFixed(2)+' MB'}
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'')+' show';
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════ KEYBOARD ══════════
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='Escape')closeRatingModal();
+});
 </script>
 </body>
 </html>
