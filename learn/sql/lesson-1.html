@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SQL Basics — SELECT, WHERE, ORDER BY (Free Lesson) | KJSynthora Learn</title>
+<meta name="description" content="Free SQL lesson: learn SELECT statements, WHERE filtering, ORDER BY, and LIMIT with hands-on examples. Module 1 of the Complete SQL Course by KJSynthora."/>
+<meta name="keywords" content="sql select statement, sql where clause, sql order by, sql tutorial for beginners, learn sql basics, kjsynthora learn"/>
+<meta name="author" content="KJSynthora"/>
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"/>
+<meta name="theme-color" content="#060810"/>
+<link rel="canonical" href="https://kjsynthora.com/learn/sql/lesson-1.html"/>
+<link rel="icon" href="https://kjsynthora.com/logo.png"/>
+<link rel="apple-touch-icon" href="https://kjsynthora.com/logo.png"/>
+<meta property="og:title" content="SQL Basics — Free Lesson | KJSynthora Learn"/>
+<meta property="og:description" content="Learn SELECT, WHERE, ORDER BY and LIMIT with hands-on SQL examples. Free Module 1 of the Complete SQL Course."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://kjsynthora.com/learn/sql/lesson-1.html"/>
+<meta property="og:image" content="https://kjsynthora.com/logo.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:site_name" content="KJSynthora"/>
+<meta property="og:locale" content="en_IN"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="SQL Basics — Free Lesson | KJSynthora Learn"/>
+<meta name="twitter:description" content="Learn SELECT, WHERE, ORDER BY and LIMIT with hands-on examples."/>
+<meta name="twitter:image" content="https://kjsynthora.com/logo.png"/>
+<meta name="twitter:site" content="@KJSynthora"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+  {"@type":"LearningResource","name":"SQL Basics — SELECT, WHERE, ORDER BY","description":"Free introductory lesson covering SQL SELECT statements, WHERE filtering, ORDER BY sorting, and LIMIT clauses with practical examples.","educationalLevel":"Beginner","isPartOf":{"@type":"Course","name":"Complete SQL Course — Beginner to Advanced","url":"https://kjsynthora.com/learn/sql/"},"provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"}},
+  {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://kjsynthora.com"},{"@type":"ListItem","position":2,"name":"Learn","item":"https://kjsynthora.com/learn/"},{"@type":"ListItem","position":3,"name":"SQL Course","item":"https://kjsynthora.com/learn/sql/"},{"@type":"ListItem","position":4,"name":"Lesson 1: SQL Basics","item":"https://kjsynthora.com/learn/sql/lesson-1.html"}]},
+  {"@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What is SQL?","acceptedAnswer":{"@type":"Answer","text":"SQL (Structured Query Language) is a standard programming language used to communicate with and manipulate databases. It is used to query, insert, update, and delete data stored in relational database management systems like MySQL, PostgreSQL, SQL Server, and SQLite."}},
+    {"@type":"Question","name":"What does the SELECT statement do?","acceptedAnswer":{"@type":"Answer","text":"The SELECT statement retrieves data from one or more tables in a database. You specify which columns you want to see, and from which table, using syntax like SELECT column1, column2 FROM table_name."}},
+    {"@type":"Question","name":"How does the WHERE clause work in SQL?","acceptedAnswer":{"@type":"Answer","text":"The WHERE clause filters rows based on a condition. Only rows where the condition evaluates to true are returned. For example, WHERE age > 18 returns only rows where the age column value is greater than 18."}},
+    {"@type":"Question","name":"What is the difference between ASC and DESC in ORDER BY?","acceptedAnswer":{"@type":"Answer","text":"ASC sorts results in ascending order (smallest to largest, A to Z) and is the default if not specified. DESC sorts in descending order (largest to smallest, Z to A). Example: ORDER BY price DESC sorts from highest to lowest price."}}
+  ]}
+]}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060810;--bg2:#0a0d18;--bg3:#0f1425;--bg4:#141b28;
+  --bdr:#1c2540;--bdr2:#263050;
+  --ac:#6366f1;--ac2:#4facfe;--ac3:#10b981;--ac4:#f59e0b;--ac5:#f472b6;
+  --red:#f43f5e;
+  --text:#eef2ff;--text2:#94a3b8;--text3:#64748b;
+  --fn:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fn);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 55% 45% at 10% 10%,rgba(16,185,129,.07),transparent),
+             radial-gradient(ellipse 45% 35% at 90% 85%,rgba(99,102,241,.06),transparent);
+  pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:4px}
+
+nav.topnav{position:sticky;top:0;z-index:200;background:rgba(6,8,16,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px}
+.logo{text-decoration:none;font-weight:800;font-size:1rem}
+.logo .kj{color:var(--ac)}.logo .s{color:var(--text)}
+.nav-r{display:flex;gap:.4rem}
+.navbtn{color:var(--text2);font-size:.77rem;text-decoration:none;padding:.28rem .65rem;border-radius:6px;border:1px solid var(--bdr);background:rgba(255,255,255,.03);transition:all .18s}
+.navbtn:hover{color:var(--ac);border-color:rgba(99,102,241,.35)}
+
+.breadcrumb{max-width:780px;margin:0 auto;padding:.48rem 1.5rem;display:flex;align-items:center;gap:.35rem;font-size:.67rem;color:var(--text3);position:relative;z-index:1;flex-wrap:wrap}
+.breadcrumb a{color:var(--text3);text-decoration:none}
+.breadcrumb a:hover{color:var(--ac)}
+
+/* PROGRESS BAR */
+.lesson-prog{max-width:780px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1}
+.lp-bg{height:5px;background:var(--bg3);border-radius:5px;overflow:hidden;border:1px solid var(--bdr)}
+.lp-fill{height:100%;width:14.2%;background:linear-gradient(90deg,var(--ac3),var(--ac2))}
+.lp-label{font-size:.66rem;color:var(--text3);margin-top:.35rem;font-family:var(--mono);display:flex;justify-content:space-between}
+
+/* CONTENT */
+.lesson{max-width:780px;margin:0 auto;padding:1.2rem 1.5rem 3rem;position:relative;z-index:1}
+.lesson-tag{display:inline-flex;align-items:center;gap:.4rem;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.22);color:var(--ac3);font-size:.68rem;font-weight:700;padding:.26rem .82rem;border-radius:99px;margin-bottom:.85rem;text-transform:uppercase;letter-spacing:.07em}
+.lesson h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;margin-bottom:.5rem;letter-spacing:-.02em;line-height:1.15}
+.lesson-meta{display:flex;gap:.8rem;flex-wrap:wrap;font-size:.78rem;color:var(--text3);margin-bottom:1.5rem;font-family:var(--mono)}
+
+.lesson h2{font-size:1.2rem;font-weight:800;margin:1.8rem 0 .7rem;color:var(--text)}
+.lesson h3{font-size:1rem;font-weight:700;margin:1.3rem 0 .55rem;color:var(--ac2)}
+.lesson p{font-size:.9rem;color:var(--text2);line-height:1.85;margin-bottom:.9rem}
+.lesson ul{margin:0 0 .9rem 1.2rem;color:var(--text2);font-size:.88rem;line-height:1.85}
+.lesson ul li{margin-bottom:.3rem}
+.lesson strong{color:var(--text)}
+
+/* CODE BLOCK */
+.code-block{background:var(--bg2);border:1px solid var(--bdr2);border-radius:10px;overflow:hidden;margin:1rem 0}
+.code-head{background:var(--bg3);padding:.45rem .9rem;font-size:.66rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bdr2)}
+.code-copy{background:none;border:1px solid var(--bdr2);color:var(--text3);font-size:.62rem;padding:.15rem .5rem;border-radius:5px;cursor:pointer;font-family:var(--fn)}
+.code-copy:hover{color:var(--ac3);border-color:var(--ac3)}
+.code-body{padding:.9rem 1.1rem;font-family:var(--mono);font-size:.82rem;color:var(--ac2);line-height:1.8;overflow-x:auto;white-space:pre}
+.kw{color:var(--ac5);font-weight:700}
+.cmt{color:var(--text3)}
+.str{color:var(--ac4)}
+
+/* RESULT TABLE */
+.result-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:.7rem 0 1rem;font-family:var(--mono)}
+.result-table th{background:var(--bg3);padding:.4rem .7rem;text-align:left;border:1px solid var(--bdr2);color:var(--ac3);font-size:.7rem;text-transform:uppercase}
+.result-table td{padding:.4rem .7rem;border:1px solid var(--bdr2);color:var(--text2)}
+
+/* CALLOUT */
+.callout{border-radius:10px;padding:.85rem 1rem;margin:1rem 0;font-size:.85rem;line-height:1.7;border:1px solid}
+.callout.tip{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2);color:var(--text2)}
+.callout.tip strong{color:var(--ac3)}
+.callout.warn{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);color:var(--text2)}
+.callout.warn strong{color:var(--ac4)}
+.callout.note{background:rgba(79,172,254,.06);border-color:rgba(79,172,254,.2);color:var(--text2)}
+.callout.note strong{color:var(--ac2)}
+
+/* TRY IT */
+.tryit{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:1rem;margin:1.2rem 0}
+.tryit-h{font-size:.8rem;font-weight:700;color:var(--ac3);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.tryit a{color:var(--ac2);text-decoration:none;font-weight:700}
+.tryit a:hover{text-decoration:underline}
+
+/* QUIZ */
+.quiz{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:1.1rem;margin:1.5rem 0}
+.quiz-q{font-size:.9rem;font-weight:700;margin-bottom:.7rem}
+.quiz-opts{display:flex;flex-direction:column;gap:.4rem}
+.quiz-opt{padding:.5rem .8rem;border:1px solid var(--bdr2);border-radius:8px;background:var(--bg3);font-size:.82rem;cursor:pointer;transition:all .15s;color:var(--text2)}
+.quiz-opt:hover{border-color:var(--ac);color:var(--text)}
+.quiz-opt.correct{border-color:var(--ac3);background:rgba(16,185,129,.1);color:var(--ac3)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,63,94,.08);color:var(--red)}
+.quiz-feedback{margin-top:.6rem;font-size:.8rem;display:none}
+.quiz-feedback.show{display:block}
+
+/* UPSELL */
+.upsell{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(99,102,241,.06));border:1px solid rgba(16,185,129,.2);border-radius:14px;padding:1.3rem;margin:2.2rem 0;text-align:center}
+.upsell h3{color:var(--ac3);margin-top:0;font-size:1.05rem}
+.upsell p{font-size:.85rem;margin-bottom:1rem}
+.upsell-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.7rem 1.6rem;background:linear-gradient(135deg,var(--ac3),var(--ac2));border-radius:10px;color:#04140f;font-weight:800;text-decoration:none;font-size:.9rem}
+
+/* NAV BUTTONS */
+.lesson-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--bdr)}
+.lnav-btn{flex:1;padding:.8rem 1rem;border:1px solid var(--bdr2);border-radius:10px;text-decoration:none;transition:all .2s;background:var(--bg2)}
+.lnav-btn:hover{border-color:var(--ac3)}
+.lnav-btn.locked{opacity:.6;cursor:default}
+.lnav-lbl{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem}
+.lnav-title{font-size:.85rem;font-weight:700;color:var(--text)}
+.lnav-btn.next{text-align:right}
+
+footer{background:var(--bg2);border-top:1px solid var(--bdr);text-align:center;padding:1.2rem;color:var(--text3);font-size:.75rem;position:relative;z-index:1}
+footer a{color:var(--text2);text-decoration:none;margin:0 .35rem}
+footer a:hover{color:var(--ac3)}
+
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;z-index:9999;background:var(--ac3);color:#000;font-weight:700;padding:.48rem 1rem;border-radius:8px;opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none;font-size:.8rem}
+.toast.on{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="logo" href="https://kjsynthora.com/"><span class="kj">KJ</span><span class="s">Synthora</span></a>
+  <div class="nav-r">
+    <a class="navbtn" href="https://kjsynthora.com/learn/">📚 All Courses</a>
+    <a class="navbtn" href="https://kjsynthora.com">← Home</a>
+  </div>
+</nav>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="https://kjsynthora.com">Home</a><span>›</span>
+  <a href="https://kjsynthora.com/learn/">Learn</a><span>›</span>
+  <a href="https://kjsynthora.com/learn/sql/">SQL Course</a><span>›</span>
+  <span style="color:var(--text2)">Lesson 1: SQL Basics</span>
+</nav>
+
+<div class="lesson-prog">
+  <div class="lp-bg"><div class="lp-fill"></div></div>
+  <div class="lp-label"><span>Module 1 of 7</span><span>Free Preview · 45 min</span></div>
+</div>
+
+<article class="lesson">
+  <div class="lesson-tag">🆓 Module 1 — Free Preview</div>
+  <h1>SQL Basics: SELECT, WHERE, ORDER BY</h1>
+  <div class="lesson-meta">
+    <span>⏱ 45 min read</span>
+    <span>📊 Beginner</span>
+    <span>🗄️ SQL Course</span>
+  </div>
+
+  <p>SQL (Structured Query Language) is how we talk to databases. Whether you're a data analyst, backend developer, or just curious — SQL lets you ask questions about data and get instant answers. This lesson covers the four most fundamental building blocks: <strong>SELECT</strong>, <strong>WHERE</strong>, <strong>ORDER BY</strong>, and <strong>LIMIT</strong>.</p>
+
+  <h2>1. What is a Database and a Table?</h2>
+  <p>A <strong>database</strong> is an organized collection of data. Inside a database, data is stored in <strong>tables</strong> — think of a table like a spreadsheet, with rows and columns.</p>
+  <p>Let's imagine we have a table called <strong>employees</strong>:</p>
+  <table class="result-table">
+    <thead><tr><th>id</th><th>name</th><th>department</th><th>salary</th><th>city</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Priya Sharma</td><td>Engineering</td><td>85000</td><td>Hyderabad</td></tr>
+      <tr><td>2</td><td>Arjun Reddy</td><td>Sales</td><td>62000</td><td>Bangalore</td></tr>
+      <tr><td>3</td><td>Sneha Kumar</td><td>Engineering</td><td>92000</td><td>Hyderabad</td></tr>
+      <tr><td>4</td><td>Vikram Singh</td><td>Marketing</td><td>58000</td><td>Mumbai</td></tr>
+      <tr><td>5</td><td>Anjali Rao</td><td>Sales</td><td>71000</td><td>Hyderabad</td></tr>
+    </tbody>
+  </table>
+  <p>We'll use this table for every example in this lesson.</p>
+
+  <h2>2. The SELECT Statement</h2>
+  <p>The <strong>SELECT</strong> statement retrieves data from a table. The most basic form selects all columns using the <code>*</code> wildcard:</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> * <span class="kw">FROM</span> employees;</div>
+  </div>
+
+  <p>This returns <strong>every column and every row</strong> from the employees table. But usually you only need specific columns:</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, department, salary
+<span class="kw">FROM</span> employees;</div>
+  </div>
+
+  <p>This returns only the <strong>name</strong>, <strong>department</strong>, and <strong>salary</strong> columns for all 5 employees.</p>
+
+  <div class="callout tip">
+    <strong>💡 Tip:</strong> Always select only the columns you need. Using <code>SELECT *</code> on large tables with many columns can slow down queries unnecessarily.
+  </div>
+
+  <h2>3. Filtering with WHERE</h2>
+  <p>The <strong>WHERE</strong> clause filters rows based on a condition — only rows where the condition is <strong>true</strong> are returned.</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span> employees
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span>;</div>
+  </div>
+
+  <p><strong>Result:</strong></p>
+  <table class="result-table">
+    <thead><tr><th>name</th><th>salary</th></tr></thead>
+    <tbody>
+      <tr><td>Priya Sharma</td><td>85000</td></tr>
+      <tr><td>Sneha Kumar</td><td>92000</td></tr>
+    </tbody>
+  </table>
+
+  <p>You can also use comparison operators with numbers:</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span> employees
+<span class="kw">WHERE</span> salary > 70000;</div>
+  </div>
+
+  <h3>Common Comparison Operators</h3>
+  <ul>
+    <li><code>=</code> — equal to</li>
+    <li><code>!=</code> or <code>&lt;&gt;</code> — not equal to</li>
+    <li><code>&gt;</code> — greater than</li>
+    <li><code>&lt;</code> — less than</li>
+    <li><code>&gt;=</code> — greater than or equal to</li>
+    <li><code>&lt;=</code> — less than or equal to</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>📌 Note:</strong> Text values in SQL must be wrapped in single quotes, like <code>'Engineering'</code>. Numbers don't need quotes.
+  </div>
+
+  <h2>4. Sorting with ORDER BY</h2>
+  <p>The <strong>ORDER BY</strong> clause sorts your results. By default it sorts in <strong>ascending</strong> order (A→Z, smallest→largest). Add <strong>DESC</strong> for descending order.</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span> employees
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;</div>
+  </div>
+
+  <p><strong>Result</strong> (highest salary first):</p>
+  <table class="result-table">
+    <thead><tr><th>name</th><th>salary</th></tr></thead>
+    <tbody>
+      <tr><td>Sneha Kumar</td><td>92000</td></tr>
+      <tr><td>Priya Sharma</td><td>85000</td></tr>
+      <tr><td>Anjali Rao</td><td>71000</td></tr>
+      <tr><td>Arjun Reddy</td><td>62000</td></tr>
+      <tr><td>Vikram Singh</td><td>58000</td></tr>
+    </tbody>
+  </table>
+
+  <p>You can also sort by multiple columns:</p>
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, department, salary
+<span class="kw">FROM</span> employees
+<span class="kw">ORDER BY</span> department <span class="kw">ASC</span>, salary <span class="kw">DESC</span>;</div>
+  </div>
+  <p>This sorts by department alphabetically first, then within each department, by salary from highest to lowest.</p>
+
+  <h2>5. Limiting Results with LIMIT</h2>
+  <p>The <strong>LIMIT</strong> clause restricts the number of rows returned — useful for "top N" queries.</p>
+
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span> employees
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> 3;</div>
+  </div>
+  <p>This returns only the <strong>top 3 highest-paid employees</strong>.</p>
+
+  <div class="callout warn">
+    <strong>⚠️ Common Mistake:</strong> The order of clauses matters! It must be <code>SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT</code>. Writing them in a different order causes a syntax error.
+  </div>
+
+  <h2>6. Adding Comments</h2>
+  <p>Comments help explain your SQL code and are ignored when the query runs:</p>
+  <div class="code-block">
+    <div class="code-head"><span>SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><span class="cmt">-- This is a single-line comment</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> employees; <span class="cmt">-- inline comment</span>
+
+<span class="cmt">/* This is a
+   multi-line comment */</span></div>
+  </div>
+
+  <div class="tryit">
+    <div class="tryit-h">🧪 Try It Yourself</div>
+    <p style="font-size:.82rem;color:var(--text2);margin:0">Practice these queries on a free online SQL sandbox — no installation needed: <a href="https://sqliteonline.com/" target="_blank" rel="noopener">SQLite Online</a> or <a href="https://www.db-fiddle.com/" target="_blank" rel="noopener">DB Fiddle</a>. Create a table similar to the employees example above and try the queries from this lesson!</p>
+  </div>
+
+  <h2>📝 Quick Quiz</h2>
+  <div class="quiz">
+    <div class="quiz-q">1. Which clause is used to filter rows based on a condition?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">ORDER BY</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,true)">WHERE</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">LIMIT</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">SELECT</div>
+    </div>
+    <div class="quiz-feedback" id="fb1"></div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz-q">2. What does <code>ORDER BY salary DESC</code> do?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">Sorts salaries from lowest to highest</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,true)">Sorts salaries from highest to lowest</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">Filters out salaries below average</div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)">Deletes the salary column</div>
+    </div>
+    <div class="quiz-feedback" id="fb2"></div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz-q">3. Which symbol is used in SQL for "not equal to"?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkAnswer(this,false)"><code>==</code></div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)"><code>=/=</code></div>
+      <div class="quiz-opt" onclick="checkAnswer(this,true)"><code>!=</code> or <code>&lt;&gt;</code></div>
+      <div class="quiz-opt" onclick="checkAnswer(this,false)"><code>NOT</code></div>
+    </div>
+    <div class="quiz-feedback" id="fb3"></div>
+  </div>
+
+  <h2>✅ Summary</h2>
+  <ul>
+    <li><strong>SELECT</strong> — choose which columns to retrieve</li>
+    <li><strong>FROM</strong> — specify the table to query</li>
+    <li><strong>WHERE</strong> — filter rows based on a condition</li>
+    <li><strong>ORDER BY</strong> — sort results (ASC default, DESC for reverse)</li>
+    <li><strong>LIMIT</strong> — restrict the number of returned rows</li>
+  </ul>
+  <p>You now know enough SQL to query and explore data in any database! In Module 2, we go deeper into <strong>filtering with AND/OR/IN/LIKE</strong> and <strong>aggregation with GROUP BY, HAVING, COUNT, SUM, and AVG</strong> — essential for any real data analysis work.</p>
+
+  <div class="upsell">
+    <h3>🚀 Continue Learning — Unlock Modules 2-7</h3>
+    <p>Get JOINs, subqueries, window functions, query optimization, and 20+ interview practice problems with real datasets. Lifetime access, one-time payment.</p>
+    <a href="https://razorpay.me/@kjsynthora" class="upsell-btn">Unlock Full Course — ₹199</a>
+  </div>
+
+  <div class="lesson-nav">
+    <a href="https://kjsynthora.com/learn/sql/" class="lnav-btn">
+      <div class="lnav-lbl">← Back to</div>
+      <div class="lnav-title">Course Overview</div>
+    </a>
+    <a href="https://razorpay.me/@kjsynthora" class="lnav-btn next locked">
+      <div class="lnav-lbl">Next Module 🔒</div>
+      <div class="lnav-title">M2: Filtering & Aggregation</div>
+    </a>
+  </div>
+
+</article>
+
+<footer>
+  <p>© 2026 <a href="https://kjsynthora.com/">KJSynthora</a> · <a href="https://kjsynthora.com/privacy-policy.html">Privacy</a> · <a href="https://kjsynthora.com/terms.html">Terms</a> · <a href="https://kjsynthora.com/support.html">Support</a></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('.code-body').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function checkAnswer(el, isCorrect) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  if (el.classList.contains('correct') || el.classList.contains('wrong')) return; // already answered
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  if (isCorrect) {
+    el.classList.add('correct');
+  } else {
+    el.classList.add('wrong');
+    opts.forEach(o => { if (o !== el) { /* find correct via re-check */ } });
+    // mark the correct one
+    opts.forEach((o, i) => {
+      o.onclick && (o.getAttribute('onclick').includes('true')) && o.classList.add('correct');
+    });
+  }
+  const fb = el.closest('.quiz').querySelector('.quiz-feedback');
+  fb.textContent = isCorrect ? '✅ Correct! Well done.' : '❌ Not quite — the correct answer is highlighted in green.';
+  fb.style.color = isCorrect ? 'var(--ac3)' : 'var(--red)';
+  fb.classList.add('show');
+}
+
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400);
+}
+</script>
+</body>
+</html>
