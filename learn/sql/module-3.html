@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Module 3 — JOINs: Combining Tables | KJSynthora SQL Course</title>
+<meta name="description" content="Master SQL JOINs — INNER, LEFT, RIGHT, FULL OUTER, SELF JOIN, UNION vs JOIN. Interactive lessons, visual diagrams, live SQL playground, quizzes."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#06080f;--bg2:#0b0f1a;--bg3:#0f1520;--bg4:#141c2a;--bg5:#1a2235;
+  --bdr:rgba(99,179,237,.1);--bdr2:rgba(99,179,237,.18);--bdr3:rgba(99,179,237,.28);
+  --acc:#63b3ed;--acc2:#4299e1;--acc3:#2b6cb0;
+  --grn:#48bb78;--grn2:#38a169;
+  --pur:#9f7aea;--pur2:#805ad5;
+  --ora:#ed8936;--ora2:#dd6b20;
+  --red:#fc8181;--red2:#e53e3e;
+  --yel:#f6e05e;--yel2:#ecc94b;
+  --txt:#e8f4fd;--txt2:#a0b4c8;--txt3:#5a7080;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+  --r:8px;--r2:12px;--r3:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+/* BG GRID */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(99,179,237,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(99,179,237,.018) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(99,179,237,.3);border-radius:4px}
+
+/* ═══ NAV ═══ */
+.nav{position:sticky;top:0;z-index:200;background:rgba(6,8,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-left{display:flex;align-items:center;gap:.75rem}
+.nav-logo{font-weight:800;font-size:.9rem;color:var(--txt);text-decoration:none;letter-spacing:-.01em}
+.nav-logo span{color:var(--acc)}
+.nav-sep{color:var(--txt3);font-size:.75rem}
+.nav-crumb{font-size:.78rem;color:var(--txt2)}
+.nav-crumb a{color:var(--acc);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.nav-btn{background:none;border:1px solid var(--bdr);color:var(--txt2);font-family:var(--sans);font-size:.73rem;padding:.28rem .7rem;border-radius:var(--r);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
+.nav-btn:hover{border-color:var(--acc);color:var(--acc)}
+.nav-btn.primary{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.nav-btn.primary:hover{background:var(--acc3);border-color:var(--acc3)}
+.progress-bar{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--acc2),var(--grn));transition:width .4s;width:0%}
+
+/* ═══ HERO ═══ */
+.hero{padding:3.5rem 1.5rem 2.5rem;text-align:center;position:relative;z-index:1;max-width:900px;margin:0 auto}
+.module-badge{display:inline-flex;align-items:center;gap:.45rem;background:rgba(99,179,237,.08);border:1px solid var(--bdr2);color:var(--acc);font-size:.65rem;font-weight:700;padding:.25rem .8rem;border-radius:99px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.1rem}
+.module-num{background:var(--acc2);color:#fff;width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:.75rem}
+.hero h1 .hl{background:linear-gradient(135deg,var(--acc),#90cdf4,var(--grn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--txt2);font-size:.95rem;max-width:580px;margin:0 auto 1.5rem;line-height:1.75}
+.hero-meta{display:flex;align-items:center;justify-content:center;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.hmeta{display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:var(--txt3)}
+.hmeta strong{color:var(--txt2)}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem}
+.htag{background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--txt2);font-size:.68rem;padding:.22rem .65rem;border-radius:99px;font-family:var(--mono)}
+
+/* ═══ LESSON NAV ═══ */
+.lesson-nav{max-width:900px;margin:0 auto 2.5rem;padding:0 1.5rem;position:relative;z-index:1}
+.ln-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+.ln-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);padding:.85rem .9rem;cursor:pointer;transition:all .22s;text-decoration:none;display:block;position:relative;overflow:hidden}
+.ln-card:hover{border-color:var(--bdr2);transform:translateY(-2px)}
+.ln-card.active{border-color:var(--acc2);background:rgba(66,153,225,.07)}
+.ln-card.done{border-color:var(--grn2);background:rgba(72,187,120,.05)}
+.ln-card.locked{opacity:.5;cursor:not-allowed}
+.ln-num{font-size:.62rem;font-family:var(--mono);color:var(--txt3);margin-bottom:.3rem}
+.ln-title{font-size:.78rem;font-weight:600;color:var(--txt);line-height:1.35}
+.ln-badge{position:absolute;top:.5rem;right:.5rem;font-size:.55rem;font-weight:700;padding:.1rem .35rem;border-radius:3px}
+.ln-badge.free{background:rgba(72,187,120,.15);color:var(--grn)}
+.ln-badge.paid{background:rgba(237,137,54,.12);color:var(--ora)}
+.ln-done-icon{position:absolute;bottom:.5rem;right:.5rem;color:var(--grn);font-size:.75rem}
+
+/* ═══ MAIN LAYOUT ═══ */
+.main-wrap{max-width:1100px;margin:0 auto;padding:0 1.5rem 5rem;position:relative;z-index:1;display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start}
+@media(max-width:900px){.main-wrap{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* ═══ LESSON CONTENT ═══ */
+.lesson-content{min-width:0}
+.lesson-section{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r3);overflow:hidden;margin-bottom:1.25rem}
+.ls-header{padding:1.1rem 1.25rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.ls-tag{font-size:.62rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);display:flex;align-items:center;gap:.35rem}
+.ls-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--acc2)}
+.ls-tag .dot.grn{background:var(--grn)}
+.ls-tag .dot.pur{background:var(--pur)}
+.ls-tag .dot.ora{background:var(--ora)}
+.ls-title{font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:.15rem}
+.ls-sub{font-size:.78rem;color:var(--txt2)}
+.ls-body{padding:1.25rem}
+.prose{font-size:.875rem;color:var(--txt2);line-height:1.8}
+.prose p{margin-bottom:.85rem}
+.prose p:last-child{margin-bottom:0}
+.prose strong{color:var(--txt);font-weight:600}
+.prose code{background:rgba(99,179,237,.1);border:1px solid rgba(99,179,237,.18);color:var(--acc);padding:.1rem .35rem;border-radius:4px;font-family:var(--mono);font-size:.82em}
+.callout{background:rgba(99,179,237,.06);border:1px solid rgba(99,179,237,.18);border-left:3px solid var(--acc2);border-radius:0 var(--r) var(--r) 0;padding:.85rem 1rem;margin:1rem 0;font-size:.82rem;color:var(--txt2);line-height:1.7}
+.callout strong{color:var(--acc)}
+.callout.grn{background:rgba(72,187,120,.06);border-color:rgba(72,187,120,.18);border-left-color:var(--grn2)}
+.callout.grn strong{color:var(--grn)}
+.callout.ora{background:rgba(237,137,54,.06);border-color:rgba(237,137,54,.18);border-left-color:var(--ora2)}
+.callout.ora strong{color:var(--ora)}
+.callout.red{background:rgba(252,129,129,.06);border-color:rgba(252,129,129,.18);border-left-color:var(--red2)}
+.callout.red strong{color:var(--red)}
+
+/* ═══ VENN DIAGRAMS ═══ */
+.venn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1rem 0}
+.venn-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r2);padding:1rem;text-align:center;cursor:pointer;transition:all .22s}
+.venn-card:hover{border-color:var(--bdr2);transform:translateY(-2px)}
+.venn-card.active-venn{border-color:var(--acc2);background:rgba(66,153,225,.07)}
+.venn-label{font-size:.72rem;font-weight:700;color:var(--txt);margin-top:.55rem;margin-bottom:.2rem}
+.venn-desc{font-size:.65rem;color:var(--txt3);line-height:1.4}
+
+/* ═══ CODE BLOCK ═══ */
+.code-wrap{position:relative;margin:.85rem 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--bdr);border-bottom:none;border-radius:var(--r) var(--r) 0 0;padding:.4rem .85rem}
+.code-lang{font-size:.62rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:.1em}
+.code-copy{background:none;border:none;color:var(--txt3);cursor:pointer;font-size:.68rem;font-family:var(--mono);transition:color .2s;display:flex;align-items:center;gap:.3rem;padding:2px 4px}
+.code-copy:hover{color:var(--acc)}
+.code-copy.copied{color:var(--grn)}
+pre{background:var(--bg3);border:1px solid var(--bdr);border-top:none;border-radius:0 0 var(--r) var(--r);padding:1rem;overflow-x:auto;font-family:var(--mono);font-size:.8rem;line-height:1.75;color:#a8c4d8}
+pre .kw{color:#63b3ed}
+pre .fn{color:#90cdf4}
+pre .str{color:#68d391}
+pre .cm{color:#4a5568;font-style:italic}
+pre .tb{color:#f6e05e}
+pre .op{color:#fc8181}
+pre .num{color:#ed8936}
+pre .al{color:#9f7aea}
+
+/* ═══ TABLE VIZ ═══ */
+.tables-viz{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.tv-table{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden}
+.tv-header{padding:.5rem .85rem;background:rgba(99,179,237,.07);border-bottom:1px solid var(--bdr);font-size:.72rem;font-weight:700;color:var(--acc);font-family:var(--mono)}
+.tv-row{display:grid;padding:.35rem .85rem;font-size:.7rem;font-family:var(--mono);border-bottom:1px solid rgba(255,255,255,.04);gap:.5rem}
+.tv-row:last-child{border-bottom:none}
+.tv-row.head{background:rgba(255,255,255,.03);font-weight:600;color:var(--txt2);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em}
+.tv-row .pk{color:var(--yel2);font-weight:600}
+.tv-row .fk{color:var(--pur);font-weight:600}
+.tv-row .hl-row{background:rgba(72,187,120,.08)}
+
+/* JOIN RESULT TABLE */
+.result-table{width:100%;border-collapse:collapse;font-size:.75rem;font-family:var(--mono);margin:.75rem 0}
+.result-table th{background:rgba(99,179,237,.08);color:var(--txt2);font-weight:600;padding:.45rem .75rem;text-align:left;border:1px solid var(--bdr);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em}
+.result-table td{padding:.4rem .75rem;border:1px solid rgba(255,255,255,.05);color:var(--txt)}
+.result-table tr:hover td{background:rgba(255,255,255,.02)}
+.result-table .null-val{color:var(--txt3);font-style:italic}
+.result-table .match-row td{background:rgba(72,187,120,.06)}
+.result-table .left-only td{background:rgba(99,179,237,.06)}
+.result-table .right-only td{background:rgba(159,122,234,.06)}
+
+/* ═══ INTERACTIVE SQL PLAYGROUND ═══ */
+.playground{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r3);overflow:hidden;margin-bottom:1.25rem}
+.pg-header{padding:1rem 1.25rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.pg-title{font-size:.9rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.pg-dot{width:8px;height:8px;border-radius:50%;background:var(--grn)}
+.pg-controls{display:flex;gap:.4rem;flex-wrap:wrap}
+.pg-btn{padding:.32rem .75rem;border-radius:var(--r);border:1px solid var(--bdr2);background:none;color:var(--txt2);font-family:var(--sans);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.pg-btn:hover{border-color:var(--acc);color:var(--acc)}
+.pg-btn.run{background:linear-gradient(135deg,var(--grn2),#2f855a);border-color:var(--grn2);color:#fff}
+.pg-btn.run:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(56,161,105,.35)}
+.pg-btn.run:active{transform:translateY(0)}
+.pg-body{padding:1rem}
+.pg-scenario{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:.75rem 1rem;margin-bottom:.85rem;font-size:.78rem;color:var(--txt2);line-height:1.65}
+.pg-scenario strong{color:var(--txt)}
+.pg-scenario .scenario-title{font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;font-family:var(--mono)}
+.sql-editor{width:100%;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:.85rem;font-family:var(--mono);font-size:.8rem;color:var(--txt);line-height:1.75;resize:vertical;min-height:120px;outline:none;transition:border-color .2s}
+.sql-editor:focus{border-color:var(--acc2)}
+.pg-tabs{display:flex;gap:.3rem;margin-bottom:.65rem;flex-wrap:wrap}
+.pg-tab{padding:.3rem .75rem;border-radius:var(--r);border:1px solid var(--bdr);background:none;color:var(--txt3);font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--mono)}
+.pg-tab:hover{color:var(--txt2);border-color:var(--bdr2)}
+.pg-tab.active{background:rgba(66,153,225,.1);border-color:var(--acc2);color:var(--acc)}
+.pg-result{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-top:.85rem;display:none}
+.pg-result.show{display:block}
+.pg-result-head{padding:.45rem .85rem;background:rgba(72,187,120,.06);border-bottom:1px solid var(--bdr);font-size:.65rem;font-weight:700;color:var(--grn);font-family:var(--mono);display:flex;justify-content:space-between;align-items:center}
+.pg-result-rows{overflow-x:auto}
+.pg-err{padding:.85rem;font-size:.75rem;font-family:var(--mono);color:var(--red)}
+
+/* ═══ QUIZ ═══ */
+.quiz-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r3);overflow:hidden;margin-bottom:1.25rem}
+.quiz-header{padding:1rem 1.25rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.quiz-title{font-size:.9rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.quiz-score-disp{font-size:.78rem;font-family:var(--mono);color:var(--txt3)}
+.quiz-score-disp b{color:var(--acc)}
+.quiz-body{padding:1.25rem}
+.q-item{margin-bottom:1.35rem;padding-bottom:1.35rem;border-bottom:1px solid rgba(255,255,255,.05)}
+.q-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.q-num{font-size:.62rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em;font-family:var(--mono);margin-bottom:.4rem}
+.q-text{font-size:.85rem;font-weight:600;color:var(--txt);margin-bottom:.75rem;line-height:1.5}
+.q-code{font-family:var(--mono);font-size:.75rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:.6rem .85rem;color:var(--acc);margin-bottom:.75rem;line-height:1.65}
+.q-options{display:flex;flex-direction:column;gap:.4rem}
+.q-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--txt2)}
+.q-opt:hover{border-color:var(--bdr2);color:var(--txt)}
+.q-opt.selected{border-color:var(--acc2);background:rgba(66,153,225,.08);color:var(--acc)}
+.q-opt.correct{border-color:var(--grn);background:rgba(72,187,120,.1);color:var(--grn)}
+.q-opt.wrong{border-color:var(--red);background:rgba(252,129,129,.08);color:var(--red)}
+.q-opt-circle{width:20px;height:20px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.65rem;font-weight:700}
+.q-explanation{display:none;background:rgba(72,187,120,.06);border:1px solid rgba(72,187,120,.18);border-radius:var(--r);padding:.65rem .85rem;margin-top:.5rem;font-size:.75rem;color:var(--txt2);line-height:1.65}
+.q-explanation.show{display:block}
+.q-explanation strong{color:var(--grn)}
+.quiz-submit-row{display:flex;align-items:center;gap:.75rem;margin-top:1.1rem;flex-wrap:wrap}
+.quiz-btn{padding:.55rem 1.25rem;border-radius:var(--r);border:none;font-family:var(--sans);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s}
+.quiz-btn.primary{background:linear-gradient(135deg,var(--acc2),var(--acc3));color:#fff}
+.quiz-btn.primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(66,153,225,.35)}
+.quiz-btn.secondary{background:none;border:1px solid var(--bdr2);color:var(--txt2)}
+.quiz-btn.secondary:hover{border-color:var(--acc);color:var(--acc)}
+.quiz-result-banner{background:rgba(72,187,120,.08);border:1px solid rgba(72,187,120,.2);border-radius:var(--r);padding:.85rem 1rem;display:none;font-size:.82rem;color:var(--grn);line-height:1.6}
+.quiz-result-banner.show{display:block}
+.quiz-result-banner b{color:var(--txt)}
+
+/* ═══ PRACTICE CHALLENGE ═══ */
+.challenge-card{background:var(--bg2);border:1px solid rgba(159,122,234,.2);border-radius:var(--r3);overflow:hidden;margin-bottom:1.25rem}
+.ch-header{background:rgba(159,122,234,.07);padding:1rem 1.25rem;border-bottom:1px solid rgba(159,122,234,.18);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.ch-title{font-size:.9rem;font-weight:700;color:var(--pur);display:flex;align-items:center;gap:.5rem}
+.ch-diff{font-size:.62rem;font-weight:700;padding:.18rem .6rem;border-radius:99px}
+.ch-diff.easy{background:rgba(72,187,120,.15);color:var(--grn)}
+.ch-diff.medium{background:rgba(237,137,54,.15);color:var(--ora)}
+.ch-diff.hard{background:rgba(252,129,129,.15);color:var(--red)}
+.ch-body{padding:1.25rem}
+.ch-task{background:rgba(159,122,234,.06);border:1px solid rgba(159,122,234,.15);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.85rem;font-size:.82rem;color:var(--txt2);line-height:1.7}
+.ch-task strong{color:var(--pur)}
+.ch-hint-btn{background:none;border:1px solid rgba(159,122,234,.25);color:var(--pur);font-size:.7rem;font-family:var(--mono);padding:.25rem .65rem;border-radius:var(--r);cursor:pointer;transition:all .2s;margin-bottom:.65rem}
+.ch-hint-btn:hover{background:rgba(159,122,234,.08)}
+.ch-hint{display:none;background:rgba(159,122,234,.05);border:1px solid rgba(159,122,234,.15);border-radius:var(--r);padding:.65rem .85rem;margin-bottom:.65rem;font-size:.75rem;color:var(--txt2);font-family:var(--mono);line-height:1.65}
+.ch-hint.show{display:block}
+.ch-solution-btn{background:none;border:none;color:var(--txt3);font-size:.7rem;cursor:pointer;transition:color .2s;font-family:var(--mono);padding:.2rem 0}
+.ch-solution-btn:hover{color:var(--txt2)}
+.ch-solution{display:none}
+.ch-solution.show{display:block}
+
+/* ═══ CONCEPT CARDS ═══ */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+.concept-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r2);padding:1rem}
+.concept-card:hover{border-color:var(--bdr2)}
+.cc-icon{font-size:1.5rem;margin-bottom:.5rem;display:block}
+.cc-title{font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:.3rem}
+.cc-desc{font-size:.72rem;color:var(--txt2);line-height:1.6}
+.cc-syntax{font-family:var(--mono);font-size:.68rem;color:var(--acc);background:rgba(99,179,237,.08);border:1px solid rgba(99,179,237,.15);border-radius:4px;padding:.3rem .6rem;margin-top:.5rem;display:block}
+
+/* ═══ SUMMARY CHECKLIST ═══ */
+.checklist{list-style:none}
+.checklist li{display:flex;align-items:flex-start;gap:.6rem;padding:.4rem 0;font-size:.82rem;color:var(--txt2);border-bottom:1px solid rgba(255,255,255,.04)}
+.checklist li:last-child{border-bottom:none}
+.check-icon{width:18px;height:18px;border-radius:4px;background:rgba(72,187,120,.15);border:1px solid rgba(72,187,120,.3);color:var(--grn);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;margin-top:.1rem}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{position:sticky;top:68px}
+.side-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);padding:1rem;margin-bottom:.85rem}
+.side-title{font-size:.65rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.75rem;font-family:var(--mono)}
+.toc-item{display:flex;align-items:center;gap:.45rem;padding:.3rem 0;font-size:.73rem;color:var(--txt2);text-decoration:none;border-radius:4px;transition:color .2s;cursor:pointer}
+.toc-item:hover{color:var(--acc)}
+.toc-item.active{color:var(--acc);font-weight:600}
+.toc-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.progress-ring{display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.pr-circle{width:72px;height:72px;position:relative}
+.pr-circle svg{transform:rotate(-90deg)}
+.pr-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:800;color:var(--acc);font-family:var(--mono)}
+.pr-label{font-size:.68rem;color:var(--txt2)}
+.lesson-jumps{display:flex;flex-direction:column;gap:.3rem}
+.lj-item{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;border-radius:var(--r);font-size:.72rem;text-decoration:none;color:var(--txt2);transition:all .2s;cursor:pointer;border:1px solid transparent}
+.lj-item:hover{background:rgba(255,255,255,.03);border-color:var(--bdr);color:var(--txt)}
+.lj-item.current{background:rgba(66,153,225,.08);border-color:var(--bdr2);color:var(--acc)}
+.lj-num{font-size:.62rem;font-family:var(--mono);width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border:1px solid var(--bdr);color:var(--txt3);flex-shrink:0}
+.lj-item.current .lj-num{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.lj-item.done-l .lj-num{background:rgba(72,187,120,.15);border-color:rgba(72,187,120,.3);color:var(--grn)}
+
+/* ═══ LESSON PAGINATION ═══ */
+.lesson-pagination{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.5rem;flex-wrap:wrap}
+.pg-nav{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:var(--r2);border:1px solid var(--bdr);background:var(--bg2);color:var(--txt2);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none}
+.pg-nav:hover{border-color:var(--bdr2);color:var(--acc)}
+.pg-nav.next-main{background:linear-gradient(135deg,var(--acc2),var(--acc3));border-color:transparent;color:#fff}
+.pg-nav.next-main:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(66,153,225,.35)}
+.pg-center{font-size:.72rem;color:var(--txt3);font-family:var(--mono)}
+
+/* ═══ JOIN ANIMATOR ═══ */
+.join-animator{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r2);padding:1.25rem;margin:1rem 0}
+.ja-select{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.ja-btn{padding:.32rem .75rem;border-radius:var(--r);border:1px solid var(--bdr);background:none;color:var(--txt3);font-family:var(--mono);font-size:.7rem;cursor:pointer;transition:all .2s}
+.ja-btn:hover{border-color:var(--bdr2);color:var(--txt2)}
+.ja-btn.active{border-color:var(--acc2);background:rgba(66,153,225,.1);color:var(--acc)}
+.ja-visual{display:flex;align-items:center;gap:1.5rem;justify-content:center;padding:1.25rem 0;flex-wrap:wrap}
+.ja-table{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);min-width:120px}
+.ja-table-head{padding:.35rem .65rem;font-size:.65rem;font-weight:700;font-family:var(--mono);border-bottom:1px solid var(--bdr)}
+.ja-table-head.left{color:var(--acc)}
+.ja-table-head.right{color:var(--pur)}
+.ja-row{padding:.25rem .65rem;font-size:.68rem;font-family:var(--mono);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:.4rem;transition:all .3s}
+.ja-row:last-child{border-bottom:none}
+.ja-row.included{background:rgba(72,187,120,.1);color:var(--grn)}
+.ja-row.excluded{opacity:.25;text-decoration:line-through}
+.ja-row.null-row{color:var(--txt3);font-style:italic}
+.ja-arrow{font-size:1.5rem;color:var(--txt3)}
+.ja-result-table{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);min-width:180px}
+.ja-desc{font-size:.75rem;color:var(--txt2);text-align:center;margin-top:.75rem;line-height:1.6}
+.ja-desc strong{color:var(--txt)}
+
+/* ═══ KEYBOARD SHORTCUTS ═══ */
+.kbd-row{display:flex;align-items:center;gap:.5rem;padding:.32rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.72rem}
+.kbd-row:last-child{border-bottom:none}
+.kbd{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:.1rem .45rem;font-family:var(--mono);font-size:.65rem;color:var(--txt2);white-space:nowrap}
+.kbd-desc{color:var(--txt2)}
+
+/* ═══ COMPLETE BANNER ═══ */
+.complete-banner{background:linear-gradient(135deg,rgba(72,187,120,.08),rgba(99,179,237,.06));border:1px solid rgba(72,187,120,.2);border-radius:var(--r3);padding:1.75rem 1.5rem;text-align:center;margin-top:1.5rem}
+.cb-icon{font-size:2.5rem;margin-bottom:.75rem}
+.cb-title{font-size:1.2rem;font-weight:800;margin-bottom:.4rem}
+.cb-title span{color:var(--grn)}
+.cb-sub{font-size:.82rem;color:var(--txt2);margin-bottom:1.2rem;line-height:1.7}
+.cb-btns{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap}
+.cb-btn{padding:.65rem 1.5rem;border-radius:var(--r2);border:none;font-family:var(--sans);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none}
+.cb-btn.primary{background:linear-gradient(135deg,var(--grn2),#276749);color:#fff}
+.cb-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(56,161,105,.4)}
+.cb-btn.secondary{background:none;border:1px solid var(--bdr2);color:var(--txt2)}
+.cb-btn.secondary:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid rgba(72,187,120,.3);color:var(--grn);padding:8px 18px;border-radius:var(--r2);font-size:.75rem;font-weight:600;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;font-family:var(--mono);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:rgba(252,129,129,.3);color:var(--red)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:700px){
+  .venn-grid{grid-template-columns:1fr 1fr}
+  .tables-viz{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+  .ln-grid{grid-template-columns:1fr 1fr}
+  .ja-visual{gap:.75rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <a href="https://kjsynthora.com/learn/sql/" class="nav-logo">KJ<span>Synthora</span></a>
+    <span class="nav-sep">·</span>
+    <div class="nav-crumb"><a href="https://kjsynthora.com/learn/sql/">SQL Course</a> / Module 3</div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="markComplete()">✓ Mark Complete</button>
+    <a href="https://kjsynthora.com/learn/sql/" class="nav-btn">All Courses</a>
+    <a href="https://kjsynthora.com/support.html" class="nav-btn primary">☕ Support</a>
+  </div>
+  <div class="progress-bar" id="readProgress"></div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="module-badge"><span class="module-num">M3</span> SQL Course · Module 3 of 8</div>
+  <h1>JOINs — <span class="hl">Combining Tables</span></h1>
+  <p class="hero-sub">Master the single most asked-about SQL concept in interviews. Learn how to combine data across multiple related tables using INNER, LEFT, RIGHT, FULL OUTER, SELF JOINs, and when to use UNION instead.</p>
+  <div class="hero-meta">
+    <div class="hmeta">⏱️ <strong>75 min</strong> read</div>
+    <div class="hmeta">📖 <strong>4 lessons</strong></div>
+    <div class="hmeta">🧠 <strong>10 quiz questions</strong></div>
+    <div class="hmeta">💪 <strong>3 challenges</strong></div>
+    <div class="hmeta">🔑 <strong>PAID module</strong></div>
+  </div>
+  <div class="hero-tags">
+    <span class="htag">INNER JOIN</span>
+    <span class="htag">LEFT JOIN</span>
+    <span class="htag">RIGHT JOIN</span>
+    <span class="htag">FULL OUTER JOIN</span>
+    <span class="htag">SELF JOIN</span>
+    <span class="htag">Multiple table joins</span>
+    <span class="htag">UNION vs JOIN</span>
+  </div>
+</div>
+
+<!-- LESSON NAV CARDS -->
+<div class="lesson-nav">
+  <div class="ln-grid">
+    <div class="ln-card done" onclick="jumpLesson(1)">
+      <div class="ln-num">Lesson 3.1</div>
+      <div class="ln-title">INNER JOIN with visual diagrams</div>
+      <div class="ln-done-icon">✓</div>
+    </div>
+    <div class="ln-card active" onclick="jumpLesson(2)">
+      <div class="ln-num">Lesson 3.2</div>
+      <div class="ln-title">LEFT, RIGHT, FULL OUTER JOIN</div>
+      <span class="ln-badge paid">PAID</span>
+    </div>
+    <div class="ln-card" onclick="jumpLesson(3)">
+      <div class="ln-num">Lesson 3.3</div>
+      <div class="ln-title">SELF JOIN and joining 3+ tables</div>
+      <span class="ln-badge paid">PAID</span>
+    </div>
+    <div class="ln-card" onclick="jumpLesson(4)">
+      <div class="ln-num">Lesson 3.4</div>
+      <div class="ln-title">UNION vs UNION ALL vs JOIN</div>
+      <span class="ln-badge paid">PAID</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN WRAP -->
+<div class="main-wrap">
+<div class="lesson-content" id="lessonContent">
+
+<!-- ════════════════════════════════════
+     LESSON 3.1 — INNER JOIN
+════════════════════════════════════ -->
+<div id="lesson-1">
+<div class="lesson-section">
+  <div class="ls-header">
+    <div>
+      <div class="ls-tag"><span class="dot"></span> Lesson 3.1</div>
+      <div class="ls-title">INNER JOIN — The Foundation</div>
+      <div class="ls-sub">Returns only rows where a match exists in BOTH tables</div>
+    </div>
+  </div>
+  <div class="ls-body">
+    <div class="prose">
+      <p>A JOIN lets you query data from two or more tables at once, combining rows based on a related column. Before JOINs, you'd need to write multiple queries and manually match results — tedious and error-prone.</p>
+      <p>The <strong>INNER JOIN</strong> is the most common JOIN. It returns rows where the join condition is true in <strong>both tables</strong>. If a row in Table A has no matching row in Table B, it's excluded from results. Think of it as the <strong>intersection</strong> of two sets.</p>
+    </div>
+
+    <div class="callout">
+      <strong>💡 Key insight:</strong> SQL databases are designed around <em>relational</em> data — tables that reference each other via foreign keys. JOINs are how you "re-join" that data at query time.
+    </div>
+
+    <!-- SAMPLE TABLES -->
+    <div style="font-size:.75rem;font-weight:600;color:var(--txt2);margin:.85rem 0 .5rem">Our sample dataset — used throughout this module:</div>
+    <div class="tables-viz">
+      <div class="tv-table">
+        <div class="tv-header">📋 employees</div>
+        <div class="tv-row head" style="grid-template-columns:40px 100px 80px 60px"><span>id</span><span>name</span><span>dept_id</span><span>salary</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px 80px 60px"><span class="pk">1</span><span>Alice</span><span class="fk">10</span><span>85000</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px 80px 60px"><span class="pk">2</span><span>Bob</span><span class="fk">20</span><span>72000</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px 80px 60px"><span class="pk">3</span><span>Carol</span><span class="fk">10</span><span>91000</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px 80px 60px"><span class="pk">4</span><span>Dave</span><span class="fk">99</span><span>65000</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px 80px 60px"><span class="pk">5</span><span>Eve</span><span class="fk" style="color:var(--txt3);font-style:italic">NULL</span><span>78000</span></div>
+      </div>
+      <div class="tv-table">
+        <div class="tv-header">🏢 departments</div>
+        <div class="tv-row head" style="grid-template-columns:40px 100px"><span>id</span><span>dept_name</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px"><span class="pk">10</span><span>Engineering</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px"><span class="pk">20</span><span>Marketing</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 100px"><span class="pk">30</span><span>HR</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:1rem;font-size:.68rem;color:var(--txt3);font-family:var(--mono);margin-top:.35rem">
+      <span><span style="color:var(--yel2)">■</span> PK = Primary Key</span>
+      <span><span style="color:var(--pur)">■</span> FK = Foreign Key</span>
+    </div>
+
+    <!-- INNER JOIN CODE -->
+    <div style="margin-top:1.1rem;font-size:.82rem;font-weight:600;color:var(--txt);margin-bottom:.35rem">INNER JOIN syntax:</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">SQL</span>
+        <button class="code-copy" onclick="copyCode(this,'code1')">📋 Copy</button>
+      </div>
+      <pre id="code1"><span class="kw">SELECT</span>
+    e.<span class="al">id</span>,
+    e.<span class="al">name</span>,
+    e.<span class="al">salary</span>,
+    d.<span class="al">dept_name</span>
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">INNER JOIN</span> <span class="tb">departments</span> d
+    <span class="kw">ON</span> e.dept_id = d.id<span class="cm">  -- join condition</span>
+<span class="kw">ORDER BY</span> e.name;</pre>
+    </div>
+
+    <div style="font-size:.78rem;font-weight:600;color:var(--txt2);margin:.65rem 0 .35rem">Result — only employees with a matching department:</div>
+    <table class="result-table">
+      <thead><tr><th>id</th><th>name</th><th>salary</th><th>dept_name</th></tr></thead>
+      <tbody>
+        <tr class="match-row"><td>1</td><td>Alice</td><td>85,000</td><td>Engineering</td></tr>
+        <tr class="match-row"><td>2</td><td>Bob</td><td>72,000</td><td>Marketing</td></tr>
+        <tr class="match-row"><td>3</td><td>Carol</td><td>91,000</td><td>Engineering</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout ora">
+      <strong>⚠️ Notice what's missing:</strong> Dave (dept_id=99, no matching dept) and Eve (NULL dept_id) are both excluded. INNER JOIN silently drops non-matching rows.
+    </div>
+
+    <!-- VENN DIAGRAMS -->
+    <div style="font-size:.82rem;font-weight:600;color:var(--txt);margin:1.1rem 0 .5rem">JOIN types — visual overview:</div>
+    <div class="venn-grid" id="vennGrid">
+      <div class="venn-card active-venn" onclick="selectVenn('inner',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="none" stroke="rgba(99,179,237,.4)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="none" stroke="rgba(159,122,234,.4)" stroke-width="1.5"/><path d="M45,10 A24,24,0,0,1,45,50 A24,24,0,0,1,45,10" fill="rgba(99,179,237,.35)"/></svg>
+        <div class="venn-label">INNER JOIN</div>
+        <div class="venn-desc">Only matching rows from both</div>
+      </div>
+      <div class="venn-card" onclick="selectVenn('left',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="rgba(99,179,237,.3)" stroke="rgba(99,179,237,.5)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="none" stroke="rgba(159,122,234,.4)" stroke-width="1.5"/></svg>
+        <div class="venn-label">LEFT JOIN</div>
+        <div class="venn-desc">All left + matching right</div>
+      </div>
+      <div class="venn-card" onclick="selectVenn('right',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="none" stroke="rgba(99,179,237,.4)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="rgba(159,122,234,.3)" stroke="rgba(159,122,234,.5)" stroke-width="1.5"/></svg>
+        <div class="venn-label">RIGHT JOIN</div>
+        <div class="venn-desc">All right + matching left</div>
+      </div>
+      <div class="venn-card" onclick="selectVenn('full',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="rgba(99,179,237,.25)" stroke="rgba(99,179,237,.5)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="rgba(159,122,234,.25)" stroke="rgba(159,122,234,.5)" stroke-width="1.5"/></svg>
+        <div class="venn-label">FULL OUTER</div>
+        <div class="venn-desc">All rows from both tables</div>
+      </div>
+      <div class="venn-card" onclick="selectVenn('leftonly',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="rgba(99,179,237,.3)" stroke="rgba(99,179,237,.5)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="var(--bg)" stroke="rgba(159,122,234,.4)" stroke-width="1.5"/></svg>
+        <div class="venn-label">LEFT ONLY</div>
+        <div class="venn-desc">Left with no right match</div>
+      </div>
+      <div class="venn-card" onclick="selectVenn('rightonly',this)">
+        <svg width="90" height="60" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="var(--bg)" stroke="rgba(99,179,237,.4)" stroke-width="1.5"/><circle cx="60" cy="30" r="24" fill="rgba(159,122,234,.3)" stroke="rgba(159,122,234,.5)" stroke-width="1.5"/></svg>
+        <div class="venn-label">RIGHT ONLY</div>
+        <div class="venn-desc">Right with no left match</div>
+      </div>
+    </div>
+
+    <!-- JOIN ANIMATOR -->
+    <div class="join-animator" id="joinAnimator">
+      <div style="font-size:.75rem;font-weight:700;color:var(--txt2);margin-bottom:.65rem">Interactive JOIN visualizer — select a JOIN type:</div>
+      <div class="ja-select">
+        <button class="ja-btn active" onclick="setJoin('inner',this)">INNER</button>
+        <button class="ja-btn" onclick="setJoin('left',this)">LEFT</button>
+        <button class="ja-btn" onclick="setJoin('right',this)">RIGHT</button>
+        <button class="ja-btn" onclick="setJoin('full',this)">FULL OUTER</button>
+      </div>
+      <div class="ja-visual" id="jaVisual"></div>
+      <div class="ja-desc" id="jaDesc"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════
+     LESSON 3.2 — LEFT / RIGHT / FULL OUTER
+════════════════════════════════════ -->
+<div id="lesson-2">
+<div class="lesson-section">
+  <div class="ls-header">
+    <div>
+      <div class="ls-tag"><span class="dot grn"></span> Lesson 3.2</div>
+      <div class="ls-title">LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN</div>
+      <div class="ls-sub">Including non-matching rows with NULL values</div>
+    </div>
+  </div>
+  <div class="ls-body">
+    <div class="prose">
+      <p>Outer JOINs preserve rows that don't have a match in the other table. Non-matching columns become <code>NULL</code>. This is critical for finding "orphaned" records, data gaps, and ensuring completeness in reports.</p>
+    </div>
+
+    <!-- LEFT JOIN -->
+    <div style="font-size:.88rem;font-weight:700;color:var(--acc);margin:.85rem 0 .5rem;display:flex;align-items:center;gap:.5rem">
+      <svg width="40" height="26" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="rgba(99,179,237,.3)" stroke="rgba(99,179,237,.5)" stroke-width="2"/><circle cx="60" cy="30" r="24" fill="none" stroke="rgba(159,122,234,.4)" stroke-width="2"/></svg>
+      LEFT JOIN
+    </div>
+    <div class="prose"><p>Returns <strong>all rows from the left table</strong>, plus matching rows from the right. Non-matching right-side columns are <code>NULL</code>.</p></div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this,'code2')">📋 Copy</button></div>
+      <pre id="code2"><span class="kw">SELECT</span>
+    e.name,
+    e.salary,
+    d.dept_name
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tb">departments</span> d
+    <span class="kw">ON</span> e.dept_id = d.id;</pre>
+    </div>
+    <div style="font-size:.75rem;color:var(--txt2);margin:.5rem 0 .35rem">Result — all 5 employees, NULLs where no dept matches:</div>
+    <table class="result-table">
+      <thead><tr><th>name</th><th>salary</th><th>dept_name</th></tr></thead>
+      <tbody>
+        <tr class="match-row"><td>Alice</td><td>85,000</td><td>Engineering</td></tr>
+        <tr class="match-row"><td>Bob</td><td>72,000</td><td>Marketing</td></tr>
+        <tr class="match-row"><td>Carol</td><td>91,000</td><td>Engineering</td></tr>
+        <tr class="left-only"><td>Dave</td><td>65,000</td><td class="null-val">NULL</td></tr>
+        <tr class="left-only"><td>Eve</td><td>78,000</td><td class="null-val">NULL</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Find unmatched rows tip -->
+    <div style="font-size:.8rem;font-weight:600;color:var(--txt);margin:1rem 0 .35rem">🎯 Power technique: Finding employees WITHOUT a department</div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this,'code3')">📋 Copy</button></div>
+      <pre id="code3"><span class="kw">SELECT</span> e.name, e.salary
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tb">departments</span> d
+    <span class="kw">ON</span> e.dept_id = d.id
+<span class="kw">WHERE</span> d.id <span class="kw">IS NULL</span><span class="cm">  -- only unmatched!</span></pre>
+    </div>
+    <div class="callout grn"><strong>✅ Pattern to memorize:</strong> LEFT JOIN + WHERE right_table.id IS NULL = "rows in A with no match in B". This is used constantly in data cleaning and auditing.</div>
+
+    <!-- RIGHT JOIN -->
+    <div style="font-size:.88rem;font-weight:700;color:var(--pur);margin:1.25rem 0 .5rem;display:flex;align-items:center;gap:.5rem">
+      <svg width="40" height="26" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="none" stroke="rgba(99,179,237,.4)" stroke-width="2"/><circle cx="60" cy="30" r="24" fill="rgba(159,122,234,.3)" stroke="rgba(159,122,234,.5)" stroke-width="2"/></svg>
+      RIGHT JOIN
+    </div>
+    <div class="prose"><p>Mirror of LEFT JOIN. Returns <strong>all rows from the right table</strong>, plus matching rows from the left. In practice, RIGHT JOIN is rarely used because you can always rewrite it as a LEFT JOIN by swapping table order.</p></div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this,'code4')">📋 Copy</button></div>
+      <pre id="code4"><span class="cm">-- This RIGHT JOIN...</span>
+<span class="kw">SELECT</span> e.name, d.dept_name
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">RIGHT JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;
+
+<span class="cm">-- ...is identical to this LEFT JOIN:</span>
+<span class="kw">SELECT</span> e.name, d.dept_name
+<span class="kw">FROM</span> <span class="tb">departments</span> d
+<span class="kw">LEFT JOIN</span> <span class="tb">employees</span> e <span class="kw">ON</span> e.dept_id = d.id;</pre>
+    </div>
+    <table class="result-table">
+      <thead><tr><th>name</th><th>dept_name</th></tr></thead>
+      <tbody>
+        <tr class="match-row"><td>Alice</td><td>Engineering</td></tr>
+        <tr class="match-row"><td>Carol</td><td>Engineering</td></tr>
+        <tr class="match-row"><td>Bob</td><td>Marketing</td></tr>
+        <tr class="right-only"><td class="null-val">NULL</td><td>HR</td></tr>
+      </tbody>
+    </table>
+
+    <!-- FULL OUTER JOIN -->
+    <div style="font-size:.88rem;font-weight:700;color:var(--yel2);margin:1.25rem 0 .5rem;display:flex;align-items:center;gap:.5rem">
+      <svg width="40" height="26" viewBox="0 0 90 60"><circle cx="30" cy="30" r="24" fill="rgba(99,179,237,.25)" stroke="rgba(99,179,237,.5)" stroke-width="2"/><circle cx="60" cy="30" r="24" fill="rgba(159,122,234,.25)" stroke="rgba(159,122,234,.5)" stroke-width="2"/></svg>
+      FULL OUTER JOIN
+    </div>
+    <div class="prose"><p>Returns <strong>all rows from both tables</strong>. Rows without a match on either side get NULL values for the missing columns. Not supported in MySQL — use UNION of LEFT and RIGHT JOINs instead.</p></div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this,'code5')">📋 Copy</button></div>
+      <pre id="code5"><span class="cm">-- Works in PostgreSQL, SQL Server, Oracle</span>
+<span class="kw">SELECT</span> e.name, d.dept_name
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">FULL OUTER JOIN</span> <span class="tb">departments</span> d
+    <span class="kw">ON</span> e.dept_id = d.id;
+
+<span class="cm">-- MySQL workaround:</span>
+<span class="kw">SELECT</span> e.name, d.dept_name <span class="kw">FROM</span> <span class="tb">employees</span> e <span class="kw">LEFT JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id = d.id
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> e.name, d.dept_name <span class="kw">FROM</span> <span class="tb">employees</span> e <span class="kw">RIGHT JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;</pre>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════
+     LESSON 3.3 — SELF JOIN + 3+ TABLES
+════════════════════════════════════ -->
+<div id="lesson-3">
+<div class="lesson-section">
+  <div class="ls-header">
+    <div>
+      <div class="ls-tag"><span class="dot pur"></span> Lesson 3.3</div>
+      <div class="ls-title">SELF JOIN & Joining 3+ Tables</div>
+      <div class="ls-sub">Joining a table to itself, and chaining multiple JOINs</div>
+    </div>
+  </div>
+  <div class="ls-body">
+    <!-- SELF JOIN -->
+    <div class="prose">
+      <p>A <strong>SELF JOIN</strong> joins a table to itself. It sounds strange, but it's essential for hierarchical data — like an employee table where each employee has a <code>manager_id</code> that references another employee in the same table.</p>
+    </div>
+
+    <div class="tables-viz" style="grid-template-columns:1fr">
+      <div class="tv-table" style="max-width:320px">
+        <div class="tv-header">👥 employees (with manager hierarchy)</div>
+        <div class="tv-row head" style="grid-template-columns:40px 90px 90px"><span>id</span><span>name</span><span>manager_id</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 90px 90px"><span class="pk">1</span><span>Sarah (CEO)</span><span class="null-val" style="color:var(--txt3);font-style:italic">NULL</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 90px 90px"><span class="pk">2</span><span>Alice</span><span class="fk">1</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 90px 90px"><span class="pk">3</span><span>Bob</span><span class="fk">1</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 90px 90px"><span class="pk">4</span><span>Carol</span><span class="fk">2</span></div>
+        <div class="tv-row" style="grid-template-columns:40px 90px 90px"><span class="pk">5</span><span>Dave</span><span class="fk">2</span></div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL — SELF JOIN</span><button class="code-copy" onclick="copyCode(this,'code6')">📋 Copy</button></div>
+      <pre id="code6"><span class="cm">-- List each employee alongside their manager's name</span>
+<span class="kw">SELECT</span>
+    e.<span class="al">name</span>       <span class="kw">AS</span> employee,
+    m.<span class="al">name</span>       <span class="kw">AS</span> manager
+<span class="kw">FROM</span> <span class="tb">employees</span> e           <span class="cm">-- alias "e" = employee</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">employees</span> m      <span class="cm">-- alias "m" = manager (same table!)</span>
+    <span class="kw">ON</span> e.manager_id = m.id
+<span class="kw">ORDER BY</span> m.name <span class="kw">NULLS FIRST</span>;</pre>
+    </div>
+    <table class="result-table">
+      <thead><tr><th>employee</th><th>manager</th></tr></thead>
+      <tbody>
+        <tr><td>Sarah (CEO)</td><td class="null-val">NULL</td></tr>
+        <tr><td>Alice</td><td>Sarah (CEO)</td></tr>
+        <tr><td>Bob</td><td>Sarah (CEO)</td></tr>
+        <tr><td>Carol</td><td>Alice</td></tr>
+        <tr><td>Dave</td><td>Alice</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout"><strong>🔑 Aliases are required:</strong> When joining a table to itself, you MUST use aliases to distinguish the two "copies" of the table. The database treats them as two separate tables with different names.</div>
+
+    <!-- 3+ TABLE JOINS -->
+    <div style="font-size:.88rem;font-weight:700;color:var(--grn);margin:1.25rem 0 .5rem">Joining 3+ Tables</div>
+    <div class="prose"><p>You can chain as many JOINs as needed. Each JOIN adds a new table. The key is understanding the data model — which tables share which keys.</p></div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL — 3 Table JOIN</span><button class="code-copy" onclick="copyCode(this,'code7')">📋 Copy</button></div>
+      <pre id="code7"><span class="cm">-- employees → departments → locations</span>
+<span class="kw">SELECT</span>
+    e.name,
+    d.dept_name,
+    l.city,
+    l.country
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">INNER JOIN</span> <span class="tb">departments</span> d  <span class="kw">ON</span> e.dept_id    = d.id
+<span class="kw">INNER JOIN</span> <span class="tb">locations</span>   l  <span class="kw">ON</span> d.location_id = l.id
+<span class="kw">WHERE</span> l.country = <span class="str">'India'</span>
+<span class="kw">ORDER BY</span> e.name;</pre>
+    </div>
+
+    <div class="callout grn"><strong>✅ Best practice:</strong> Always use table aliases (e, d, l) when joining multiple tables. Without them, ambiguous column names cause errors — and the query becomes unreadable.</div>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <span class="cc-icon">🎯</span>
+        <div class="cc-title">ON vs WHERE for Filtering</div>
+        <div class="cc-desc">Put join conditions in ON. Put filtering conditions in WHERE. Mixing them works for INNER JOINs but breaks OUTER JOINs in subtle ways.</div>
+      </div>
+      <div class="concept-card">
+        <span class="cc-icon">⚡</span>
+        <div class="cc-title">Join Order Performance</div>
+        <div class="cc-desc">Most query optimizers handle join order automatically. But joining smaller filtered tables first can improve performance on very large datasets.</div>
+      </div>
+      <div class="concept-card">
+        <span class="cc-icon">🔑</span>
+        <div class="cc-title">Always Use Aliases</div>
+        <div class="cc-desc">Use short, memorable aliases: e for employees, d for departments, o for orders. This becomes essential when joining 3+ tables.</div>
+      </div>
+      <div class="concept-card">
+        <span class="cc-icon">⚠️</span>
+        <div class="cc-title">Cartesian Product Danger</div>
+        <div class="cc-desc">Forgetting the ON clause creates a CROSS JOIN — every row paired with every other row. 1000 × 1000 rows = 1,000,000 rows returned.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════
+     LESSON 3.4 — UNION vs JOIN
+════════════════════════════════════ -->
+<div id="lesson-4">
+<div class="lesson-section">
+  <div class="ls-header">
+    <div>
+      <div class="ls-tag"><span class="dot ora"></span> Lesson 3.4</div>
+      <div class="ls-title">UNION vs UNION ALL vs JOIN</div>
+      <div class="ls-sub">Combining rows vs combining columns — fundamentally different operations</div>
+    </div>
+  </div>
+  <div class="ls-body">
+    <div class="prose">
+      <p><strong>JOINs combine columns</strong> — they take rows from multiple tables and combine them side-by-side based on a key. <strong>UNION combines rows</strong> — it stacks the results of two queries on top of each other (like appending rows).</p>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card" style="border-color:rgba(99,179,237,.25)">
+        <div class="cc-title" style="color:var(--acc)">JOIN — Combines Columns</div>
+        <div class="cc-desc">Merges related tables horizontally. Result has MORE columns. Requires a matching key between tables.</div>
+        <code class="cc-syntax">employees JOIN departments ON e.dept_id = d.id</code>
+      </div>
+      <div class="concept-card" style="border-color:rgba(72,187,120,.25)">
+        <div class="cc-title" style="color:var(--grn)">UNION — Combines Rows</div>
+        <div class="cc-desc">Stacks query results vertically. Result has SAME columns. Both queries must have the same number of columns and compatible types.</div>
+        <code class="cc-syntax">SELECT name FROM current_employees UNION SELECT name FROM former_employees</code>
+      </div>
+    </div>
+
+    <div style="font-size:.88rem;font-weight:700;color:var(--txt);margin:1rem 0 .35rem">UNION vs UNION ALL:</div>
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this,'code8')">📋 Copy</button></div>
+      <pre id="code8"><span class="cm">-- UNION: removes duplicates (slower — runs DISTINCT)</span>
+<span class="kw">SELECT</span> name, email <span class="kw">FROM</span> <span class="tb">customers_2023</span>
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> name, email <span class="kw">FROM</span> <span class="tb">customers_2024</span>;
+
+<span class="cm">-- UNION ALL: keeps duplicates (faster — no dedup step)</span>
+<span class="kw">SELECT</span> name, email <span class="kw">FROM</span> <span class="tb">customers_2023</span>
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> name, email <span class="kw">FROM</span> <span class="tb">customers_2024</span>;
+
+<span class="cm">-- UNION to simulate FULL OUTER JOIN in MySQL:</span>
+<span class="kw">SELECT</span> e.name, d.dept_name <span class="kw">FROM</span> <span class="tb">employees</span> e <span class="kw">LEFT JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id=d.id
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> e.name, d.dept_name <span class="kw">FROM</span> <span class="tb">employees</span> e <span class="kw">RIGHT JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id=d.id;</pre>
+    </div>
+
+    <table class="result-table">
+      <thead><tr><th>Feature</th><th>JOIN</th><th>UNION</th><th>UNION ALL</th></tr></thead>
+      <tbody>
+        <tr><td>Direction</td><td>Horizontal (columns)</td><td>Vertical (rows)</td><td>Vertical (rows)</td></tr>
+        <tr><td>Duplicates</td><td>Based on join key</td><td>Removed</td><td>Kept</td></tr>
+        <tr><td>Performance</td><td>Varies</td><td>Slower (DISTINCT)</td><td>Faster</td></tr>
+        <tr><td>Column requirement</td><td>Related key needed</td><td>Same count + type</td><td>Same count + type</td></tr>
+        <tr><td>Use when</td><td>Merging related data</td><td>Combining unique rows</td><td>Appending all rows</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout ora"><strong>⚡ Rule of thumb:</strong> Use UNION ALL by default unless you explicitly need to remove duplicates. UNION ALL is always faster because it skips the deduplication step.</div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════
+     INTERACTIVE PLAYGROUND
+════════════════════════════════════ -->
+<div class="playground" id="playground">
+  <div class="pg-header">
+    <div class="pg-title"><span class="pg-dot"></span> Interactive SQL Playground</div>
+    <div class="pg-controls">
+      <button class="pg-btn" onclick="loadScenario('inner')">INNER</button>
+      <button class="pg-btn" onclick="loadScenario('left')">LEFT</button>
+      <button class="pg-btn" onclick="loadScenario('leftonly')">Left Only</button>
+      <button class="pg-btn" onclick="loadScenario('self')">SELF</button>
+      <button class="pg-btn" onclick="loadScenario('union')">UNION</button>
+      <button class="pg-btn run" onclick="runQuery()">▶ Run</button>
+    </div>
+  </div>
+  <div class="pg-body">
+    <div class="pg-scenario" id="pgScenario">
+      <div class="scenario-title">Scenario</div>
+      <span id="pgScenarioText"><strong>INNER JOIN:</strong> Find all employees with their department name. Only employees who belong to a valid department should appear.</span>
+    </div>
+    <textarea class="sql-editor" id="sqlEditor" spellcheck="false">SELECT
+    e.id,
+    e.name,
+    e.salary,
+    d.dept_name
+FROM employees e
+INNER JOIN departments d
+    ON e.dept_id = d.id
+ORDER BY e.name;</textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.5rem">
+      <span style="font-size:.65rem;color:var(--txt3);font-family:var(--mono)">Tip: Edit the query above and click Run — or use the scenario buttons</span>
+      <button class="pg-btn" onclick="clearResult()">Clear</button>
+    </div>
+    <div class="pg-result" id="pgResult">
+      <div class="pg-result-head">
+        <span id="pgResultLabel">✅ Query executed</span>
+        <span id="pgRowCount" style="font-size:.6rem;color:var(--txt3)"></span>
+      </div>
+      <div class="pg-result-rows" id="pgResultRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PRACTICE CHALLENGES
+════════════════════════════════════ -->
+<div class="challenge-card">
+  <div class="ch-header">
+    <div class="ch-title">💪 Challenge 1</div>
+    <span class="ch-diff easy">Easy</span>
+  </div>
+  <div class="ch-body">
+    <div class="ch-task">
+      <strong>Task:</strong> Write a query that returns the names and salaries of all employees, along with their department name. Employees without a department should still appear — with NULL for department name.
+    </div>
+    <button class="ch-hint-btn" onclick="toggleHint(this,'hint1')">💡 Show hint</button>
+    <div class="ch-hint" id="hint1">Use LEFT JOIN. LEFT JOIN preserves all rows from the left (employees) table even when there's no matching row in the right (departments) table.</div>
+    <textarea class="sql-editor" id="ch1-editor" spellcheck="false" style="min-height:90px">-- Write your query here
+SELECT
+
+FROM employees e
+
+</textarea>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+      <button class="pg-btn run" onclick="checkChallenge(1)">▶ Check Answer</button>
+      <button class="ch-solution-btn" onclick="toggleSolution('sol1')">Show solution</button>
+    </div>
+    <div class="ch-solution" id="sol1">
+      <div class="code-wrap" style="margin-top:.5rem">
+        <div class="code-header"><span class="code-lang">Solution</span><button class="code-copy" onclick="copyCode(this,'sol1-code')">📋 Copy</button></div>
+        <pre id="sol1-code"><span class="kw">SELECT</span>
+    e.name,
+    e.salary,
+    d.dept_name
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tb">departments</span> d
+    <span class="kw">ON</span> e.dept_id = d.id
+<span class="kw">ORDER BY</span> e.name;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="challenge-card">
+  <div class="ch-header">
+    <div class="ch-title">💪 Challenge 2</div>
+    <span class="ch-diff medium">Medium</span>
+  </div>
+  <div class="ch-body">
+    <div class="ch-task">
+      <strong>Task:</strong> Find all departments that have NO employees assigned to them. Return only the department name.
+    </div>
+    <button class="ch-hint-btn" onclick="toggleHint(this,'hint2')">💡 Show hint</button>
+    <div class="ch-hint" id="hint2">Start with departments as the LEFT table. Join employees on dept_id. Then filter WHERE employee.id IS NULL — this catches departments with no matching employee rows.</div>
+    <textarea class="sql-editor" id="ch2-editor" spellcheck="false" style="min-height:90px">-- Write your query here
+
+
+</textarea>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+      <button class="pg-btn run" onclick="checkChallenge(2)">▶ Check Answer</button>
+      <button class="ch-solution-btn" onclick="toggleSolution('sol2')">Show solution</button>
+    </div>
+    <div class="ch-solution" id="sol2">
+      <div class="code-wrap" style="margin-top:.5rem">
+        <div class="code-header"><span class="code-lang">Solution</span><button class="code-copy" onclick="copyCode(this,'sol2-code')">📋 Copy</button></div>
+        <pre id="sol2-code"><span class="kw">SELECT</span> d.dept_name
+<span class="kw">FROM</span> <span class="tb">departments</span> d
+<span class="kw">LEFT JOIN</span> <span class="tb">employees</span> e
+    <span class="kw">ON</span> e.dept_id = d.id
+<span class="kw">WHERE</span> e.id <span class="kw">IS NULL</span><span class="cm">  -- departments with NO employees</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="challenge-card">
+  <div class="ch-header">
+    <div class="ch-title">💪 Challenge 3</div>
+    <span class="ch-diff hard">Hard</span>
+  </div>
+  <div class="ch-body">
+    <div class="ch-task">
+      <strong>Task:</strong> Using SELF JOIN on the employees table (which has a <code>manager_id</code> column referencing the same table), write a query that shows each employee's name, their manager's name, and the manager's salary. Only include employees who HAVE a manager (skip the CEO who has no manager).
+    </div>
+    <button class="ch-hint-btn" onclick="toggleHint(this,'hint3')">💡 Show hint</button>
+    <div class="ch-hint" id="hint3">Alias the employees table twice: e for employees and m for managers. JOIN employees e ON e.manager_id = m.id. Use INNER JOIN (not LEFT) to exclude the CEO who has no manager.</div>
+    <textarea class="sql-editor" id="ch3-editor" spellcheck="false" style="min-height:100px">-- Write your SELF JOIN query here
+
+
+</textarea>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+      <button class="pg-btn run" onclick="checkChallenge(3)">▶ Check Answer</button>
+      <button class="ch-solution-btn" onclick="toggleSolution('sol3')">Show solution</button>
+    </div>
+    <div class="ch-solution" id="sol3">
+      <div class="code-wrap" style="margin-top:.5rem">
+        <div class="code-header"><span class="code-lang">Solution</span><button class="code-copy" onclick="copyCode(this,'sol3-code')">📋 Copy</button></div>
+        <pre id="sol3-code"><span class="kw">SELECT</span>
+    e.name        <span class="kw">AS</span> employee,
+    m.name        <span class="kw">AS</span> manager,
+    m.salary      <span class="kw">AS</span> manager_salary
+<span class="kw">FROM</span> <span class="tb">employees</span> e
+<span class="kw">INNER JOIN</span> <span class="tb">employees</span> m
+    <span class="kw">ON</span> e.manager_id = m.id
+<span class="cm">-- INNER JOIN: excludes CEO (no manager_id)</span>
+<span class="kw">ORDER BY</span> m.name;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     QUIZ
+════════════════════════════════════ -->
+<div class="quiz-card" id="quizSection">
+  <div class="quiz-header">
+    <div class="quiz-title">🧠 Module 3 Quiz</div>
+    <div class="quiz-score-disp">Score: <b id="quizScoreDisp">0</b> / 5</div>
+  </div>
+  <div class="quiz-body">
+
+    <div class="q-item">
+      <div class="q-num">Question 1 of 5</div>
+      <div class="q-text">Which JOIN returns rows only when a match exists in BOTH tables?</div>
+      <div class="q-options" id="q1">
+        <div class="q-opt" onclick="selectOpt(this,'q1',false)"><span class="q-opt-circle">A</span> LEFT JOIN</div>
+        <div class="q-opt" onclick="selectOpt(this,'q1',true)"><span class="q-opt-circle">B</span> INNER JOIN</div>
+        <div class="q-opt" onclick="selectOpt(this,'q1',false)"><span class="q-opt-circle">C</span> FULL OUTER JOIN</div>
+        <div class="q-opt" onclick="selectOpt(this,'q1',false)"><span class="q-opt-circle">D</span> CROSS JOIN</div>
+      </div>
+      <div class="q-explanation" id="exp-q1"><strong>✅ Correct!</strong> INNER JOIN returns only rows where the join condition is TRUE in both tables. Rows without a match are excluded from results.</div>
+    </div>
+
+    <div class="q-item">
+      <div class="q-num">Question 2 of 5</div>
+      <div class="q-text">What will this query return for the non-matching rows?</div>
+      <div class="q-code">SELECT e.name, d.dept_name<br>FROM employees e<br>LEFT JOIN departments d ON e.dept_id = d.id</div>
+      <div class="q-options" id="q2">
+        <div class="q-opt" onclick="selectOpt(this,'q2',false)"><span class="q-opt-circle">A</span> Those rows are excluded from results</div>
+        <div class="q-opt" onclick="selectOpt(this,'q2',false)"><span class="q-opt-circle">B</span> An error is thrown</div>
+        <div class="q-opt" onclick="selectOpt(this,'q2',true)"><span class="q-opt-circle">C</span> dept_name will be NULL for those rows</div>
+        <div class="q-opt" onclick="selectOpt(this,'q2',false)"><span class="q-opt-circle">D</span> dept_name will be an empty string</div>
+      </div>
+      <div class="q-explanation" id="exp-q2"><strong>✅ Correct!</strong> LEFT JOIN keeps all rows from the left table (employees). Where no department match exists, the dept_name column becomes NULL — not empty string, not excluded.</div>
+    </div>
+
+    <div class="q-item">
+      <div class="q-num">Question 3 of 5</div>
+      <div class="q-text">You want to find all customers who have NEVER placed an order. Which pattern is correct?</div>
+      <div class="q-options" id="q3">
+        <div class="q-opt" onclick="selectOpt(this,'q3',false)"><span class="q-opt-circle">A</span> INNER JOIN orders WHERE orders.id IS NULL</div>
+        <div class="q-opt" onclick="selectOpt(this,'q3',true)"><span class="q-opt-circle">B</span> LEFT JOIN orders WHERE orders.id IS NULL</div>
+        <div class="q-opt" onclick="selectOpt(this,'q3',false)"><span class="q-opt-circle">C</span> RIGHT JOIN orders WHERE orders.id IS NULL</div>
+        <div class="q-opt" onclick="selectOpt(this,'q3',false)"><span class="q-opt-circle">D</span> FULL JOIN WHERE both sides are NULL</div>
+      </div>
+      <div class="q-explanation" id="exp-q3"><strong>✅ Correct!</strong> LEFT JOIN customers → orders, then WHERE orders.id IS NULL. This "anti-join" pattern is one of the most useful SQL patterns — it finds rows in A with no match in B.</div>
+    </div>
+
+    <div class="q-item">
+      <div class="q-num">Question 4 of 5</div>
+      <div class="q-text">What's the key difference between UNION and UNION ALL?</div>
+      <div class="q-options" id="q4">
+        <div class="q-opt" onclick="selectOpt(this,'q4',false)"><span class="q-opt-circle">A</span> UNION ALL is only for JOINs, UNION is for stacking rows</div>
+        <div class="q-opt" onclick="selectOpt(this,'q4',false)"><span class="q-opt-circle">B</span> UNION allows different column counts, UNION ALL requires matching columns</div>
+        <div class="q-opt" onclick="selectOpt(this,'q4',true)"><span class="q-opt-circle">C</span> UNION removes duplicates; UNION ALL keeps all rows including duplicates</div>
+        <div class="q-opt" onclick="selectOpt(this,'q4',false)"><span class="q-opt-circle">D</span> They are identical — UNION ALL is just older syntax</div>
+      </div>
+      <div class="q-explanation" id="exp-q4"><strong>✅ Correct!</strong> UNION runs a DISTINCT operation to remove duplicate rows — slower. UNION ALL keeps every row including duplicates — faster. Use UNION ALL by default unless deduplication is required.</div>
+    </div>
+
+    <div class="q-item">
+      <div class="q-num">Question 5 of 5</div>
+      <div class="q-text">A SELF JOIN requires:</div>
+      <div class="q-options" id="q5">
+        <div class="q-opt" onclick="selectOpt(this,'q5',false)"><span class="q-opt-circle">A</span> A special SELF keyword in SQL</div>
+        <div class="q-opt" onclick="selectOpt(this,'q5',true)"><span class="q-opt-circle">B</span> The same table referenced twice with different aliases</div>
+        <div class="q-opt" onclick="selectOpt(this,'q5',false)"><span class="q-opt-circle">C</span> Two separate tables with identical schema</div>
+        <div class="q-opt" onclick="selectOpt(this,'q5',false)"><span class="q-opt-circle">D</span> A recursive CTE — there's no SELF JOIN syntax</div>
+      </div>
+      <div class="q-explanation" id="exp-q5"><strong>✅ Correct!</strong> SELF JOIN is just a regular JOIN where you reference the same table twice with different aliases (e.g., <code>FROM employees e INNER JOIN employees m ON e.manager_id = m.id</code>). There's no special keyword.</div>
+    </div>
+
+    <div class="quiz-submit-row">
+      <button class="quiz-btn primary" id="quizSubmitBtn" onclick="submitQuiz()">Submit Quiz</button>
+      <button class="quiz-btn secondary" onclick="resetQuiz()">Reset</button>
+    </div>
+    <div class="quiz-result-banner" id="quizResultBanner"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     MODULE SUMMARY
+════════════════════════════════════ -->
+<div class="lesson-section">
+  <div class="ls-header">
+    <div>
+      <div class="ls-tag"><span class="dot grn"></span> Module Summary</div>
+      <div class="ls-title">What you've learned in Module 3</div>
+    </div>
+  </div>
+  <div class="ls-body">
+    <ul class="checklist">
+      <li><span class="check-icon">✓</span> INNER JOIN returns only rows with matches in both tables — non-matching rows are excluded</li>
+      <li><span class="check-icon">✓</span> LEFT JOIN preserves all left-table rows; non-matching right-table columns become NULL</li>
+      <li><span class="check-icon">✓</span> RIGHT JOIN is the mirror of LEFT JOIN — almost always rewritable as a LEFT JOIN</li>
+      <li><span class="check-icon">✓</span> FULL OUTER JOIN returns all rows from both tables with NULLs where no match exists</li>
+      <li><span class="check-icon">✓</span> Anti-join pattern: LEFT JOIN + WHERE right.id IS NULL finds rows in A with no match in B</li>
+      <li><span class="check-icon">✓</span> SELF JOIN joins a table to itself using two different aliases — used for hierarchical data</li>
+      <li><span class="check-icon">✓</span> 3+ table joins chain multiple JOINs — always use table aliases</li>
+      <li><span class="check-icon">✓</span> JOIN combines columns; UNION combines rows — fundamentally different operations</li>
+      <li><span class="check-icon">✓</span> UNION ALL is faster than UNION — use it unless you need deduplication</li>
+      <li><span class="check-icon">✓</span> Forgetting the ON clause creates a CROSS JOIN — potentially millions of unwanted rows</li>
+    </ul>
+  </div>
+</div>
+
+<!-- LESSON PAGINATION -->
+<div class="lesson-pagination">
+  <a class="pg-nav" href="https://kjsynthora.com/learn/sql/module2/">← Module 2: Filtering & Sorting</a>
+  <div class="pg-center">Module 3 of 8</div>
+  <a class="pg-nav next-main" href="https://kjsynthora.com/learn/sql/module4/">Module 4: Subqueries & CTEs →</a>
+</div>
+
+<!-- COMPLETE BANNER -->
+<div class="complete-banner" id="completeBanner" style="display:none">
+  <div class="cb-icon">🏆</div>
+  <div class="cb-title">Module 3 <span>Complete!</span></div>
+  <p class="cb-sub">Excellent work! You've mastered SQL JOINs — the most interview-critical topic in all of SQL. Next: Subqueries and CTEs — how to break complex problems into readable, maintainable steps.</p>
+  <div class="cb-btns">
+    <a href="https://kjsynthora.com/learn/sql/module4/" class="cb-btn primary">Continue to Module 4 →</a>
+    <a href="https://kjsynthora.com/learn/sql/" class="cb-btn secondary">Course overview</a>
+  </div>
+</div>
+
+</div><!-- /lesson-content -->
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="side-card">
+    <div class="side-title">Module Progress</div>
+    <div class="progress-ring">
+      <div class="pr-circle">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(99,179,237,.1)" stroke-width="6"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="var(--acc2)" stroke-width="6" stroke-dasharray="175.9" stroke-dashoffset="175.9" stroke-linecap="round" id="progressCircle"/>
+        </svg>
+        <div class="pr-pct" id="progressPct">0%</div>
+      </div>
+      <div class="pr-label">lessons completed</div>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-title">Lessons</div>
+    <div class="lesson-jumps">
+      <div class="lj-item done-l" onclick="jumpLesson(1)"><span class="lj-num">✓</span> INNER JOIN</div>
+      <div class="lj-item current" onclick="jumpLesson(2)"><span class="lj-num">2</span> LEFT / RIGHT / FULL</div>
+      <div class="lj-item" onclick="jumpLesson(3)"><span class="lj-num">3</span> SELF JOIN + 3+ Tables</div>
+      <div class="lj-item" onclick="jumpLesson(4)"><span class="lj-num">4</span> UNION vs JOIN</div>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-title">In This Module</div>
+    <div class="toc-item" onclick="document.getElementById('lesson-1').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> INNER JOIN</div>
+    <div class="toc-item" onclick="document.getElementById('lesson-2').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> LEFT / RIGHT / FULL OUTER</div>
+    <div class="toc-item" onclick="document.getElementById('lesson-3').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> SELF JOIN & 3+ Tables</div>
+    <div class="toc-item" onclick="document.getElementById('lesson-4').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> UNION vs JOIN</div>
+    <div class="toc-item" onclick="document.getElementById('playground').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> SQL Playground</div>
+    <div class="toc-item" onclick="document.getElementById('quizSection').scrollIntoView({behavior:'smooth'})"><span class="toc-dot"></span> Quiz</div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-title">Quick Reference</div>
+    <div style="font-size:.68rem;font-family:var(--mono);line-height:1.8;color:var(--txt2)">
+      <div><span style="color:var(--acc)">INNER JOIN</span> — both match</div>
+      <div><span style="color:var(--grn)">LEFT JOIN</span> — all left + match</div>
+      <div><span style="color:var(--pur)">RIGHT JOIN</span> — all right + match</div>
+      <div><span style="color:var(--yel2)">FULL OUTER</span> — all from both</div>
+      <div><span style="color:var(--ora)">SELF JOIN</span> — table joins itself</div>
+      <div style="margin-top:.35rem;padding-top:.35rem;border-top:1px solid rgba(255,255,255,.06)"><span style="color:var(--red)">LEFT + WHERE IS NULL</span> = anti-join</div>
+    </div>
+  </div>
+
+  <div class="side-card" style="background:rgba(255,193,7,.04);border-color:rgba(255,193,7,.15)">
+    <div class="side-title">☕ Support KJSynthora</div>
+    <p style="font-size:.72rem;color:var(--txt2);line-height:1.6;margin-bottom:.65rem">This course is free. If it's helping you, a coffee keeps it going!</p>
+    <a href="https://kjsynthora.com/support.html" style="display:block;text-align:center;padding:.5rem;background:rgba(237,137,54,.1);border:1px solid rgba(237,137,54,.22);border-radius:var(--r);color:var(--ora);font-size:.75rem;font-weight:700;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(237,137,54,.18)'" onmouseout="this.style.background='rgba(237,137,54,.1)'">☕ Buy me a coffee</a>
+  </div>
+</div>
+</div><!-- /main-wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// JOIN ANIMATOR
+// ══════════════════════════════════════
+const joinData={
+  inner:{
+    desc:'<strong>INNER JOIN:</strong> Returns 3 rows — Alice (Eng), Bob (Mkt), Carol (Eng). Dave (dept 99 missing) and Eve (NULL dept) are excluded.',
+    leftIncl:[true,true,true,false,false],
+    rightIncl:[true,true,false],
+    results:[['Alice','Engineering'],['Bob','Marketing'],['Carol','Engineering']]
+  },
+  left:{
+    desc:'<strong>LEFT JOIN:</strong> Returns all 5 employees. Dave and Eve appear with NULL department — they are not excluded.',
+    leftIncl:[true,true,true,true,true],
+    rightIncl:[true,true,false],
+    results:[['Alice','Engineering'],['Bob','Marketing'],['Carol','Engineering'],['Dave','NULL'],['Eve','NULL']]
+  },
+  right:{
+    desc:'<strong>RIGHT JOIN:</strong> Returns all departments. HR appears with NULL employee — no employee belongs to HR.',
+    leftIncl:[true,false,true,false,false],
+    rightIncl:[true,true,true],
+    results:[['Alice','Engineering'],['Carol','Engineering'],['Bob','Marketing'],['NULL','HR']]
+  },
+  full:{
+    desc:'<strong>FULL OUTER JOIN:</strong> All rows from both tables. Dave/Eve get NULL dept, HR gets NULL employee.',
+    leftIncl:[true,true,true,true,true],
+    rightIncl:[true,true,true],
+    results:[['Alice','Engineering'],['Bob','Marketing'],['Carol','Engineering'],['Dave','NULL'],['Eve','NULL'],['NULL','HR']]
+  }
+};
+
+let currentJoin='inner';
+function setJoin(type,btn){
+  currentJoin=type;
+  document.querySelectorAll('.ja-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJoin();
+}
+
+function renderJoin(){
+  const d=joinData[currentJoin];
+  const employees=[['1','Alice','dept 10'],['2','Bob','dept 20'],['3','Carol','dept 10'],['4','Dave','dept 99'],['5','Eve','NULL']];
+  const departments=[['10','Engineering'],['20','Marketing'],['30','HR']];
+
+  let leftHtml=`<div class="ja-table"><div class="ja-table-head left">employees</div>`;
+  employees.forEach((e,i)=>{
+    const cls=d.leftIncl[i]?'included':'excluded';
+    leftHtml+=`<div class="ja-row ${cls}"><span>${e[0]}</span><span>${e[1]}</span></div>`;
+  });
+  leftHtml+='</div>';
+
+  let rightHtml=`<div class="ja-table"><div class="ja-table-head right">departments</div>`;
+  departments.forEach((dep,i)=>{
+    const cls=d.rightIncl[i]?'included':'excluded';
+    rightHtml+=`<div class="ja-row ${cls}"><span>${dep[0]}</span><span>${dep[1]}</span></div>`;
+  });
+  rightHtml+='</div>';
+
+  let resHtml=`<div class="ja-result-table"><div class="ja-table-head" style="color:var(--grn)">result</div>`;
+  d.results.forEach(r=>{
+    const isNull=r.includes('NULL');
+    resHtml+=`<div class="ja-row ${isNull?'null-row':'included'}"><span>${r[0]}</span><span>${r[1]}</span></div>`;
+  });
+  resHtml+='</div>';
+
+  document.getElementById('jaVisual').innerHTML=leftHtml+'<div class="ja-arrow">→</div>'+rightHtml+'<div class="ja-arrow">⟹</div>'+resHtml;
+  document.getElementById('jaDesc').innerHTML=d.desc+`<br><span style="color:var(--txt3);font-size:.68rem">${d.results.length} row${d.results.length!==1?'s':''} returned</span>`;
+}
+
+// Venn selector
+function selectVenn(type,card){
+  document.querySelectorAll('.venn-card').forEach(c=>c.classList.remove('active-venn'));
+  card.classList.add('active-venn');
+  if(joinData[type]){
+    currentJoin=type;
+    const jaBtn=document.querySelector(`.ja-btn[onclick*="${type}"]`);
+    if(jaBtn)setJoin(type,jaBtn);
+  }
+}
+
+// ══════════════════════════════════════
+// PLAYGROUND
+// ══════════════════════════════════════
+const scenarios={
+  inner:{
+    text:'<strong>INNER JOIN:</strong> Find all employees with their department name. Only employees with a valid department should appear.',
+    sql:`SELECT\n    e.id,\n    e.name,\n    e.salary,\n    d.dept_name\nFROM employees e\nINNER JOIN departments d\n    ON e.dept_id = d.id\nORDER BY e.name;`
+  },
+  left:{
+    text:'<strong>LEFT JOIN:</strong> Get all employees with their department. Include employees with no department (show NULL).',
+    sql:`SELECT\n    e.name,\n    e.salary,\n    d.dept_name\nFROM employees e\nLEFT JOIN departments d\n    ON e.dept_id = d.id\nORDER BY e.name;`
+  },
+  leftonly:{
+    text:'<strong>Anti-Join Pattern:</strong> Find employees who do NOT belong to any valid department.',
+    sql:`SELECT\n    e.name,\n    e.salary,\n    e.dept_id AS orphan_dept_id\nFROM employees e\nLEFT JOIN departments d\n    ON e.dept_id = d.id\nWHERE d.id IS NULL;`
+  },
+  self:{
+    text:'<strong>SELF JOIN:</strong> Show each employee alongside their manager\'s name using the manager_id column.',
+    sql:`SELECT\n    e.name       AS employee,\n    m.name       AS manager\nFROM employees e\nLEFT JOIN employees m\n    ON e.manager_id = m.id\nORDER BY m.name NULLS FIRST;`
+  },
+  union:{
+    text:'<strong>UNION vs JOIN:</strong> Combine employee names from two departments using UNION (stacks rows, removes duplicates).',
+    sql:`SELECT name, 'Engineering' AS source\nFROM employees\nWHERE dept_id = 10\n\nUNION\n\nSELECT name, 'Marketing' AS source\nFROM employees\nWHERE dept_id = 20\n\nORDER BY name;`
+  }
+};
+
+const DB={
+  employees:[
+    {id:1,name:'Alice',dept_id:10,salary:85000,manager_id:null},
+    {id:2,name:'Bob',dept_id:20,salary:72000,manager_id:null},
+    {id:3,name:'Carol',dept_id:10,salary:91000,manager_id:null},
+    {id:4,name:'Dave',dept_id:99,salary:65000,manager_id:null},
+    {id:5,name:'Eve',dept_id:null,salary:78000,manager_id:null},
+  ],
+  departments:[
+    {id:10,dept_name:'Engineering',location_id:1},
+    {id:20,dept_name:'Marketing',location_id:2},
+    {id:30,dept_name:'HR',location_id:1},
+  ]
+};
+
+function loadScenario(key){
+  const s=scenarios[key];
+  document.getElementById('pgScenarioText').innerHTML=s.text;
+  document.getElementById('sqlEditor').value=s.sql;
+  clearResult();
+}
+
+function runQuery(){
+  const sql=document.getElementById('sqlEditor').value.trim().toLowerCase();
+  let rows=[],cols=[];
+
+  try{
+    if(sql.includes('union')){
+      if(sql.includes('engineering')||sql.includes('dept_id = 10')||sql.includes("dept_id=10")){
+        cols=['name','source'];
+        rows=[['Alice','Engineering'],['Bob','Marketing'],['Carol','Engineering']];
+        if(sql.includes('union all'))rows.push(['Alice','Engineering']);
+      }else{
+        cols=['name','source'];rows=[['Alice','Engineering'],['Carol','Engineering'],['Bob','Marketing']];
+      }
+    } else if(sql.includes('self')||sql.includes('manager')||(sql.includes('employees m')||sql.includes('employees e')&&sql.includes('manager_id'))){
+      cols=['employee','manager'];
+      rows=[['Alice (CEO)','NULL'],['Alice','Alice (CEO)'],['Bob','Alice (CEO)'],['Carol','Alice'],['Dave','Alice']];
+    } else if((sql.includes('left join')&&sql.includes('is null'))||(sql.includes('where')&&sql.includes('is null'))){
+      cols=['name','salary','orphan_dept_id'];
+      rows=[['Dave',65000,99],['Eve',78000,'NULL']];
+    } else if(sql.includes('left join')){
+      cols=['name','salary','dept_name'];
+      rows=[['Alice',85000,'Engineering'],['Bob',72000,'Marketing'],['Carol',91000,'Engineering'],['Dave',65000,'NULL'],['Eve',78000,'NULL']];
+    } else if(sql.includes('right join')){
+      cols=['name','salary','dept_name'];
+      rows=[['Alice',85000,'Engineering'],['Carol',91000,'Engineering'],['Bob',72000,'Marketing'],['NULL','NULL','HR']];
+    } else if(sql.includes('full')){
+      cols=['name','dept_name'];
+      rows=[['Alice','Engineering'],['Bob','Marketing'],['Carol','Engineering'],['Dave','NULL'],['Eve','NULL'],['NULL','HR']];
+    } else if(sql.includes('inner join')||sql.includes('join')){
+      cols=['id','name','salary','dept_name'];
+      rows=[[1,'Alice',85000,'Engineering'],[2,'Bob',72000,'Marketing'],[3,'Carol',91000,'Engineering']];
+    } else {
+      cols=['name','salary'];
+      rows=DB.employees.map(e=>[e.name,e.salary]);
+    }
+
+    showResult(cols,rows);
+  }catch(e){
+    document.getElementById('pgResult').classList.add('show');
+    document.getElementById('pgResultRows').innerHTML=`<div class="pg-err">❌ ${e.message}</div>`;
+    document.getElementById('pgResultLabel').textContent='❌ Error';
+  }
+}
+
+function showResult(cols,rows){
+  const res=document.getElementById('pgResult');
+  res.classList.add('show');
+  document.getElementById('pgResultLabel').textContent='✅ Query executed';
+  document.getElementById('pgRowCount').textContent=`${rows.length} row${rows.length!==1?'s':''} returned`;
+  let html='<table class="result-table" style="margin:0"><thead><tr>';
+  cols.forEach(c=>html+=`<th>${c}</th>`);
+  html+='</tr></thead><tbody>';
+  rows.forEach(r=>{
+    html+='<tr>';
+    r.forEach(val=>{
+      const isNull=val==='NULL'||val===null||val===undefined;
+      html+=`<td class="${isNull?'null-val':''}">${isNull?'NULL':val}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('pgResultRows').innerHTML=html;
+}
+
+function clearResult(){
+  document.getElementById('pgResult').classList.remove('show');
+}
+
+// ══════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════
+let quizAnswers={},quizScore=0,quizSubmitted=false;
+
+function selectOpt(el,qId,isCorrect){
+  if(quizSubmitted)return;
+  document.querySelectorAll(`#${qId} .q-opt`).forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  quizAnswers[qId]={el,isCorrect};
+}
+
+function submitQuiz(){
+  if(quizSubmitted)return;
+  const total=5;
+  let score=0;
+  for(let i=1;i<=total;i++){
+    const ans=quizAnswers['q'+i];
+    const exp=document.getElementById('exp-q'+i);
+    if(ans){
+      if(ans.isCorrect){score++;ans.el.classList.add('correct');const c=ans.el.querySelector('.q-opt-circle');if(c)c.textContent='✓';}
+      else{ans.el.classList.add('wrong');const c=ans.el.querySelector('.q-opt-circle');if(c)c.textContent='✗';
+        document.querySelectorAll(`#q${i} .q-opt`).forEach(o=>{if(!quizAnswers['q'+i]||o!==quizAnswers['q'+i].el){const cc=o.querySelector('.q-opt-circle');if(cc&&cc.textContent==='✓'){}}}); }
+      if(exp)exp.classList.add('show');
+    }
+  }
+  quizScore=score;
+  document.getElementById('quizScoreDisp').textContent=score;
+  quizSubmitted=true;
+  const banner=document.getElementById('quizResultBanner');
+  banner.classList.add('show');
+  const pct=Math.round((score/total)*100);
+  if(score===total)banner.innerHTML=`🏆 <b>Perfect score!</b> ${score}/${total} — You've mastered Module 3 JOINs!`;
+  else if(score>=3)banner.innerHTML=`✅ Good work! <b>${score}/${total}</b> correct (${pct}%). Review the explanations above for the questions you missed.`;
+  else banner.innerHTML=`📚 <b>${score}/${total}</b> correct. No worries — re-read the lesson sections and try again!`;
+  updateProgress(score>=3?100:60);
+  showToast(score===total?'🏆 Perfect score!':'Quiz submitted — '+score+'/5 correct');
+}
+
+function resetQuiz(){
+  quizSubmitted=false;quizAnswers={};quizScore=0;
+  document.getElementById('quizScoreDisp').textContent='0';
+  document.getElementById('quizResultBanner').classList.remove('show');
+  document.querySelectorAll('.q-opt').forEach(o=>{o.classList.remove('selected','correct','wrong')});
+  document.querySelectorAll('.q-explanation').forEach(e=>e.classList.remove('show'));
+  document.querySelectorAll('.q-opt-circle').forEach((c,i)=>{c.textContent=String.fromCharCode(65+i%4)});
+}
+
+// ══════════════════════════════════════
+// CHALLENGES
+// ══════════════════════════════════════
+function toggleHint(btn,id){
+  const h=document.getElementById(id);
+  const showing=h.classList.contains('show');
+  h.classList.toggle('show');
+  btn.textContent=showing?'💡 Show hint':'💡 Hide hint';
+}
+
+function toggleSolution(id){
+  document.getElementById(id).classList.toggle('show');
+}
+
+function checkChallenge(n){
+  const ed=document.getElementById(`ch${n}-editor`).value.toLowerCase();
+  let correct=false;
+  if(n===1)correct=ed.includes('left join')&&ed.includes('employees')&&ed.includes('departments');
+  if(n===2)correct=ed.includes('left join')&&ed.includes('is null');
+  if(n===3)correct=ed.includes('inner join')&&ed.includes('employees')&&ed.includes('manager_id');
+  showToast(correct?'✅ Correct approach! Well done.':'❌ Not quite — check the hint or solution');
+}
+
+// ══════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════
+let completedLessons=new Set([0]);
+function updateProgress(pct){
+  const circle=document.getElementById('progressCircle');
+  const pctEl=document.getElementById('progressPct');
+  if(circle){const offset=175.9*(1-pct/100);circle.style.strokeDashoffset=offset;}
+  if(pctEl)pctEl.textContent=Math.round(pct)+'%';
+}
+
+function markComplete(){
+  updateProgress(100);
+  document.getElementById('completeBanner').style.display='block';
+  document.getElementById('completeBanner').scrollIntoView({behavior:'smooth',block:'center'});
+  showToast('🎉 Module 3 marked complete!');
+  try{localStorage.setItem('kjs_sql_m3','complete')}catch(e){}
+}
+
+// ══════════════════════════════════════
+// READ PROGRESS
+// ══════════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const el=document.getElementById('lessonContent');
+  if(!el)return;
+  const rect=el.getBoundingClientRect();
+  const total=el.offsetHeight;
+  const scrolled=Math.max(0,-rect.top);
+  const pct=Math.min(100,Math.round((scrolled/total)*100));
+  const pb=document.getElementById('readProgress');
+  if(pb)pb.style.width=pct+'%';
+  if(pct>80)updateProgress(pct);
+  const btt=document.getElementById('backTopBtn');
+  if(btt)btt.style.opacity=window.scrollY>400?'1':'0';
+});
+
+// ══════════════════════════════════════
+// LESSON JUMP
+// ══════════════════════════════════════
+function jumpLesson(n){
+  const el=document.getElementById('lesson-'+n);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ══════════════════════════════════════
+// CODE COPY
+// ══════════════════════════════════════
+function copyCode(btn,id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const text=el.innerText||el.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✅ Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('copied')},2000);
+  }).catch(()=>{
+    const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent='📋 Copy',2000);
+  });
+}
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'')+' show';
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+window.addEventListener('load',()=>{
+  renderJoin();
+  try{if(localStorage.getItem('kjs_sql_m3')==='complete'){updateProgress(100);}}catch(e){}
+});
+</script>
+</body>
+</html>
