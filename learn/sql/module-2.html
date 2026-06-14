@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>M2: Filtering & Aggregation — SQL Course | KJSynthora</title>
+<meta name="description" content="Learn SQL Filtering & Aggregation — AND/OR/NOT, BETWEEN, IN/LIKE, GROUP BY, HAVING, COUNT, SUM, AVG, MIN, MAX, DISTINCT with interactive examples and quizzes."/>
+<meta name="robots" content="index,follow"/>
+<link rel="canonical" href="https://kjsynthora.com/learn/sql/module-2.html"/>
+<link rel="icon" href="https://kjsynthora.com/logo.png"/>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Course",
+  "name":"SQL Module 2 — Filtering & Aggregation",
+  "description":"Master SQL filtering with AND/OR/NOT, BETWEEN, IN/LIKE, and aggregation with GROUP BY, HAVING, COUNT, SUM, AVG. Interactive lessons with a live SQL playground.",
+  "provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"},
+  "url":"https://kjsynthora.com/learn/sql/module-2.html",
+  "educationalLevel":"Beginner",
+  "teaches":["AND OR NOT","BETWEEN","IN LIKE","GROUP BY","HAVING","COUNT SUM AVG MIN MAX","DISTINCT"]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090f;--s1:#0c0f1a;--s2:#101422;--s3:#141928;--s4:#1a2035;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);--border3:rgba(255,255,255,0.12);
+  --acc:#6366f1;--acc2:#06b6d4;--acc3:#10b981;--acc4:#f59e0b;--acc5:#ec4899;
+  --red:#ef4444;--orange:#f97316;
+  --text:#dde4f4;--muted:#5c6b8a;--muted2:#8899b8;
+  --mono:'JetBrains Mono',monospace;--sans:'Plus Jakarta Sans',sans-serif;
+  --grad:linear-gradient(135deg,var(--acc),var(--acc2));
+  --grad2:linear-gradient(135deg,var(--acc3),var(--acc2));
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 10% 0%,rgba(99,102,241,0.07),transparent 55%),
+             radial-gradient(ellipse 50% 40% at 90% 100%,rgba(6,182,212,0.05),transparent 55%);}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--sans);font-size:15px;font-weight:800;text-decoration:none;color:var(--text);}
+.nav-logo span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nl{padding:5px 11px;border-radius:7px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted2);font-size:11px;font-weight:600;text-decoration:none;transition:all .15s}
+.nl:hover{border-color:var(--acc);color:var(--acc)}
+.nl.active{background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--acc)}
+@media(max-width:700px){.nav-links{display:none}}
+
+/* ── COURSE LAYOUT ── */
+.course-wrap{position:relative;z-index:1;display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 52px);max-width:1440px;margin:0 auto;}
+@media(max-width:900px){.course-wrap{grid-template-columns:1fr}}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--s1);border-right:1px solid var(--border);height:calc(100vh - 52px);position:sticky;top:52px;overflow-y:auto;display:flex;flex-direction:column;padding:16px 0;}
+@media(max-width:900px){.sidebar{display:none}}
+.sb-module{margin-bottom:4px;}
+.sb-mod-header{padding:9px 16px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.sb-mod-badge{background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);color:var(--acc);font-size:8.5px;padding:2px 7px;border-radius:4px;font-family:var(--mono);}
+.sb-mod-badge.gold{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);color:var(--acc4)}
+.sb-lesson{display:flex;align-items:center;gap:9px;padding:8px 16px 8px 24px;font-size:12px;color:var(--muted2);cursor:pointer;transition:all .15s;text-decoration:none;border-left:2px solid transparent}
+.sb-lesson:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.sb-lesson.active{color:var(--acc);border-left-color:var(--acc);background:rgba(99,102,241,0.06)}
+.sb-lesson.done{color:var(--acc3)}
+.sb-lesson.done::before{content:'✓';width:16px;height:16px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--acc3);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-lesson-num{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border2);color:var(--muted);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono)}
+
+/* ── MAIN CONTENT ── */
+.main{padding:0;overflow:hidden}
+
+/* MODULE HERO */
+.mod-hero{background:var(--s1);border-bottom:1px solid var(--border);padding:32px 40px 28px;position:relative;overflow:hidden}
+.mod-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 0% 50%,rgba(99,102,241,0.06),transparent 60%)}
+.mod-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:var(--acc);font-size:10px;font-weight:700;padding:4px 12px;border-radius:999px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.mod-num{font-size:11px;font-family:var(--mono);color:var(--muted2);margin-bottom:6px}
+.mod-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-.03em;margin-bottom:8px;line-height:1.1}
+.mod-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mod-desc{font-size:14px;color:var(--muted2);line-height:1.7;max-width:660px;margin-bottom:18px}
+.mod-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+.mod-tag{background:var(--s2);border:1px solid var(--border2);color:var(--muted2);font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:5px;font-family:var(--mono);}
+.mod-meta-row{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted2)}
+.mod-meta-item{display:flex;align-items:center;gap:5px}
+.progress-wrap{background:rgba(255,255,255,0.06);height:5px;border-radius:99px;overflow:hidden;max-width:300px;margin-top:14px}
+.progress-fill{height:100%;background:var(--grad);border-radius:99px;transition:width .4s ease}
+
+/* LESSON TABS */
+.lesson-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--s1);padding:0 40px;overflow-x:auto;}
+.lesson-tabs::-webkit-scrollbar{height:2px}
+.lt{padding:12px 16px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s;background:none;border-left:none;border-right:none;border-top:none;font-family:var(--sans)}
+.lt:hover{color:var(--text)}
+.lt.active{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* LESSON BODY */
+.lesson-body{padding:32px 40px 60px;max-width:900px}
+@media(max-width:700px){.lesson-body{padding:20px 18px 50px}.mod-hero{padding:22px 18px 18px}}
+
+/* LESSON SECTION */
+.ls-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin-bottom:6px;font-family:var(--mono)}
+.ls-h2{font-size:clamp(1.1rem,2vw,1.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px;line-height:1.2}
+.ls-h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+.ls-p{font-size:13.5px;color:var(--muted2);line-height:1.85;margin-bottom:14px}
+.ls-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border3),transparent);margin:32px 0}
+
+/* INFO BOX */
+.info-box{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-left:3px solid var(--acc);border-radius:8px;padding:13px 16px;margin:14px 0;font-size:12.5px;color:var(--text);line-height:1.75}
+.info-box.green{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2);border-left-color:var(--acc3)}
+.info-box.yellow{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);border-left-color:var(--acc4)}
+.info-box.red{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2);border-left-color:var(--red)}
+.ib-title{font-weight:700;margin-bottom:4px;font-size:11px;letter-spacing:.5px;text-transform:uppercase}
+
+/* CODE BLOCK */
+.code-wrap{background:#0d1117;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;margin:14px 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06)}
+.code-lang{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;font-family:var(--mono)}
+.code-actions{display:flex;gap:5px}
+.copy-btn,.run-btn{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans);border:none;transition:all .15s}
+.copy-btn{background:rgba(255,255,255,0.06);color:var(--muted2)}
+.copy-btn:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+.run-btn{background:rgba(99,102,241,0.15);color:var(--acc);border:1px solid rgba(99,102,241,0.25)}
+.run-btn:hover{background:rgba(99,102,241,0.25)}
+.code-content{padding:16px;font-family:var(--mono);font-size:13px;line-height:1.7;overflow-x:auto;white-space:pre;}
+/* Syntax colors */
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.num{color:#79c0ff}.cmt{color:#6e7681;font-style:italic}.op{color:#ff7b72}.tbl{color:#ffa657}.col{color:#e6edf3}
+
+/* SQL OUTPUT TABLE */
+.sql-output{background:var(--s2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin:10px 0 18px;font-family:var(--mono);font-size:12px}
+.sql-out-header{padding:7px 12px;background:rgba(16,185,129,0.06);border-bottom:1px solid rgba(16,185,129,0.15);font-size:10px;font-weight:700;color:var(--acc3);display:flex;align-items:center;gap:6px}
+.sql-out-body{overflow-x:auto;padding:4px 0}
+.sql-table{width:100%;border-collapse:collapse;min-width:360px}
+.sql-table th{padding:7px 14px;font-size:10px;font-weight:700;color:var(--muted2);text-align:left;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,0.02)}
+.sql-table td{padding:7px 14px;border-bottom:1px solid var(--border2);color:var(--text);font-size:11.5px}
+.sql-table tr:last-child td{border-bottom:none}
+.sql-table tr:hover td{background:rgba(255,255,255,0.02)}
+.sql-table td.num-cell{color:var(--acc2)}
+.sql-table td.str-cell{color:var(--acc4)}
+
+/* PLAYGROUND */
+.playground{background:var(--s1);border:1px solid var(--border3);border-radius:12px;overflow:hidden;margin:18px 0}
+.pg-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:rgba(99,102,241,0.06);border-bottom:1px solid var(--border)}
+.pg-title{font-size:12px;font-weight:700;color:var(--acc);display:flex;align-items:center;gap:7px}
+.pg-dot{width:6px;height:6px;border-radius:50%;background:var(--acc3);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.pg-btns{display:flex;gap:6px}
+.pg-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.pg-run{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(99,102,241,0.25)}
+.pg-run:hover{transform:translateY(-1px)}
+.pg-clear{background:rgba(255,255,255,0.06);color:var(--muted2);border:1px solid var(--border)}
+.pg-clear:hover{background:rgba(255,255,255,0.1)}
+.pg-reset{background:rgba(245,158,11,0.1);color:var(--acc4);border:1px solid rgba(245,158,11,0.2)}
+.pg-textarea{width:100%;background:#0d1117;border:none;color:#e6edf3;font-family:var(--mono);font-size:13px;line-height:1.7;padding:16px;resize:vertical;min-height:100px;max-height:220px;outline:none;border-bottom:1px solid var(--border)}
+.pg-output{padding:12px 16px;min-height:80px;font-family:var(--mono);font-size:12px}
+.pg-output .success{color:var(--acc3)}.pg-output .error{color:var(--red)}.pg-output .info{color:var(--muted2)}
+.pg-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+.pg-table th{padding:5px 10px;background:rgba(99,102,241,0.1);color:var(--acc);border:1px solid rgba(99,102,241,0.15);font-size:10px;text-align:left;text-transform:uppercase;letter-spacing:.5px}
+.pg-table td{padding:5px 10px;border:1px solid var(--border2);color:var(--text)}
+.pg-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* QUIZ */
+.quiz-card{background:var(--s1);border:1px solid var(--border3);border-radius:12px;padding:20px;margin:18px 0}
+.quiz-label{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc4);margin-bottom:10px;display:flex;align-items:center;gap:6px;font-family:var(--mono)}
+.quiz-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.quiz-opt{padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.025);color:var(--muted2);font-size:12.5px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;font-family:var(--sans)}
+.quiz-opt:hover{border-color:rgba(99,102,241,0.3);color:var(--text);background:rgba(99,102,241,0.06)}
+.quiz-opt.correct{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.07);color:var(--acc3)}
+.quiz-opt.wrong{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.06);color:var(--red)}
+.quiz-opt .opt-key{width:22px;height:22px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono)}
+.quiz-result{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:12.5px;display:none}
+.quiz-result.show{display:block}
+.quiz-result.ok{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--acc3)}
+.quiz-result.err{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+
+/* CONCEPT CARD */
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.concept-card{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad)}
+.cc-kw{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--acc);margin-bottom:5px}
+.cc-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.cc-desc{font-size:11.5px;color:var(--muted2);line-height:1.6}
+.cc-example{font-family:var(--mono);font-size:10.5px;color:var(--acc2);background:rgba(6,182,212,0.07);border-radius:4px;padding:5px 8px;margin-top:7px;display:block}
+
+/* TABLE SAMPLE */
+.db-table{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:14px 0;font-family:var(--mono);font-size:12px}
+.db-table-title{padding:8px 14px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
+.db-table table{width:100%;border-collapse:collapse}
+.db-table th{padding:6px 12px;background:rgba(99,102,241,0.06);color:var(--acc);font-size:10px;text-align:left;border-bottom:1px solid var(--border);font-weight:700}
+.db-table td{padding:6px 12px;border-bottom:1px solid var(--border2);color:var(--text);font-size:11px}
+.db-table tr:last-child td{border-bottom:none}
+.db-table td.pk{color:var(--acc4);font-weight:700}
+.db-table td.str{color:var(--acc2)}
+.db-table td.num{color:var(--acc3)}
+
+/* NAV BUTTONS */
+.lesson-nav{display:flex;align-items:center;justify-content:space-between;padding:24px 40px;background:var(--s1);border-top:1px solid var(--border);margin-top:auto}
+@media(max-width:700px){.lesson-nav{padding:16px 18px;flex-wrap:wrap;gap:10px}}
+.nav-btn{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--sans);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:6px}
+.nav-btn.prev{background:rgba(255,255,255,0.05);color:var(--muted2);border:1px solid var(--border)}
+.nav-btn.prev:hover{background:rgba(255,255,255,0.09);color:var(--text)}
+.nav-btn.next{background:var(--grad);color:#fff;box-shadow:0 2px 10px rgba(99,102,241,0.25)}
+.nav-btn.next:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,0.35)}
+.progress-text{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;padding:10px 16px;background:var(--s2);border:1px solid var(--border3);border-radius:9px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{border-color:rgba(16,185,129,0.3)}
+
+/* HIGHLIGHT */
+.hl{background:rgba(99,102,241,0.12);color:var(--acc);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:12.5px;font-weight:600}
+.hl.green{background:rgba(16,185,129,0.1);color:var(--acc3)}
+.hl.yellow{background:rgba(245,158,11,0.1);color:var(--acc4)}
+.hl.cyan{background:rgba(6,182,212,0.1);color:var(--acc2)}
+
+/* SECTION PANE */
+.sec-pane{display:none}
+.sec-pane.active{display:block}
+
+/* MARK COMPLETE */
+.complete-btn{width:100%;padding:12px;border-radius:10px;background:rgba(16,185,129,0.08);border:2px solid rgba(16,185,129,0.2);color:var(--acc3);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:28px}
+.complete-btn:hover{background:rgba(16,185,129,0.14);border-color:rgba(16,185,129,0.35)}
+.complete-btn.done{background:rgba(16,185,129,0.15);border-color:var(--acc3)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="https://kjsynthora.com/">KJ<span>Synthora</span></a>
+  <div class="nav-links">
+    <a class="nl" href="https://kjsynthora.com/learn/sql/">← SQL Course</a>
+    <a class="nl" href="module-1.html">M1: Basics</a>
+    <a class="nl active" href="module-2.html">M2: Filtering</a>
+    <a class="nl" href="module-3.html">M3: JOINs</a>
+    <a class="nl" href="https://kjsynthora.com/#tools-explorer">All Tools</a>
+  </div>
+</nav>
+
+<div class="course-wrap">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-module">
+    <div class="sb-mod-header">Module 1 <span class="sb-mod-badge">Free</span></div>
+    <a href="module-1.html#1.1" class="sb-lesson done"><div>Lesson 1.1 — What is a database?</div></a>
+    <a href="module-1.html#1.2" class="sb-lesson done"><div>Lesson 1.2 — Your first SELECT</div></a>
+    <a href="module-1.html#1.3" class="sb-lesson done"><div>Lesson 1.3 — Filtering with WHERE</div></a>
+    <a href="module-1.html#1.4" class="sb-lesson done"><div>Lesson 1.4 — ORDER BY + LIMIT</div></a>
+  </div>
+  <div class="sb-module">
+    <div class="sb-mod-header">Module 2 — Current <span class="sb-mod-badge gold">69 min</span></div>
+    <a href="#lesson-2-1" class="sb-lesson active" onclick="showLesson('2-1');return false"><span class="sb-lesson-num">2.1</span>Combining conditions</a>
+    <a href="#lesson-2-2" class="sb-lesson" onclick="showLesson('2-2');return false"><span class="sb-lesson-num">2.2</span>Pattern matching LIKE</a>
+    <a href="#lesson-2-3" class="sb-lesson" onclick="showLesson('2-3');return false"><span class="sb-lesson-num">2.3</span>Aggregate functions</a>
+    <a href="#lesson-2-4" class="sb-lesson" onclick="showLesson('2-4');return false"><span class="sb-lesson-num">2.4</span>GROUP BY and HAVING</a>
+  </div>
+  <div class="sb-module">
+    <div class="sb-mod-header">Module 3 <span class="sb-mod-badge gold">75 min</span></div>
+    <a href="module-3.html" class="sb-lesson"><span class="sb-lesson-num">3.1</span>INNER JOIN visually</a>
+    <a href="module-3.html" class="sb-lesson"><span class="sb-lesson-num">3.2</span>LEFT, RIGHT, FULL OUTER</a>
+    <a href="module-3.html" class="sb-lesson"><span class="sb-lesson-num">3.3</span>SELF JOIN & 3+ tables</a>
+    <a href="module-3.html" class="sb-lesson"><span class="sb-lesson-num">3.4</span>UNION vs JOIN</a>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- MODULE HERO -->
+<div class="mod-hero">
+  <div style="position:relative;z-index:1;">
+    <div class="mod-badge">📊 Module 2</div>
+    <div class="mod-num">SQL Course · KJSynthora</div>
+    <h1 class="mod-title">Filtering & <span>Aggregation</span></h1>
+    <p class="mod-desc">Combine multiple conditions to filter precisely, and summarize large datasets into totals, averages, and counts grouped by category — the skill used in almost every reporting query.</p>
+    <div class="mod-tags">
+      <span class="mod-tag">AND/OR/NOT</span><span class="mod-tag">BETWEEN</span>
+      <span class="mod-tag">IN/LIKE</span><span class="mod-tag">GROUP BY</span>
+      <span class="mod-tag">HAVING</span><span class="mod-tag">COUNT/SUM/AVG</span>
+      <span class="mod-tag">MIN/MAX</span><span class="mod-tag">DISTINCT</span>
+    </div>
+    <div class="mod-meta-row">
+      <span class="mod-meta-item">⏱ 69 minutes</span>
+      <span class="mod-meta-item">📚 4 lessons</span>
+      <span class="mod-meta-item">🧠 8 quizzes</span>
+      <span class="mod-meta-item">⚡ Live SQL playground</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="modProgress" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;" id="progressLabel">0 / 4 lessons completed</div>
+  </div>
+</div>
+
+<!-- LESSON TABS -->
+<div class="lesson-tabs">
+  <button class="lt active" onclick="showLesson('2-1',this)">2.1 — AND/OR/NOT</button>
+  <button class="lt" onclick="showLesson('2-2',this)">2.2 — LIKE & Wildcards</button>
+  <button class="lt" onclick="showLesson('2-3',this)">2.3 — Aggregate Functions</button>
+  <button class="lt" onclick="showLesson('2-4',this)">2.4 — GROUP BY & HAVING</button>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- LESSON 2.1 -->
+<!-- ════════════════════════════════════ -->
+<div class="sec-pane active" id="pane-2-1">
+<div class="lesson-body">
+
+  <div class="ls-eyebrow">Lesson 2.1 · 17 min</div>
+  <h2 class="ls-h2">Combining Conditions — AND / OR / NOT / BETWEEN / IN</h2>
+  <p class="ls-p">In Module 1 you filtered with a single <span class="hl">WHERE</span> condition. Real queries almost always need multiple conditions. SQL gives you logical operators to combine them: <span class="hl green">AND</span>, <span class="hl yellow">OR</span>, <span class="hl cyan">NOT</span>, and range shortcuts <span class="hl green">BETWEEN</span> and <span class="hl cyan">IN</span>.</p>
+
+  <!-- SAMPLE TABLE -->
+  <div class="info-box yellow">
+    <div class="ib-title">📋 Sample Table — orders</div>
+    We'll use this table for all examples in Lesson 2.1.
+  </div>
+  <div class="db-table">
+    <div class="db-table-title">📦 orders</div>
+    <table>
+      <tr><th>order_id</th><th>customer</th><th>product</th><th>amount</th><th>city</th><th>status</th></tr>
+      <tr><td class="pk">1</td><td class="str">Alice</td><td class="str">Laptop</td><td class="num">75000</td><td class="str">Mumbai</td><td class="str">delivered</td></tr>
+      <tr><td class="pk">2</td><td class="str">Bob</td><td class="str">Phone</td><td class="num">22000</td><td class="str">Delhi</td><td class="str">shipped</td></tr>
+      <tr><td class="pk">3</td><td class="str">Carol</td><td class="str">Tablet</td><td class="num">35000</td><td class="str">Mumbai</td><td class="str">delivered</td></tr>
+      <tr><td class="pk">4</td><td class="str">Dave</td><td class="str">Phone</td><td class="num">18000</td><td class="str">Chennai</td><td class="str">pending</td></tr>
+      <tr><td class="pk">5</td><td class="str">Eve</td><td class="str">Laptop</td><td class="num">95000</td><td class="str">Delhi</td><td class="str">delivered</td></tr>
+      <tr><td class="pk">6</td><td class="str">Frank</td><td class="str">Headphones</td><td class="num">3500</td><td class="str">Mumbai</td><td class="str">cancelled</td></tr>
+      <tr><td class="pk">7</td><td class="str">Grace</td><td class="str">Tablet</td><td class="num">42000</td><td class="str">Delhi</td><td class="str">shipped</td></tr>
+    </table>
+  </div>
+
+  <!-- AND -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">AND — both conditions must be true</h3>
+  <p class="ls-p"><span class="hl green">AND</span> returns rows where <strong>every condition</strong> is true. Think of it as narrowing your filter.</p>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('and-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="kw">SELECT</span> <span class="col">*</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">city</span> <span class="op">=</span> <span class="str">'Mumbai'</span>
+  <span class="kw">AND</span>  <span class="col">status</span> <span class="op">=</span> <span class="str">'delivered'</span><span class="op">;</span></div>
+  </div>
+  <div id="and-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Result — 2 rows</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>order_id</th><th>customer</th><th>product</th><th>amount</th><th>city</th><th>status</th></tr>
+    <tr><td class="num-cell">1</td><td>Alice</td><td>Laptop</td><td class="num-cell">75000</td><td>Mumbai</td><td class="str-cell">delivered</td></tr>
+    <tr><td class="num-cell">3</td><td>Carol</td><td>Tablet</td><td class="num-cell">35000</td><td>Mumbai</td><td class="str-cell">delivered</td></tr>
+    </table></div>
+  </div>
+
+  <!-- OR -->
+  <h3 class="ls-h3">OR — at least one condition must be true</h3>
+  <p class="ls-p"><span class="hl yellow">OR</span> returns rows where <strong>any one condition</strong> is true. It broadens your filter.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('or-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">product</span><span class="op">,</span> <span class="col">city</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">city</span> <span class="op">=</span> <span class="str">'Mumbai'</span>
+  <span class="kw">OR</span>   <span class="col">city</span> <span class="op">=</span> <span class="str">'Chennai'</span><span class="op">;</span></div>
+  </div>
+  <div id="or-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Result — 4 rows</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>customer</th><th>product</th><th>city</th></tr>
+    <tr><td>Alice</td><td>Laptop</td><td>Mumbai</td></tr>
+    <tr><td>Carol</td><td>Tablet</td><td>Mumbai</td></tr>
+    <tr><td>Dave</td><td>Phone</td><td>Chennai</td></tr>
+    <tr><td>Frank</td><td>Headphones</td><td>Mumbai</td></tr>
+    </table></div>
+  </div>
+
+  <!-- NOT -->
+  <h3 class="ls-h3">NOT — exclude matching rows</h3>
+  <p class="ls-p"><span class="hl cyan">NOT</span> inverts a condition — returns everything that does <em>not</em> match.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('not-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="kw">SELECT</span> <span class="col">*</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="kw">NOT</span> <span class="col">status</span> <span class="op">=</span> <span class="str">'cancelled'</span><span class="op">;</span>
+
+<span class="cmt">-- Same as: WHERE status != 'cancelled'</span>
+<span class="cmt">-- Also:    WHERE status &lt;&gt; 'cancelled'</span></div>
+  </div>
+  <div id="not-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Result — 6 rows (Frank's cancelled order excluded)</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>order_id</th><th>customer</th><th>status</th></tr>
+    <tr><td class="num-cell">1</td><td>Alice</td><td class="str-cell">delivered</td></tr>
+    <tr><td class="num-cell">2</td><td>Bob</td><td class="str-cell">shipped</td></tr>
+    <tr><td class="num-cell">3</td><td>Carol</td><td class="str-cell">delivered</td></tr>
+    <tr><td class="num-cell">4</td><td>Dave</td><td class="str-cell">pending</td></tr>
+    <tr><td class="num-cell">5</td><td>Eve</td><td class="str-cell">delivered</td></tr>
+    <tr><td class="num-cell">7</td><td>Grace</td><td class="str-cell">shipped</td></tr>
+    </table></div>
+  </div>
+
+  <!-- BETWEEN -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">BETWEEN — range filter (inclusive)</h3>
+  <p class="ls-p"><span class="hl green">BETWEEN x AND y</span> matches values from x to y, <strong>including both endpoints</strong>. It works on numbers, dates, and text.</p>
+  <div class="info-box">
+    <div class="ib-title">💡 BETWEEN = &gt;= AND &lt;=</div>
+    <code>WHERE amount BETWEEN 20000 AND 50000</code> is exactly the same as <code>WHERE amount &gt;= 20000 AND amount &lt;= 50000</code>. BETWEEN is just cleaner.
+  </div>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('between-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Orders with amount between ₹20,000 and ₹50,000</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">product</span><span class="op">,</span> <span class="col">amount</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">amount</span> <span class="kw">BETWEEN</span> <span class="num">20000</span> <span class="kw">AND</span> <span class="num">50000</span><span class="op">;</span></div>
+  </div>
+  <div id="between-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Result — 3 rows</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>customer</th><th>product</th><th>amount</th></tr>
+    <tr><td>Bob</td><td>Phone</td><td class="num-cell">22000</td></tr>
+    <tr><td>Carol</td><td>Tablet</td><td class="num-cell">35000</td></tr>
+    <tr><td>Grace</td><td>Tablet</td><td class="num-cell">42000</td></tr>
+    </table></div>
+  </div>
+
+  <!-- IN -->
+  <h3 class="ls-h3">IN — match against a list of values</h3>
+  <p class="ls-p"><span class="hl cyan">IN (val1, val2, ...)</span> matches if the column equals <em>any</em> value in the list. It replaces multiple <span class="hl yellow">OR</span> conditions cleanly.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('in-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Orders from Mumbai or Delhi (using IN)</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">city</span><span class="op">,</span> <span class="col">amount</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">city</span> <span class="kw">IN</span> (<span class="str">'Mumbai'</span><span class="op">,</span> <span class="str">'Delhi'</span>)<span class="op">;</span>
+
+<span class="cmt">-- NOT IN — exclude a list</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">status</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">status</span> <span class="kw">NOT IN</span> (<span class="str">'cancelled'</span><span class="op">,</span> <span class="str">'pending'</span>)<span class="op">;</span></div>
+  </div>
+  <div id="in-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ IN Result — 6 rows from Mumbai or Delhi</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>customer</th><th>city</th><th>amount</th></tr>
+    <tr><td>Alice</td><td>Mumbai</td><td class="num-cell">75000</td></tr>
+    <tr><td>Bob</td><td>Delhi</td><td class="num-cell">22000</td></tr>
+    <tr><td>Carol</td><td>Mumbai</td><td class="num-cell">35000</td></tr>
+    <tr><td>Eve</td><td>Delhi</td><td class="num-cell">95000</td></tr>
+    <tr><td>Frank</td><td>Mumbai</td><td class="num-cell">3500</td></tr>
+    <tr><td>Grace</td><td>Delhi</td><td class="num-cell">42000</td></tr>
+    </table></div>
+  </div>
+
+  <!-- COMBINING -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">Combining Multiple Operators — Use Parentheses!</h3>
+  <div class="info-box red">
+    <div class="ib-title">⚠️ Operator Precedence Trap</div>
+    SQL evaluates <strong>AND before OR</strong>. Always use parentheses to make your intent explicit, otherwise your query logic can be completely wrong.
+  </div>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL — Precedence Example</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div></div>
+    <div class="code-content"><span class="cmt">-- BUG: AND is evaluated first, so this is wrong</span>
+<span class="kw">WHERE</span> <span class="col">city</span> <span class="op">=</span> <span class="str">'Mumbai'</span> <span class="kw">OR</span> <span class="col">city</span> <span class="op">=</span> <span class="str">'Delhi'</span> <span class="kw">AND</span> <span class="col">amount</span> <span class="op">&gt;</span> <span class="num">50000</span>
+
+<span class="cmt">-- Read as: Mumbai OR (Delhi AND amount > 50000)</span>
+<span class="cmt">-- All Mumbai rows returned — even small amounts!</span>
+
+<span class="cmt">-- CORRECT: use parentheses to be explicit</span>
+<span class="kw">WHERE</span> (<span class="col">city</span> <span class="op">=</span> <span class="str">'Mumbai'</span> <span class="kw">OR</span> <span class="col">city</span> <span class="op">=</span> <span class="str">'Delhi'</span>)
+  <span class="kw">AND</span> <span class="col">amount</span> <span class="op">&gt;</span> <span class="num">50000</span><span class="op">;</span></div>
+  </div>
+
+  <!-- PLAYGROUND -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">⚡ Live SQL Playground</h3>
+  <p class="ls-p">Try your own queries against the orders table. Supports SELECT, WHERE, AND, OR, NOT, BETWEEN, IN.</p>
+  <div class="playground">
+    <div class="pg-header">
+      <div class="pg-title"><div class="pg-dot"></div>SQL Playground — orders table</div>
+      <div class="pg-btns">
+        <button class="pg-btn pg-reset" onclick="resetPG('pg1','SELECT customer, product, amount\nFROM orders\nWHERE amount BETWEEN 20000 AND 80000\n  AND city IN (\'Mumbai\', \'Delhi\');')">↺ Reset</button>
+        <button class="pg-btn pg-clear" onclick="resetPG('pg1','')">✕ Clear</button>
+        <button class="pg-btn pg-run" onclick="runPG('pg1')">▶ Run Query</button>
+      </div>
+    </div>
+    <textarea class="pg-textarea" id="pg1">SELECT customer, product, amount
+FROM orders
+WHERE amount BETWEEN 20000 AND 80000
+  AND city IN ('Mumbai', 'Delhi');</textarea>
+    <div class="pg-output" id="pg1-out"><span class="info">Click "Run Query" to execute ▶</span></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="ls-divider"></div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.1</div>
+    <div class="quiz-q">Which query finds orders with amount between ₹10,000 and ₹50,000 that are NOT cancelled?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz1')"><span class="opt-key">A</span>WHERE amount > 10000 AND amount < 50000 AND status = 'cancelled'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',true,'quiz1')"><span class="opt-key">B</span>WHERE amount BETWEEN 10000 AND 50000 AND status != 'cancelled'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',false,'quiz1')"><span class="opt-key">C</span>WHERE amount BETWEEN 10000 OR 50000 AND NOT status</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz1')"><span class="opt-key">D</span>WHERE amount IN (10000, 50000) AND status = 'not cancelled'</div>
+    </div>
+    <div class="quiz-result" id="quiz1-result"></div>
+  </div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.1</div>
+    <div class="quiz-q">What does <code>WHERE city NOT IN ('Mumbai', 'Delhi')</code> return?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz2')"><span class="opt-key">A</span>Only rows where city is Mumbai and Delhi</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',false,'quiz2')"><span class="opt-key">B</span>Rows where city is empty/NULL</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',true,'quiz2')"><span class="opt-key">C</span>Rows where city is anything except Mumbai and Delhi</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz2')"><span class="opt-key">D</span>An error — NOT IN is not valid SQL</div>
+    </div>
+    <div class="quiz-result" id="quiz2-result"></div>
+  </div>
+
+  <button class="complete-btn" id="complete-2-1" onclick="markDone('2-1',this)">✓ Mark Lesson 2.1 Complete</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- LESSON 2.2 -->
+<!-- ════════════════════════════════════ -->
+<div class="sec-pane" id="pane-2-2">
+<div class="lesson-body">
+  <div class="ls-eyebrow">Lesson 2.2 · 16 min</div>
+  <h2 class="ls-h2">Pattern Matching — LIKE & Wildcards</h2>
+  <p class="ls-p">Exact matches with <span class="hl">=</span> are great, but what if you need to find all products whose name <em>starts with</em> "Phone" or all emails from Gmail? That's where <span class="hl green">LIKE</span> and wildcard characters come in.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-kw">%</div>
+      <div class="cc-title">Percent — Any Characters</div>
+      <div class="cc-desc">Matches zero or more characters in any position.</div>
+      <code class="cc-example">'Lap%'  → Laptop, Laptop Pro, Lap<br>'%phone%' → Phone, Earphone, Smartphone</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">_</div>
+      <div class="cc-title">Underscore — One Character</div>
+      <div class="cc-desc">Matches exactly one character at that position.</div>
+      <code class="cc-example">'T_blet'  → Tablet<br>'Ph__e'   → Phone</code>
+    </div>
+  </div>
+
+  <h3 class="ls-h3">LIKE examples</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('like-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Products starting with 'L'</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">product</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">product</span> <span class="kw">LIKE</span> <span class="str">'L%'</span><span class="op">;</span>
+
+<span class="cmt">-- Products containing 'let' anywhere</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">product</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">product</span> <span class="kw">LIKE</span> <span class="str">'%let%'</span><span class="op">;</span>
+
+<span class="cmt">-- NOT LIKE — exclude pattern</span>
+<span class="kw">SELECT</span> <span class="col">customer</span><span class="op">,</span> <span class="col">product</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">product</span> <span class="kw">NOT LIKE</span> <span class="str">'%phone%'</span><span class="op">;</span></div>
+  </div>
+  <div id="like-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ LIKE 'L%' — Products starting with L</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>customer</th><th>product</th></tr>
+    <tr><td>Alice</td><td class="str-cell">Laptop</td></tr>
+    <tr><td>Eve</td><td class="str-cell">Laptop</td></tr>
+    </table></div>
+  </div>
+
+  <div class="info-box">
+    <div class="ib-title">🔠 Case Sensitivity</div>
+    In <strong>MySQL</strong> and <strong>SQLite</strong>, LIKE is <em>case-insensitive</em> for ASCII characters. In <strong>PostgreSQL</strong>, LIKE is case-sensitive — use <code>ILIKE</code> for case-insensitive matching. In <strong>SQL Server</strong>, it depends on the collation.
+  </div>
+
+  <h3 class="ls-h3">Underscore _ wildcard</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div></div>
+    <div class="code-content"><span class="cmt">-- Exactly 5-character products: Ph + 3 chars</span>
+<span class="kw">SELECT</span> <span class="col">product</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">product</span> <span class="kw">LIKE</span> <span class="str">'Ph___'</span><span class="op">;</span>  <span class="cmt">-- Matches 'Phone'</span>
+
+<span class="cmt">-- 6-character cities</span>
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="col">city</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">city</span> <span class="kw">LIKE</span> <span class="str">'______'</span><span class="op">;</span>  <span class="cmt">-- 6 underscores → Mumbai, Delhi (both 6 chars)</span></div>
+  </div>
+
+  <!-- DISTINCT -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">DISTINCT — remove duplicate values</h3>
+  <p class="ls-p"><span class="hl cyan">DISTINCT</span> eliminates duplicate rows from the result. Useful when you need a unique list of values from a column.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('distinct-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- All unique cities in the orders table</span>
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="col">city</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span><span class="op">;</span>
+
+<span class="cmt">-- All unique products</span>
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="col">product</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">ORDER</span>  <span class="kw">BY</span> <span class="col">product</span><span class="op">;</span>
+
+<span class="cmt">-- DISTINCT on multiple columns</span>
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="col">city</span><span class="op">,</span> <span class="col">status</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span><span class="op">;</span></div>
+  </div>
+  <div id="distinct-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ DISTINCT cities — 3 unique cities</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>city</th></tr>
+    <tr><td>Mumbai</td></tr><tr><td>Delhi</td></tr><tr><td>Chennai</td></tr>
+    </table></div>
+  </div>
+
+  <div class="info-box yellow">
+    <div class="ib-title">⚡ Performance Note</div>
+    <code>DISTINCT</code> requires extra sorting/deduplication work. For large tables, use it only when truly needed. Often a <code>GROUP BY</code> with aggregation (next lesson) is a better approach.
+  </div>
+
+  <!-- PLAYGROUND 2.2 -->
+  <div class="ls-divider"></div>
+  <div class="playground">
+    <div class="pg-header">
+      <div class="pg-title"><div class="pg-dot"></div>SQL Playground — Try LIKE & DISTINCT</div>
+      <div class="pg-btns">
+        <button class="pg-btn pg-reset" onclick="resetPG('pg2','SELECT DISTINCT product\nFROM orders\nWHERE customer LIKE \'%a%\';')">↺ Reset</button>
+        <button class="pg-btn pg-run" onclick="runPG('pg2')">▶ Run Query</button>
+      </div>
+    </div>
+    <textarea class="pg-textarea" id="pg2">SELECT DISTINCT product
+FROM orders
+WHERE customer LIKE '%a%';</textarea>
+    <div class="pg-output" id="pg2-out"><span class="info">Click "Run Query" to execute ▶</span></div>
+  </div>
+
+  <!-- QUIZ 2.2 -->
+  <div class="ls-divider"></div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.2</div>
+    <div class="quiz-q">Which LIKE pattern matches "Headphones" but NOT "Phone" or "Earphone"?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz3')"><span class="opt-key">A</span>LIKE '%phone%'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',false,'quiz3')"><span class="opt-key">B</span>LIKE 'phone%'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',true,'quiz3')"><span class="opt-key">C</span>LIKE 'Head%'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz3')"><span class="opt-key">D</span>LIKE '_phone'</div>
+    </div>
+    <div class="quiz-result" id="quiz3-result"></div>
+  </div>
+
+  <button class="complete-btn" id="complete-2-2" onclick="markDone('2-2',this)">✓ Mark Lesson 2.2 Complete</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- LESSON 2.3 -->
+<!-- ════════════════════════════════════ -->
+<div class="sec-pane" id="pane-2-3">
+<div class="lesson-body">
+  <div class="ls-eyebrow">Lesson 2.3 · 18 min</div>
+  <h2 class="ls-h2">Aggregate Functions — COUNT, SUM, AVG, MIN, MAX</h2>
+  <p class="ls-p">Aggregate functions <strong>collapse multiple rows into a single value</strong>. Instead of seeing 1000 order rows, you can instantly know: total revenue, average order value, highest and lowest amounts — with one query.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-kw">COUNT()</div>
+      <div class="cc-title">Count rows</div>
+      <div class="cc-desc">Number of rows matching the condition. COUNT(*) counts all rows, COUNT(col) ignores NULLs.</div>
+      <code class="cc-example">COUNT(*) → 7 (all orders)</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">SUM()</div>
+      <div class="cc-title">Total sum</div>
+      <div class="cc-desc">Adds up all values in a numeric column. NULLs are ignored.</div>
+      <code class="cc-example">SUM(amount) → 290500</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">AVG()</div>
+      <div class="cc-title">Average</div>
+      <div class="cc-desc">Mean value of a numeric column. SUM ÷ COUNT (non-NULL rows).</div>
+      <code class="cc-example">AVG(amount) → 41500</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">MIN()</div>
+      <div class="cc-title">Minimum</div>
+      <div class="cc-desc">Smallest value. Works on numbers, dates, and text (alphabetically).</div>
+      <code class="cc-example">MIN(amount) → 3500</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">MAX()</div>
+      <div class="cc-title">Maximum</div>
+      <div class="cc-desc">Largest value. Same rules as MIN.</div>
+      <code class="cc-example">MAX(amount) → 95000</code>
+    </div>
+    <div class="concept-card">
+      <div class="cc-kw">COUNT DISTINCT</div>
+      <div class="cc-title">Unique count</div>
+      <div class="cc-desc">Counts unique non-NULL values in a column.</div>
+      <code class="cc-example">COUNT(DISTINCT city) → 3</code>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL — All Aggregates in One Query</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('agg-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                    <span class="kw">AS</span> <span class="col">total_orders</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>)               <span class="kw">AS</span> <span class="col">total_revenue</span><span class="op">,</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="col">amount</span>)<span class="op">,</span> <span class="num">0</span>)      <span class="kw">AS</span> <span class="col">avg_order_value</span><span class="op">,</span>
+    <span class="fn">MIN</span>(<span class="col">amount</span>)               <span class="kw">AS</span> <span class="col">min_order</span><span class="op">,</span>
+    <span class="fn">MAX</span>(<span class="col">amount</span>)               <span class="kw">AS</span> <span class="col">max_order</span><span class="op">,</span>
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="col">city</span>)     <span class="kw">AS</span> <span class="col">unique_cities</span>
+<span class="kw">FROM</span> <span class="tbl">orders</span><span class="op">;</span></div>
+  </div>
+  <div id="agg-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Result — dashboard in a single row</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>total_orders</th><th>total_revenue</th><th>avg_order_value</th><th>min_order</th><th>max_order</th><th>unique_cities</th></tr>
+    <tr><td class="num-cell">7</td><td class="num-cell">290500</td><td class="num-cell">41500</td><td class="num-cell">3500</td><td class="num-cell">95000</td><td class="num-cell">3</td></tr>
+    </table></div>
+  </div>
+
+  <!-- COUNT WITH WHERE -->
+  <h3 class="ls-h3">Aggregates with WHERE filter</h3>
+  <p class="ls-p">Combine <span class="hl">WHERE</span> with aggregates to compute summaries on a filtered subset.</p>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('agg-where-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Revenue from delivered orders only</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> <span class="col">delivered_count</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">delivered_revenue</span><span class="op">,</span>
+    <span class="fn">AVG</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">avg_delivered</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  <span class="col">status</span> <span class="op">=</span> <span class="str">'delivered'</span><span class="op">;</span></div>
+  </div>
+  <div id="agg-where-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Delivered orders only</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>delivered_count</th><th>delivered_revenue</th><th>avg_delivered</th></tr>
+    <tr><td class="num-cell">3</td><td class="num-cell">195000</td><td class="num-cell">65000</td></tr>
+    </table></div>
+  </div>
+
+  <div class="info-box red">
+    <div class="ib-title">🚫 Common Mistake — Mixing Aggregates and Regular Columns</div>
+    <code>SELECT customer, SUM(amount) FROM orders</code> — This will fail or return unpredictable results in most databases! When you use an aggregate, <strong>every non-aggregate column must be in a GROUP BY clause</strong> (next lesson covers this).
+  </div>
+
+  <!-- PLAYGROUND 2.3 -->
+  <div class="ls-divider"></div>
+  <div class="playground">
+    <div class="pg-header">
+      <div class="pg-title"><div class="pg-dot"></div>SQL Playground — Try Aggregate Functions</div>
+      <div class="pg-btns">
+        <button class="pg-btn pg-reset" onclick="resetPG('pg3','SELECT\n  COUNT(*) AS orders,\n  SUM(amount) AS revenue,\n  MAX(amount) AS biggest\nFROM orders\nWHERE city = \'Mumbai\';')">↺ Reset</button>
+        <button class="pg-btn pg-run" onclick="runPG('pg3')">▶ Run Query</button>
+      </div>
+    </div>
+    <textarea class="pg-textarea" id="pg3">SELECT
+  COUNT(*) AS orders,
+  SUM(amount) AS revenue,
+  MAX(amount) AS biggest
+FROM orders
+WHERE city = 'Mumbai';</textarea>
+    <div class="pg-output" id="pg3-out"><span class="info">Click "Run Query" ▶</span></div>
+  </div>
+
+  <!-- QUIZ 2.3 -->
+  <div class="ls-divider"></div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.3</div>
+    <div class="quiz-q">What is the difference between COUNT(*) and COUNT(column_name)?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz4')"><span class="opt-key">A</span>No difference — both count the same rows</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',true,'quiz4')"><span class="opt-key">B</span>COUNT(*) counts all rows including NULLs; COUNT(col) skips NULL values in that column</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',false,'quiz4')"><span class="opt-key">C</span>COUNT(*) only works without WHERE; COUNT(col) works with WHERE</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz4')"><span class="opt-key">D</span>COUNT(*) is faster; COUNT(col) is more accurate</div>
+    </div>
+    <div class="quiz-result" id="quiz4-result"></div>
+  </div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.3</div>
+    <div class="quiz-q">Which query gives the average order amount for Mumbai only?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz5')"><span class="opt-key">A</span>SELECT AVG(city) FROM orders WHERE amount = 'Mumbai'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',true,'quiz5')"><span class="opt-key">B</span>SELECT AVG(amount) FROM orders WHERE city = 'Mumbai'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',false,'quiz5')"><span class="opt-key">C</span>SELECT AVERAGE(amount) FROM orders WHERE city = 'Mumbai'</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz5')"><span class="opt-key">D</span>SELECT amount AVG FROM orders FILTER city = 'Mumbai'</div>
+    </div>
+    <div class="quiz-result" id="quiz5-result"></div>
+  </div>
+
+  <button class="complete-btn" id="complete-2-3" onclick="markDone('2-3',this)">✓ Mark Lesson 2.3 Complete</button>
+</div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<!-- LESSON 2.4 -->
+<!-- ════════════════════════════════════ -->
+<div class="sec-pane" id="pane-2-4">
+<div class="lesson-body">
+  <div class="ls-eyebrow">Lesson 2.4 · 18 min</div>
+  <h2 class="ls-h2">GROUP BY and HAVING — Grouping Data</h2>
+  <p class="ls-p">Aggregates in Lesson 2.3 summarized the entire table into one row. <span class="hl green">GROUP BY</span> lets you get a separate aggregate for each group — total revenue per city, orders per status, etc. <span class="hl yellow">HAVING</span> then filters those groups.</p>
+
+  <!-- SQL EXECUTION ORDER -->
+  <div class="info-box">
+    <div class="ib-title">📋 SQL Clause Execution Order (Critical!)</div>
+    SQL clauses execute in this order, regardless of how you write them:<br><br>
+    <code>1. FROM</code> → select the table<br>
+    <code>2. WHERE</code> → filter individual rows<br>
+    <code>3. GROUP BY</code> → group the remaining rows<br>
+    <code>4. HAVING</code> → filter the groups<br>
+    <code>5. SELECT</code> → compute the output columns<br>
+    <code>6. ORDER BY</code> → sort results<br>
+    <code>7. LIMIT</code> → limit rows returned<br><br>
+    This is why <strong>you cannot use HAVING to filter before grouping</strong>, and why <strong>WHERE cannot reference aggregate functions</strong>.
+  </div>
+
+  <h3 class="ls-h3">GROUP BY — aggregate per group</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('group-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Total orders and revenue per city</span>
+<span class="kw">SELECT</span>
+    <span class="col">city</span><span class="op">,</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> <span class="col">total_orders</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">total_revenue</span><span class="op">,</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="col">amount</span>)<span class="op">,</span><span class="num">0</span>) <span class="kw">AS</span> <span class="col">avg_order</span>
+<span class="kw">FROM</span>    <span class="tbl">orders</span>
+<span class="kw">GROUP</span>   <span class="kw">BY</span> <span class="col">city</span>
+<span class="kw">ORDER</span>   <span class="kw">BY</span> <span class="col">total_revenue</span> <span class="kw">DESC</span><span class="op">;</span></div>
+  </div>
+  <div id="group-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Revenue by city — 3 groups</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>city</th><th>total_orders</th><th>total_revenue</th><th>avg_order</th></tr>
+    <tr><td>Delhi</td><td class="num-cell">3</td><td class="num-cell">159000</td><td class="num-cell">53000</td></tr>
+    <tr><td>Mumbai</td><td class="num-cell">3</td><td class="num-cell">113500</td><td class="num-cell">37833</td></tr>
+    <tr><td>Chennai</td><td class="num-cell">1</td><td class="num-cell">18000</td><td class="num-cell">18000</td></tr>
+    </table></div>
+  </div>
+
+  <!-- MULTIPLE GROUP BY -->
+  <h3 class="ls-h3">GROUP BY multiple columns</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('group2-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Revenue per city AND status combination</span>
+<span class="kw">SELECT</span>
+    <span class="col">city</span><span class="op">,</span>
+    <span class="col">status</span><span class="op">,</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> <span class="col">orders</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">revenue</span>
+<span class="kw">FROM</span>    <span class="tbl">orders</span>
+<span class="kw">GROUP</span>   <span class="kw">BY</span> <span class="col">city</span><span class="op">,</span> <span class="col">status</span>
+<span class="kw">ORDER</span>   <span class="kw">BY</span> <span class="col">city</span><span class="op">,</span> <span class="col">revenue</span> <span class="kw">DESC</span><span class="op">;</span></div>
+  </div>
+  <div id="group2-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Groups by city + status</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>city</th><th>status</th><th>orders</th><th>revenue</th></tr>
+    <tr><td>Chennai</td><td class="str-cell">pending</td><td class="num-cell">1</td><td class="num-cell">18000</td></tr>
+    <tr><td>Delhi</td><td class="str-cell">delivered</td><td class="num-cell">1</td><td class="num-cell">95000</td></tr>
+    <tr><td>Delhi</td><td class="str-cell">shipped</td><td class="num-cell">1</td><td class="num-cell">42000</td></tr>
+    <tr><td>Delhi</td><td class="str-cell">shipped</td><td class="num-cell">1</td><td class="num-cell">22000</td></tr>
+    <tr><td>Mumbai</td><td class="str-cell">delivered</td><td class="num-cell">2</td><td class="num-cell">110000</td></tr>
+    <tr><td>Mumbai</td><td class="str-cell">cancelled</td><td class="num-cell">1</td><td class="num-cell">3500</td></tr>
+    </table></div>
+  </div>
+
+  <!-- HAVING -->
+  <div class="ls-divider"></div>
+  <h3 class="ls-h3">HAVING — filter the groups</h3>
+  <p class="ls-p"><span class="hl yellow">HAVING</span> is like <span class="hl">WHERE</span>, but it filters <em>after</em> grouping — so you can filter based on aggregate values. You <strong>cannot use aggregate functions in WHERE</strong>.</p>
+
+  <div class="info-box red">
+    <div class="ib-title">🚫 WHERE vs HAVING — The Most Common Confusion</div>
+    <strong>WHERE</strong> filters individual rows <em>before</em> grouping.<br>
+    <strong>HAVING</strong> filters groups <em>after</em> grouping.<br><br>
+    ❌ <code>WHERE SUM(amount) &gt; 50000</code> → ERROR — cannot use aggregate in WHERE<br>
+    ✅ <code>HAVING SUM(amount) &gt; 50000</code> → CORRECT
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('having-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Cities with total revenue > ₹100,000</span>
+<span class="kw">SELECT</span>
+    <span class="col">city</span><span class="op">,</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> <span class="col">orders</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">total_revenue</span>
+<span class="kw">FROM</span>    <span class="tbl">orders</span>
+<span class="kw">GROUP</span>   <span class="kw">BY</span> <span class="col">city</span>
+<span class="kw">HAVING</span>  <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="op">&gt;</span> <span class="num">100000</span>
+<span class="kw">ORDER</span>   <span class="kw">BY</span> <span class="col">total_revenue</span> <span class="kw">DESC</span><span class="op">;</span></div>
+  </div>
+  <div id="having-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Only cities with &gt;₹100K revenue — 1 group</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>city</th><th>orders</th><th>total_revenue</th></tr>
+    <tr><td>Delhi</td><td class="num-cell">3</td><td class="num-cell">159000</td></tr>
+    </table></div>
+  </div>
+
+  <!-- WHERE + GROUP BY + HAVING -->
+  <h3 class="ls-h3">WHERE + GROUP BY + HAVING — the full picture</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">SQL</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><button class="run-btn" onclick="runDemo('full-demo')">▶ Run</button></div></div>
+    <div class="code-content"><span class="cmt">-- Delivered orders only (WHERE filters first)</span>
+<span class="cmt">-- Then group by city and find cities with 1+ delivered orders</span>
+<span class="kw">SELECT</span>
+    <span class="col">city</span><span class="op">,</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> <span class="col">delivered_orders</span><span class="op">,</span>
+    <span class="fn">SUM</span>(<span class="col">amount</span>) <span class="kw">AS</span> <span class="col">delivered_revenue</span>
+<span class="kw">FROM</span>    <span class="tbl">orders</span>
+<span class="kw">WHERE</span>   <span class="col">status</span> <span class="op">=</span> <span class="str">'delivered'</span>    <span class="cmt">-- ← filter BEFORE grouping</span>
+<span class="kw">GROUP</span>   <span class="kw">BY</span> <span class="col">city</span>
+<span class="kw">HAVING</span>  <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;=</span> <span class="num">1</span>             <span class="cmt">-- ← filter AFTER grouping</span>
+<span class="kw">ORDER</span>   <span class="kw">BY</span> <span class="col">delivered_revenue</span> <span class="kw">DESC</span><span class="op">;</span></div>
+  </div>
+  <div id="full-demo" class="sql-output" style="display:none">
+    <div class="sql-out-header">✅ Delivered revenue per city</div>
+    <div class="sql-out-body"><table class="sql-table"><tr><th>city</th><th>delivered_orders</th><th>delivered_revenue</th></tr>
+    <tr><td>Delhi</td><td class="num-cell">1</td><td class="num-cell">95000</td></tr>
+    <tr><td>Mumbai</td><td class="num-cell">2</td><td class="num-cell">110000</td></tr>
+    </table></div>
+  </div>
+
+  <!-- PLAYGROUND 2.4 -->
+  <div class="ls-divider"></div>
+  <div class="playground">
+    <div class="pg-header">
+      <div class="pg-title"><div class="pg-dot"></div>SQL Playground — GROUP BY & HAVING</div>
+      <div class="pg-btns">
+        <button class="pg-btn pg-reset" onclick="resetPG('pg4','SELECT status, COUNT(*) AS count, SUM(amount) AS revenue\nFROM orders\nGROUP BY status\nHAVING COUNT(*) >= 1\nORDER BY revenue DESC;')">↺ Reset</button>
+        <button class="pg-btn pg-run" onclick="runPG('pg4')">▶ Run Query</button>
+      </div>
+    </div>
+    <textarea class="pg-textarea" id="pg4">SELECT status, COUNT(*) AS count, SUM(amount) AS revenue
+FROM orders
+GROUP BY status
+HAVING COUNT(*) >= 1
+ORDER BY revenue DESC;</textarea>
+    <div class="pg-output" id="pg4-out"><span class="info">Click "Run Query" ▶</span></div>
+  </div>
+
+  <!-- QUIZ 2.4 -->
+  <div class="ls-divider"></div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Quick Quiz — 2.4</div>
+    <div class="quiz-q">Why would this query fail?<br><code>SELECT city, SUM(amount) FROM orders WHERE SUM(amount) > 50000 GROUP BY city;</code></div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz6')"><span class="opt-key">A</span>SUM() cannot be used with GROUP BY</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',true,'quiz6')"><span class="opt-key">B</span>You cannot use aggregate functions (SUM) in a WHERE clause — use HAVING instead</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',false,'quiz6')"><span class="opt-key">C</span>GROUP BY must come before WHERE</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz6')"><span class="opt-key">D</span>SUM() needs a column alias before it can be filtered</div>
+    </div>
+    <div class="quiz-result" id="quiz6-result"></div>
+  </div>
+  <div class="quiz-card">
+    <div class="quiz-label">🧠 Final Challenge — 2.4</div>
+    <div class="quiz-q">Which query finds products with more than 1 order AND total sales above ₹50,000?</div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="checkQuiz(this,'a',false,'quiz7')"><span class="opt-key">A</span>SELECT product FROM orders WHERE COUNT(*) > 1 AND SUM(amount) > 50000</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'b',false,'quiz7')"><span class="opt-key">B</span>SELECT product, COUNT(*) FROM orders GROUP BY product WHERE SUM(amount) > 50000</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'c',true,'quiz7')"><span class="opt-key">C</span>SELECT product, COUNT(*), SUM(amount) FROM orders GROUP BY product HAVING COUNT(*) > 1 AND SUM(amount) > 50000</div>
+      <div class="quiz-opt" onclick="checkQuiz(this,'d',false,'quiz7')"><span class="opt-key">D</span>SELECT product FROM orders HAVING COUNT(*) > 1 AND SUM > 50000</div>
+    </div>
+    <div class="quiz-result" id="quiz7-result"></div>
+  </div>
+
+  <button class="complete-btn" id="complete-2-4" onclick="markDone('2-4',this)">✓ Mark Lesson 2.4 Complete</button>
+</div>
+</div>
+
+<!-- NAV BUTTONS -->
+<div class="lesson-nav">
+  <a href="module-1.html" class="nav-btn prev">← Module 1: Basics</a>
+  <div class="progress-text" id="navProgress">0 / 4 complete</div>
+  <a href="module-3.html" class="nav-btn next">Module 3: JOINs →</a>
+</div>
+
+</div><!-- /main -->
+</div><!-- /course-wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── IN-MEMORY DATA ──
+const DB = {
+  orders: [
+    {order_id:1,customer:'Alice',product:'Laptop',amount:75000,city:'Mumbai',status:'delivered'},
+    {order_id:2,customer:'Bob',product:'Phone',amount:22000,city:'Delhi',status:'shipped'},
+    {order_id:3,customer:'Carol',product:'Tablet',amount:35000,city:'Mumbai',status:'delivered'},
+    {order_id:4,customer:'Dave',product:'Phone',amount:18000,city:'Chennai',status:'pending'},
+    {order_id:5,customer:'Eve',product:'Laptop',amount:95000,city:'Delhi',status:'delivered'},
+    {order_id:6,customer:'Frank',product:'Headphones',amount:3500,city:'Mumbai',status:'cancelled'},
+    {order_id:7,customer:'Grace',product:'Tablet',amount:42000,city:'Delhi',status:'shipped'}
+  ]
+};
+
+// ── LESSON TABS ──
+let doneLessons = JSON.parse(localStorage.getItem('m2done')||'[]');
+function showLesson(id, btn){
+  document.querySelectorAll('.sec-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id)?.classList.add('active');
+  document.querySelectorAll('.lt').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.sb-lesson').forEach(l=>{l.classList.remove('active');if(l.getAttribute('onclick')?.includes(id))l.classList.add('active');});
+  window.scrollTo({top:0,behavior:'smooth'});
+  restoreCompleted();
+}
+
+// ── PROGRESS ──
+function updateProgress(){
+  const pct=Math.round(doneLessons.length/4*100);
+  document.getElementById('modProgress').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=`${doneLessons.length} / 4 lessons completed`;
+  document.getElementById('navProgress').textContent=`${doneLessons.length} / 4 complete`;
+}
+function markDone(id,btn){
+  if(!doneLessons.includes(id))doneLessons.push(id);
+  localStorage.setItem('m2done',JSON.stringify(doneLessons));
+  btn.textContent='✅ Lesson Complete!';btn.classList.add('done');btn.disabled=true;
+  updateProgress();
+  const sbEl=document.querySelector(`.sb-lesson[onclick*="${id}"]`);
+  if(sbEl){sbEl.classList.add('done');sbEl.classList.remove('active');}
+  toast('🎉 Lesson marked complete!','ok');
+}
+function restoreCompleted(){
+  doneLessons.forEach(id=>{
+    const btn=document.getElementById(`complete-${id}`);
+    if(btn){btn.textContent='✅ Lesson Complete!';btn.classList.add('done');btn.disabled=true;}
+  });
+}
+
+// ── DEMOS ──
+function runDemo(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.style.display='block';
+  el.style.animation='none';el.offsetHeight;el.style.animation='fadeIn .3s ease';
+}
+
+// ── PLAYGROUND (simple SQL interpreter) ──
+function runPG(id){
+  const query=(document.getElementById(id)?.value||'').trim();
+  const out=document.getElementById(id+'-out');
+  if(!out)return;
+  try{
+    const result=executeSQL(query);
+    if(result.rows.length===0){out.innerHTML='<span class="info">✓ Query ran — 0 rows returned</span>';return;}
+    let html=`<span class="success">✅ ${result.rows.length} row${result.rows.length>1?'s':''} returned</span><table class="pg-table" style="margin-top:8px"><tr>`;
+    result.cols.forEach(c=>{html+=`<th>${c}</th>`;});
+    html+='</tr>';
+    result.rows.forEach(r=>{html+='<tr>';result.cols.forEach(c=>{html+=`<td>${r[c]===undefined||r[c]===null?'NULL':r[c]}</td>`;});html+='</tr>';});
+    html+='</table>';
+    out.innerHTML=html;
+  }catch(e){out.innerHTML=`<span class="error">❌ ${e.message}</span>`;}
+}
+
+function resetPG(id,val){document.getElementById(id).value=val;document.getElementById(id+'-out').innerHTML='<span class="info">Click "Run Query" ▶</span>';}
+
+function executeSQL(raw){
+  const q=raw.replace(/;?\s*$/,'').trim();
+  const upper=q.toUpperCase().replace(/\s+/g,' ');
+
+  // Parse SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT
+  let tableName='orders';
+  let selectStr='*';let whereStr='';let groupStr='';let havingStr='';let orderStr='';let limitN=100;
+
+  const selectMatch=q.match(/SELECT\s+([\s\S]+?)\s+FROM\s+(\w+)/i);
+  if(!selectMatch)throw new Error('Only SELECT queries supported in playground');
+  selectStr=selectMatch[1].trim();
+  tableName=selectMatch[2].toLowerCase();
+
+  const whereMatch=q.match(/WHERE\s+([\s\S]+?)(?:\s+GROUP\s+BY|\s+HAVING|\s+ORDER\s+BY|\s+LIMIT|$)/i);
+  if(whereMatch)whereStr=whereMatch[1].trim();
+  const groupMatch=q.match(/GROUP\s+BY\s+([\s\S]+?)(?:\s+HAVING|\s+ORDER\s+BY|\s+LIMIT|$)/i);
+  if(groupMatch)groupStr=groupMatch[1].trim();
+  const havingMatch=q.match(/HAVING\s+([\s\S]+?)(?:\s+ORDER\s+BY|\s+LIMIT|$)/i);
+  if(havingMatch)havingStr=havingMatch[1].trim();
+  const orderMatch=q.match(/ORDER\s+BY\s+([\s\S]+?)(?:\s+LIMIT|$)/i);
+  if(orderMatch)orderStr=orderMatch[1].trim();
+  const limitMatch=q.match(/LIMIT\s+(\d+)/i);
+  if(limitMatch)limitN=parseInt(limitMatch[1]);
+
+  let data=DB[tableName];
+  if(!data)throw new Error(`Table '${tableName}' not found. Available: orders`);
+
+  // WHERE
+  if(whereStr)data=data.filter(r=>evalWhere(whereStr,r));
+
+  // GROUP BY
+  if(groupStr){
+    const groupCols=groupStr.split(',').map(c=>c.trim().split(/\s+/)[0]);
+    const groups={};
+    data.forEach(r=>{const key=groupCols.map(c=>r[c]).join('|||');if(!groups[key])groups[key]=[];groups[key].push(r);});
+    data=Object.values(groups).map(grp=>{
+      const out={};
+      groupCols.forEach(c=>{out[c]=grp[0][c];});
+      // Compute aggregates from selectStr
+      const aggsInSelect=extractAggregates(selectStr);
+      aggsInSelect.forEach(({fn,col,alias})=>{out[alias]=computeAgg(fn,col,grp);});
+      return out;
+    });
+    // HAVING
+    if(havingStr)data=data.filter(r=>evalWhere(havingStr,r));
+  }
+
+  // ORDER BY
+  if(orderStr){
+    const parts=orderStr.split(',').map(s=>s.trim());
+    data=[...data].sort((a,b)=>{
+      for(const p of parts){
+        const [col,dir]=[p.split(/\s+/)[0],p.toUpperCase().includes('DESC')?-1:1];
+        const va=a[col],vb=b[col];
+        if(va<vb)return -dir;if(va>vb)return dir;
+      }
+      return 0;
+    });
+  }
+
+  data=data.slice(0,limitN);
+
+  // SELECT columns
+  let cols=[];let rows=[];
+  if(selectStr.trim()==='*'){
+    cols=Object.keys(data[0]||{});
+    rows=data;
+  } else {
+    const selectParts=splitSelect(selectStr);
+    cols=selectParts.map(p=>{
+      const asMatch=p.match(/\s+AS\s+(\w+)/i);
+      return asMatch?asMatch[1]:p.trim().replace(/^.*\./,'');
+    });
+    rows=data.map(r=>{
+      const row={};
+      selectParts.forEach((p,i)=>{
+        const alias=cols[i];
+        const asMatch=p.match(/^(.*?)\s+AS\s+\w+/i);
+        const expr=(asMatch?asMatch[1]:p).trim();
+        const aggMatch=expr.match(/(\w+)\s*\(\s*(\*|\w+)\s*\)/i);
+        if(aggMatch){row[alias]=computeAgg(aggMatch[1].toUpperCase(),aggMatch[2]==='*'?null:aggMatch[2],[r]);}
+        else{row[alias]=r[expr.toLowerCase()]!==undefined?r[expr.toLowerCase()]:r[expr];}
+      });
+      return row;
+    });
+  }
+
+  return{cols,rows};
+}
+
+function splitSelect(s){
+  // Split on commas not inside parentheses
+  const parts=[];let depth=0;let cur='';
+  for(const ch of s){if(ch==='(')depth++;else if(ch===')')depth--;if(ch===','&&depth===0){parts.push(cur.trim());cur='';}else cur+=ch;}
+  if(cur.trim())parts.push(cur.trim());
+  return parts;
+}
+
+function extractAggregates(s){
+  const parts=splitSelect(s);const aggs=[];
+  parts.forEach(p=>{
+    const m=p.match(/(\w+)\s*\(\s*(\*|\w+|\w+\s*\(\w+\))\s*\)\s*(?:AS\s+(\w+))?/i);
+    if(m){const fn=m[1].toUpperCase();const col=m[2]==='*'?null:m[2];const alias=m[3]||(fn+'_'+( col||'all'));aggs.push({fn,col,alias});}
+  });
+  return aggs;
+}
+
+function computeAgg(fn,col,rows){
+  const vals=col?rows.map(r=>r[col]).filter(v=>v!==null&&v!==undefined):rows.map(()=>1);
+  switch(fn){
+    case'COUNT':return col?vals.length:rows.length;
+    case'SUM':return vals.reduce((s,v)=>s+Number(v),0);
+    case'AVG':return vals.length?Math.round(vals.reduce((s,v)=>s+Number(v),0)/vals.length):null;
+    case'MIN':return vals.length?Math.min(...vals.map(Number)):null;
+    case'MAX':return vals.length?Math.max(...vals.map(Number)):null;
+    case'ROUND':return vals.length?Math.round(vals[0]):null;
+    default:return null;
+  }
+}
+
+function evalWhere(expr,row){
+  // Simple WHERE parser
+  let e=expr.trim();
+  // Handle NOT IN
+  e=e.replace(/(\w+)\s+NOT\s+IN\s*\(([^)]+)\)/gi,(_,col,list)=>{
+    const vals=list.split(',').map(v=>v.trim().replace(/^['"]|['"]$/g,'').toLowerCase());
+    return String(!vals.includes(String(row[col.toLowerCase()]||'').toLowerCase()));
+  });
+  // Handle IN
+  e=e.replace(/(\w+)\s+IN\s*\(([^)]+)\)/gi,(_,col,list)=>{
+    const vals=list.split(',').map(v=>v.trim().replace(/^['"]|['"]$/g,'').toLowerCase());
+    return String(vals.includes(String(row[col.toLowerCase()]||'').toLowerCase()));
+  });
+  // BETWEEN
+  e=e.replace(/(\w+)\s+BETWEEN\s+([\d.]+)\s+AND\s+([\d.]+)/gi,(_,col,lo,hi)=>{
+    const v=Number(row[col.toLowerCase()]);return String(v>=Number(lo)&&v<=Number(hi));
+  });
+  // NOT LIKE
+  e=e.replace(/(\w+)\s+NOT\s+LIKE\s+'([^']+)'/gi,(_,col,pat)=>String(!matchLike(String(row[col.toLowerCase()]||''),pat)));
+  // LIKE
+  e=e.replace(/(\w+)\s+LIKE\s+'([^']+)'/gi,(_,col,pat)=>String(matchLike(String(row[col.toLowerCase()]||''),pat)));
+  // Replace column refs
+  e=e.replace(/\b([a-zA-Z_]\w*)\b/g,(_,w)=>{
+    const kw=['AND','OR','NOT','TRUE','FALSE','NULL'];
+    if(kw.includes(w.toUpperCase()))return w;
+    const val=row[w.toLowerCase()];
+    if(val===undefined)return w;
+    return typeof val==='string'?`"${val}"`:val;
+  });
+  // String comparisons
+  e=e.replace(/'([^']*)'/g,'`$1`').replace(/`([^`]*)`/g,'"$1"');
+  // Boolean ops
+  e=e.replace(/\bAND\b/gi,'&&').replace(/\bOR\b/gi,'||').replace(/\bNOT\b/gi,'!');
+  // Case-insensitive string compare
+  e=e.replace(/(["'])([^"']*)\1\s*===\s*(["'])([^"']*)\3/g,(_,q1,v1,q2,v2)=>String(v1.toLowerCase()===v2.toLowerCase()));
+  try{return Boolean(eval(e));}catch{return false;}
+}
+
+function matchLike(str,pat){
+  const regex=new RegExp('^'+pat.replace(/%/g,'.*').replace(/_/g,'.')+'$','i');
+  return regex.test(str);
+}
+
+// ── QUIZ ──
+function checkQuiz(el,key,correct,qid){
+  const container=el.closest('.quiz-card');
+  container.querySelectorAll('.quiz-opt').forEach(o=>o.style.pointerEvents='none');
+  el.classList.add(correct?'correct':'wrong');
+  const res=document.getElementById(qid+'-result');
+  res.className='quiz-result show '+(correct?'ok':'err');
+  res.textContent=correct?'✅ Correct! Great work.':'❌ Not quite. '+getQuizHint(qid);
+}
+function getQuizHint(qid){
+  const hints={quiz1:'BETWEEN handles the range, and != or NOT filters the status.',quiz2:'NOT IN excludes all listed values — rows with any other city pass.',quiz3:'Head% anchors the start of the string — only Headphones starts with "Head".',quiz4:'COUNT(*) counts every row; COUNT(col) ignores NULLs in that column.',quiz5:'AVG(amount) computes the average of the amount column. WHERE city filters first.',quiz6:'WHERE runs before grouping, so aggregate results don\'t exist yet. Use HAVING.',quiz7:'HAVING can combine multiple conditions using AND — both must be true.'};
+  return hints[qid]||'Review the lesson above.';
+}
+
+// ── COPY CODE ──
+function copyCode(btn){
+  const code=btn.closest('.code-wrap').querySelector('.code-content').textContent;
+  navigator.clipboard.writeText(code.trim());
+  btn.textContent='✓ Copied!';
+  setTimeout(()=>btn.textContent='📋 Copy',2000);
+}
+
+// ── TOAST ──
+let toastT;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2200);}
+
+// ── INIT ──
+updateProgress();
+restoreCompleted();
+</script>
+</body>
+</html>
