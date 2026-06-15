@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Subqueries & CTEs — Module 4 | Learn SQL Free | KJSynthora</title>
+<meta name="description" content="Master SQL subqueries, correlated subqueries, CTEs (WITH clause), recursive CTEs, and EXISTS vs IN vs JOIN — with a live SQLite runner. Free, no signup."/>
+<meta name="keywords" content="sql subqueries tutorial, correlated subquery, sql cte with clause, recursive cte sql, exists vs in vs join, sql common table expression, learn sql free, kjsynthora"/>
+<meta name="author" content="KJSynthora"/>
+<meta name="robots" content="index,follow"/>
+<link rel="canonical" href="https://kjsynthora.com/learn/sql/module-4-subqueries-ctes.html"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="Subqueries & CTEs — Module 4 | KJSynthora SQL Course"/>
+<meta property="og:description" content="Live, in-browser SQL course module covering subqueries, correlated subqueries, CTEs, recursive CTEs, and EXISTS vs IN vs JOIN performance."/>
+<meta property="og:url" content="https://kjsynthora.com/learn/sql/module-4-subqueries-ctes.html"/>
+<meta property="og:site_name" content="KJSynthora"/>
+<link rel="icon" href="https://kjsynthora.com/favicon.ico"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"LearningResource","name":"Subqueries & CTEs","description":"Module 4 of the KJSynthora free SQL course — covers subqueries in WHERE and SELECT, correlated subqueries, Common Table Expressions (WITH clause), recursive CTEs, and EXISTS vs IN vs JOIN performance comparison with a live SQLite runner.","educationalLevel":"Intermediate to Advanced","learningResourceType":"Course Module","provider":{"@type":"Organization","name":"KJSynthora","url":"https://kjsynthora.com"},"isPartOf":{"@type":"Course","name":"Learn SQL Online Free","url":"https://kjsynthora.com/learn/sql/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://kjsynthora.com"},{"@type":"ListItem","position":2,"name":"Learn","item":"https://kjsynthora.com/learn/"},{"@type":"ListItem","position":3,"name":"SQL Course","item":"https://kjsynthora.com/learn/sql/"},{"@type":"ListItem","position":4,"name":"Module 4 — Subqueries & CTEs","item":"https://kjsynthora.com/learn/sql/module-4-subqueries-ctes.html"}]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<style>
+:root{
+  --bg:#070910;--bg2:#0b0e17;--bg3:#0f1320;--bg4:#161c2c;--bg5:#1d2438;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.12);
+  --txt:#e6ebf5;--txt2:#9aa7c0;--txt3:#5d6a85;
+  --acc:#4facfe;--acc2:#a78bfa;--grn:#34d399;--gold:#fbbf24;--red:#f87171;--cyan:#22d3ee;--pink:#f472b6;
+  --mono:'JetBrains Mono',monospace;--fn:'Inter',system-ui,sans-serif;
+  --g1:linear-gradient(135deg,#4facfe,#a78bfa);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fn);background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased;line-height:1.6}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:4px}
+
+/* ============ TOP NAV ============ */
+.topnav{position:sticky;top:0;z-index:500;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,16,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr)}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--txt);font-weight:800;font-size:18px;letter-spacing:-.5px}
+.brand .kj{background:var(--g1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-mid{display:flex;align-items:center;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;font-family:var(--mono);border:1px solid var(--bdr2)}
+.pill-live{color:var(--grn);background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25)}
+.pill-live .dot{width:7px;height:7px;border-radius:50%;background:var(--grn);animation:pulse 1.8s infinite}
+.pill-engine{color:var(--acc2);background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none;color:var(--txt2);border:1px solid var(--bdr2);transition:.15s;background:var(--bg3)}
+.nav-btn:hover{color:var(--txt);border-color:var(--acc);background:var(--bg4)}
+.nav-btn.support{color:var(--gold);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)}
+@media(max-width:860px){.nav-mid{display:none}.brand span.sub{display:none}}
+
+/* ============ LAYOUT ============ */
+.layout{display:flex;max-width:1440px;margin:0 auto}
+.sidebar{width:260px;flex-shrink:0;padding:24px 16px;border-right:1px solid var(--bdr);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+.progress-box{margin-bottom:20px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--txt3);font-family:var(--mono);margin-bottom:8px}
+.progress-bar{height:5px;border-radius:99px;background:var(--bg4);overflow:hidden}
+.progress-fill{height:100%;width:33%;background:var(--g1);border-radius:99px}
+.nav-group{margin-bottom:6px}
+.nav-group-h{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);padding:14px 10px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--txt2);font-size:13.5px;transition:.15s;margin-bottom:1px}
+.nav-item:hover{background:var(--bg3);color:var(--txt)}
+.nav-item.active{background:rgba(79,172,254,.1);color:var(--acc);border:1px solid rgba(79,172,254,.25);font-weight:600}
+.nav-item .num{width:20px;height:20px;border-radius:6px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono);flex-shrink:0;color:var(--txt3)}
+.nav-item.active .num{background:var(--acc);color:#04101f;font-weight:700}
+.nav-item .free-tag{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(52,211,153,.12);color:var(--grn);font-weight:700}
+.support-card{margin-top:20px;padding:16px;border-radius:14px;background:linear-gradient(160deg,rgba(251,191,36,.08),rgba(7,9,16,.4));border:1px solid rgba(251,191,36,.15)}
+.support-card h4{color:var(--gold);font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.support-card p{font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px}
+.coffee-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:9px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1200;font-weight:800;font-size:13px;text-decoration:none}
+@media(max-width:1100px){.sidebar{display:none}}
+
+/* ============ MAIN ============ */
+.main{flex:1;min-width:0;padding:32px 40px 100px;max-width:980px}
+@media(max-width:1100px){.main{padding:24px 20px 80px;max-width:100%}}
+
+.crumb{font-size:12px;color:var(--txt3);font-family:var(--mono);margin-bottom:16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.crumb .sep{opacity:.4}
+.module-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.25);color:#fb923c;font-size:12px;font-weight:700;font-family:var(--mono);margin-bottom:18px}
+
+h1.page-title{font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:16px}
+h1.page-title .grad{background:var(--g1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.page-intro{font-size:16px;color:var(--txt2);line-height:1.85;border-left:3px solid var(--acc);padding-left:18px;margin-bottom:36px;max-width:760px}
+
+/* Module overview meta row */
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px}
+.meta-chip{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;background:var(--bg3);border:1px solid var(--bdr);font-size:13px;color:var(--txt2)}
+.meta-chip b{color:var(--txt);font-family:var(--mono)}
+
+/* Lesson sub-nav (4 sub-lessons of module 4) */
+.sublesson-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:48px}
+.sublesson-nav a{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:12px;background:var(--bg3);border:1px solid var(--bdr);text-decoration:none;color:var(--txt2);transition:.18s;position:relative;overflow:hidden}
+.sublesson-nav a:hover{border-color:var(--acc);background:var(--bg4);transform:translateY(-2px)}
+.sublesson-nav .sl-num{font-family:var(--mono);font-size:11px;color:var(--acc);font-weight:700}
+.sublesson-nav .sl-title{font-size:13.5px;font-weight:700;color:var(--txt)}
+.sublesson-nav .sl-time{font-size:11px;color:var(--txt3);font-family:var(--mono)}
+@media(max-width:860px){.sublesson-nav{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.sublesson-nav{grid-template-columns:1fr}}
+
+/* Section structure */
+.lesson-section{margin-bottom:64px;padding-top:8px}
+.lesson-section:target{animation:highlight 1.5s ease}
+@keyframes highlight{0%{background:rgba(79,172,254,.08)}100%{background:transparent}}
+.section-badge{display:inline-flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-badge .sb-num{width:34px;height:34px;border-radius:10px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800;font-size:14px;color:#04101f;flex-shrink:0}
+.section-badge .sb-meta{font-size:11px;color:var(--txt3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
+h2.section-title{font-size:clamp(24px,3.4vw,36px);font-weight:800;letter-spacing:-1px;margin-bottom:14px}
+h3.sub-title{font-size:18px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:10px}
+h3.sub-title::before{content:'';width:4px;height:18px;background:var(--acc);border-radius:2px;display:inline-block}
+p{color:var(--txt2);font-size:15px;line-height:1.85;margin-bottom:14px}
+p strong, li strong{color:var(--txt);font-weight:700}
+code.inline{font-family:var(--mono);font-size:13px;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:2px 7px;color:var(--acc)}
+ul.bullet, ol.steps{margin:14px 0 18px 0;padding-left:0;list-style:none}
+ul.bullet li{position:relative;padding-left:26px;margin-bottom:10px;color:var(--txt2);font-size:14.5px;line-height:1.7}
+ul.bullet li::before{content:'▸';position:absolute;left:0;color:var(--acc);font-weight:700}
+ol.steps{counter-reset:step}
+ol.steps li{position:relative;padding-left:38px;margin-bottom:14px;color:var(--txt2);font-size:14.5px;line-height:1.7;counter-increment:step}
+ol.steps li::before{content:counter(step);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:7px;background:var(--bg4);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--acc)}
+
+/* Comparison table */
+.tbl-wrap{overflow-x:auto;margin:18px 0 24px;border-radius:12px;border:1px solid var(--bdr)}
+table.cmp{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+table.cmp th{background:var(--bg4);color:var(--txt);text-align:left;padding:12px 16px;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr2)}
+table.cmp td{padding:12px 16px;border-bottom:1px solid var(--bdr);color:var(--txt2)}
+table.cmp tr:last-child td{border-bottom:none}
+table.cmp tr:hover td{background:rgba(79,172,254,.03)}
+table.cmp code{font-family:var(--mono);font-size:12.5px;color:var(--acc2);background:var(--bg4);padding:2px 6px;border-radius:4px}
+
+/* Callout boxes */
+.callout{display:flex;gap:14px;padding:18px 20px;border-radius:13px;margin:22px 0;border:1px solid var(--bdr)}
+.callout .ic{font-size:22px;flex-shrink:0;line-height:1}
+.callout .ct{flex:1}
+.callout .ct b{display:block;font-size:13.5px;margin-bottom:5px;color:var(--txt)}
+.callout .ct p{margin:0;font-size:13.5px;color:var(--txt2)}
+.callout.tip{background:rgba(52,211,153,.05);border-color:rgba(52,211,153,.2)}
+.callout.tip .ic{color:var(--grn)}
+.callout.warn{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.2)}
+.callout.warn .ic{color:var(--gold)}
+.callout.trap{background:rgba(248,113,113,.05);border-color:rgba(248,113,113,.2)}
+.callout.trap .ic{color:var(--red)}
+.callout.interview{background:rgba(167,139,250,.05);border-color:rgba(167,139,250,.2)}
+.callout.interview .ic{color:var(--acc2)}
+
+/* ============ LIVE SQL RUNNER ============ */
+.runner{border-radius:16px;background:var(--bg2);border:1px solid var(--bdr);overflow:hidden;margin:22px 0 28px;box-shadow:0 20px 60px -30px rgba(0,0,0,.8)}
+.runner-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr);background:var(--bg3)}
+.runner-title{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--txt)}
+.runner-title .dot2{width:8px;height:8px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn)}
+.runner-actions{display:flex;gap:8px}
+.btn-reset, .btn-run{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:12.5px;font-weight:700;font-family:var(--fn);border:1px solid var(--bdr2);cursor:pointer;transition:.15s}
+.btn-reset{background:var(--bg4);color:var(--txt2)}
+.btn-reset:hover{color:var(--txt);border-color:var(--acc)}
+.btn-run{background:linear-gradient(135deg,#34d399,#10b981);color:#03291c;border:none}
+.btn-run:hover{filter:brightness(1.1)}
+.btn-run:disabled,.btn-reset:disabled{opacity:.5;cursor:wait}
+.runner-tabs{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;background:var(--bg2)}
+.rtab{padding:6px 14px;border-radius:8px;font-size:12px;font-family:var(--mono);font-weight:600;border:1px solid var(--bdr2);background:var(--bg3);color:var(--txt2);cursor:pointer;transition:.15s}
+.rtab:hover{color:var(--txt);border-color:var(--acc)}
+.rtab.active{background:rgba(79,172,254,.12);color:var(--acc);border-color:var(--acc)}
+.runner-editor{position:relative}
+.runner-editor textarea{width:100%;min-height:140px;background:var(--bg2);color:var(--txt);border:none;padding:18px;font-family:var(--mono);font-size:13.5px;line-height:1.7;resize:vertical;outline:none;tab-size:2;white-space:pre}
+.runner-editor textarea::placeholder{color:var(--txt3)}
+.runner-hint{padding:8px 18px;font-size:11.5px;color:var(--txt3);font-family:var(--mono);border-top:1px solid var(--bdr);background:var(--bg2);display:flex;align-items:center;gap:8px}
+.runner-output{border-top:1px solid var(--bdr);background:var(--bg);min-height:60px;max-height:340px;overflow:auto}
+.runner-output .placeholder{padding:18px;color:var(--txt3);font-size:13px;font-family:var(--mono)}
+.runner-output table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--mono)}
+.runner-output th{position:sticky;top:0;background:var(--bg4);color:var(--acc);text-align:left;padding:8px 14px;font-weight:700;border-bottom:1px solid var(--bdr2);white-space:nowrap}
+.runner-output td{padding:7px 14px;border-bottom:1px solid var(--bdr);color:var(--txt2);white-space:nowrap}
+.runner-output tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+.runner-output .err{padding:16px 18px;color:var(--red);font-family:var(--mono);font-size:12.5px;background:rgba(248,113,113,.06);white-space:pre-wrap}
+.runner-output .ok-msg{padding:14px 18px;color:var(--grn);font-family:var(--mono);font-size:12.5px}
+.runner-output .meta-line{padding:8px 18px;color:var(--txt3);font-size:11.5px;font-family:var(--mono);border-top:1px solid var(--bdr)}
+
+/* Schema reference */
+.schema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 28px}
+.schema-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:16px}
+.schema-card h4{font-family:var(--mono);font-size:13px;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.schema-card ul{list-style:none;font-family:var(--mono);font-size:12px;color:var(--txt2)}
+.schema-card li{padding:3px 0;display:flex;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.schema-card li:last-child{border:none}
+.schema-card li span.t{color:var(--txt3)}
+.schema-card li.pk span.col{color:var(--gold)}
+.schema-card li.fk span.col{color:var(--acc2)}
+@media(max-width:860px){.schema-grid{grid-template-columns:1fr}}
+
+/* Quiz */
+.quiz{background:var(--bg3);border:1px solid var(--bdr);border-radius:14px;padding:22px;margin:26px 0}
+.quiz-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;font-weight:800;color:var(--acc2);text-transform:uppercase;letter-spacing:1px;font-family:var(--mono)}
+.quiz-q{font-size:15px;font-weight:600;color:var(--txt);margin-bottom:16px}
+.quiz-opts{display:flex;flex-direction:column;gap:9px}
+.quiz-opt{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:10px;background:var(--bg2);border:1px solid var(--bdr2);cursor:pointer;transition:.15s;font-size:13.5px;color:var(--txt2)}
+.quiz-opt:hover{border-color:var(--acc)}
+.quiz-opt .letter{width:24px;height:24px;border-radius:7px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--txt3);flex-shrink:0}
+.quiz-opt.correct{border-color:var(--grn);background:rgba(52,211,153,.08)}
+.quiz-opt.correct .letter{background:var(--grn);color:#03291c}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(248,113,113,.08)}
+.quiz-opt.wrong .letter{background:var(--red);color:#290303}
+.quiz-feedback{margin-top:14px;padding:13px 16px;border-radius:10px;font-size:13px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:rgba(52,211,153,.08);color:var(--grn);border:1px solid rgba(52,211,153,.25)}
+.quiz-feedback.wrong{background:rgba(248,113,113,.08);color:var(--red);border:1px solid rgba(248,113,113,.25)}
+
+/* Practice problems */
+.practice-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.practice-card .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.practice-card .ph h4{font-size:15px;font-weight:700}
+.diff{font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:99px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px}
+.diff.easy{background:rgba(52,211,153,.12);color:var(--grn)}
+.diff.med{background:rgba(251,191,36,.12);color:var(--gold)}
+.diff.hard{background:rgba(248,113,113,.12);color:var(--red)}
+.practice-card p{font-size:13.5px;margin-bottom:10px}
+details.solution{margin-top:8px}
+details.solution summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--acc);font-family:var(--mono);padding:8px 0;list-style:none;display:flex;align-items:center;gap:8px}
+details.solution summary::before{content:'▶';font-size:10px;transition:.2s}
+details.solution[open] summary::before{transform:rotate(90deg)}
+details.solution pre{background:var(--bg);border:1px solid var(--bdr2);border-radius:9px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;color:var(--acc2);overflow-x:auto;margin-top:10px;line-height:1.7}
+
+/* Cheat sheet grid */
+.cheat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0 28px}
+.cheat-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:16px 18px}
+.cheat-card h4{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cheat-card pre{font-family:var(--mono);font-size:12px;color:var(--acc2);background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px;overflow-x:auto;line-height:1.7;margin-bottom:8px}
+.cheat-card p{font-size:12.5px;margin:0;color:var(--txt2)}
+@media(max-width:860px){.cheat-grid{grid-template-columns:1fr}}
+
+/* Decision tree visual */
+.decision-tree{background:var(--bg3);border:1px solid var(--bdr);border-radius:14px;padding:24px;margin:18px 0 28px}
+.dt-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.dt-row:last-child{margin-bottom:0}
+.dt-node{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--mono);border:1px solid var(--bdr2);background:var(--bg4);color:var(--txt)}
+.dt-node.q{color:var(--acc)}
+.dt-arrow{color:var(--txt3);font-size:14px}
+.dt-result{padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:700;color:var(--bg);background:var(--grn)}
+.dt-result.yes{background:var(--grn)}
+.dt-result.no{background:var(--red);color:#fff}
+
+/* Footer nav */
+.lesson-footer-nav{display:flex;justify-content:space-between;align-items:center;margin-top:60px;padding-top:28px;border-top:1px solid var(--bdr);gap:14px;flex-wrap:wrap}
+.lf-btn{display:flex;align-items:center;gap:8px;padding:13px 22px;border-radius:11px;font-weight:700;font-size:13.5px;text-decoration:none;border:1px solid var(--bdr2);color:var(--txt2);transition:.15s}
+.lf-btn:hover{border-color:var(--acc);color:var(--txt)}
+.lf-btn.next{background:linear-gradient(135deg,#4facfe,#a78bfa);color:#04101f;border:none}
+.lf-btn.next:hover{filter:brightness(1.08)}
+.mark-complete{display:flex;align-items:center;gap:7px;padding:13px 20px;border-radius:11px;font-size:13.5px;font-weight:700;background:var(--bg3);border:1px solid var(--bdr2);color:var(--txt2);cursor:pointer;transition:.15s}
+.mark-complete.done{background:rgba(52,211,153,.1);border-color:var(--grn);color:var(--grn)}
+
+/* Module summary banner */
+.coffee-banner{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(251,191,36,.07),rgba(7,9,16,.3));border:1px solid rgba(251,191,36,.18);border-radius:16px;padding:20px 24px;margin:40px 0;flex-wrap:wrap}
+.coffee-banner .ic{font-size:32px}
+.coffee-banner .ct{flex:1;min-width:200px}
+.coffee-banner h4{color:var(--gold);font-size:15px;margin-bottom:4px}
+.coffee-banner p{font-size:13px;margin:0;color:var(--txt2)}
+.coffee-banner a{flex-shrink:0}
+
+@media(max-width:768px){
+  .schema-grid{grid-template-columns:1fr}
+  .runner-editor textarea{font-size:12.5px}
+  .topnav{padding:0 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP NAV ============ -->
+<nav class="topnav">
+  <a href="https://kjsynthora.com/" class="brand"><span class="kj">KJ</span><span>Synthora</span></a>
+  <div class="nav-mid">
+    <span class="pill pill-live"><span class="dot"></span>LIVE SQL</span>
+    <span class="pill pill-engine">SQLite Engine</span>
+  </div>
+  <div class="nav-r">
+    <a href="https://kjsynthora.com/learn/" class="nav-btn">📚 All Courses</a>
+    <a href="https://kjsynthora.com/" class="nav-btn">← Home</a>
+    <a href="https://kjsynthora.com/support.html" class="nav-btn support">☕ Support</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar">
+  <div class="progress-box">
+    <div class="progress-label"><span>Course Progress</span><span>3 / 9</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">🏠 Start Here</div>
+    <a href="https://kjsynthora.com/learn/sql/#overview" class="nav-item"><span class="num">📘</span>Course Overview</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">📗 Module 1 — Basics</div>
+    <a href="https://kjsynthora.com/learn/sql/#l1" class="nav-item"><span class="num">1</span>SELECT &amp; FROM</a>
+    <a href="https://kjsynthora.com/learn/sql/#l2" class="nav-item"><span class="num">2</span>WHERE &amp; Filtering</a>
+    <a href="https://kjsynthora.com/learn/sql/#l3" class="nav-item"><span class="num">3</span>ORDER BY &amp; LIMIT</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">📘 Module 2 — Aggregation</div>
+    <a href="https://kjsynthora.com/learn/sql/#l4" class="nav-item"><span class="num">4</span>GROUP BY &amp; HAVING</a>
+    <a href="https://kjsynthora.com/learn/sql/#l5" class="nav-item"><span class="num">5</span>JOINs — All Types</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">📙 Module 3 — Advanced</div>
+    <a href="#top" class="nav-item active"><span class="num">6</span>Subqueries &amp; CTEs</a>
+    <a href="https://kjsynthora.com/learn/sql/#l7" class="nav-item"><span class="num">7</span>Window Functions</a>
+    <a href="https://kjsynthora.com/learn/sql/#l8" class="nav-item"><span class="num">8</span>Indexes &amp; Optimization</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">🧠 Interview Prep</div>
+    <a href="https://kjsynthora.com/learn/sql/#qa" class="nav-item"><span class="num">🎯</span>60+ Interview Q&amp;A<span class="free-tag">Free</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-h">📰 Resources</div>
+    <a href="https://kjsynthora.com/learn/sql/blog.html" class="nav-item"><span class="num">📝</span>Blog &amp; Articles</a>
+    <a href="https://kjsynthora.com/learn/sql/#faq" class="nav-item"><span class="num">❓</span>FAQ</a>
+  </div>
+
+  <div class="support-card">
+    <h4>☕ Support KJSynthora</h4>
+    <p>This entire SQL course with a live runner is free. If it helped you, consider a coffee!</p>
+    <a href="https://kjsynthora.com/support.html" class="coffee-btn">Buy a Coffee ☕</a>
+  </div>
+</aside>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main class="main" id="top">
+
+  <div class="crumb">
+    <a href="https://kjsynthora.com/" style="color:var(--txt3);text-decoration:none">Home</a>
+    <span class="sep">/</span>
+    <a href="https://kjsynthora.com/learn/sql/" style="color:var(--txt3);text-decoration:none">Learn SQL</a>
+    <span class="sep">/</span>
+    <span style="color:var(--acc)">Module 4 — Subqueries &amp; CTEs</span>
+  </div>
+
+  <div class="module-tag">📙 MODULE 3 · LESSON 6 OF 9 — ADVANCED SQL</div>
+
+  <h1 class="page-title">Subqueries &amp; <span class="grad">CTEs</span></h1>
+
+  <p class="page-intro">
+    Subqueries and CTEs (Common Table Expressions) let you break complex multi-step problems into clean, readable pieces.
+    By the end of this module you'll confidently write subqueries in <code class="inline">WHERE</code> and <code class="inline">SELECT</code>,
+    write correlated subqueries that reference the outer query row-by-row, structure multi-step logic with
+    <code class="inline">WITH</code> clauses (including recursive CTEs), and know exactly when to reach for
+    <code class="inline">EXISTS</code>, <code class="inline">IN</code>, or a <code class="inline">JOIN</code> — and why it matters for performance.
+  </p>
+
+  <div class="meta-row">
+    <div class="meta-chip">⏱️ <b>60 min</b> · estimated time</div>
+    <div class="meta-chip">🧩 <b>4 lessons</b> · 4.1 – 4.4</div>
+    <div class="meta-chip">💻 <b>14 live</b> SQL examples</div>
+    <div class="meta-chip">🎯 <b>3 practice</b> problems + quiz</div>
+    <div class="meta-chip">🆓 <b>100%</b> free, no signup</div>
+  </div>
+
+  <!-- ============ SUB-LESSON NAV ============ -->
+  <div class="sublesson-nav">
+    <a href="#l41">
+      <span class="sl-num">LESSON 4.1</span>
+      <span class="sl-title">Subqueries in WHERE &amp; SELECT</span>
+      <span class="sl-time">⏱ 15 min · 4 examples</span>
+    </a>
+    <a href="#l42">
+      <span class="sl-num">LESSON 4.2</span>
+      <span class="sl-title">Correlated Subqueries</span>
+      <span class="sl-time">⏱ 15 min · 4 examples</span>
+    </a>
+    <a href="#l43">
+      <span class="sl-num">LESSON 4.3</span>
+      <span class="sl-title">CTEs — The WITH Clause</span>
+      <span class="sl-time">⏱ 15 min · 4 examples</span>
+    </a>
+    <a href="#l44">
+      <span class="sl-num">LESSON 4.4</span>
+      <span class="sl-title">EXISTS vs IN vs JOIN</span>
+      <span class="sl-time">⏱ 15 min · 2 examples</span>
+    </a>
+  </div>
+
+  <!-- ============ SCHEMA REFERENCE ============ -->
+  <h3 class="sub-title">Sample Tables Used in This Module</h3>
+  <p>Every example below runs against the same three tables — preloaded in your browser via SQLite/WASM. No setup needed.</p>
+  <div class="schema-grid">
+    <div class="schema-card">
+      <h4>🧑‍💼 employees</h4>
+      <ul>
+        <li class="pk"><span class="col">id</span><span class="t">INTEGER PK</span></li>
+        <li><span class="col">name</span><span class="t">TEXT</span></li>
+        <li><span class="col">department</span><span class="t">TEXT</span></li>
+        <li><span class="col">salary</span><span class="t">INTEGER</span></li>
+        <li class="fk"><span class="col">dept_id</span><span class="t">INTEGER FK</span></li>
+        <li><span class="col">manager_id</span><span class="t">INTEGER</span></li>
+        <li><span class="col">city</span><span class="t">TEXT</span></li>
+      </ul>
+    </div>
+    <div class="schema-card">
+      <h4>🏢 departments</h4>
+      <ul>
+        <li class="pk"><span class="col">id</span><span class="t">INTEGER PK</span></li>
+        <li><span class="col">dept_name</span><span class="t">TEXT</span></li>
+        <li><span class="col">location</span><span class="t">TEXT</span></li>
+        <li><span class="col">budget</span><span class="t">INTEGER</span></li>
+      </ul>
+    </div>
+    <div class="schema-card">
+      <h4>📁 projects</h4>
+      <ul>
+        <li class="pk"><span class="col">id</span><span class="t">INTEGER PK</span></li>
+        <li class="fk"><span class="col">employee_id</span><span class="t">INTEGER FK</span></li>
+        <li><span class="col">project_name</span><span class="t">TEXT</span></li>
+        <li><span class="col">hours</span><span class="t">INTEGER</span></li>
+        <li><span class="col">status</span><span class="t">TEXT</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="runner" id="schemaRunner">
+    <div class="runner-head">
+      <div class="runner-title"><span class="dot2"></span>View the Sample Data</div>
+      <div class="runner-actions">
+        <button class="btn-reset" data-reset="schemaRunner">↺ Reset</button>
+        <button class="btn-run" data-run="schemaRunner">▶ Run SQL</button>
+      </div>
+    </div>
+    <div class="runner-tabs">
+      <button class="rtab active" data-sql="schemaRunner" data-q="SELECT * FROM employees;">employees</button>
+      <button class="rtab" data-sql="schemaRunner" data-q="SELECT * FROM departments;">departments</button>
+      <button class="rtab" data-sql="schemaRunner" data-q="SELECT * FROM projects;">projects</button>
+    </div>
+    <div class="runner-editor">
+      <textarea data-editor="schemaRunner" spellcheck="false">SELECT * FROM employees;</textarea>
+    </div>
+    <div class="runner-hint">💡 Click a tab above, or edit the query, then press ▶ Run SQL or Ctrl+Enter</div>
+    <div class="runner-output" data-output="schemaRunner">
+      <div class="placeholder">Ready — press ▶ Run SQL or use Ctrl+Enter</div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+window.__M4_PART1_LOADED = true;
+</script>
+</body>
+</html>
