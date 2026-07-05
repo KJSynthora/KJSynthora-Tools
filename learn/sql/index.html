@@ -673,6 +673,94 @@ const LESSONS = {
   tip:{type:'c-tip', title:'Common Pattern', text:"IS NOT NULL is frequently combined with COUNT to measure data completeness, e.g. SELECT COUNT(*) FROM employees WHERE manager_id IS NOT NULL — often called a 'fill rate' check."}
 },
 
+'m4::ORDER BY': {
+  intro:"ORDER BY sorts your result set by one or more columns — ascending by default, or descending when you ask for it. It's the clause that turns raw rows into something readable.",
+  body:[
+    {h:'ASC and DESC', p:"<span class='ic'>ASC</span> (ascending, the default) sorts smallest-to-largest or A-to-Z. <span class='ic'>DESC</span> (descending) sorts largest-to-smallest or Z-to-A. You don't need to write ASC explicitly since it's the default behavior.",
+     runner:{id:'ob1', tabs:[
+       {label:'Ascending (default)', sql:"SELECT name, salary FROM employees ORDER BY salary;"},
+       {label:'Descending', sql:"SELECT name, salary FROM employees ORDER BY salary DESC;"}
+     ]}},
+    {h:'Sorting by Multiple Columns', p:"When two rows tie on the first column, ORDER BY moves to the next column listed to break the tie. Order matters — the first column listed is the primary sort key.",
+     runner:{id:'ob2', tabs:[
+       {label:'Multi-Column Sort', sql:"SELECT name, department, salary FROM employees ORDER BY department ASC, salary DESC;"},
+       {label:'Sort by Column Position', sql:"SELECT name, department, salary FROM employees ORDER BY 2, 3 DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'NULLs Sort First (in SQLite)', text:"How NULL values are ordered varies by database: SQLite and MySQL sort NULLs first in ASC order; PostgreSQL and Oracle sort them last by default. Use NULLS FIRST / NULLS LAST (where supported) to control this explicitly."}
+},
+
+'m4::COUNT': {
+  intro:"COUNT is an aggregate function that returns the number of rows matching your query — one of the most frequently used functions in all of SQL.",
+  body:[
+    {h:'COUNT(*) vs COUNT(column)', p:"<span class='ic'>COUNT(*)</span> counts every row, including rows with NULLs anywhere in them. <span class='ic'>COUNT(column)</span> counts only the rows where that specific column is NOT NULL — the two can return different numbers.",
+     runner:{id:'cnt1', tabs:[
+       {label:'COUNT(*)', sql:"SELECT COUNT(*) AS total_employees FROM employees;"},
+       {label:'COUNT(column)', sql:"SELECT COUNT(manager_id) AS employees_with_manager FROM employees;"},
+       {label:'COUNT(DISTINCT column)', sql:"SELECT COUNT(DISTINCT department) AS unique_departments FROM employees;"}
+     ]}},
+    {h:'COUNT with GROUP BY', p:"COUNT becomes far more useful combined with GROUP BY, giving you a count per category instead of one grand total.",
+     runner:{id:'cnt2', tabs:[
+       {label:'Count per Department', sql:"SELECT department, COUNT(*) AS num_employees FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'The 2-Row Gap Above', text:"Sarah and Alice both have a NULL manager_id, which is why COUNT(manager_id) returns fewer rows than COUNT(*) — NULLs are always excluded from a column-specific COUNT."}
+},
+
+'m4::SUM': {
+  intro:"SUM adds up all the numeric values in a column, returning a single total — NULL values are automatically ignored, not treated as zero.",
+  body:[
+    {h:'Totaling a Column', p:"SUM only works on numeric columns and skips any NULLs it encounters without needing special handling.",
+     runner:{id:'sum1', tabs:[
+       {label:'Total Payroll', sql:"SELECT SUM(salary) AS total_payroll FROM employees;"},
+       {label:'SUM per Department', sql:"SELECT department, SUM(salary) AS dept_payroll FROM employees GROUP BY department;"}
+     ]}},
+    {h:'SUM with a Condition', p:"Combining SUM with WHERE lets you total only a filtered subset — here, just the Engineering department.",
+     runner:{id:'sum2', tabs:[
+       {label:'Filtered SUM', sql:"SELECT SUM(salary) AS engineering_payroll FROM employees WHERE department = 'Engineering';"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'SUM of Nothing', text:"If every value SUM would add is NULL, or there are no matching rows at all, SUM returns NULL — not 0. Wrap it in COALESCE(SUM(col), 0) if you always want a number."}
+},
+
+'m4::AVG': {
+  intro:"AVG calculates the arithmetic mean of a numeric column — the sum divided by the count of non-NULL values.",
+  body:[
+    {h:'Calculating an Average', p:"AVG automatically ignores NULLs both in the sum and in the count it divides by, so it never gets skewed by missing data the way a manual calculation might.",
+     runner:{id:'avg1', tabs:[
+       {label:'Average Salary', sql:"SELECT ROUND(AVG(salary), 2) AS avg_salary FROM employees;"},
+       {label:'AVG per Department', sql:"SELECT department, ROUND(AVG(salary), 2) AS avg_salary FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'AVG Ignores NULLs, Not Zeros', text:"AVG(column) divides by the count of non-NULL rows, not the total row count. A NULL is excluded entirely, but a 0 still counts and pulls the average down — the two are not the same thing."}
+},
+
+'m4::MIN': {
+  intro:"MIN returns the smallest value in a column — works on numbers, text (alphabetically), and dates (chronologically) alike.",
+  body:[
+    {h:'Finding the Smallest Value', p:"MIN isn't limited to numeric columns — for text it returns the alphabetically first value, and for dates the earliest one.",
+     runner:{id:'min1', tabs:[
+       {label:'Lowest Salary', sql:"SELECT MIN(salary) AS lowest_salary FROM employees;"},
+       {label:'MIN per Department', sql:"SELECT department, MIN(salary) AS lowest_salary FROM employees GROUP BY department;"},
+       {label:'MIN on Text', sql:"SELECT MIN(name) AS first_alphabetically FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Finding the Full Row', text:"MIN(salary) alone only gives you the number — to get the whole row of the lowest earner, pair it with ORDER BY and LIMIT 1, or use it inside a WHERE subquery."}
+},
+
+'m4::MAX': {
+  intro:"MAX returns the largest value in a column — the mirror image of MIN, and just as flexible across numbers, text, and dates.",
+  body:[
+    {h:'Finding the Largest Value', p:"Like MIN, MAX ignores NULLs automatically and works across data types.",
+     runner:{id:'max1', tabs:[
+       {label:'Highest Salary', sql:"SELECT MAX(salary) AS highest_salary FROM employees;"},
+       {label:'MAX per Department', sql:"SELECT department, MAX(salary) AS highest_salary FROM employees GROUP BY department;"},
+       {label:'Full Row of the Max', sql:"SELECT name, salary FROM employees WHERE salary = (SELECT MAX(salary) FROM employees);"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'MIN/MAX vs ORDER BY + LIMIT', text:"SELECT MAX(salary) returns just the number and is faster for that purpose. SELECT * FROM employees ORDER BY salary DESC LIMIT 1 returns the whole row — use whichever matches what you actually need."}
+},
+
 'm4::GROUP BY': {
   intro:"GROUP BY collapses rows into grouped statistics — the foundation of all reporting SQL.",
   body:[{h:'Grouping & Aggregating', p:"Combine GROUP BY with COUNT, AVG, SUM, MAX, MIN for department-level or category-level stats.",
@@ -682,6 +770,211 @@ const LESSONS = {
     ]}}],
   tip:{type:'c-note', title:'WHERE vs HAVING', text:"WHERE filters rows BEFORE grouping and cannot use aggregates. HAVING filters groups AFTER grouping and can use aggregates."}
 },
+
+'m4::HAVING': {
+  intro:"HAVING filters grouped results after aggregation has already happened — it's the WHERE clause for groups, and the only place you can filter directly on an aggregate function.",
+  body:[
+    {h:"Why WHERE Can't Do This", p:"WHERE runs before GROUP BY in the logical order of execution, so at that point aggregates like AVG(salary) don't exist yet. HAVING runs after grouping, so it can filter on them.",
+     runner:{id:'hv1', tabs:[
+       {label:'❌ Fails: aggregate in WHERE', sql:"SELECT department, AVG(salary) AS avg_sal FROM employees WHERE AVG(salary) > 80000 GROUP BY department;"},
+       {label:'✅ Works: aggregate in HAVING', sql:"SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department HAVING AVG(salary) > 80000;"}
+     ]}},
+    {h:'Combining WHERE and HAVING', p:"You can use both in the same query — WHERE narrows the rows first, then HAVING filters the resulting groups.",
+     runner:{id:'hv2', tabs:[
+       {label:'WHERE + GROUP BY + HAVING', sql:"SELECT department, COUNT(*) AS staff_count FROM employees WHERE salary > 60000 GROUP BY department HAVING COUNT(*) >= 2;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Interview One-Liner', text:"WHERE filters individual rows before grouping; HAVING filters entire groups after grouping — and only HAVING can reference an aggregate function like COUNT(), SUM(), or AVG()."}
+},
+
+'m4::GROUPING SETS': {
+  intro:"GROUPING SETS lets a single query produce multiple levels of grouped subtotals in one result set — instead of running several separate GROUP BY queries and combining them by hand.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Standard SQL syntax looks like <span class='ic'>GROUP BY GROUPING SETS ((department), (city), ())</span>, producing subtotals by department, by city, and a grand total — all in one pass. SQLite (this in-browser engine) doesn't implement GROUPING SETS. PostgreSQL, SQL Server, Oracle, MySQL 8+, Snowflake and Databricks SQL all support it. The same result can always be built manually with UNION ALL.",
+     runner:{id:'gs1', tabs:[
+       {label:'SQLite Equivalent (UNION ALL)', sql:"SELECT department AS grp, NULL AS city, COUNT(*) AS n, SUM(salary) AS total FROM employees GROUP BY department\nUNION ALL\nSELECT NULL, city, COUNT(*), SUM(salary) FROM employees GROUP BY city\nUNION ALL\nSELECT NULL, NULL, COUNT(*), SUM(salary) FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/SQL Server/Snowflake: SELECT department, city, COUNT(*), SUM(salary) FROM employees GROUP BY GROUPING SETS ((department), (city), ());"}
+},
+
+'m4::ROLLUP': {
+  intro:"ROLLUP produces a hierarchy of subtotals plus a grand total — perfect for reports like 'sales by year, then by year+quarter, then a company-wide total'.",
+  body:[
+    {h:'Not Supported in SQLite', p:"<span class='ic'>GROUP BY ROLLUP (department, city)</span> would normally generate: subtotals per (department, city) pair, subtotals per department alone, and one grand total — three levels from one clause. SQLite doesn't support ROLLUP; MySQL 8+, PostgreSQL, SQL Server, Oracle and most cloud warehouses do. Here's the same result built manually.",
+     runner:{id:'ru1', tabs:[
+       {label:'SQLite Equivalent (UNION ALL)', sql:"SELECT department, city, COUNT(*) AS n, SUM(salary) AS total FROM employees GROUP BY department, city\nUNION ALL\nSELECT department, NULL, COUNT(*), SUM(salary) FROM employees GROUP BY department\nUNION ALL\nSELECT NULL, NULL, COUNT(*), SUM(salary) FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On MySQL/PostgreSQL/SQL Server: SELECT department, city, COUNT(*), SUM(salary) FROM employees GROUP BY ROLLUP (department, city);"}
+},
+
+'m4::CUBE': {
+  intro:"CUBE generates subtotals for EVERY possible combination of the grouping columns — a superset of what ROLLUP produces, useful for full cross-tab style reports.",
+  body:[
+    {h:'Not Supported in SQLite', p:"<span class='ic'>GROUP BY CUBE (department, city)</span> would normally produce: totals per (department, city), totals per department alone, totals per city alone, AND a grand total — every combination, unlike ROLLUP's strict hierarchy. SQLite doesn't support CUBE; PostgreSQL, SQL Server, Oracle and Snowflake do. Here's the manual equivalent.",
+     runner:{id:'cube1', tabs:[
+       {label:'SQLite Equivalent (UNION ALL)', sql:"SELECT department, city, COUNT(*) AS n, SUM(salary) AS total FROM employees GROUP BY department, city\nUNION ALL\nSELECT department, NULL, COUNT(*), SUM(salary) FROM employees GROUP BY department\nUNION ALL\nSELECT NULL, city, COUNT(*), SUM(salary) FROM employees GROUP BY city\nUNION ALL\nSELECT NULL, NULL, COUNT(*), SUM(salary) FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'ROLLUP vs CUBE', text:"ROLLUP builds one hierarchical path of subtotals (department → department+city collapses upward). CUBE builds every combination independently — CUBE(a,b) always produces at least as many subtotal rows as ROLLUP(a,b)."}
+},
+
+'m5::String Functions': {
+  intro:"String functions manipulate text data — combining, trimming, changing case, extracting pieces, and measuring length. They're some of the most frequently used functions in everyday SQL.",
+  body:[
+    {h:'Changing Case', p:"<span class='ic'>UPPER()</span> converts text to all caps, <span class='ic'>LOWER()</span> converts to all lowercase — useful for case-insensitive comparisons and consistent display formatting.",
+     runner:{id:'sf1', tabs:[
+       {label:'UPPER / LOWER', sql:"SELECT name, UPPER(name) AS upper_name, LOWER(department) AS lower_dept FROM employees;"}
+     ]}},
+    {h:'Length and Substrings', p:"<span class='ic'>LENGTH()</span> counts characters. <span class='ic'>SUBSTR(string, start, length)</span> extracts a piece of text — note that SQL string positions start at 1, not 0.",
+     runner:{id:'sf2', tabs:[
+       {label:'LENGTH', sql:"SELECT name, LENGTH(name) AS name_length FROM employees;"},
+       {label:'SUBSTR', sql:"SELECT name, SUBSTR(name, 1, 3) AS first_three_chars FROM employees;"}
+     ]}},
+    {h:'Trimming and Replacing', p:"<span class='ic'>TRIM()</span> removes leading/trailing whitespace, and <span class='ic'>REPLACE(string, old, new)</span> swaps every occurrence of one substring for another.",
+     runner:{id:'sf3', tabs:[
+       {label:'TRIM', sql:"SELECT TRIM('   Bangalore   ') AS trimmed_city;"},
+       {label:'REPLACE', sql:"SELECT name, REPLACE(department, 'Engineering', 'Tech') AS renamed_dept FROM employees;"}
+     ]}},
+    {h:'Concatenation', p:"Joining strings together to build a combined value, like a full display label.",
+     runner:{id:'sf4', tabs:[
+       {label:'Concatenate with ||', sql:"SELECT name || ' works in ' || department AS summary FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Function Names Vary by Database', text:"SUBSTR/SUBSTRING, || vs CONCAT(), and LENGTH/LEN all differ slightly across MySQL, PostgreSQL, SQL Server and Oracle — always check your target database's exact function names."}
+},
+
+'m5::Numeric Functions': {
+  intro:"Numeric functions perform mathematical operations on numbers — rounding, absolute values, powers, roots, and remainders.",
+  body:[
+    {h:'Rounding Values', p:"<span class='ic'>ROUND(number, decimals)</span> rounds to a given number of decimal places. <span class='ic'>CEIL()</span> always rounds up, <span class='ic'>FLOOR()</span> always rounds down.",
+     runner:{id:'nf1', tabs:[
+       {label:'ROUND', sql:"SELECT salary, ROUND(salary / 12.0, 2) AS monthly_salary FROM employees;"},
+       {label:'CEIL / FLOOR', sql:"SELECT 87.2 AS val, CEIL(87.2) AS ceiling_val, FLOOR(87.2) AS floor_val;"}
+     ]}},
+    {h:'Absolute Value, Power, and Modulo', p:"<span class='ic'>ABS()</span> strips a negative sign. <span class='ic'>POWER(base, exp)</span> raises to a power. The <span class='ic'>%</span> operator (or MOD function on some databases) returns the remainder of division.",
+     runner:{id:'nf2', tabs:[
+       {label:'ABS', sql:"SELECT ABS(-42) AS absolute_value;"},
+       {label:'POWER', sql:"SELECT POWER(2, 10) AS two_to_the_ten;"},
+       {label:'Modulo', sql:"SELECT id, salary, salary % 2 AS is_odd_remainder FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'ROUND for Display, Not Storage', text:"Round values only when displaying them to users — keep the full-precision number in calculations and storage to avoid compounding rounding errors across multiple queries."}
+},
+
+'m5::Date Functions': {
+  intro:"Date functions extract, format, and calculate differences between dates and times — essential for reporting on trends, ages, durations, and deadlines.",
+  body:[
+    {h:'Getting the Current Date', p:"SQLite uses <span class='ic'>DATE('now')</span> and <span class='ic'>DATETIME('now')</span>. Other databases use different names: <span class='ic'>CURRENT_DATE</span>, <span class='ic'>GETDATE()</span> (SQL Server), or <span class='ic'>NOW()</span> (MySQL/PostgreSQL).",
+     runner:{id:'df1', tabs:[
+       {label:"Today's Date", sql:"SELECT DATE('now') AS today;"},
+       {label:'Current Timestamp', sql:"SELECT DATETIME('now') AS current_timestamp_value;"}
+     ]}},
+    {h:'Extracting Date Parts', p:"SQLite's <span class='ic'>strftime()</span> formats or extracts a part of a date, similar to EXTRACT() or DATEPART() in other databases.",
+     runner:{id:'df2', tabs:[
+       {label:'Extract Year', sql:"SELECT strftime('%Y', 'now') AS current_year;"},
+       {label:'Custom Format', sql:"SELECT strftime('%d-%m-%Y', 'now') AS formatted_date;"}
+     ]}},
+    {h:'Date Arithmetic', p:"Add or subtract time using date modifiers — very useful for deadlines, expirations, and cohort windows.",
+     runner:{id:'df3', tabs:[
+       {label:'Add Days', sql:"SELECT DATE('now', '+30 days') AS thirty_days_from_now;"},
+       {label:'Subtract Months', sql:"SELECT DATE('now', '-3 months') AS three_months_ago;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Every Database Speaks Dates Differently', text:"Date function names and syntax vary more between databases than almost any other SQL feature — always check your specific database's documentation rather than assuming syntax carries over."}
+},
+
+'m5::Aggregate Functions': {
+  intro:"Aggregate functions take many rows and collapse them into a single summary value — COUNT, SUM, AVG, MIN and MAX are the five you'll use constantly, alongside GROUP_CONCAT for combining text.",
+  body:[
+    {h:'The Core Five', p:"COUNT, SUM, AVG, MIN and MAX each have their own dedicated topic in the Sorting & Aggregation module with full explanations and examples — this topic focuses on a less common but handy one: combining grouped values into a single string.",
+     runner:{id:'agf1', tabs:[
+       {label:'GROUP_CONCAT', sql:"SELECT department, GROUP_CONCAT(name, ', ') AS employee_names FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'See Also', text:"For deep dives into COUNT, SUM, AVG, MIN and MAX individually — including NULL handling and interview traps — see the Sorting & Aggregation module."}
+},
+
+'m5::Conversion Functions': {
+  intro:"Conversion functions change a value from one data type to another — turning text into a number, a number into text, or a string into a date.",
+  body:[
+    {h:'Why Conversion Matters', p:"Data doesn't always arrive in the type you need — a CSV import might load numbers as text, or you might need to display a number as a formatted string. Conversion functions bridge that gap explicitly instead of relying on the database to guess.",
+     runner:{id:'cvf1', tabs:[
+       {label:'Text to Number', sql:"SELECT CAST('12345' AS INTEGER) AS as_number;"},
+       {label:'Number to Text', sql:"SELECT CAST(salary AS TEXT) || ' INR' AS salary_label FROM employees LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'See Also', text:"CAST is the ANSI-standard conversion function and has its own dedicated topic below with more detail; CONVERT is the SQL Server-specific equivalent covered in its own topic."}
+},
+
+'m5::CASE WHEN': {
+  intro:"CASE WHEN is SQL's if/else logic — it evaluates conditions in order and returns a different value depending on which one matches, right inside a SELECT, WHERE, or ORDER BY clause.",
+  body:[
+    {h:'Searched CASE', p:"The most flexible form checks a series of conditions from top to bottom and stops at the first match. <span class='ic'>ELSE</span> is the fallback if nothing matches (and is optional — without it, unmatched rows get NULL).",
+     runner:{id:'cw1', tabs:[
+       {label:'Salary Bands', sql:"SELECT name, salary, CASE WHEN salary >= 90000 THEN 'Senior' WHEN salary >= 75000 THEN 'Mid' ELSE 'Junior' END AS pay_band FROM employees;"}
+     ]}},
+    {h:'Simple CASE', p:"When you're just comparing one column against several exact values, the simple form is more compact.",
+     runner:{id:'cw2', tabs:[
+       {label:'Simple CASE', sql:"SELECT name, department, CASE department WHEN 'Engineering' THEN 'Tech' WHEN 'HR' THEN 'People' ELSE 'Other' END AS category FROM employees;"}
+     ]}},
+    {h:'CASE Inside Aggregates', p:"A very common pattern: use CASE inside SUM or COUNT to build conditional totals — effectively a pivot without needing PIVOT syntax.",
+     runner:{id:'cw3', tabs:[
+       {label:'Conditional COUNT', sql:"SELECT department, COUNT(CASE WHEN salary > 80000 THEN 1 END) AS high_earners FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Interview Favorite', text:"CASE WHEN inside SUM()/COUNT() to build a pivot-style report (e.g. counting orders per status as separate columns) is one of the most frequently asked SQL interview patterns."}
+},
+
+'m5::CAST': {
+  intro:"CAST is the ANSI SQL standard way to explicitly convert a value from one data type to another — supported identically across virtually every database.",
+  body:[
+    {h:'CAST Syntax', p:"<span class='ic'>CAST(expression AS target_type)</span>. Common targets include INTEGER, TEXT, REAL (or DECIMAL/FLOAT), and DATE.",
+     runner:{id:'cast1', tabs:[
+       {label:'Text to Integer', sql:"SELECT CAST('42' AS INTEGER) + 8 AS result;"},
+       {label:'Integer to Text', sql:"SELECT CAST(salary AS TEXT) AS salary_text, typeof(CAST(salary AS TEXT)) AS resulting_type FROM employees LIMIT 1;"},
+       {label:'To Decimal', sql:"SELECT CAST(salary AS REAL) / 12 AS monthly_estimate FROM employees LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Invalid Conversions', text:"Casting text that isn't numeric (like CAST('abc' AS INTEGER)) doesn't always throw an error — SQLite quietly returns 0, while PostgreSQL and SQL Server raise an error. Always validate data before casting in production code."}
+},
+
+'m5::CONVERT': {
+  intro:"CONVERT is SQL Server's (and MySQL's) function for changing data types — functionally similar to CAST, but with extra formatting options, particularly for dates.",
+  body:[
+    {h:'Not Available in SQLite', p:"SQL Server syntax is <span class='ic'>CONVERT(target_type, expression, style)</span> — the optional numeric style code controls date formatting (e.g. style 103 gives DD/MM/YYYY). SQLite doesn't implement CONVERT at all; use CAST instead, shown below with the same underlying goal.",
+     runner:{id:'conv1', tabs:[
+       {label:'SQLite Equivalent (CAST)', sql:"SELECT CAST(salary AS TEXT) AS salary_as_text FROM employees LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: SELECT CONVERT(VARCHAR, GETDATE(), 103) AS uk_date_format; — CAST is portable across databases, CONVERT is not, so prefer CAST unless you specifically need CONVERT's formatting styles."}
+},
+
+'m5::COALESCE': {
+  intro:"COALESCE returns the first non-NULL value from a list of arguments — the cleanest, most portable way to supply a default value when data might be missing.",
+  body:[
+    {h:'Supplying Defaults', p:"COALESCE checks each argument left to right and returns as soon as it finds one that isn't NULL. If every argument is NULL, it returns NULL.",
+     runner:{id:'coa1', tabs:[
+       {label:'Default for Missing Manager', sql:"SELECT name, manager_id, COALESCE(manager_id, 0) AS manager_id_safe FROM employees;"},
+       {label:'Multiple Fallbacks', sql:"SELECT name, COALESCE(manager_id, dept_id, -1) AS first_available_id FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Why Not Just Use IFNULL?', text:"IFNULL/ISNULL only accept two arguments and aren't standard across every database. COALESCE accepts any number of arguments and is ANSI SQL standard — it works identically on PostgreSQL, SQL Server, Oracle, MySQL, and SQLite."}
+},
+
+'m5::NULLIF': {
+  intro:"NULLIF compares two expressions and returns NULL if they're equal, or the first expression if they're different — the logical opposite of COALESCE, used to turn a specific value INTO a NULL.",
+  body:[
+    {h:'Turning a Sentinel Value into NULL', p:"A common use case: some systems store missing data as 0 or an empty string instead of a real NULL. NULLIF converts that placeholder back into a true NULL so aggregate functions handle it correctly.",
+     runner:{id:'nlf1', tabs:[
+       {label:'Basic NULLIF', sql:"SELECT NULLIF(5, 5) AS equal_case, NULLIF(5, 8) AS different_case;"},
+       {label:'Avoiding Division by Zero', sql:"SELECT salary, dept_id, salary / NULLIF(dept_id, 0) AS ratio FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Classic Use Case', text:"NULLIF(denominator, 0) inside a division is the standard SQL trick to avoid a 'division by zero' error — it converts the zero to NULL first, and dividing by NULL just yields NULL instead of crashing the query."}
+},
+
 'm6::INNER JOIN': {
   intro:"INNER JOIN returns only rows that have matching values in both tables — the most common join type.",
   body:[{h:'Matching Rows Only', p:"Rows without a match in either table are excluded from the result.",
@@ -699,6 +992,90 @@ const LESSONS = {
     ]}}],
   tip:{type:'c-note', title:'Interview Pattern', text:"LEFT JOIN + WHERE right.id IS NULL is the classic way to find 'customers with no orders' style questions."}
 },
+
+'m6::RIGHT JOIN': {
+  intro:"RIGHT JOIN returns ALL rows from the right table, plus matching rows from the left table — the mirror image of LEFT JOIN.",
+  body:[
+    {h:'Keep Everything on the Right', p:"Here, every department appears at least once, even the Finance department which has no employees — its employee columns simply show NULL.",
+     runner:{id:'rj1', tabs:[
+       {label:'RIGHT JOIN', sql:"SELECT e.name, d.dept_name FROM employees e RIGHT JOIN departments d ON e.dept_id = d.id;"},
+       {label:'Anti-Join (unmatched)', sql:"SELECT d.dept_name FROM employees e RIGHT JOIN departments d ON e.dept_id = d.id WHERE e.id IS NULL;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'RIGHT JOIN is Just LEFT JOIN, Flipped', text:"A RIGHT JOIN between A and B always produces the exact same result as a LEFT JOIN between B and A — most developers just swap the table order and use LEFT JOIN everywhere for consistency, since some older databases (like older SQLite versions) didn't support RIGHT JOIN at all."}
+},
+
+'m6::FULL OUTER JOIN': {
+  intro:"FULL OUTER JOIN returns every row from both tables — matched rows combined, and unmatched rows from either side padded with NULL for the missing side's columns.",
+  body:[
+    {h:'Keep Everything from Both Sides', p:"This returns every employee (even ones with no department) AND every department (even Finance, which has no employees) — nothing from either table is dropped.",
+     runner:{id:'foj1', tabs:[
+       {label:'FULL OUTER JOIN', sql:"SELECT e.name, d.dept_name FROM employees e FULL OUTER JOIN departments d ON e.dept_id = d.id;"},
+       {label:'Unmatched on Either Side', sql:"SELECT e.name, d.dept_name FROM employees e FULL OUTER JOIN departments d ON e.dept_id = d.id WHERE e.id IS NULL OR d.id IS NULL;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Not Always Supported', text:"MySQL has no native FULL OUTER JOIN — it's typically emulated with a LEFT JOIN UNION a RIGHT JOIN. PostgreSQL, SQL Server, Oracle, and modern SQLite (3.39+) all support it directly."}
+},
+
+'m6::CROSS JOIN': {
+  intro:"CROSS JOIN produces the Cartesian product of two tables — every row from the first table paired with every row from the second, with no matching condition at all.",
+  body:[
+    {h:'Every Combination', p:"With 6 employees and 4 departments, a CROSS JOIN produces 6 × 4 = 24 rows — every possible pairing, whether it makes real-world sense or not.",
+     runner:{id:'cj1', tabs:[
+       {label:'CROSS JOIN', sql:"SELECT e.name, d.dept_name FROM employees e CROSS JOIN departments d;"},
+       {label:'Row Count Check', sql:"SELECT COUNT(*) AS total_combinations FROM employees CROSS JOIN departments;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Use With Caution', text:"CROSS JOIN grows multiplicatively — joining two 10,000-row tables produces 100 million rows. It's mostly useful for generating combinations deliberately (e.g. every product × every size), not for everyday querying."}
+},
+
+'m6::SELF JOIN': {
+  intro:"A SELF JOIN joins a table to itself — useful whenever rows in a table relate to other rows in that same table, like an employee and their manager both being 'employees'.",
+  body:[
+    {h:'Employees and Their Managers', p:"The employees table has a manager_id column that points to another row's id in the same table. A SELF JOIN with two aliases (e for employee, m for manager) links them together.",
+     runner:{id:'selfj1', tabs:[
+       {label:'Employee + Manager Name', sql:"SELECT e.name AS employee, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Aliases Are Required', text:"Since both sides of a self join reference the same physical table, you must give each side a different alias (like e and m above) — otherwise the database can't tell which 'employees' you mean in each part of the query."}
+},
+
+'m6::NATURAL JOIN': {
+  intro:"NATURAL JOIN automatically joins two tables on every column that shares the same name in both — no explicit ON clause needed.",
+  body:[
+    {h:'Automatic Column Matching', p:"If both tables have a column with an identical name, NATURAL JOIN uses it automatically. In our schema, employees.dept_id and departments.id have different names, so this example renames departments.id to dept_id inside a subquery first — then NATURAL JOIN matches on that shared name with no ON clause at all.",
+     runner:{id:'natj1', tabs:[
+       {label:'NATURAL JOIN Demo', sql:"SELECT e.name, dd.dept_name FROM employees e NATURAL JOIN (SELECT id AS dept_id, dept_name FROM departments) dd;"},
+       {label:'Simpler Equivalent (explicit ON)', sql:"SELECT e.name, d.dept_name FROM employees e JOIN departments d ON e.dept_id = d.id;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Generally Avoided in Production', text:"NATURAL JOIN is risky: if a new column with a matching name is added to either table later, the join silently changes behavior. Almost all real-world SQL style guides recommend explicit ON conditions instead."}
+},
+
+'m6::Multiple Table JOIN': {
+  intro:"Real queries often need data spread across three, four, or more tables — you can chain as many JOINs together as needed in a single query.",
+  body:[
+    {h:'Chaining JOINs', p:"Each additional JOIN clause adds one more table to the query. The database processes them left to right (logically), building up the combined row set step by step.",
+     runner:{id:'mtj1', tabs:[
+       {label:'Two-Table JOIN', sql:"SELECT e.name, d.dept_name, d.location FROM employees e JOIN departments d ON e.dept_id = d.id;"},
+       {label:'Adding a Third Reference (Self Join)', sql:"SELECT e.name AS employee, d.dept_name, m.name AS manager FROM employees e JOIN departments d ON e.dept_id = d.id LEFT JOIN employees m ON e.manager_id = m.id;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Keep Aliases Consistent', text:"With 3+ tables in a query, short consistent aliases (e, d, m) become essential for readability — always alias every table once you go past a single JOIN."}
+},
+
+'m6::JOIN Performance': {
+  intro:"Not every JOIN costs the same — how the database matches rows between tables can make the difference between a query that runs in milliseconds and one that takes minutes.",
+  body:[
+    {h:'Indexes on Join Columns', p:"The single biggest performance factor is whether the columns used in the ON clause are indexed. Without an index, the database must scan the entire second table for every row in the first.",
+     runner:{id:'jp1', tabs:[
+       {label:'Check the Plan', sql:"EXPLAIN QUERY PLAN SELECT e.name, d.dept_name FROM employees e JOIN departments d ON e.dept_id = d.id;"}
+     ]}},
+    {h:'Practical Guidelines', p:"<ul><li>Always index foreign key columns used in JOIN conditions</li><li>Filter with WHERE as early as possible so less data flows into the JOIN</li><li>Join on matching data types — implicit type conversion during a JOIN can silently disable index usage</li><li>Avoid joining more tables than necessary; unused JOINs still cost the optimizer work</li><li>Prefer INNER JOIN over OUTER JOIN when you don't actually need unmatched rows — it gives the optimizer more freedom</li></ul>"}
+  ],
+  tip:{type:'c-warn', title:'The Silent Killer: Type Mismatches', text:"Joining an INTEGER column to a TEXT column (even if the values 'look' the same) often forces the database to convert every value before comparing, which can prevent index usage entirely and turn a fast join into a full scan."}
+},
+
 'm10::ROW_NUMBER': {
   intro:"Window functions calculate across rows without collapsing them like GROUP BY does. ROW_NUMBER assigns a unique sequential number to each row.",
   body:[{h:'Ranking Rows', p:"Compare ROW_NUMBER, RANK, and DENSE_RANK to see how they handle ties differently.",
