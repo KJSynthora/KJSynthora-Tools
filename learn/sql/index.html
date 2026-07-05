@@ -1076,6 +1076,217 @@ const LESSONS = {
   tip:{type:'c-warn', title:'The Silent Killer: Type Mismatches', text:"Joining an INTEGER column to a TEXT column (even if the values 'look' the same) often forces the database to convert every value before comparing, which can prevent index usage entirely and turn a fast join into a full scan."}
 },
 
+'m7::UNION': {
+  intro:"UNION stacks the results of two or more SELECT statements into a single result set, automatically removing any duplicate rows that appear in both — like merging two lists and keeping only the unique entries.",
+  body:[
+    {h:'The Rules', p:"Every SELECT combined with UNION must return the <strong>same number of columns</strong>, in a <strong>compatible order and data type</strong>. The final column names in the result come from the very first SELECT statement — later SELECTs can name their columns anything, it doesn't matter."},
+    {h:'Combining Two Column Sets', p:"There's no single table with a 'location' column here, so this example builds one by combining the cities employees live in with the cities departments are based in — UNION removes any city that appears in both lists.",
+     runner:{id:'un1', tabs:[
+       {label:'UNION (deduped)', sql:"SELECT city AS location FROM employees\nUNION\nSELECT location FROM departments;"},
+       {label:'Row Count', sql:"SELECT COUNT(*) AS unique_locations FROM (SELECT city AS location FROM employees UNION SELECT location FROM departments);"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'UNION Always Sorts Out Duplicates', text:"Because UNION has to compare every row against every other row to remove duplicates, it does real extra work behind the scenes — if you already know there are no duplicates (or don't care), UNION ALL is faster."}
+},
+
+'m7::UNION ALL': {
+  intro:"UNION ALL combines the result sets of two or more SELECT statements WITHOUT removing duplicates — every row from every query is kept, making it faster than UNION since there's no deduplication step.",
+  body:[
+    {h:'Keeping Every Row', p:"Run the same city-combining query from the UNION topic, but with ALL added — notice how any city shared by both employees and departments (like Mumbai or Delhi) now shows up more than once.",
+     runner:{id:'una1', tabs:[
+       {label:'UNION ALL (keeps dupes)', sql:"SELECT city AS location FROM employees\nUNION ALL\nSELECT location FROM departments;"},
+       {label:'Compare the Counts', sql:"SELECT (SELECT COUNT(*) FROM (SELECT city FROM employees UNION ALL SELECT location FROM departments)) AS union_all_count, (SELECT COUNT(*) FROM (SELECT city FROM employees UNION SELECT location FROM departments)) AS union_count;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Default to UNION ALL', text:"If you know your two result sets can't overlap, or duplicates are actually meaningful (like combining sales from two regions), always reach for UNION ALL first — it skips the expensive sort/dedupe step that plain UNION requires."}
+},
+
+'m7::INTERSECT': {
+  intro:"INTERSECT returns only the rows that appear in BOTH result sets — the set-theory equivalent of finding common ground between two queries.",
+  body:[
+    {h:'Finding What Overlaps', p:"This finds every city that is both a city where an employee lives AND a city where a department is located — the intersection of the two lists.",
+     runner:{id:'int1', tabs:[
+       {label:'INTERSECT', sql:"SELECT city FROM employees\nINTERSECT\nSELECT location FROM departments;"}
+     ]}},
+    {h:'Same Column Rules Apply', p:"Just like UNION, both SELECT statements must return the same number of columns with compatible types — INTERSECT then keeps only rows found in every one of the combined queries.",
+     runner:{id:'int2', tabs:[
+       {label:'Confirm With a JOIN-based Check', sql:"SELECT DISTINCT e.city FROM employees e JOIN departments d ON e.city = d.location;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Support Varies Slightly', text:"INTERSECT is supported by SQLite, PostgreSQL, SQL Server and Oracle. MySQL only added native INTERSECT support in version 8.0.31 — earlier MySQL versions need an INNER JOIN or WHERE ... IN workaround instead."}
+},
+
+'m7::EXCEPT': {
+  intro:"EXCEPT returns rows from the FIRST query that do NOT appear in the second query — also known as a 'set difference'. It answers questions shaped like 'what's in A but not in B'.",
+  body:[
+    {h:'Subtracting One Set from Another', p:"This finds employee cities that have no matching department location at all — cities where staff live, but the company has no office presence.",
+     runner:{id:'exc1', tabs:[
+       {label:'EXCEPT', sql:"SELECT city FROM employees\nEXCEPT\nSELECT location FROM departments;"}
+     ]}},
+    {h:'Order Matters', p:"EXCEPT is not symmetric — flipping the two queries around gives a completely different answer, since it always keeps rows from the LEFT query only.",
+     runner:{id:'exc2', tabs:[
+       {label:'Flipped: Depts With No Staff City Match', sql:"SELECT location FROM departments\nEXCEPT\nSELECT city FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Not in MySQL (Pre-8.0.31)', text:"EXCEPT is supported by SQLite, PostgreSQL, SQL Server and Oracle (as MINUS — see next topic). Older MySQL versions have neither EXCEPT nor MINUS and need a LEFT JOIN ... WHERE right.id IS NULL pattern instead."}
+},
+
+'m7::MINUS': {
+  intro:"MINUS is Oracle's name for exactly the same set-difference operation as EXCEPT — rows in the first query that don't appear in the second. If you already know EXCEPT, you already know MINUS.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Oracle syntax is identical in shape to EXCEPT, just with a different keyword: <span class='ic'>SELECT city FROM employees MINUS SELECT location FROM departments;</span>. SQLite (this in-browser engine) doesn't implement the MINUS keyword at all — it only supports the ANSI-standard EXCEPT, which does exactly the same job.",
+     runner:{id:'min1', tabs:[
+       {label:'SQLite Equivalent (EXCEPT)', sql:"SELECT city FROM employees\nEXCEPT\nSELECT location FROM departments;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'EXCEPT vs MINUS — Just a Naming Difference', text:"Oracle uses MINUS; PostgreSQL, SQL Server, SQLite and standard ANSI SQL use EXCEPT. They compute the identical result — pick whichever keyword your specific database understands."}
+},
+
+'m8::Scalar Subquery': {
+  intro:"A scalar subquery is a subquery that returns exactly one column and one row — a single value — which means it can be used almost anywhere a normal literal value could go: in SELECT, WHERE, or even inside an expression.",
+  body:[
+    {h:'Using a Single Value Inline', p:"Because a scalar subquery collapses down to one number (or one piece of text), the database treats it just like a constant once it's evaluated.",
+     runner:{id:'sc1', tabs:[
+       {label:'Scalar in WHERE', sql:"SELECT name, salary FROM employees WHERE salary = (SELECT MAX(salary) FROM employees);"},
+       {label:'Scalar in SELECT', sql:"SELECT name, salary, (SELECT AVG(salary) FROM employees) AS company_avg FROM employees;"}
+     ]}},
+    {h:'Comparing Each Row to a Single Benchmark', p:"A very common pattern: compute one company-wide number once, then compare every row against it — here, showing how far above or below average each employee's salary is.",
+     runner:{id:'sc2', tabs:[
+       {label:'Difference from Average', sql:"SELECT name, salary, salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Must Return Exactly One Value', text:"If a scalar subquery accidentally returns more than one row, most databases throw a runtime error ('subquery returned more than 1 row') — always make sure the subquery is aggregated or filtered down to a single result."}
+},
+
+'m8::Nested Subquery': {
+  intro:"A nested subquery is simply a query placed inside another query's WHERE, FROM, or SELECT clause — one query nested one or more levels deep inside a parent (outer) query.",
+  body:[
+    {h:'Subquery in WHERE', p:"The inner query runs first and completely independently of the outer query — it doesn't reference anything from the outer row, so it only needs to execute once, not once per row.",
+     runner:{id:'nes1', tabs:[
+       {label:'IN with Subquery', sql:"SELECT name, dept_id FROM employees WHERE dept_id IN (SELECT id FROM departments WHERE location = 'Mumbai');"}
+     ]}},
+    {h:'Subquery in FROM (a Derived Table)', p:"A subquery used in FROM acts like a temporary, on-the-fly table — often called a derived table — that the outer query can then filter, join, or aggregate further.",
+     runner:{id:'nes2', tabs:[
+       {label:'Derived Table', sql:"SELECT department, avg_sal FROM (SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department) dept_stats WHERE avg_sal > 80000;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Nested vs Correlated', text:"A nested subquery (this topic) runs independently of the outer query and only once. A correlated subquery (next topic) references the outer query's current row and re-runs for every single row — an important distinction for both correctness and performance."}
+},
+
+'m8::Correlated Subquery': {
+  intro:"A correlated subquery references a column from the OUTER query inside its own WHERE clause — which means the database must re-run it once for every row the outer query considers, rather than just once.",
+  body:[
+    {h:'Referencing the Outer Row', p:"Notice <span class='ic'>e.dept_id</span> inside the subquery — that's the correlation. For each employee row, the subquery recalculates the average salary of just that employee's own department.",
+     runner:{id:'cor1', tabs:[
+       {label:'Correlated Subquery', sql:"SELECT e.name, e.salary, e.dept_id FROM employees e WHERE e.salary > (SELECT AVG(salary) FROM employees WHERE dept_id = e.dept_id);"}
+     ]}},
+    {h:'Correlated Subquery in SELECT', p:"Correlated subqueries can also sit in the SELECT list itself, computing a per-row value that depends on that row's own data.",
+     runner:{id:'cor2', tabs:[
+       {label:'Per-Row Rank Count', sql:"SELECT e.name, e.salary, (SELECT COUNT(*) FROM employees e2 WHERE e2.dept_id = e.dept_id AND e2.salary > e.salary) AS higher_paid_in_dept FROM employees e;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Performance Cost', text:"Because a correlated subquery logically re-executes for every outer row, it can be much slower than an equivalent JOIN or window function on large tables — for the 'higher_paid_in_dept' example above, RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) would scale far better."}
+},
+
+'m8::EXISTS': {
+  intro:"Inside a subquery, EXISTS checks only whether the inner query returns at least one row for the current outer row — it's almost always written as a correlated subquery, and it's usually the fastest way to answer 'does a related row exist?'.",
+  body:[
+    {h:'A Correlated Existence Check', p:"The subquery here is correlated to <span class='ic'>d.id</span> from the outer query — for every department, it asks 'is there at least one employee row matching this department id?'.",
+     runner:{id:'sqex1', tabs:[
+       {label:'Departments With Staff', sql:"SELECT d.dept_name FROM departments d WHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id);"}
+     ]}},
+    {h:'EXISTS vs IN', p:"EXISTS and IN often solve the same problem, but EXISTS can short-circuit as soon as one match is found, while IN typically needs the full inner result set first — for large, correlated lookups, EXISTS is usually preferred.",
+     runner:{id:'sqex2', tabs:[
+       {label:'Equivalent with IN', sql:"SELECT d.dept_name FROM departments d WHERE d.id IN (SELECT dept_id FROM employees WHERE dept_id IS NOT NULL);"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:"The Value Selected Doesn't Matter", text:"Writing SELECT 1 (or SELECT * ) inside the EXISTS subquery is just convention — EXISTS never looks at the actual selected value, only whether a row was returned at all."}
+},
+
+'m8::NOT EXISTS': {
+  intro:"NOT EXISTS is the negation of EXISTS inside a subquery context — it keeps outer rows where the correlated inner query finds NO matching row whatsoever, and unlike NOT IN, it's completely immune to NULL-related surprises.",
+  body:[
+    {h:'Finding Rows With No Match', p:"The Finance department has zero employees, so it's the only department where the correlated subquery below finds nothing — making NOT EXISTS true for that row alone.",
+     runner:{id:'sqnex1', tabs:[
+       {label:'Departments With No Staff', sql:"SELECT d.dept_name FROM departments d WHERE NOT EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id);"}
+     ]}},
+    {h:'A Classic Interview Pattern', p:"'Find employees who are not managers' is a frequent interview question, and NOT EXISTS handles the NULL manager_id values safely — no special filtering needed, unlike the NOT IN version of this same query.",
+     runner:{id:'sqnex2', tabs:[
+       {label:'Employees Who Are Not Managers', sql:"SELECT e.name FROM employees e WHERE NOT EXISTS (SELECT 1 FROM employees m WHERE m.manager_id = e.id);"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Always Safe with NULLs', text:"NOT EXISTS never falls into the 'NOT IN silently returns zero rows' trap that a NULL-containing subquery list creates — when in doubt about NULLs, reach for NOT EXISTS instead of NOT IN."}
+},
+
+'m8::ANY': {
+  intro:"Used as a subquery comparison, ANY checks a value against every row a subquery returns and is true if the comparison succeeds against AT LEAST ONE of them — standard SQL syntax like value > ANY (subquery).",
+  body:[
+    {h:'Not Supported in SQLite', p:"Standard SQL would let you write <span class='ic'>WHERE salary &gt; ANY (SELECT salary FROM employees WHERE department = 'HR')</span> directly. SQLite (this in-browser engine) doesn't implement ANY/SOME as a subquery comparison operator — but 'greater than ANY value' logically means 'greater than the smallest value in the set', so MIN() reproduces the same result here.",
+     runner:{id:'sqany1', tabs:[
+       {label:'SQLite Equivalent (MIN)', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT MIN(salary) FROM employees WHERE department = 'HR');"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/SQL Server/Oracle: SELECT name, salary FROM employees WHERE salary > ANY (SELECT salary FROM employees WHERE department = 'HR'); — supported natively without needing the MIN() rewrite."}
+},
+
+'m8::ALL': {
+  intro:"Used as a subquery comparison, ALL checks a value against every row a subquery returns and is true only if the comparison succeeds against EVERY one of them — standard SQL syntax like value > ALL (subquery).",
+  body:[
+    {h:'Not Supported in SQLite', p:"Standard SQL syntax is <span class='ic'>WHERE salary &gt; ALL (SELECT salary FROM employees WHERE department = 'HR')</span>. SQLite doesn't implement ALL as a subquery comparison operator either — since 'greater than ALL values' means 'greater than the largest value in the set', MAX() gives the identical result.",
+     runner:{id:'sqall1', tabs:[
+       {label:'SQLite Equivalent (MAX)', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT MAX(salary) FROM employees WHERE department = 'HR');"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/SQL Server/Oracle: SELECT name, salary FROM employees WHERE salary > ALL (SELECT salary FROM employees WHERE department = 'HR'); — this is the direct, portable form on databases that support ANY/ALL."}
+},
+
+'m9::Common Table Expressions': {
+  intro:"A Common Table Expression (CTE) is a named, temporary result set defined with the WITH keyword — it exists only for the duration of the query that follows it, and makes complex SQL far easier to read than deeply nested subqueries.",
+  body:[
+    {h:'Basic WITH Syntax', p:"Write <span class='ic'>WITH cte_name AS (SELECT ...)</span>, then reference <span class='ic'>cte_name</span> just like a regular table in the main query underneath it.",
+     runner:{id:'cte1', tabs:[
+       {label:'Simple CTE', sql:"WITH high_earners AS (\n  SELECT name, department, salary FROM employees WHERE salary > 85000\n)\nSELECT * FROM high_earners ORDER BY salary DESC;"}
+     ]}},
+    {h:'CTE vs Subquery — Same Result, More Readable', p:"Anything a CTE can do, a nested subquery can technically do too — but naming the intermediate step makes multi-stage logic much easier to follow at a glance.",
+     runner:{id:'cte2', tabs:[
+       {label:'CTE Version', sql:"WITH dept_avg AS (\n  SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department\n)\nSELECT department, avg_sal FROM dept_avg WHERE avg_sal > 75000;"},
+       {label:'Equivalent Subquery Version', sql:"SELECT department, avg_sal FROM (SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department) t WHERE avg_sal > 75000;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'CTEs Are Not Materialized by Default', text:"In most databases a CTE is just inline query logic given a name — the optimizer is free to inline or rewrite it, so a CTE alone doesn't automatically mean better performance, just better readability. (PostgreSQL is a partial exception with MATERIALIZED/NOT MATERIALIZED hints.)"}
+},
+
+'m9::Multiple CTE': {
+  intro:"A single WITH clause can define several CTEs at once, separated by commas — and later CTEs are even allowed to reference earlier ones, letting you build up a multi-step calculation piece by piece.",
+  body:[
+    {h:'Defining Two CTEs Together', p:"Each CTE gets its own name and its own SELECT — separate them with a comma, not another WITH keyword.",
+     runner:{id:'mcte1', tabs:[
+       {label:'Two Independent CTEs', sql:"WITH dept_totals AS (\n  SELECT department, SUM(salary) AS total_pay FROM employees GROUP BY department\n),\ndept_counts AS (\n  SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department\n)\nSELECT t.department, t.total_pay, c.headcount\nFROM dept_totals t JOIN dept_counts c ON t.department = c.department;"}
+     ]}},
+    {h:'A Later CTE Building on an Earlier One', p:"Here, dept_avg is computed first, and the second CTE, above_target, filters that result further — chaining logic step by step instead of nesting subqueries inside subqueries.",
+     runner:{id:'mcte2', tabs:[
+       {label:'Chained CTEs', sql:"WITH dept_avg AS (\n  SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department\n),\nabove_target AS (\n  SELECT * FROM dept_avg WHERE avg_sal > 75000\n)\nSELECT * FROM above_target ORDER BY avg_sal DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Readability at Scale', text:"Reports that once required three or four levels of nested subqueries often become a short, linear chain of named CTEs — each one a clearly labeled step that's much easier to debug independently."}
+},
+
+'m9::Recursive CTE': {
+  intro:"A recursive CTE repeatedly refers to itself to walk through hierarchical or graph-like data — the classic use case is an org chart, where each employee has a manager who is also an employee.",
+  body:[
+    {h:'Anatomy of WITH RECURSIVE', p:"A recursive CTE has two parts joined by UNION ALL: an <strong>anchor</strong> query (the starting point, with no self-reference) and a <strong>recursive</strong> query (which refers back to the CTE's own name and builds on the previous step)."},
+    {h:'Walking the Management Chain', p:"This starts from Sarah (the top of the hierarchy, with no manager) and recursively finds everyone who reports to her, directly or indirectly, tracking how many levels deep each person is.",
+     runner:{id:'rcte1', tabs:[
+       {label:'Org Chart Recursion', sql:"WITH RECURSIVE org_chart AS (\n  SELECT id, name, manager_id, 0 AS depth\n  FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, oc.depth + 1\n  FROM employees e\n  JOIN org_chart oc ON e.manager_id = oc.id\n)\nSELECT * FROM org_chart ORDER BY depth, name;"}
+     ]}},
+    {h:'Building a Readable Path', p:"You can extend the recursive step to accumulate a text trail showing the full chain of command down to each employee.",
+     runner:{id:'rcte2', tabs:[
+       {label:'Management Path String', sql:"WITH RECURSIVE org_path AS (\n  SELECT id, name, manager_id, name AS path\n  FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, op.path || ' -> ' || e.name\n  FROM employees e\n  JOIN org_path op ON e.manager_id = op.id\n)\nSELECT name, path FROM org_path ORDER BY path;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Always Guard Against Infinite Loops', text:"A recursive CTE keeps running until the recursive query returns zero new rows — a data problem like a circular manager_id reference (A reports to B, B reports to A) would cause it to loop forever. Many databases let you cap this with a depth limit or a MAXRECURSION-style option (SQL Server) as a safety net."}
+},
+
 'm10::ROW_NUMBER': {
   intro:"Window functions calculate across rows without collapsing them like GROUP BY does. ROW_NUMBER assigns a unique sequential number to each row.",
   body:[{h:'Ranking Rows', p:"Compare ROW_NUMBER, RANK, and DENSE_RANK to see how they handle ties differently.",
@@ -1084,6 +1295,173 @@ const LESSONS = {
       {label:'PARTITION BY', sql:"SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees;"}
     ]}}],
   tip:{type:'c-warn', title:'Interview Trap', text:"For 'Nth highest salary' questions, use DENSE_RANK not RANK — RANK leaves gaps when there are ties."}
+},
+
+'m10::OVER': {
+  intro:"OVER is what turns an ordinary function into a window function — it defines the 'window' of rows the function should look across for each row, without collapsing those rows into a single group like GROUP BY would.",
+  body:[
+    {h:'The Key Difference from GROUP BY', p:"A normal aggregate with GROUP BY replaces many rows with one summary row per group. The same function with OVER keeps every individual row, just adding an extra calculated column alongside it.",
+     runner:{id:'over1', tabs:[
+       {label:'GROUP BY (collapses rows)', sql:"SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department;"},
+       {label:'OVER (keeps every row)', sql:"SELECT name, department, salary, AVG(salary) OVER (PARTITION BY department) AS dept_avg FROM employees;"}
+     ]}},
+    {h:'An Empty OVER() Sees the Whole Table', p:"Leaving the parentheses after OVER completely empty means the window is the entire result set — every row sees the same company-wide value.",
+     runner:{id:'over2', tabs:[
+       {label:'Whole-Table Window', sql:"SELECT name, salary, AVG(salary) OVER () AS company_avg, salary - AVG(salary) OVER () AS diff FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Almost Any Aggregate Can Become a Window Function', text:"SUM, AVG, COUNT, MIN and MAX all work with OVER exactly like ROW_NUMBER, RANK and LEAD/LAG do — the OVER clause is what unlocks 'per-row' aggregation instead of 'per-group' aggregation."}
+},
+
+'m10::PARTITION BY': {
+  intro:"PARTITION BY splits the rows inside a window function into independent groups — the function then resets and recalculates separately within each group, similar in spirit to GROUP BY but without collapsing any rows.",
+  body:[
+    {h:'Resetting the Calculation per Group', p:"Without PARTITION BY, ROW_NUMBER counts straight through the whole table. With PARTITION BY department, the numbering restarts at 1 for every new department.",
+     runner:{id:'pb1', tabs:[
+       {label:'No Partition', sql:"SELECT name, department, salary, ROW_NUMBER() OVER (ORDER BY salary DESC) AS overall_rank FROM employees;"},
+       {label:'Partitioned by Department', sql:"SELECT name, department, salary, ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees;"}
+     ]}},
+    {h:'Multiple Partition Columns', p:"You can partition by more than one column at once — the window resets whenever ANY of the listed columns changes value.",
+     runner:{id:'pb2', tabs:[
+       {label:'Partition by Two Columns', sql:"SELECT name, department, city, salary, RANK() OVER (PARTITION BY department, city ORDER BY salary DESC) AS local_rank FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'PARTITION BY vs GROUP BY', text:"GROUP BY reduces N rows down to however many groups exist. PARTITION BY (inside OVER) keeps all N rows — it only changes how the window function's calculation is scoped for each row."}
+},
+
+'m10::RANK': {
+  intro:"RANK assigns a position to each row based on ORDER BY, giving tied rows the exact same rank — but it then skips ahead, leaving a gap in the numbering equal to the number of ties.",
+  body:[
+    {h:'Ties Cause Gaps', p:"Carol and Mike are tied for the same rank within Engineering here in some data variations — watch how RANK jumps straight from a tied rank to a rank several numbers higher, skipping the numbers in between.",
+     runner:{id:'rk1', tabs:[
+       {label:'RANK with Ties', sql:"SELECT name, department, salary, RANK() OVER (ORDER BY salary DESC) AS overall_rank FROM employees;"}
+     ]}},
+    {h:'RANK vs ROW_NUMBER Side by Side', p:"ROW_NUMBER never repeats a number and never skips one — even tied rows get distinct sequential numbers, decided arbitrarily by the database when values are otherwise equal.",
+     runner:{id:'rk2', tabs:[
+       {label:'Compare Both', sql:"SELECT name, salary, ROW_NUMBER() OVER (ORDER BY salary DESC) AS rn, RANK() OVER (ORDER BY salary DESC) AS rk FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Gaps Can Break "Top N" Logic', text:"If you filter WHERE rk <= 3 expecting exactly 3 rows, ties can mean you get more or fewer than 3 depending on where the gaps fall — always check whether RANK's gap behavior is actually what your report needs."}
+},
+
+'m10::DENSE_RANK': {
+  intro:"DENSE_RANK works just like RANK — tied rows share the same rank — but it never leaves gaps in the numbering; the very next distinct value always gets the next consecutive integer.",
+  body:[
+    {h:'No Gaps After Ties', p:"Compare this directly against RANK on the same data — DENSE_RANK's numbers stay consecutive (1, 2, 3...) even when earlier rows tied, while RANK would have skipped ahead.",
+     runner:{id:'dr1', tabs:[
+       {label:'DENSE_RANK vs RANK', sql:"SELECT name, salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS dense_rk, RANK() OVER (ORDER BY salary DESC) AS rk FROM employees;"}
+     ]}},
+    {h:"The 'Nth Highest Salary' Pattern", p:"DENSE_RANK is the standard, correct tool for 'find the 2nd highest distinct salary' style interview questions — filtering on RANK instead can silently give the wrong answer whenever there's a tie for 1st place.",
+     runner:{id:'dr2', tabs:[
+       {label:'2nd Highest Distinct Salary', sql:"SELECT name, salary FROM (SELECT name, salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS dr FROM employees) t WHERE dr = 2;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Rule of Thumb', text:"Use ROW_NUMBER when you need a strictly unique sequence, RANK when gaps after ties are meaningful to your report, and DENSE_RANK when you want a clean, gap-free 1st/2nd/3rd style ranking."}
+},
+
+'m10::NTILE': {
+  intro:"NTILE(n) divides the rows in a window into n roughly equal-sized buckets, numbered 1 through n — useful for splitting data into quartiles, quintiles, or any custom number of even groups.",
+  body:[
+    {h:'Splitting into Buckets', p:"NTILE(3) here divides the 6 employees into 3 pay-tier groups of 2 each, ordered from highest to lowest salary.",
+     runner:{id:'nt1', tabs:[
+       {label:'3 Salary Tiers', sql:"SELECT name, salary, NTILE(3) OVER (ORDER BY salary DESC) AS pay_tier FROM employees;"}
+     ]}},
+    {h:'Uneven Groups', p:"When the row count doesn't divide evenly, NTILE distributes the extra rows to the earliest groups first — some buckets end up with one more row than others.",
+     runner:{id:'nt2', tabs:[
+       {label:'NTILE(4) on 6 Rows', sql:"SELECT name, salary, NTILE(4) OVER (ORDER BY salary DESC) AS quartile FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Common Use Case', text:"NTILE(4) is the standard way to compute quartiles directly in SQL (e.g. customer spending quartiles, performance review tiers) without needing a separate statistics tool."}
+},
+
+'m10::LEAD': {
+  intro:"LEAD looks forward to a value from a LATER row in the window's ordering, letting you compare the current row directly against what comes next — without a self-join.",
+  body:[
+    {h:'Peeking at the Next Row', p:"For each employee ordered by salary, LEAD grabs the very next (lower) salary in the list — the last row has nothing after it, so LEAD returns NULL there.",
+     runner:{id:'ld1', tabs:[
+       {label:'Next Lower Salary', sql:"SELECT name, salary, LEAD(salary) OVER (ORDER BY salary DESC) AS next_lower_salary FROM employees;"}
+     ]}},
+    {h:'Supplying a Default Instead of NULL', p:"LEAD's optional second argument sets how many rows ahead to look (default 1), and the third argument supplies a default value to use instead of NULL when there's no next row.",
+     runner:{id:'ld2', tabs:[
+       {label:'LEAD with Default', sql:"SELECT name, salary, LEAD(salary, 1, 0) OVER (ORDER BY salary DESC) AS next_lower_salary FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Great for Gap and Trend Analysis', text:"LEAD is the natural fit for questions like 'how much higher is this month's revenue than next month's' or 'find the gap between one employee's salary and the next person down' — all without a self-join."}
+},
+
+'m10::LAG': {
+  intro:"LAG is the mirror image of LEAD — it looks backward to a value from an EARLIER row in the window's ordering, commonly used to compare each row against the one immediately before it.",
+  body:[
+    {h:'Peeking at the Previous Row', p:"Ordered by salary descending, LAG grabs the salary of the row just above the current one — the very first row has nothing before it, so LAG returns NULL there.",
+     runner:{id:'lg1', tabs:[
+       {label:'Previous Higher Salary', sql:"SELECT name, salary, LAG(salary) OVER (ORDER BY salary DESC) AS prev_higher_salary FROM employees;"}
+     ]}},
+    {h:'Calculating a Row-to-Row Difference', p:"Combining LAG with simple subtraction is the standard way to compute period-over-period or rank-over-rank differences directly in SQL.",
+     runner:{id:'lg2', tabs:[
+       {label:'Gap to Previous Row', sql:"SELECT name, salary, salary - LAG(salary) OVER (ORDER BY salary DESC) AS gap_from_prev FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'LEAD and LAG Both Support PARTITION BY', text:"Just like every other window function, LEAD and LAG can be scoped per group: LAG(salary) OVER (PARTITION BY department ORDER BY salary DESC) compares each employee only to the previous-ranked employee within their own department."}
+},
+
+'m10::FIRST_VALUE': {
+  intro:"FIRST_VALUE returns the value from the very first row of the current window frame — for example, the highest salary in a department, repeated alongside every row in that department.",
+  body:[
+    {h:'Tagging Every Row with the Top Value', p:"Unlike MAX() OVER (which would give the same answer here), FIRST_VALUE makes the intent explicit: 'take the value from whichever row is first once ordered'.",
+     runner:{id:'fv1', tabs:[
+       {label:'Highest Salary per Department', sql:"SELECT name, department, salary, FIRST_VALUE(name) OVER (PARTITION BY department ORDER BY salary DESC) AS top_earner_in_dept FROM employees;"}
+     ]}},
+    {h:'Comparing Each Row to the Top', p:"Combine FIRST_VALUE with basic arithmetic to show how far behind the top performer each person in their department is.",
+     runner:{id:'fv2', tabs:[
+       {label:'Gap from the Top Earner', sql:"SELECT name, department, salary, FIRST_VALUE(salary) OVER (PARTITION BY department ORDER BY salary DESC) - salary AS gap_from_top FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Frame Matters', text:"FIRST_VALUE's result depends on the window frame just like LAST_VALUE does — the default frame (RANGE UNBOUNDED PRECEDING TO CURRENT ROW) is usually fine for FIRST_VALUE since the first row never changes, but it's worth understanding frames fully before relying on this in production (see LAST_VALUE)."}
+},
+
+'m10::LAST_VALUE': {
+  intro:"LAST_VALUE returns the value from the last row of the current window frame — but it has a famous gotcha: with the default frame, 'last' usually means 'the current row', not the actual last row of the partition.",
+  body:[
+    {h:'The Default Frame Trap', p:"Without an explicit frame, most databases default to <span class='ic'>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span> — so LAST_VALUE just returns the CURRENT row's own value, which is rarely what people expect.",
+     runner:{id:'lv1', tabs:[
+       {label:'❌ Surprising Default Behavior', sql:"SELECT name, department, salary, LAST_VALUE(name) OVER (PARTITION BY department ORDER BY salary DESC) AS last_value_result FROM employees;"}
+     ]}},
+    {h:'The Fix: an Explicit Frame', p:"Adding <span class='ic'>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</span> tells the database to consider the ENTIRE partition when picking the last row — now it correctly returns the lowest earner per department.",
+     runner:{id:'lv2', tabs:[
+       {label:'✅ Correct with Explicit Frame', sql:"SELECT name, department, salary, LAST_VALUE(name) OVER (PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS lowest_earner_in_dept FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Always Set the Frame Explicitly for LAST_VALUE', text:"This is one of the most common real-world SQL bugs — always pair LAST_VALUE with an explicit ROWS BETWEEN ... AND UNBOUNDED FOLLOWING frame, or it will silently just echo back the current row."}
+},
+
+'m10::Running Totals': {
+  intro:"A running total (cumulative sum) adds up a value progressively, row by row, as you move through an ordered sequence — SUM() combined with OVER and ORDER BY is the standard SQL way to build one.",
+  body:[
+    {h:'Cumulative SUM', p:"With ORDER BY inside OVER but no explicit frame, SUM defaults to accumulating from the start of the partition up through the current row — exactly what a running total needs.",
+     runner:{id:'rt1', tabs:[
+       {label:'Running Total of Salary', sql:"SELECT name, salary, SUM(salary) OVER (ORDER BY id) AS running_total FROM employees;"}
+     ]}},
+    {h:'Running Total per Group', p:"Adding PARTITION BY resets the running total separately for each department, so each group accumulates independently.",
+     runner:{id:'rt2', tabs:[
+       {label:'Running Total per Department', sql:"SELECT name, department, salary, SUM(salary) OVER (PARTITION BY department ORDER BY id) AS dept_running_total FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Why This Beats a Self-Join', text:"Before window functions existed, running totals required a self-join or a correlated subquery comparing every row to all previous rows — SUM() OVER (ORDER BY ...) computes the identical result in one clean pass, and scales far better."}
+},
+
+'m10::Moving Average': {
+  intro:"A moving average smooths out a value by averaging it together with a fixed number of neighboring rows — most commonly used to reveal trends in noisy, sequential data like daily sales or stock prices.",
+  body:[
+    {h:'Defining the Frame with ROWS BETWEEN', p:"<span class='ic'>ROWS BETWEEN 1 PRECEDING AND CURRENT ROW</span> tells AVG to look at the current row plus the one immediately before it — a simple 2-row moving average.",
+     runner:{id:'ma1', tabs:[
+       {label:'2-Row Moving Average', sql:"SELECT name, salary, AVG(salary) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS moving_avg_2 FROM employees;"}
+     ]}},
+    {h:'A Centered 3-Row Window', p:"Frames aren't limited to looking only backward — <span class='ic'>1 PRECEDING AND 1 FOLLOWING</span> centers the average on the current row, using one neighbor from each side.",
+     runner:{id:'ma2', tabs:[
+       {label:'Centered 3-Row Average', sql:"SELECT name, salary, AVG(salary) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS centered_avg_3 FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'ROWS vs RANGE Frames', text:"ROWS BETWEEN counts a fixed number of physical rows, regardless of their values — RANGE BETWEEN instead considers logical value ranges (e.g. 'all rows within 7 days of this one'). ROWS is simpler and far more commonly used for basic moving averages."}
 },
 };
 
