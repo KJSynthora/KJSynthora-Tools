@@ -390,6 +390,96 @@ const LESSONS = {
     ]}}],
   tip:{type:'c-note', title:'Note', text:"DISTINCT applies to the entire row combination, not just one column, when multiple columns are selected."}
 },
+
+'m2::Aliases': {
+  intro:"An alias is a temporary name given to a column or a table for the duration of a query — it makes results more readable and joins much easier to write.",
+  body:[
+    {h:'Column Aliases', p:"Use <span class='ic'>AS</span> to rename an output column. The alias only exists in the result set, not in the actual table.",
+     runner:{id:'al1', tabs:[
+       {label:'With AS', sql:"SELECT name AS employee_name, salary AS annual_pay FROM employees;"},
+       {label:'AS is Optional', sql:"SELECT name employee_name, salary annual_pay FROM employees;"}
+     ]}},
+    {h:'Table Aliases', p:"Table aliases shorten long table names — essential once you start writing JOINs across multiple tables.",
+     runner:{id:'al2', tabs:[
+       {label:'Table Alias', sql:"SELECT e.name, e.salary FROM employees e WHERE e.department = 'Engineering';"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Style Tip', text:"Writing AS explicitly for column aliases (but often omitting it for table aliases) is the most common convention across real-world codebases."}
+},
+
+'m2::TOP': {
+  intro:"TOP limits the number of rows a query returns — but it's a SQL Server / MS Access specific keyword, not part of the ANSI SQL standard.",
+  body:[
+    {h:'SQL Server Syntax', p:"In SQL Server you'd write <span class='ic'>SELECT TOP 3 * FROM employees ORDER BY salary DESC;</span> — or <span class='ic'>TOP 50 PERCENT</span> for a percentage of rows. This in-browser engine runs SQLite, which doesn't support TOP, so the runner below uses SQLite's equivalent, <span class='ic'>LIMIT</span>, to demonstrate the same result.",
+     runner:{id:'top1', tabs:[
+       {label:'SQLite Equivalent (LIMIT)', sql:"SELECT * FROM employees ORDER BY salary DESC LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Vendor Differences', text:"Row-limiting syntax varies a lot: SQL Server/Access use TOP, MySQL/PostgreSQL/SQLite use LIMIT, and Oracle/DB2/standard SQL use FETCH FIRST or ROWNUM."}
+},
+
+'m2::LIMIT': {
+  intro:"LIMIT restricts how many rows a query returns — used in MySQL, PostgreSQL, SQLite and many other databases.",
+  body:[
+    {h:'Capping Your Results', p:"LIMIT is placed at the very end of the query, after ORDER BY.",
+     runner:{id:'lim1', tabs:[
+       {label:'Basic LIMIT', sql:"SELECT * FROM employees LIMIT 3;"},
+       {label:'LIMIT + ORDER BY', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Always Pair with ORDER BY', text:"Without ORDER BY, a database is free to return rows in any physical order it likes — so LIMIT alone can give inconsistent results between runs."}
+},
+
+'m2::OFFSET': {
+  intro:"OFFSET skips a specified number of rows before the result set starts — combined with LIMIT, it's the standard way to build pagination.",
+  body:[
+    {h:'Paging Through Results', p:"Each 'page' skips the rows already shown on previous pages.",
+     runner:{id:'off1', tabs:[
+       {label:'Page 1', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 2 OFFSET 0;"},
+       {label:'Page 2', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 2 OFFSET 2;"},
+       {label:'Page 3', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 2 OFFSET 4;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Pagination Formula', text:"OFFSET = (page_number − 1) × page_size. For page 3 with 2 rows per page, that's (3−1)×2 = 4, matching the example above."}
+},
+
+'m2::FETCH FIRST': {
+  intro:"FETCH FIRST is the ANSI SQL standard clause for limiting rows — supported by PostgreSQL, Oracle, DB2 and SQL Server 2012+.",
+  body:[
+    {h:'Standard Syntax', p:"The full standard form is <span class='ic'>OFFSET n ROWS FETCH FIRST n ROWS ONLY</span>. SQLite (used in this in-browser runner) doesn't implement FETCH FIRST, so the example below shows the equivalent using LIMIT/OFFSET.",
+     runner:{id:'ff1', tabs:[
+       {label:'SQLite Equivalent', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 3 OFFSET 1;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Standard vs Vendor Syntax', text:"On PostgreSQL/Oracle/SQL Server the same query above would be written: SELECT name, salary FROM employees ORDER BY salary DESC OFFSET 1 ROWS FETCH FIRST 3 ROWS ONLY;"}
+},
+
+'m2::Expressions': {
+  intro:"A SQL expression combines columns, literal values, operators and functions to compute a new value directly inside a query.",
+  body:[
+    {h:'Arithmetic & String Expressions', p:"Expressions can do math, combine text, or produce boolean-like results — all without changing the underlying table.",
+     runner:{id:'expr1', tabs:[
+       {label:'Arithmetic', sql:"SELECT name, salary, salary * 12 AS estimated_annual_cost FROM employees;"},
+       {label:'String Concatenation', sql:"SELECT name || ' - ' || department AS employee_summary FROM employees;"},
+       {label:'Boolean Expression', sql:"SELECT name, salary, salary > 85000 AS is_high_earner FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Concatenation Differs by Database', text:"SQLite, PostgreSQL and Oracle use || to join strings; SQL Server uses +; MySQL uses the CONCAT() function instead."}
+},
+
+'m2::Calculated Columns': {
+  intro:"A calculated (or computed) column doesn't exist in the raw table — it's derived at query time from other columns using an expression.",
+  body:[
+    {h:'Deriving New Values', p:"Calculated columns are recomputed every time the query runs, so they always reflect the latest underlying data.",
+     runner:{id:'cc1', tabs:[
+       {label:'Bonus Calculation', sql:"SELECT name, salary, ROUND(salary * 0.10, 2) AS bonus_10pct FROM employees;"},
+       {label:'Combine Columns', sql:"SELECT name, salary, salary + ROUND(salary * 0.10, 2) AS total_comp FROM employees;"},
+       {label:'CASE-Based Column', sql:"SELECT name, salary, CASE WHEN salary > 90000 THEN 'Senior' ELSE 'Standard' END AS pay_band FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Want It Permanent?', text:"If you need a calculated value stored rather than recomputed each time, look into GENERATED / computed columns — supported natively by PostgreSQL, MySQL and SQL Server."}
+},
+
 'm3::WHERE': {
   intro:"WHERE filters rows based on a condition — it's the most used clause after SELECT.",
   body:[{h:'Filtering Rows', p:"Combine WHERE with comparison operators to narrow down results.",
