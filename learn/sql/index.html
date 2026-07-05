@@ -491,6 +491,188 @@ const LESSONS = {
     ]}}],
   tip:{type:'c-warn', title:'Performance Warning', text:"LIKE with a leading wildcard ('%text') cannot use an index and forces a full table scan."}
 },
+
+'m3::Comparison Operators': {
+  intro:"Comparison operators test a relationship between two values — equal, not equal, greater than, less than — and are the building blocks of every WHERE condition.",
+  body:[
+    {h:'The Six Operators', p:"<span class='ic'>=</span> equal, <span class='ic'>&lt;&gt;</span> or <span class='ic'>!=</span> not equal, <span class='ic'>&gt;</span> greater than, <span class='ic'>&lt;</span> less than, <span class='ic'>&gt;=</span> greater or equal, <span class='ic'>&lt;=</span> less or equal.",
+     runner:{id:'cmp1', tabs:[
+       {label:'Equal', sql:"SELECT name, salary FROM employees WHERE salary = 95000;"},
+       {label:'Not Equal', sql:"SELECT name, department FROM employees WHERE department <> 'Engineering';"},
+       {label:'Greater / Less', sql:"SELECT name, salary FROM employees WHERE salary >= 70000 AND salary <= 95000;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'<> vs !=', text:"<> is the ANSI SQL standard 'not equal' operator and works everywhere. != is a widely supported alias, but stick to <> for maximum portability."}
+},
+
+'m3::AND': {
+  intro:"AND combines multiple conditions in a WHERE clause — a row is only included if EVERY condition is true.",
+  body:[
+    {h:'All Conditions Must Match', p:"You can chain as many AND conditions as you like; the more you add, the narrower your result gets.",
+     runner:{id:'and1', tabs:[
+       {label:'Two Conditions', sql:"SELECT name, department, salary FROM employees WHERE department = 'Engineering' AND salary > 90000;"},
+       {label:'Three Conditions', sql:"SELECT * FROM employees WHERE department = 'Engineering' AND salary > 85000 AND city = 'Bangalore';"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Tip', text:"If a row fails even one AND condition, it's excluded — AND is always more restrictive than OR."}
+},
+
+'m3::OR': {
+  intro:"OR combines multiple conditions in a WHERE clause — a row is included if AT LEAST ONE condition is true.",
+  body:[
+    {h:'Any Condition Can Match', p:"OR widens your result set compared to AND, since only one condition needs to pass.",
+     runner:{id:'or1', tabs:[
+       {label:'Either Department', sql:"SELECT name, department FROM employees WHERE department = 'HR' OR department = 'Marketing';"},
+       {label:'Mixing AND + OR', sql:"SELECT name, department, salary FROM employees WHERE department = 'Engineering' AND (salary > 92000 OR city = 'Mumbai');"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Always Use Parentheses', text:"AND has higher precedence than OR. Without parentheses, WHERE dept='HR' OR dept='Eng' AND salary>90000 evaluates the AND first — often not what you intended. Group conditions explicitly."}
+},
+
+'m3::NOT': {
+  intro:"NOT reverses the result of a condition — what was true becomes false, and what was false becomes true.",
+  body:[
+    {h:'Negating a Condition', p:"NOT is often combined with other operators like IN, BETWEEN, or LIKE to express 'everything except this'.",
+     runner:{id:'not1', tabs:[
+       {label:'Simple NOT', sql:"SELECT name, department FROM employees WHERE NOT department = 'Engineering';"},
+       {label:'NOT with Parentheses', sql:"SELECT name, salary FROM employees WHERE NOT (salary > 80000);"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Readability Tip', text:"'WHERE NOT department = X' and 'WHERE department <> X' return identical results — many teams prefer <> for simple negations and reserve NOT for compound conditions."}
+},
+
+'m3::IN': {
+  intro:"IN checks whether a value matches any value in a given list — a clean shortcut instead of chaining several OR conditions.",
+  body:[
+    {h:'Matching Against a List', p:"<span class='ic'>WHERE department IN ('HR','Marketing')</span> is equivalent to <span class='ic'>WHERE department = 'HR' OR department = 'Marketing'</span>, but far easier to read with longer lists.",
+     runner:{id:'in1', tabs:[
+       {label:'IN with List', sql:"SELECT name, department FROM employees WHERE department IN ('HR', 'Marketing');"},
+       {label:'IN with Subquery', sql:"SELECT name FROM employees WHERE dept_id IN (SELECT id FROM departments WHERE location = 'Mumbai');"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Tip', text:"IN can take either a literal list of values or a subquery that returns a list — both work exactly the same way."}
+},
+
+'m3::NOT IN': {
+  intro:"NOT IN excludes rows whose value matches anything in a given list — but it hides a dangerous trap when the list contains NULL.",
+  body:[
+    {h:'Excluding a List', p:"Straightforward when the list has no NULLs.",
+     runner:{id:'notin1', tabs:[
+       {label:'NOT IN with List', sql:"SELECT name, department FROM employees WHERE department NOT IN ('HR', 'Marketing');"}
+     ]}},
+    {h:'The NULL Trap', p:"If the subquery list itself can contain NULL, NOT IN silently returns ZERO rows — because comparing anything to NULL is UNKNOWN, not TRUE. Two employees have a NULL manager_id, so this 'find employees who are not managers' query below unexpectedly returns nothing.",
+     runner:{id:'notin2', tabs:[
+       {label:'❌ Broken by NULL', sql:"SELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees);"},
+       {label:'✅ Safe Fix', sql:"SELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Classic Interview Trap', text:"Always filter out NULLs from a NOT IN subquery list, or use NOT EXISTS instead — NOT EXISTS never has this problem."}
+},
+
+'m3::BETWEEN': {
+  intro:"BETWEEN checks whether a value falls within an inclusive range — a cleaner alternative to writing two comparison operators.",
+  body:[
+    {h:'Inclusive on Both Ends', p:"<span class='ic'>salary BETWEEN 70000 AND 90000</span> includes rows where salary is exactly 70000 or exactly 90000, not just values strictly in between.",
+     runner:{id:'bet1', tabs:[
+       {label:'BETWEEN', sql:"SELECT name, salary FROM employees WHERE salary BETWEEN 70000 AND 90000;"},
+       {label:'NOT BETWEEN', sql:"SELECT name, salary FROM employees WHERE salary NOT BETWEEN 70000 AND 90000;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Works on Dates Too', text:"BETWEEN isn't limited to numbers — it's just as common for filtering date ranges, e.g. order_date BETWEEN '2026-01-01' AND '2026-01-31'."}
+},
+
+'m3::LIKE': {
+  intro:"LIKE performs pattern matching on text — used with wildcard characters to find values that partially match instead of exactly match.",
+  body:[
+    {h:'Pattern Matching Basics', p:"Combine LIKE with the <span class='ic'>%</span> and <span class='ic'>_</span> wildcards (covered in the next topic) to match flexible text patterns.",
+     runner:{id:'like1', tabs:[
+       {label:'Starts With', sql:"SELECT name FROM employees WHERE name LIKE 'A%';"},
+       {label:'Contains', sql:"SELECT name FROM employees WHERE name LIKE '%a%';"},
+       {label:'Ends With', sql:"SELECT name FROM employees WHERE name LIKE '%e';"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Case Sensitivity Varies', text:"SQLite's LIKE is case-insensitive for ASCII letters by default. MySQL is case-insensitive by default too, but PostgreSQL's LIKE is case-sensitive (use ILIKE there instead)."}
+},
+
+'m3::Wildcards': {
+  intro:"Wildcards are special characters used inside a LIKE pattern to represent 'any character' — % for any sequence, _ for exactly one character.",
+  body:[
+    {h:'Percent and Underscore', p:"<span class='ic'>%</span> matches zero or more characters of any kind. <span class='ic'>_</span> matches exactly one character.",
+     runner:{id:'wc1', tabs:[
+       {label:'% Any Sequence', sql:"SELECT name FROM employees WHERE name LIKE '%o%';"},
+       {label:'_ Single Character', sql:"SELECT name FROM employees WHERE name LIKE '_ob';"},
+       {label:'Combine Both', sql:"SELECT name FROM employees WHERE name LIKE 'C_r%';"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Matching a Literal % or _', text:"If you need to search for an actual percent sign or underscore, escape it: LIKE '50\\%%' ESCAPE '\\' matches values starting with '50%'."}
+},
+
+'m3::EXISTS': {
+  intro:"EXISTS checks whether a subquery returns ANY rows at all — it doesn't care about the actual values, just whether at least one match exists.",
+  body:[
+    {h:'Finding Related Rows', p:"EXISTS is often faster than IN for correlated subqueries because the database can stop as soon as it finds one matching row.",
+     runner:{id:'ex1', tabs:[
+       {label:'Departments With Staff', sql:"SELECT dept_name FROM departments d WHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id);"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'What to SELECT Inside EXISTS', text:"It's conventional to write SELECT 1 inside an EXISTS subquery — the actual selected value is discarded, since EXISTS only checks row presence."}
+},
+
+'m3::NOT EXISTS': {
+  intro:"NOT EXISTS is the mirror image of EXISTS — it returns rows where the subquery finds NO match at all, and it never suffers from the NULL trap that affects NOT IN.",
+  body:[
+    {h:'Finding the Unmatched', p:"The Finance department (id 40) has zero employees assigned to it — NOT EXISTS finds it reliably.",
+     runner:{id:'nex1', tabs:[
+       {label:'Departments With No Staff', sql:"SELECT dept_name FROM departments d WHERE NOT EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id);"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Prefer This Over NOT IN', text:"Unlike NOT IN, NOT EXISTS handles NULLs correctly in every case — when in doubt, use NOT EXISTS for 'find rows with no match' queries."}
+},
+
+'m3::ANY': {
+  intro:"ANY compares a value against every value returned by a subquery, and is true if the comparison succeeds against AT LEAST ONE of them.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Standard SQL allows <span class='ic'>salary &gt; ANY (subquery)</span>, but SQLite (the engine powering this in-browser runner) doesn't implement ANY/SOME. PostgreSQL, SQL Server and Oracle all support it directly. In SQLite, the same logic can be written using MIN() — 'greater than ANY value' is the same as 'greater than the smallest value'.",
+     runner:{id:'any1', tabs:[
+       {label:'SQLite Equivalent (MIN)', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT MIN(salary) FROM employees WHERE department = 'HR');"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/SQL Server/Oracle: SELECT name, salary FROM employees WHERE salary > ANY (SELECT salary FROM employees WHERE department = 'HR');"}
+},
+
+'m3::ALL': {
+  intro:"ALL compares a value against every value returned by a subquery, and is true only if the comparison succeeds against EVERY one of them.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Like ANY, the ALL keyword isn't implemented in SQLite. 'Greater than ALL values' is equivalent to 'greater than the largest value', so MAX() gives the same result here.",
+     runner:{id:'all1', tabs:[
+       {label:'SQLite Equivalent (MAX)', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT MAX(salary) FROM employees WHERE department = 'HR');"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/SQL Server/Oracle: SELECT name, salary FROM employees WHERE salary > ALL (SELECT salary FROM employees WHERE department = 'HR');"}
+},
+
+'m3::IS NULL': {
+  intro:"IS NULL is the only correct way to test for a missing value — since NULL represents 'unknown', the ordinary = operator can never match it.",
+  body:[
+    {h:'Finding Missing Values', p:"Sarah and Alice have no manager assigned, so their manager_id column is NULL.",
+     runner:{id:'isn1', tabs:[
+       {label:'IS NULL', sql:"SELECT name, manager_id FROM employees WHERE manager_id IS NULL;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'See Also', text:"For a deeper look at why NULL behaves this way, check the 'NULL Values' topic in the SQL Fundamentals module."}
+},
+
+'m3::IS NOT NULL': {
+  intro:"IS NOT NULL filters out missing values, keeping only rows where a column actually has a real, known value.",
+  body:[
+    {h:'Filtering Out the Unknown', p:"This finds every employee who does have a manager assigned.",
+     runner:{id:'isnn1', tabs:[
+       {label:'IS NOT NULL', sql:"SELECT name, manager_id FROM employees WHERE manager_id IS NOT NULL;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Common Pattern', text:"IS NOT NULL is frequently combined with COUNT to measure data completeness, e.g. SELECT COUNT(*) FROM employees WHERE manager_id IS NOT NULL — often called a 'fill rate' check."}
+},
+
 'm4::GROUP BY': {
   intro:"GROUP BY collapses rows into grouped statistics — the foundation of all reporting SQL.",
   body:[{h:'Grouping & Aggregating', p:"Combine GROUP BY with COUNT, AVG, SUM, MAX, MIN for department-level or category-level stats.",
