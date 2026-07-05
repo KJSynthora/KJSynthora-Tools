@@ -198,6 +198,176 @@ const MODULES = [
 // Add more entries here over time to progressively fill the course.
 // ═══════════════════════════════════════════════════════
 const LESSONS = {
+
+'m1::What is SQL?': {
+  intro:"SQL (Structured Query Language) is the standard language used to talk to relational databases — to create, read, update and delete the data stored inside tables. It's declarative: you describe WHAT result you want, and the database engine figures out HOW to get it.",
+  body:[
+    {h:'A Language for Talking to Databases', p:"Every relational database — MySQL, PostgreSQL, SQL Server, Oracle, SQLite, Snowflake, Databricks SQL — understands SQL. Learn it once, and you can work with almost any data system on earth."},
+    {h:'Declarative, Not Procedural', p:"In a language like Python you write step-by-step instructions (a loop, an if-check). In SQL you just describe the shape of the result you want using <span class='ic'>SELECT</span>, and the engine's query optimizer decides the fastest way to fetch it."},
+    {h:'Try Your First Query', p:"Run the query below against a live in-browser database — this is a real SQLite engine running in your browser, not a fake output.",
+     runner:{id:'wis1', tabs:[
+       {label:'All Rows', sql:"SELECT * FROM employees;"},
+       {label:'Specific Columns', sql:"SELECT name, department, salary FROM employees;"},
+       {label:'Filtered', sql:"SELECT name, salary FROM employees WHERE department = 'Engineering';"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Good to Know', text:"SQL was originally called SEQUEL (Structured English Query Language) — that's still why many people pronounce it 'sequel' instead of spelling out S-Q-L."}
+},
+
+'m1::History of SQL': {
+  intro:"SQL began as an academic idea in 1970 and became the global data standard in less than two decades — a rare feat in computer science.",
+  body:[
+    {h:"From a Research Paper to an Industry Standard", p:"In 1970, IBM researcher Dr. Edgar F. Codd published \"A Relational Model of Data for Large Shared Data Banks,\" introducing the idea of storing data in tables (relations) instead of rigid hierarchical structures."},
+    {h:'SEQUEL Becomes SQL', p:"IBM engineers Donald Chamberlin and Raymond Boyce built a language called SEQUEL (Structured English Query Language) in the mid-1970s to test Codd's ideas inside IBM's System R prototype. A trademark conflict later shortened the name to SQL."},
+    {h:'Key Milestones', p:"<ul><li><strong>1970</strong> — Codd's relational model paper published</li><li><strong>1974</strong> — SEQUEL developed at IBM for System R</li><li><strong>1979</strong> — Oracle ships the first commercial SQL database</li><li><strong>1986</strong> — ANSI standardizes SQL (SQL-86)</li><li><strong>1987</strong> — ISO adopts the same standard internationally</li><li><strong>Today</strong> — SQL:2016+ adds JSON support, window functions, and more, and every major database still speaks it</li></ul>"}
+  ],
+  tip:{type:'c-note', title:'Fun Fact', text:"IBM couldn't trademark 'SEQUEL' because a UK aircraft company already owned it — so the language was renamed SQL, and the pronunciation 'sequel' stuck around."}
+},
+
+'m1::SQL Architecture': {
+  intro:"A SQL database isn't one single program — it's a layered system where your query passes through several stages before you ever see a result.",
+  body:[
+    {h:'The Three-Tier Model', p:"Most database systems follow a client-server model: (1) the <strong>Client</strong> — your app, a BI tool, or this browser page — sends a SQL statement; (2) the <strong>Database Engine</strong> parses, optimizes and executes it; (3) the <strong>Storage Layer</strong> reads or writes the actual data on disk or in memory."},
+    {h:'Inside the Engine', p:"When a query arrives, it moves through four stages: the <strong>Parser</strong> checks syntax and builds a query tree, the <strong>Optimizer</strong> picks the fastest execution plan (which index to use, which join order), the <strong>Execution Engine</strong> carries out that plan, and the <strong>Storage Engine</strong> physically retrieves rows.",
+     runner:{id:'arc1', tabs:[
+       {label:'See the Plan', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';"},
+       {label:'Run the Query', sql:"SELECT * FROM employees WHERE department = 'Engineering';"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Why This Matters', text:"Understanding that the optimizer — not you — chooses the execution path explains why two queries returning the same rows can have very different performance."}
+},
+
+'m1::Database Concepts': {
+  intro:"Before writing queries, it helps to know the vocabulary: database, DBMS, schema, table and record all mean something specific.",
+  body:[
+    {h:'The Core Vocabulary', p:"A <strong>Database</strong> is an organized collection of data. A <strong>DBMS</strong> (Database Management System) is the software that manages it, like MySQL or PostgreSQL. An <strong>RDBMS</strong> is a DBMS that stores data in related tables (the 'R' is for Relational). A <strong>Schema</strong> is the blueprint — the tables, columns and relationships — while the data itself fills that blueprint."},
+    {h:'See the Blueprint', p:"You can inspect a table's schema directly with a PRAGMA statement in SQLite (other databases have equivalents like <span class='ic'>information_schema</span>).",
+     runner:{id:'dc1', tabs:[
+       {label:'Table Schema', sql:"PRAGMA table_info(employees);"},
+       {label:'List Tables', sql:"SELECT name FROM sqlite_master WHERE type='table';"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'RDBMS vs NoSQL', text:"Not every DBMS is relational — MongoDB and Redis are non-relational (NoSQL) systems. SQL, as a language, is specifically for relational systems."}
+},
+
+'m1::Tables, Rows & Columns': {
+  intro:"A table is the fundamental storage unit in a relational database — a grid of rows and columns, much like a spreadsheet, but with strict rules.",
+  body:[
+    {h:'Rows and Columns', p:"Each <strong>column</strong> represents an attribute (name, salary, department) and has a fixed data type. Each <strong>row</strong> (also called a record or tuple) represents one complete entity — one employee, one order, one product."},
+    {h:'Inspect a Real Table', p:"The <span class='ic'>employees</span> table below has 6 rows and 7 columns. Try selecting a few rows to see the structure.",
+     runner:{id:'trc1', tabs:[
+       {label:'First 3 Rows', sql:"SELECT * FROM employees LIMIT 3;"},
+       {label:'Column Info', sql:"PRAGMA table_info(employees);"},
+       {label:'Row Count', sql:"SELECT COUNT(*) AS total_rows FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Naming Convention', text:"Table names are usually plural (employees, orders) since a table holds many rows, while each row represents one singular entity (one employee)."}
+},
+
+'m1::SQL Syntax': {
+  intro:"SQL statements follow a predictable structure. Learn the clause order once, and every query you write afterward becomes easier to reason about.",
+  body:[
+    {h:'Anatomy of a Statement', p:"Keywords like <span class='ic'>SELECT</span>, <span class='ic'>FROM</span> and <span class='ic'>WHERE</span> are conventionally written in UPPERCASE (SQL itself is case-insensitive to keywords), identifiers like table and column names follow your database's casing rules, and every statement ends with a semicolon <span class='ic'>;</span>"},
+    {h:'Written Clause Order', p:"You write clauses in this order: <span class='ic'>SELECT</span> → <span class='ic'>FROM</span> → <span class='ic'>WHERE</span> → <span class='ic'>GROUP BY</span> → <span class='ic'>HAVING</span> → <span class='ic'>ORDER BY</span> → <span class='ic'>LIMIT</span>. (The database actually *executes* them in a different order — covered in the 'SQL Order of Execution' topic.)",
+     runner:{id:'syn1', tabs:[
+       {label:'Full Structure', sql:"SELECT department, AVG(salary) AS avg_salary FROM employees WHERE salary > 60000 GROUP BY department HAVING AVG(salary) > 70000 ORDER BY avg_salary DESC LIMIT 5;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Common Mistake', text:"Writing clauses out of order (e.g. WHERE after GROUP BY) causes a syntax error — the written order above is fixed and cannot be rearranged."}
+},
+
+'m1::SQL Statements': {
+  intro:"Every SQL command belongs to one of five categories, based on what it does to your data or database structure.",
+  body:[
+    {h:'The Five Categories', p:"<ul><li><strong>DDL</strong> (Data Definition Language) — CREATE, ALTER, DROP: defines structure</li><li><strong>DML</strong> (Data Manipulation Language) — INSERT, UPDATE, DELETE: changes data</li><li><strong>DQL</strong> (Data Query Language) — SELECT: reads data</li><li><strong>DCL</strong> (Data Control Language) — GRANT, REVOKE: manages permissions</li><li><strong>TCL</strong> (Transaction Control Language) — COMMIT, ROLLBACK: manages transactions</li></ul>"},
+    {h:'DDL + DML Together', p:"This example creates a temporary table (DDL), inserts a row (DML), and queries it (DQL) — all in one runnable block, without touching the main employees table.",
+     runner:{id:'stmt1', tabs:[
+       {label:'DDL + DML + DQL', sql:"CREATE TEMP TABLE demo (id INTEGER, note TEXT); INSERT INTO demo VALUES (1, 'Created with DDL, filled with DML'); SELECT * FROM demo; DROP TABLE demo;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Interview Tip', text:"A common interview question is the difference between DELETE, TRUNCATE and DROP — DELETE removes rows (DML, can be rolled back), TRUNCATE empties a table fast (DDL in most databases), and DROP removes the whole table structure."}
+},
+
+'m1::SQL Comments': {
+  intro:"Comments let you leave notes in your SQL code that the database engine completely ignores — essential for documenting complex queries.",
+  body:[
+    {h:'Single-Line and Multi-Line', p:"Use two dashes <span class='ic'>--</span> for a comment that runs to the end of the line, or <span class='ic'>/* ... */</span> to comment out a block spanning multiple lines.",
+     runner:{id:'com1', tabs:[
+       {label:'Single-Line', sql:"-- Get every engineer's name and salary\nSELECT name, salary\nFROM employees\nWHERE department = 'Engineering'; -- filters by department"},
+       {label:'Multi-Line', sql:"/* This query finds all\n   employees earning above 90,000 */\nSELECT name, salary\nFROM employees\nWHERE salary > 90000;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Best Practice', text:"Comment the 'why', not the 'what' — SQL is usually readable enough to explain itself, but the business reason behind a filter or threshold often isn't obvious."}
+},
+
+'m1::SQL Keywords': {
+  intro:"Keywords are reserved words that have a special meaning to SQL — SELECT, FROM, WHERE, JOIN and hundreds more — and can't normally be used as table or column names.",
+  body:[
+    {h:'Keywords Are Case-Insensitive', p:"<span class='ic'>SELECT</span> and <span class='ic'>select</span> behave identically to the database engine. Writing keywords in UPPERCASE is just a convention that makes queries easier for humans to scan.",
+     runner:{id:'kw1', tabs:[
+       {label:'Uppercase', sql:"SELECT name, department FROM employees WHERE department = 'HR';"},
+       {label:'Lowercase (same result)', sql:"select name, department from employees where department = 'HR';"}
+     ]}},
+    {h:'Common Keyword Categories', p:"<ul><li><strong>Query</strong> — SELECT, FROM, WHERE, ORDER BY, GROUP BY</li><li><strong>Join</strong> — JOIN, ON, INNER, LEFT, RIGHT</li><li><strong>Data change</strong> — INSERT, UPDATE, DELETE, SET</li><li><strong>Structure</strong> — CREATE, ALTER, DROP, TABLE</li><li><strong>Logic</strong> — AND, OR, NOT, IN, BETWEEN, LIKE, IS NULL</li></ul>"}
+  ],
+  tip:{type:'c-warn', title:'Reserved Word Trap', text:"If you must name a column 'order' or 'group' (both reserved keywords), you'll need to wrap it in quotes or brackets — e.g. \"order\" or [order] — depending on your database."}
+},
+
+'m1::SQL Data Types': {
+  intro:"Every column has a data type that determines what kind of value it can hold — numbers, text, dates and more — and how the database stores and compares it.",
+  body:[
+    {h:'The Major Categories', p:"<ul><li><strong>Numeric</strong> — INT, BIGINT, DECIMAL, FLOAT</li><li><strong>String</strong> — CHAR, VARCHAR, TEXT</li><li><strong>Date/Time</strong> — DATE, TIME, DATETIME, TIMESTAMP</li><li><strong>Boolean</strong> — BOOLEAN (true/false, or 0/1 in some databases)</li><li><strong>Binary</strong> — BLOB, BINARY for raw bytes like files or images</li></ul>"},
+    {h:'Checking Real Column Types', p:"This in-browser engine runs SQLite, which uses flexible ('dynamic') typing. Production databases like PostgreSQL, MySQL and SQL Server enforce a fixed type per column — the concepts are the same either way.",
+     runner:{id:'dt1', tabs:[
+       {label:'Declared Types', sql:"PRAGMA table_info(employees);"},
+       {label:'Actual Value Types', sql:"SELECT typeof(name) AS name_type, typeof(salary) AS salary_type, typeof(manager_id) AS manager_id_type FROM employees LIMIT 1;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Choose Types Deliberately', text:"Using DECIMAL instead of FLOAT for money avoids rounding errors, and VARCHAR(n) instead of TEXT can help enforce sane length limits at the database level."}
+},
+
+'m1::NULL Values': {
+  intro:"NULL represents missing or unknown data — it's not zero, not an empty string, and it behaves differently from every other value in SQL.",
+  body:[
+    {h:'NULL Is Not a Value', p:"Because NULL means 'unknown', comparing it with <span class='ic'>=</span> never returns true — not even <span class='ic'>NULL = NULL</span>. You must use <span class='ic'>IS NULL</span> or <span class='ic'>IS NOT NULL</span> instead."},
+    {h:'See the Trap', p:"Sarah and Alice have no manager, so their <span class='ic'>manager_id</span> is NULL. Compare what happens with <span class='ic'>=</span> versus <span class='ic'>IS NULL</span>.",
+     runner:{id:'null1', tabs:[
+       {label:'IS NULL (correct)', sql:"SELECT name, manager_id FROM employees WHERE manager_id IS NULL;"},
+       {label:'= NULL (always empty!)', sql:"SELECT name, manager_id FROM employees WHERE manager_id = NULL;"},
+       {label:'COALESCE Default', sql:"SELECT name, COALESCE(manager_id, 0) AS manager_id_or_zero FROM employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Three-Valued Logic', text:"SQL conditions don't just evaluate to TRUE or FALSE — a comparison involving NULL evaluates to UNKNOWN, which is treated as FALSE and excludes the row from your result."}
+},
+
+'m1::SQL Order of Execution': {
+  intro:"SQL doesn't run in the order you type it. The database processes clauses in a fixed logical sequence, and understanding it explains a lot of 'why doesn't this work?' moments.",
+  body:[
+    {h:'The Real Execution Order', p:"<span class='ic'>FROM</span> → <span class='ic'>JOIN</span> → <span class='ic'>WHERE</span> → <span class='ic'>GROUP BY</span> → <span class='ic'>HAVING</span> → <span class='ic'>SELECT</span> → <span class='ic'>DISTINCT</span> → <span class='ic'>ORDER BY</span> → <span class='ic'>LIMIT</span>. Notice that SELECT — the clause you write first — actually runs almost last."},
+    {h:'Why Aliases Fail in WHERE', p:"Because WHERE executes before SELECT, a column alias defined in SELECT doesn't exist yet when WHERE runs. Try all three queries below.",
+     runner:{id:'oe1', tabs:[
+       {label:'✅ Works (real column)', sql:"SELECT salary AS s FROM employees WHERE salary > 80000;"},
+       {label:'❌ Fails (alias in WHERE)', sql:"SELECT salary AS s FROM employees WHERE s > 80000;"},
+       {label:'✅ Alias in ORDER BY works', sql:"SELECT salary AS s FROM employees ORDER BY s DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Why ORDER BY Can Use Aliases', text:"ORDER BY runs after SELECT in the logical order, so by the time it executes, the alias already exists — that's why the third example above works while WHERE fails."}
+},
+
+'m1::SQL Best Practices': {
+  intro:"Writing SQL that runs is easy. Writing SQL that's fast, safe and readable six months from now takes a few disciplined habits.",
+  body:[
+    {h:'Formatting & Readability', p:"<ul><li>Write keywords in UPPERCASE, identifiers in lowercase or snake_case</li><li>Put each major clause (SELECT, FROM, WHERE...) on its own line</li><li>Use meaningful table aliases (e.g. <span class='ic'>e</span> for employees, not <span class='ic'>x</span>)</li><li>Comment the business reason behind non-obvious filters</li></ul>"},
+    {h:'Performance & Safety', p:"<ul><li>Select only the columns you need — avoid <span class='ic'>SELECT *</span> in production code</li><li>Filter early with WHERE before grouping or joining large tables</li><li>Always use parameterized queries in application code to prevent SQL injection</li><li>Index columns you frequently filter or join on</li></ul>"},
+    {h:'Before and After', p:"Compare a quick-and-dirty query against a cleaner, safer version of the same request.",
+     runner:{id:'bp1', tabs:[
+       {label:'❌ Avoid', sql:"select * from employees;"},
+       {label:'✅ Better', sql:"SELECT name, department, salary FROM employees WHERE department = 'Engineering' ORDER BY salary DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Rule of Thumb', text:"If you can't read your own query out loud and explain what it does in one sentence, it probably needs to be simplified or split into a CTE."}
+},
+
 'm2::SELECT': {
   intro:"SELECT is the foundation of all SQL. Every query starts here — it lets you retrieve exactly the columns you need from a table.",
   body:[
