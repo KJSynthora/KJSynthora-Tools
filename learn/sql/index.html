@@ -2909,6 +2909,180 @@ const LESSONS = {
     {h:'Transactions', p:"<ul><li><code>BEGIN TRANSACTION; ... COMMIT;</code></li><li><code>ROLLBACK;</code></li><li><code>SAVEPOINT name; ROLLBACK TO name;</code></li></ul>"}
   ],
   tip:{type:'c-note', title:'Need More Depth?', text:"This cheat sheet only covers the highlights — for the exhaustive, fully-documented version of every keyword, function, and operator, see the SQL Reference module."}
+},
+/* ═══════════════════════════════════════════════════════
+   MODULE 26 — SQL CHALLENGES (4 topics)
+   MODULE 27 — SQL REFERENCE (6 topics)
+   RESOURCES — (5 topics)
+   PASTE ALL OF THIS into your existing LESSONS = { ... } object,
+   right after the last 'm25::...' entry and before the closing "};"
+   This completes the full 27-module + Resources structure.
+   ═══════════════════════════════════════════════════════ */
+
+/* ───── MODULE 26: SQL CHALLENGES ───── */
+
+'m26::Daily Challenges': {
+  intro:"A rotating, bite-sized problem meant to be solved in under 10 minutes — the goal is consistency, not difficulty. Solving one small challenge a day builds far more lasting SQL fluency than an occasional long study session.",
+  body:[
+    {h:"Today's Challenge (Sample)", p:"📋 <strong>Challenge:</strong> Find every employee whose salary is an exact multiple of 1,000 — a quick, five-minute warm-up using the modulo operator.",
+     runner:{id:'daily1', tabs:[{label:'Solution', sql:"SELECT name, salary FROM employees WHERE salary % 1000 = 0;"}]}},
+    {h:'How Daily Challenges Rotate', p:"Difficulty cycles gently through the week — lighter warm-ups early on, building toward a slightly meatier problem by the end — so no single day feels like a big time commitment."}
+  ],
+  tip:{type:'c-tip', title:'Consistency Beats Intensity', text:"Five focused minutes a day, sustained over months, builds stronger query-writing instincts than a single four-hour cram session — treat daily challenges like a habit, not a test."}
+},
+
+'m26::Weekly Challenges': {
+  intro:"A bigger, multi-part problem released weekly — closer to a small project than a single query, usually requiring you to combine several concepts from across different modules in one connected task.",
+  body:[
+    {h:"This Week's Challenge (Sample)", p:"📋 <strong>Challenge:</strong> Using the employees and departments tables, build a single report showing: department name, headcount, average salary, and each department's rank by average salary — then separately identify the single highest earner in each department.",
+     runner:{id:'weekly1', tabs:[
+       {label:'Part 1 — Department Scorecard', sql:"WITH dept_stats AS (\n  SELECT department, COUNT(*) AS headcount, ROUND(AVG(salary),2) AS avg_salary FROM employees GROUP BY department\n)\nSELECT department, headcount, avg_salary, RANK() OVER (ORDER BY avg_salary DESC) AS pay_rank FROM dept_stats;"},
+       {label:'Part 2 — Top Earner per Department', sql:"WITH ranked AS (\n  SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk FROM employees\n)\nSELECT name, department, salary FROM ranked WHERE rnk = 1;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Treat It Like a Mini Take-Home', text:"Weekly challenges are deliberately shaped like the take-home assignments many companies give during real interviews — practicing the habit of breaking one big ask into clean, separate query steps is exactly the skill being built."}
+},
+
+'m26::SQL Puzzles': {
+  intro:"Short, tricky puzzles built around a surprising or counter-intuitive SQL behavior — less about writing a query from scratch, more about spotting why something that looks correct actually isn't.",
+  body:[
+    {h:'Puzzle 1: The Vanishing Rows', p:"📋 <strong>Puzzle:</strong> A query using NOT IN against a subquery returns zero rows, even though it clearly shouldn't. What's the likely cause?",
+     runner:{id:'puz1', tabs:[{label:'The Trick', sql:"-- If the subquery list can contain even one NULL, every row silently fails to match.\nSELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees);\n\n-- Fix: filter out the NULL first\nSELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);"}]}},
+    {h:'Puzzle 2: The Alias That Wasn\u2019t There', p:"📋 <strong>Puzzle:</strong> A query defines <code>salary AS s</code> in SELECT, then tries to filter with <code>WHERE s > 80000</code> — and fails with an error. Why?",
+     runner:{id:'puz2', tabs:[{label:'The Trick', sql:"-- WHERE runs BEFORE SELECT in the logical execution order,\n-- so the alias 's' doesn't exist yet when WHERE is evaluated.\nSELECT salary AS s FROM employees WHERE s > 80000;"}]}},
+    {h:'Puzzle 3: The Average That Lied', p:"📋 <strong>Puzzle:</strong> A department's average salary looks suspiciously high — investigate why before trusting the number.",
+     runner:{id:'puz3', tabs:[{label:'Reveal the Cause', sql:"-- Always check the sample size behind an average\nSELECT department, COUNT(*) AS n, AVG(salary) AS avg_salary FROM employees GROUP BY department;"}]}}
+  ],
+  tip:{type:'c-note', title:'The Point of Puzzles', text:"Every puzzle in this section is based on a real, common mistake — the goal isn't to memorize these three specific cases, but to build the instinct to ask 'wait, why would that happen?' whenever a result looks surprising."}
+},
+
+'m26::Hackathon Challenges': {
+  intro:"A larger, open-ended data challenge in the style of a real hackathon problem statement — combining many concepts from across the course into one connected business problem, with no single 'correct' path to the answer.",
+  body:[
+    {h:'Challenge Brief: Workforce Insights Dashboard', p:"📋 <strong>Brief:</strong> Leadership wants a single set of queries powering a new workforce dashboard: (1) department cost and headcount trends, (2) top and bottom performers by pay within each department, and (3) a flag for any department whose average pay is significantly below the company average. Build all three as clean, reusable queries.",
+     runner:{id:'hack1', tabs:[
+       {label:'1. Cost & Headcount', sql:"SELECT department, COUNT(*) AS headcount, SUM(salary) AS total_cost, ROUND(AVG(salary),2) AS avg_salary FROM employees GROUP BY department;"},
+       {label:'2. Top & Bottom per Department', sql:"WITH ranked AS (\n  SELECT name, department, salary,\n    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS top_rank,\n    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary ASC) AS bottom_rank\n  FROM employees\n)\nSELECT name, department, salary, CASE WHEN top_rank = 1 THEN 'Top Earner' WHEN bottom_rank = 1 THEN 'Lowest Earner' END AS flag\nFROM ranked WHERE top_rank = 1 OR bottom_rank = 1;"},
+       {label:'3. Below-Average Departments', sql:"WITH dept_avg AS (SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department)\nSELECT department, avg_sal FROM dept_avg WHERE avg_sal < (SELECT AVG(salary) * 0.9 FROM employees);"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'How to Approach a Hackathon-Style Brief', text:"Break the ambiguous brief into concrete, separately testable pieces before writing any SQL — exactly as done above (three numbered deliverables) — then solve and verify each piece independently rather than trying to write one giant query that does everything at once."}
+},
+
+/* ───── MODULE 27: SQL REFERENCE ───── */
+
+'m27::SQL Keywords': {
+  intro:"A condensed reference of the most important SQL keywords, grouped by purpose — useful for a quick refresher on what a keyword does without re-reading its full module.",
+  body:[
+    {h:'Query & Filtering', p:"<ul><li><strong>SELECT</strong> — choose columns to retrieve</li><li><strong>FROM</strong> — specify the source table</li><li><strong>WHERE</strong> — filter individual rows</li><li><strong>DISTINCT</strong> — remove duplicate rows</li><li><strong>AND / OR / NOT</strong> — combine or negate conditions</li><li><strong>IN / BETWEEN / LIKE</strong> — list, range, and pattern matching</li></ul>"},
+    {h:'Grouping & Sorting', p:"<ul><li><strong>GROUP BY</strong> — collapse rows into groups</li><li><strong>HAVING</strong> — filter groups after aggregation</li><li><strong>ORDER BY</strong> — sort the result set</li><li><strong>LIMIT / OFFSET</strong> — restrict and paginate rows</li></ul>"},
+    {h:'JOINs & Sets', p:"<ul><li><strong>JOIN / INNER JOIN</strong> — matching rows from both tables</li><li><strong>LEFT JOIN / RIGHT JOIN</strong> — all rows from one side</li><li><strong>UNION / UNION ALL</strong> — stack result sets</li><li><strong>ON</strong> — the join condition</li></ul>"},
+    {h:'Structure & Data Change', p:"<ul><li><strong>CREATE / ALTER / DROP</strong> — define or change structure</li><li><strong>INSERT / UPDATE / DELETE</strong> — change data</li><li><strong>PRIMARY KEY / FOREIGN KEY</strong> — enforce identity and relationships</li></ul>"}
+  ],
+  tip:{type:'c-note', title:'Case-Insensitive by Convention', text:"SQL keywords work the same in any case — writing them in UPPERCASE is purely a human-readability convention, not a technical requirement."}
+},
+
+'m27::Functions': {
+  intro:"A quick-lookup list of the most commonly used built-in functions, grouped by category — full explanations with live examples live in the SQL Functions module.",
+  body:[
+    {h:'String Functions', p:"<ul><li><code>UPPER() / LOWER()</code> — change case</li><li><code>LENGTH()</code> — character count</li><li><code>SUBSTR()</code> — extract part of a string</li><li><code>TRIM()</code> — remove whitespace</li><li><code>REPLACE()</code> — swap substrings</li></ul>"},
+    {h:'Numeric Functions', p:"<ul><li><code>ROUND()</code> — round to N decimals</li><li><code>ABS()</code> — absolute value</li><li><code>CEIL() / FLOOR()</code> — round up / down</li><li><code>POWER()</code> — exponentiation</li></ul>"},
+    {h:'Date Functions', p:"<ul><li><code>DATE('now')</code> — current date</li><li><code>strftime()</code> — extract/format date parts</li><li>Date arithmetic — add/subtract days, months, years</li></ul>"},
+    {h:'Aggregate Functions', p:"<ul><li><code>COUNT() / SUM() / AVG()</code></li><li><code>MIN() / MAX()</code></li><li><code>GROUP_CONCAT()</code> — combine grouped values into one string</li></ul>"},
+    {h:'Conversion & Null Handling', p:"<ul><li><code>CAST()</code> — convert between data types</li><li><code>COALESCE()</code> — first non-NULL value</li><li><code>NULLIF()</code> — turn a matching value into NULL</li></ul>"}
+  ],
+  tip:{type:'c-note', title:'Names Vary by Database', text:"Function names here follow SQLite conventions (used throughout this course's live runner) — MySQL, PostgreSQL, and SQL Server sometimes use different names for the same job, as flagged throughout the SQL Functions module."}
+},
+
+'m27::Operators': {
+  intro:"Every symbol and word-based operator used to build conditions and expressions in SQL, grouped by type.",
+  body:[
+    {h:'Comparison Operators', p:"<ul><li><code>=</code> equal</li><li><code>&lt;&gt;</code> or <code>!=</code> not equal</li><li><code>&gt; &lt; &gt;= &lt;=</code> greater/less than (or equal)</li></ul>"},
+    {h:'Logical Operators', p:"<ul><li><code>AND</code> — both conditions true</li><li><code>OR</code> — either condition true</li><li><code>NOT</code> — negate a condition</li></ul>"},
+    {h:'Arithmetic Operators', p:"<ul><li><code>+  -  *  /</code> — addition, subtraction, multiplication, division</li><li><code>%</code> — modulo (remainder)</li></ul>"},
+    {h:'Set Operators', p:"<ul><li><code>UNION / UNION ALL</code> — combine result sets</li><li><code>INTERSECT</code> — rows in both queries</li><li><code>EXCEPT</code> (or <code>MINUS</code> on Oracle) — rows in the first query only</li></ul>"}
+  ],
+  tip:{type:'c-tip', title:'Operator Precedence Matters', text:"AND is evaluated before OR unless parentheses say otherwise — when mixing the two, always use explicit parentheses rather than relying on default precedence, exactly as covered in the OR topic of the Filtering module."}
+},
+
+'m27::Reserved Words': {
+  intro:"A reserved word is a keyword the SQL parser has special meaning for — trying to use one as a plain column or table name without special handling causes a syntax error.",
+  body:[
+    {h:'Common Reserved Words to Avoid as Names', p:"<span class='ic'>ORDER</span>, <span class='ic'>GROUP</span>, <span class='ic'>SELECT</span>, <span class='ic'>TABLE</span>, <span class='ic'>USER</span>, and <span class='ic'>DATE</span> are all commonly reused as business terms (like an 'order' table) but are reserved keywords in most databases."},
+    {h:'Escaping a Reserved Word When You Must Use One', p:"If a reserved word absolutely must be used as an identifier, wrap it in your database's quoting syntax so the parser treats it as a name rather than a keyword.",
+     runner:{id:'rw1', tabs:[{label:'SQLite / ANSI: Double Quotes', sql:"CREATE TEMP TABLE demo (\"order\" INTEGER, item TEXT);\nINSERT INTO demo VALUES (1, 'Widget');\nSELECT \"order\", item FROM demo;\nDROP TABLE demo;"}]}}
+  ],
+  tip:{type:'c-warn', title:'Quoting Syntax Differs by Database', text:"SQLite and PostgreSQL use double quotes (\"order\"). MySQL uses backticks (`order`). SQL Server uses square brackets ([order]). Regardless of which is available, it's usually better practice to simply avoid reserved words as names entirely."}
+},
+
+'m27::Error Messages': {
+  intro:"A quick-reference guide to common SQL error messages — what each one usually means, and the most likely fix.",
+  body:[
+    {h:'Common Errors and Their Causes', p:"<ul><li><strong>Syntax error near ...</strong> — a typo, missing comma, or clause written out of order</li><li><strong>Ambiguous column name</strong> — a JOIN references a column that exists in more than one table without a table alias to disambiguate it</li><li><strong>UNIQUE constraint failed</strong> — an INSERT/UPDATE tried to create a duplicate value in a column with a UNIQUE or PRIMARY KEY constraint</li><li><strong>FOREIGN KEY constraint failed</strong> — an INSERT referenced a parent row that doesn't exist</li><li><strong>NOT NULL constraint failed</strong> — a required column was left empty on INSERT</li><li><strong>Division by zero</strong> — an expression divided by a column or subquery result that evaluated to 0</li><li><strong>Subquery returned more than 1 row</strong> — a scalar subquery (expected to return exactly one value) returned several</li></ul>"},
+    {h:'Seeing an Ambiguous Column Error in Action', p:"Both tables have an 'id' column, and the query doesn't specify which one it means.",
+     runner:{id:'err1', tabs:[
+       {label:'❌ Ambiguous', sql:"SELECT id FROM employees JOIN departments ON employees.dept_id = departments.id;"},
+       {label:'✅ Fixed With Alias', sql:"SELECT e.id FROM employees e JOIN departments d ON e.dept_id = d.id;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Read the Error From the Bottom Up', text:"Long error messages in real databases often bury the actual cause underneath several layers of context — when in doubt, the specific constraint or column name mentioned in the error is almost always the fastest lead to follow."}
+},
+
+'m27::Best Practices': {
+  intro:"A consolidated summary of the best practices scattered across this entire course — formatting, performance, and safety habits that separate SQL that merely works from SQL that's genuinely production-ready.",
+  body:[
+    {h:'Readability', p:"<ul><li>Keywords in UPPERCASE, identifiers in snake_case</li><li>One major clause per line for anything beyond a trivial query</li><li>Meaningful table aliases, not single letters, once queries grow complex</li><li>Comment the business 'why', not the obvious 'what'</li></ul>"},
+    {h:'Performance', p:"<ul><li>Avoid SELECT * in production code</li><li>Index columns used in WHERE, JOIN, and ORDER BY</li><li>Filter as early as possible, before joining or aggregating</li><li>Check EXPLAIN plans on any query running against a large or frequently-hit table</li></ul>"},
+    {h:'Safety', p:"<ul><li>Always test a DELETE/UPDATE's WHERE clause with a SELECT first</li><li>Wrap risky changes in a transaction you can roll back</li><li>Use prepared statements/parameterized queries — never build SQL by string concatenation with user input</li><li>Apply the principle of least privilege to every database account</li></ul>"}
+  ],
+  tip:{type:'c-tip', title:'The One-Sentence Test', text:"If you can't explain what a query does in one clear sentence, it's usually a sign to simplify it or break it into a named CTE — the same rule of thumb introduced all the way back in the SQL Fundamentals module still holds at any experience level."}
+},
+
+/* ───── RESOURCES ───── */
+
+'res::SQL Blogs': {
+  intro:"Longer-form articles diving deeper into specific SQL topics than a single course lesson can — practical guides, common mistakes, and performance deep-dives.",
+  body:[
+    {h:'What This Section Will Cover', p:"Planned topics include: a visual guide to every JOIN type, a deep dive on why a specific query is slow (and seven common fixes), CTEs vs subqueries with real performance comparisons, and a 30-day study plan for going from zero to interview-ready."}
+  ],
+  tip:{type:'c-note', title:'Coming Soon', text:"This section is reserved for long-form articles as they're written — check back as the course grows, or ask for a specific blog topic to be drafted."}
+},
+
+'res::FAQ': {
+  intro:"Answers to the questions learners ask most often about this course and how it works.",
+  body:[
+    {h:'Is this course really free?', p:"Yes — every module, every live SQL runner, and every practice problem is free with no signup required."},
+    {h:'How does the live SQL runner work?', p:"It runs a real SQLite database engine compiled to WebAssembly, executing entirely inside your browser — no server round-trip, no account needed. The sample employees and departments tables are loaded fresh each time you load the page."},
+    {h:'Is this suitable for complete beginners?', p:"Yes. Module 1 starts from 'what is SQL' with zero assumed background, and the course builds progressively all the way to advanced warehousing and Databricks-specific topics."},
+    {h:'Why do some topics say "not supported here"?', p:"The live runner uses SQLite, which doesn't implement every feature found in PostgreSQL, SQL Server, Oracle, or Databricks — those topics are still explained fully, with the standard syntax shown for reference even when it can't be executed in this particular runner."},
+    {h:'Can I suggest a new topic or report an error?', p:"Yes — this course is actively growing. Ask for any missing topic, correction, or new module directly, and it gets incorporated into the same structure."}
+  ],
+  tip:{type:'c-note', title:'Still Have a Question?', text:"If something in the course is unclear or a topic feels incomplete, treat that as useful feedback — pointing out the gap is exactly how this course keeps improving."}
+},
+
+'res::Release Notes': {
+  intro:"A running changelog of what's been added to this course, in the order it shipped.",
+  body:[
+    {h:'Version History', p:"<ul><li><strong>v1.0</strong> — Core foundation: Modules 1–8 (SQL Fundamentals through Subqueries)</li><li><strong>v1.1</strong> — CTEs, Window Functions, DML, DDL, Constraints, Views, Indexes (Modules 9–15)</li><li><strong>v1.2</strong> — Transactions, Database Objects, Advanced SQL (Modules 16–18)</li><li><strong>v1.3</strong> — Performance Tuning and SQL Security (Modules 19–20)</li><li><strong>v1.4</strong> — Data Warehouse SQL and Databricks SQL (Modules 21–22)</li><li><strong>v1.5</strong> — SQL Projects, SQL Practice, Interview Preparation (Modules 23–25)</li><li><strong>v1.6</strong> — SQL Challenges, SQL Reference, and Resources (Modules 26–27) — full 27-module structure complete</li></ul>"}
+  ],
+  tip:{type:'c-note', title:'What Comes Next', text:"With all 27 modules now structurally in place, future releases focus on deepening existing content — expanding the practice question bank, adding more interview scenarios, and filling in any topic still marked as pending."}
+},
+
+"res::What's New": {
+  intro:"A quick pointer to the most recently added content, for returning learners who don't want to re-scan the entire course.",
+  body:[
+    {h:'Most Recent Additions', p:"The SQL Challenges, SQL Reference, and Resources sections just completed the full 27-module course structure — every module in the original index now has at least foundational content, with the practice and interview-prep question banks continuing to grow in batches."}
+  ],
+  tip:{type:'c-tip', title:'Check the Progress Bar', text:"The top-of-page progress pill (● built / ○ pending topics) is always the fastest way to see exactly what's new versus what's still a reserved placeholder."}
+},
+
+'res::Community': {
+  intro:"How learners going through this course can engage beyond just reading lessons solo.",
+  body:[
+    {h:'Suggest a Topic or Improvement', p:"If a concept feels under-explained, an example doesn't quite click, or an entire topic is still marked as pending, that feedback directly shapes what gets built or improved next."},
+    {h:'Share What You Build', p:"The SQL Projects module's mini case studies (HR, Banking, Retail, and more) are designed to be extended — try adding your own business questions on top of the same schemas as a way to practice independently."}
+  ],
+  tip:{type:'c-note', title:'A Living Course', text:"Unlike a static textbook, this course's structure is explicitly built to grow topic by topic based on what learners actually ask for next — that feedback loop is the 'community' this section points to."}
 },  
 };
 
