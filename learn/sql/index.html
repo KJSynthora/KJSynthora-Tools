@@ -2524,6 +2524,173 @@ const LESSONS = {
     {h:'An Engine-Level Upgrade, Not a Syntax Change', p:"Enabling Photon is a configuration choice on a SQL Warehouse or cluster, not something expressed in SQL at all — your existing SELECT, JOIN, and GROUP BY statements run completely unchanged, just faster."}
   ],
   tip:{type:'c-tip', title:'No SQL Rewrite Required', text:"Unlike most of the other performance techniques in this module (ZORDER, Liquid Clustering, OPTIMIZE), Photon requires zero query changes — it's purely an execution-engine upgrade, which is part of why enabling it is often one of the easiest wins available on a Databricks workload."}
+},
+/* ═══════════════════════════════════════════════════════
+   MODULE 23 — SQL PROJECTS (10 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm22::...' entry and before the closing "};"
+   Each project is self-contained: schema + realistic business
+   queries combining concepts from earlier modules.
+   ═══════════════════════════════════════════════════════ */
+
+'m23::HR Database': {
+  intro:"A mini HR analytics project — combining an employees table with a leave-requests table to answer the kind of questions an HR analyst actually gets asked, using JOINs, GROUP BY, and aggregate functions together.",
+  body:[
+    {h:'The Schema', p:"Two tables: <span class='ic'>hr_employees</span> (staff and their department/salary) and <span class='ic'>hr_leaves</span> (leave requests with status)."},
+    {h:'Business Question: Department Headcount & Avg Salary', p:"A classic first HR report — combine GROUP BY with COUNT and AVG to summarize staffing and cost per department.",
+     runner:{id:'hrp1', tabs:[
+       {label:'Department Summary', sql:"CREATE TEMP TABLE hr_employees (id INTEGER, name TEXT, department TEXT, salary INTEGER);\nINSERT INTO hr_employees VALUES (1,'Zara','Engineering',85000),(2,'Omar','Engineering',91000),(3,'Priya','Sales',62000),(4,'Kiran','Sales',68000),(5,'Divya','HR',58000);\n\nSELECT department, COUNT(*) AS headcount, ROUND(AVG(salary),2) AS avg_salary\nFROM hr_employees GROUP BY department ORDER BY avg_salary DESC;\n\nDROP TABLE hr_employees;"}
+     ]}},
+    {h:'Business Question: Pending Leave Requests per Employee', p:"A LEFT JOIN plus a filtered COUNT shows who has outstanding leave requests awaiting approval — employees with none simply show a count of zero.",
+     runner:{id:'hrp2', tabs:[
+       {label:'Pending Leaves per Employee', sql:"CREATE TEMP TABLE hr_employees (id INTEGER, name TEXT);\nCREATE TEMP TABLE hr_leaves (id INTEGER, emp_id INTEGER, days INTEGER, status TEXT);\nINSERT INTO hr_employees VALUES (1,'Zara'),(2,'Omar'),(3,'Priya');\nINSERT INTO hr_leaves VALUES (1,1,2,'Pending'),(2,1,1,'Approved'),(3,2,3,'Pending');\n\nSELECT e.name, COUNT(CASE WHEN l.status='Pending' THEN 1 END) AS pending_requests\nFROM hr_employees e LEFT JOIN hr_leaves l ON e.id = l.emp_id\nGROUP BY e.name;\n\nDROP TABLE hr_employees; DROP TABLE hr_leaves;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"HR reporting leans heavily on LEFT JOIN + conditional aggregation (CASE inside COUNT/SUM) — the exact pattern used above to count only 'Pending' leaves without losing employees who have zero requests."}
+},
+
+'m23::Banking': {
+  intro:"A banking project centered on accounts and transactions — the natural home for running totals, window functions, and the kind of balance/overdraft checks a real banking system runs constantly.",
+  body:[
+    {h:'The Schema', p:"An <span class='ic'>bank_accounts</span> table holds current balances; <span class='ic'>bank_transactions</span> logs every deposit and withdrawal."},
+    {h:'Business Question: Running Balance Over Time', p:"SUM() OVER (ORDER BY ...) — covered in the Window Functions module — reconstructs a running balance from a raw transaction log.",
+     runner:{id:'bnk1', tabs:[
+       {label:'Running Balance', sql:"CREATE TEMP TABLE bank_transactions (id INTEGER, account_id INTEGER, amount INTEGER, txn_date TEXT);\nINSERT INTO bank_transactions VALUES (1,100,5000,'2026-01-01'),(2,100,-1200,'2026-01-05'),(3,100,3000,'2026-01-10'),(4,100,-800,'2026-01-15');\n\nSELECT txn_date, amount, SUM(amount) OVER (ORDER BY txn_date) AS running_balance\nFROM bank_transactions WHERE account_id = 100;\n\nDROP TABLE bank_transactions;"}
+     ]}},
+    {h:'Business Question: Flag Overdrawn Accounts', p:"A simple HAVING filter on a summed balance instantly flags accounts that have gone negative.",
+     runner:{id:'bnk2', tabs:[
+       {label:'Overdrawn Accounts', sql:"CREATE TEMP TABLE bank_transactions (id INTEGER, account_id INTEGER, amount INTEGER);\nINSERT INTO bank_transactions VALUES (1,100,5000),(2,100,-6000),(3,200,2000),(4,200,-500);\n\nSELECT account_id, SUM(amount) AS balance FROM bank_transactions GROUP BY account_id HAVING SUM(amount) < 0;\n\nDROP TABLE bank_transactions;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Financial reporting is where running totals (Window Functions module) and HAVING (Sorting & Aggregation module) show up constantly — balances, cumulative interest, and threshold-based alerts all follow this exact shape."}
+},
+
+'m23::Healthcare': {
+  intro:"A healthcare scheduling project — patients and appointments — focused on the kind of operational questions a clinic's front desk or administrator needs answered daily.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>patients</span> table and an <span class='ic'>appointments</span> table linked by patient_id, with each appointment carrying a doctor name, date, and status."},
+    {h:'Business Question: Patients With Multiple Visits', p:"GROUP BY plus HAVING isolates patients who've come back more than once — useful for identifying regular patients versus one-time visitors.",
+     runner:{id:'hc1', tabs:[
+       {label:'Repeat Patients', sql:"CREATE TEMP TABLE patients (id INTEGER, name TEXT);\nCREATE TEMP TABLE appointments (id INTEGER, patient_id INTEGER, doctor TEXT, appt_date TEXT, status TEXT);\nINSERT INTO patients VALUES (1,'Ravi'),(2,'Meena'),(3,'Ajay');\nINSERT INTO appointments VALUES (1,1,'Dr. Rao','2026-01-10','Completed'),(2,1,'Dr. Rao','2026-03-15','Completed'),(3,2,'Dr. Iyer','2026-02-01','Completed');\n\nSELECT p.name, COUNT(*) AS visit_count\nFROM patients p JOIN appointments a ON p.id = a.patient_id\nGROUP BY p.name HAVING COUNT(*) > 1;\n\nDROP TABLE patients; DROP TABLE appointments;"}
+     ]}},
+    {h:'Business Question: Monthly Appointments per Doctor', p:"Extracting the month from a date column and grouping by doctor gives a simple workload report.",
+     runner:{id:'hc2', tabs:[
+       {label:'Monthly Load per Doctor', sql:"CREATE TEMP TABLE appointments (doctor TEXT, appt_date TEXT);\nINSERT INTO appointments VALUES ('Dr. Rao','2026-01-10'),('Dr. Rao','2026-01-22'),('Dr. Iyer','2026-01-05');\n\nSELECT doctor, strftime('%Y-%m', appt_date) AS month, COUNT(*) AS appointments\nFROM appointments GROUP BY doctor, month;\n\nDROP TABLE appointments;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Healthcare scheduling reports lean on date functions (extracting month/year) combined with GROUP BY — the same strftime pattern used here shows up constantly in any time-based operational dashboard."}
+},
+
+'m23::Retail': {
+  intro:"A retail sales project — products and sales transactions — built around the two questions every retail manager asks: what's selling, and what category is driving revenue.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>retail_products</span> table with category and price, and a <span class='ic'>retail_sales</span> table logging each sale's quantity."},
+    {h:'Business Question: Top Products by Revenue', p:"Joining sales to products and multiplying price × quantity, then ranking, surfaces the actual revenue drivers — not just the highest quantity movers.",
+     runner:{id:'rtl1', tabs:[
+       {label:'Top Products by Revenue', sql:"CREATE TEMP TABLE retail_products (id INTEGER, name TEXT, category TEXT, price REAL);\nCREATE TEMP TABLE retail_sales (id INTEGER, product_id INTEGER, quantity INTEGER);\nINSERT INTO retail_products VALUES (1,'Keyboard','Electronics',45.99),(2,'Desk Lamp','Home',18.50),(3,'Monitor','Electronics',210.00);\nINSERT INTO retail_sales VALUES (1,1,10),(2,2,25),(3,3,4);\n\nSELECT p.name, SUM(p.price * s.quantity) AS revenue\nFROM retail_sales s JOIN retail_products p ON s.product_id = p.id\nGROUP BY p.name ORDER BY revenue DESC;\n\nDROP TABLE retail_products; DROP TABLE retail_sales;"}
+     ]}},
+    {h:'Business Question: Revenue by Category', p:"The same join, grouped one level higher, rolls individual products up into category-level totals.",
+     runner:{id:'rtl2', tabs:[
+       {label:'Category Revenue', sql:"CREATE TEMP TABLE retail_products (id INTEGER, category TEXT, price REAL);\nCREATE TEMP TABLE retail_sales (product_id INTEGER, quantity INTEGER);\nINSERT INTO retail_products VALUES (1,'Electronics',45.99),(2,'Home',18.50),(3,'Electronics',210.00);\nINSERT INTO retail_sales VALUES (1,10),(2,25),(3,4);\n\nSELECT p.category, SUM(p.price * s.quantity) AS category_revenue\nFROM retail_sales s JOIN retail_products p ON s.product_id = p.id\nGROUP BY p.category;\n\nDROP TABLE retail_products; DROP TABLE retail_sales;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Retail analytics is JOIN + calculated columns (price × quantity) + GROUP BY, applied at whatever granularity the business question needs — product-level or category-level, from the exact same underlying tables."}
+},
+
+'m23::Sales': {
+  intro:"A B2B sales pipeline project — sales reps and their deals — focused on the metrics a sales manager actually tracks: closed revenue and win rate.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>sales_reps</span> table and a <span class='ic'>deals</span> table with a stage column (Open, Won, Lost) and a close_date."},
+    {h:'Business Question: Closed-Won Revenue per Rep', p:"Filtering to only the 'Won' stage before summing gives actual booked revenue, not pipeline potential.",
+     runner:{id:'sls1', tabs:[
+       {label:'Closed Revenue per Rep', sql:"CREATE TEMP TABLE sales_reps (id INTEGER, name TEXT);\nCREATE TEMP TABLE deals (id INTEGER, rep_id INTEGER, amount INTEGER, stage TEXT);\nINSERT INTO sales_reps VALUES (1,'Anita'),(2,'Rahul');\nINSERT INTO deals VALUES (1,1,50000,'Won'),(2,1,20000,'Lost'),(3,2,80000,'Won'),(4,2,15000,'Open');\n\nSELECT r.name, SUM(d.amount) AS closed_revenue\nFROM sales_reps r JOIN deals d ON r.id = d.rep_id\nWHERE d.stage = 'Won'\nGROUP BY r.name;\n\nDROP TABLE sales_reps; DROP TABLE deals;"}
+     ]}},
+    {h:'Business Question: Win Rate per Rep', p:"Conditional COUNT (CASE inside COUNT) computes won vs total deals in one pass, then a calculated column derives the win rate percentage.",
+     runner:{id:'sls2', tabs:[
+       {label:'Win Rate', sql:"CREATE TEMP TABLE deals (rep_id INTEGER, stage TEXT);\nINSERT INTO deals VALUES (1,'Won'),(1,'Lost'),(1,'Won'),(2,'Won'),(2,'Lost');\n\nSELECT rep_id,\n  COUNT(CASE WHEN stage='Won' THEN 1 END) AS won,\n  COUNT(*) AS total,\n  ROUND(100.0 * COUNT(CASE WHEN stage='Won' THEN 1 END) / COUNT(*), 1) AS win_rate_pct\nFROM deals GROUP BY rep_id;\n\nDROP TABLE deals;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Sales pipeline reporting is almost entirely conditional aggregation — CASE WHEN inside COUNT/SUM to split one table into multiple named metrics (won vs lost vs open) without needing three separate queries."}
+},
+
+'m23::Inventory': {
+  intro:"An inventory management project — stock movements in and out of a warehouse — centered on the two things every warehouse manager needs to know: current stock level, and what's running low.",
+  body:[
+    {h:'The Schema', p:"A single <span class='ic'>stock_movements</span> log records every inbound (+) and outbound (−) movement per product; current stock is always derived, never stored directly."},
+    {h:'Business Question: Current Stock Level', p:"Summing signed quantities (positive for stock-in, negative for stock-out) reconstructs the current on-hand quantity from the full movement history.",
+     runner:{id:'inv1', tabs:[
+       {label:'Current Stock via Net Movement', sql:"CREATE TEMP TABLE stock_movements (product_id INTEGER, quantity INTEGER);\nINSERT INTO stock_movements VALUES (1,100),(1,-30),(1,-15),(2,50),(2,-10);\n\nSELECT product_id, SUM(quantity) AS current_stock FROM stock_movements GROUP BY product_id;\n\nDROP TABLE stock_movements;"}
+     ]}},
+    {h:'Business Question: Low Stock Alert', p:"Wrapping the same logic in HAVING flags only the products that have dropped below a reorder threshold.",
+     runner:{id:'inv2', tabs:[
+       {label:'Products Below Threshold', sql:"CREATE TEMP TABLE stock_movements (product_id INTEGER, quantity INTEGER);\nINSERT INTO stock_movements VALUES (1,100),(1,-90),(2,50),(2,-10);\n\nSELECT product_id, SUM(quantity) AS current_stock\nFROM stock_movements GROUP BY product_id\nHAVING SUM(quantity) < 20;\n\nDROP TABLE stock_movements;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Inventory systems almost never store a 'current stock' column directly — it's typically derived on the fly by summing a movement log, exactly like a bank balance is derived from a transaction log rather than stored and manually kept in sync."}
+},
+
+'m23::Finance': {
+  intro:"A general ledger-style finance project — debits and credits per account — the foundation of how accounting systems track money movement without ever directly storing a running 'balance' field.",
+  body:[
+    {h:'The Schema', p:"A single <span class='ic'>gl_transactions</span> table records every debit and credit posted against named accounts, exactly like a real general ledger."},
+    {h:'Business Question: Net Balance per Account', p:"Subtracting total credits from total debits (or vice versa, depending on account type convention) gives each account's current net position.",
+     runner:{id:'fin1', tabs:[
+       {label:'Net Balance per Account', sql:"CREATE TEMP TABLE gl_transactions (account_name TEXT, debit INTEGER, credit INTEGER);\nINSERT INTO gl_transactions VALUES ('Cash',5000,0),('Cash',0,1200),('Revenue',0,8000),('Expenses',3000,0);\n\nSELECT account_name, SUM(debit) AS total_debit, SUM(credit) AS total_credit, SUM(debit) - SUM(credit) AS net_balance\nFROM gl_transactions GROUP BY account_name;\n\nDROP TABLE gl_transactions;"}
+     ]}},
+    {h:'Business Question: Monthly Expense Trend', p:"Extracting the month and filtering to expense-type accounts reveals whether spending is trending up or down over time.",
+     runner:{id:'fin2', tabs:[
+       {label:'Monthly Expenses', sql:"CREATE TEMP TABLE gl_transactions (account_name TEXT, debit INTEGER, txn_date TEXT);\nINSERT INTO gl_transactions VALUES ('Expenses',3000,'2026-01-15'),('Expenses',4200,'2026-02-10'),('Expenses',2800,'2026-02-20');\n\nSELECT strftime('%Y-%m', txn_date) AS month, SUM(debit) AS total_expenses\nFROM gl_transactions WHERE account_name = 'Expenses'\nGROUP BY month;\n\nDROP TABLE gl_transactions;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Financial reporting relies on the debit/credit convention plus GROUP BY — nearly every accounting report, no matter how complex, ultimately reduces to summing and differencing these two columns at various levels of granularity."}
+},
+
+'m23::CRM': {
+  intro:"A customer relationship management project — customers and their interactions — built around the question every growth or support team asks: who's engaged, and who's gone quiet.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>crm_customers</span> table and a <span class='ic'>crm_interactions</span> log recording every call, email, or chat touchpoint."},
+    {h:'Business Question: Interaction Count per Customer', p:"A simple LEFT JOIN plus COUNT shows engagement level per customer, including customers with zero interactions.",
+     runner:{id:'crm1', tabs:[
+       {label:'Engagement Count', sql:"CREATE TEMP TABLE crm_customers (id INTEGER, name TEXT);\nCREATE TEMP TABLE crm_interactions (id INTEGER, customer_id INTEGER, channel TEXT, interaction_date TEXT);\nINSERT INTO crm_customers VALUES (1,'Zara Traders'),(2,'Omar Retail'),(3,'Priya Corp');\nINSERT INTO crm_interactions VALUES (1,1,'Email','2026-01-05'),(2,1,'Call','2026-02-10'),(3,2,'Chat','2026-01-20');\n\nSELECT c.name, COUNT(i.id) AS interaction_count\nFROM crm_customers c LEFT JOIN crm_interactions i ON c.id = i.customer_id\nGROUP BY c.name;\n\nDROP TABLE crm_customers; DROP TABLE crm_interactions;"}
+     ]}},
+    {h:'Business Question: Customers With No Recent Contact', p:"NOT EXISTS (the safe pattern from the Filtering module) finds customers who've had zero interactions at all — classic churn-risk candidates.",
+     runner:{id:'crm2', tabs:[
+       {label:'Zero-Interaction Customers', sql:"CREATE TEMP TABLE crm_customers (id INTEGER, name TEXT);\nCREATE TEMP TABLE crm_interactions (id INTEGER, customer_id INTEGER);\nINSERT INTO crm_customers VALUES (1,'Zara Traders'),(2,'Omar Retail'),(3,'Priya Corp');\nINSERT INTO crm_interactions VALUES (1,1),(2,1);\n\nSELECT c.name FROM crm_customers c\nWHERE NOT EXISTS (SELECT 1 FROM crm_interactions i WHERE i.customer_id = c.id);\n\nDROP TABLE crm_customers; DROP TABLE crm_interactions;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"CRM churn/engagement reports are the textbook use case for LEFT JOIN and NOT EXISTS together — both patterns from the Filtering and JOINs modules earn their keep constantly in real customer-facing analytics."}
+},
+
+'m23::Telecom': {
+  intro:"A telecom usage project — subscribers and their call records — centered on the billing and usage reports every telecom operator runs to understand customer behavior across plans.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>subscribers</span> table with plan info and a <span class='ic'>call_records</span> log tracking each call's duration."},
+    {h:'Business Question: Total Minutes Used per Subscriber', p:"A straightforward JOIN and SUM totals usage per person — the foundation of any usage-based billing calculation.",
+     runner:{id:'tel1', tabs:[
+       {label:'Total Minutes per Subscriber', sql:"CREATE TEMP TABLE subscribers (id INTEGER, name TEXT, plan TEXT);\nCREATE TEMP TABLE call_records (id INTEGER, subscriber_id INTEGER, call_duration_min INTEGER);\nINSERT INTO subscribers VALUES (1,'Ravi','Prepaid'),(2,'Meena','Postpaid');\nINSERT INTO call_records VALUES (1,1,12),(2,1,8),(3,2,25);\n\nSELECT s.name, SUM(c.call_duration_min) AS total_minutes\nFROM subscribers s JOIN call_records c ON s.id = c.subscriber_id\nGROUP BY s.name;\n\nDROP TABLE subscribers; DROP TABLE call_records;"}
+     ]}},
+    {h:'Business Question: Average Call Duration by Plan', p:"Grouping by plan instead of individual subscriber reveals usage patterns at the product tier level.",
+     runner:{id:'tel2', tabs:[
+       {label:'Avg Duration by Plan', sql:"CREATE TEMP TABLE subscribers (id INTEGER, plan TEXT);\nCREATE TEMP TABLE call_records (subscriber_id INTEGER, call_duration_min INTEGER);\nINSERT INTO subscribers VALUES (1,'Prepaid'),(2,'Postpaid');\nINSERT INTO call_records VALUES (1,12),(1,8),(2,25),(2,30);\n\nSELECT s.plan, ROUND(AVG(c.call_duration_min),1) AS avg_call_duration\nFROM subscribers s JOIN call_records c ON s.id = c.subscriber_id\nGROUP BY s.plan;\n\nDROP TABLE subscribers; DROP TABLE call_records;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Telecom usage analysis is a direct application of JOIN + SUM/AVG at two different levels of granularity — per individual subscriber for billing, and per plan for product strategy — from the exact same two tables."}
+},
+
+'m23::Airline': {
+  intro:"An airline operations project — flights and passenger bookings — focused on the two numbers an airline revenue analyst watches constantly: revenue per flight, and how full each flight actually is.",
+  body:[
+    {h:'The Schema', p:"A <span class='ic'>flights</span> table with total seat capacity, and a <span class='ic'>bookings</span> table logging each passenger's fare paid."},
+    {h:'Business Question: Revenue per Flight', p:"Joining bookings to flights and summing fares gives total revenue generated by each individual flight.",
+     runner:{id:'air1', tabs:[
+       {label:'Revenue per Flight', sql:"CREATE TEMP TABLE flights (id INTEGER, flight_no TEXT, seats INTEGER);\nCREATE TEMP TABLE bookings (id INTEGER, flight_id INTEGER, fare INTEGER);\nINSERT INTO flights VALUES (1,'AI202',180),(2,'AI305',150);\nINSERT INTO bookings VALUES (1,1,5500),(2,1,6200),(3,2,4800);\n\nSELECT f.flight_no, SUM(b.fare) AS total_revenue\nFROM flights f JOIN bookings b ON f.id = b.flight_id\nGROUP BY f.flight_no;\n\nDROP TABLE flights; DROP TABLE bookings;"}
+     ]}},
+    {h:'Business Question: Occupancy Rate per Flight', p:"Dividing the number of bookings by total seat capacity turns raw booking counts into a percentage that's directly comparable across flights of different sizes.",
+     runner:{id:'air2', tabs:[
+       {label:'Occupancy Rate', sql:"CREATE TEMP TABLE flights (id INTEGER, flight_no TEXT, seats INTEGER);\nCREATE TEMP TABLE bookings (flight_id INTEGER);\nINSERT INTO flights VALUES (1,'AI202',180),(2,'AI305',150);\nINSERT INTO bookings VALUES (1),(1),(1),(2);\n\nSELECT f.flight_no, f.seats, COUNT(b.flight_id) AS booked,\n  ROUND(100.0 * COUNT(b.flight_id) / f.seats, 1) AS occupancy_pct\nFROM flights f LEFT JOIN bookings b ON f.id = b.flight_id\nGROUP BY f.flight_no, f.seats;\n\nDROP TABLE flights; DROP TABLE bookings;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Skill Focus', text:"Occupancy-style percentage metrics (bookings ÷ capacity) are a pattern that generalizes far beyond airlines — the same COUNT ÷ total-capacity shape works for hotel room occupancy, event ticket sales, and warehouse space utilization."}
 },  
 };
 
