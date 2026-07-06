@@ -2271,6 +2271,137 @@ const LESSONS = {
   ],
   tip:{type:'c-tip', title:'Least Privilege Limits the Blast Radius', text:"If a read-only reporting account's credentials ever leak, an attacker can only read data — they can't modify or delete anything, simply because the permission to do so was never granted in the first place. Least privilege doesn't prevent every breach, but it drastically limits what any single compromised account can do."}
 },  
+/* ═══════════════════════════════════════════════════════
+   MODULE 21 — DATA WAREHOUSE SQL (11 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm20::...' entry and before the closing "};"
+   ═══════════════════════════════════════════════════════ */
+
+'m21::OLTP vs OLAP': {
+  intro:"OLTP and OLAP describe two fundamentally different database workloads — one optimized for many quick individual transactions, the other for complex analysis across huge amounts of historical data.",
+  body:[
+    {h:'Two Different Jobs', p:"<ul><li><strong>OLTP</strong> (Online Transaction Processing) — many short, frequent read/write operations: placing an order, updating a balance, looking up one customer. Schema is normalized to keep writes fast and consistent.</li><li><strong>OLAP</strong> (Online Analytical Processing) — fewer but much heavier read-only queries: total sales by region and quarter across three years of history. Schema is often denormalized (star/snowflake) to make these big aggregations faster.</li></ul>"},
+    {h:'The Same Table, Two Different Query Styles', p:"An OLTP-style query touches one row; an OLAP-style query scans and aggregates across the whole table — very different performance profiles from the exact same underlying data.",
+     runner:{id:'oltp1', tabs:[
+       {label:'OLTP-Style (One Row)', sql:"SELECT * FROM employees WHERE id = 3;"},
+       {label:'OLAP-Style (Aggregate Across All Rows)', sql:"SELECT department, COUNT(*) AS headcount, AVG(salary) AS avg_salary FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Why They\u2019re Usually Separate Systems', text:"Running heavy OLAP-style analytical queries directly against a live OLTP production database can slow down the very transactions the business depends on — this is the core reason data warehouses exist as a separate, purpose-built system fed from OLTP sources."}
+},
+
+'m21::Star Schema': {
+  intro:"A star schema organizes a data warehouse around one central fact table surrounded by several dimension tables — visually resembling a star when diagrammed, with the fact table at the center and dimensions radiating outward.",
+  body:[
+    {h:'Fact Table + Dimensions', p:"The fact table holds measurable events (a sale, an order) plus foreign keys pointing to each dimension. Dimension tables hold descriptive context (who, what, when, where) and are usually simple, single-level, denormalized tables.",
+     runner:{id:'star1', tabs:[
+       {label:'Build a Simple Star Schema', sql:"CREATE TEMP TABLE dim_product (product_id INTEGER, product_name TEXT, category TEXT);\nCREATE TEMP TABLE dim_date (date_id INTEGER, full_date TEXT, quarter TEXT);\nCREATE TEMP TABLE fact_sales (sale_id INTEGER, product_id INTEGER, date_id INTEGER, amount INTEGER);\n\nINSERT INTO dim_product VALUES (1,'Keyboard','Electronics'), (2,'Desk','Furniture');\nINSERT INTO dim_date VALUES (101,'2026-01-15','Q1'), (102,'2026-04-10','Q2');\nINSERT INTO fact_sales VALUES (1,1,101,4500), (2,2,102,12000), (3,1,102,3000);\n\nSELECT p.product_name, d.quarter, SUM(f.amount) AS total_sales\nFROM fact_sales f\nJOIN dim_product p ON f.product_id = p.product_id\nJOIN dim_date d ON f.date_id = d.date_id\nGROUP BY p.product_name, d.quarter;\n\nDROP TABLE dim_product; DROP TABLE dim_date; DROP TABLE fact_sales;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Denormalization Is Deliberate', text:"Star schema dimension tables are intentionally denormalized (flat, sometimes repeating data) rather than split into further sub-tables — this trades a bit of storage efficiency for dramatically simpler, faster joins in analytical queries."}
+},
+
+'m21::Snowflake Schema': {
+  intro:"A snowflake schema extends the star schema by further normalizing dimension tables into related sub-dimensions — the diagram's dimensions branch out into more tables, resembling a snowflake instead of a clean star shape.",
+  body:[
+    {h:'Splitting a Dimension Further', p:"Where a star schema might keep <span class='ic'>category</span> as a plain text column inside dim_product, a snowflake schema moves it into its own dim_category table, referenced by a foreign key — trading a simpler join for reduced data duplication.",
+     runner:{id:'snow1', tabs:[
+       {label:'Star Version (Denormalized)', sql:"CREATE TEMP TABLE dim_product_star (product_id INTEGER, product_name TEXT, category TEXT);\nINSERT INTO dim_product_star VALUES (1,'Keyboard','Electronics'), (2,'Monitor','Electronics');\nSELECT * FROM dim_product_star;\nDROP TABLE dim_product_star;"},
+       {label:'Snowflake Version (Normalized)', sql:"CREATE TEMP TABLE dim_category (category_id INTEGER, category_name TEXT);\nCREATE TEMP TABLE dim_product_snow (product_id INTEGER, product_name TEXT, category_id INTEGER);\nINSERT INTO dim_category VALUES (1,'Electronics');\nINSERT INTO dim_product_snow VALUES (1,'Keyboard',1), (2,'Monitor',1);\nSELECT p.product_name, c.category_name FROM dim_product_snow p JOIN dim_category c ON p.category_id = c.category_id;\nDROP TABLE dim_category; DROP TABLE dim_product_snow;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'More Joins, Less Duplication', text:"Snowflaking reduces storage and improves consistency (the category name lives in exactly one place), but every additional normalized level means one more JOIN for reporting queries — most modern warehouses lean toward star schemas specifically to keep analytical queries fast and simple."}
+},
+
+'m21::Fact Tables': {
+  intro:"A fact table stores the measurable events of a business — sales amounts, quantities, durations — along with foreign keys linking to the dimension tables that describe the context of each event. Fact tables are typically the largest tables in a warehouse by far.",
+  body:[
+    {h:'Mostly Numbers and Foreign Keys', p:"A well-designed fact table is narrow (relatively few columns) but extremely tall (potentially billions of rows) — mostly numeric measures plus dimension keys, with almost no descriptive text of its own.",
+     runner:{id:'fact1', tabs:[
+       {label:'A Simple Fact Table', sql:"CREATE TEMP TABLE fact_orders (order_id INTEGER, customer_id INTEGER, product_id INTEGER, quantity INTEGER, revenue INTEGER);\nINSERT INTO fact_orders VALUES (1,10,1,2,900), (2,11,2,1,12000), (3,10,1,1,450);\nSELECT customer_id, SUM(revenue) AS total_spent FROM fact_orders GROUP BY customer_id;\nDROP TABLE fact_orders;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Additive vs Non-Additive Measures', text:"Most fact table measures (like revenue or quantity) are 'additive' — safe to SUM across any dimension. Some, like an account balance snapshot, are 'non-additive' or only 'semi-additive' — summing them across time doesn't produce a meaningful number, so always check whether a measure is safe to aggregate the way you intend."}
+},
+
+'m21::Dimension Tables': {
+  intro:"A dimension table stores the descriptive attributes that give context to a fact table's numbers — who the customer was, what product was sold, which date it happened on. Dimension tables are usually small and change far less often than fact tables grow.",
+  body:[
+    {h:'Descriptive Context, Not Measurements', p:"Where a fact table is numeric and narrow, a dimension table is wide and descriptive — full names, categories, addresses, and other attributes useful for filtering and grouping reports.",
+     runner:{id:'dim1', tabs:[
+       {label:'A Simple Dimension Table', sql:"CREATE TEMP TABLE dim_customer (customer_id INTEGER, customer_name TEXT, city TEXT, segment TEXT);\nINSERT INTO dim_customer VALUES (10,'Zara Traders','Mumbai','Enterprise'), (11,'Omar Retail','Delhi','SMB');\nSELECT * FROM dim_customer WHERE segment = 'Enterprise';\nDROP TABLE dim_customer;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Surrogate Keys Are the Norm', text:"Most dimension tables use a warehouse-generated surrogate key (a simple auto-incrementing integer) as the primary key, rather than the source system's natural key (like an email or an SSN) — this makes SCD Type 2 history tracking and cross-system integration far simpler."}
+},
+
+'m21::SCD Type 1': {
+  intro:"A Slowly Changing Dimension Type 1 (SCD1) simply overwrites the old attribute value with the new one — the simplest possible strategy, but it means all history of the previous value is permanently lost.",
+  body:[
+    {h:'Overwrite, No History Kept', p:"If a customer moves from Mumbai to Delhi, an SCD1 update just replaces the city value — every past fact row joined to this customer now shows Delhi, even for sales that happened while they lived in Mumbai.",
+     runner:{id:'scd1a', tabs:[
+       {label:'Before Update', sql:"CREATE TEMP TABLE dim_customer (customer_id INTEGER, customer_name TEXT, city TEXT);\nINSERT INTO dim_customer VALUES (10, 'Zara Traders', 'Mumbai');\nSELECT * FROM dim_customer;\nDROP TABLE dim_customer;"},
+       {label:'After SCD1 Update (History Lost)', sql:"CREATE TEMP TABLE dim_customer (customer_id INTEGER, customer_name TEXT, city TEXT);\nINSERT INTO dim_customer VALUES (10, 'Zara Traders', 'Mumbai');\nUPDATE dim_customer SET city = 'Delhi' WHERE customer_id = 10;\nSELECT * FROM dim_customer;\nDROP TABLE dim_customer;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Use When History Doesn\u2019t Matter', text:"SCD1 is appropriate for correcting genuine data errors (a misspelled name) where you never want the old, wrong value to appear in reports — but it's the wrong choice whenever historical accuracy matters, like tracking which region a sale actually happened in at the time."}
+},
+
+'m21::SCD Type 2': {
+  intro:"A Slowly Changing Dimension Type 2 (SCD2) preserves full history by inserting a brand-new row for every change, rather than overwriting — each row is tagged with a valid date range and a flag showing which one is currently active.",
+  body:[
+    {h:'Insert a New Row, Expire the Old One', p:"Instead of updating the city in place, SCD2 closes out the old row (setting its valid_to date and is_current flag) and inserts a fresh row starting from today — every past fact that joined to the old row still correctly shows Mumbai.",
+     runner:{id:'scd2a', tabs:[
+       {label:'SCD2 Change in Action', sql:"CREATE TEMP TABLE dim_customer (surrogate_key INTEGER, customer_id INTEGER, city TEXT, valid_from TEXT, valid_to TEXT, is_current INTEGER);\nINSERT INTO dim_customer VALUES (1, 10, 'Mumbai', '2024-01-01', NULL, 1);\n\n-- Customer moves to Delhi on 2026-06-01\nUPDATE dim_customer SET valid_to = '2026-05-31', is_current = 0 WHERE customer_id = 10 AND is_current = 1;\nINSERT INTO dim_customer VALUES (2, 10, 'Delhi', '2026-06-01', NULL, 1);\n\nSELECT * FROM dim_customer ORDER BY surrogate_key;\nDROP TABLE dim_customer;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'The Standard for Historically Accurate Reporting', text:"SCD2 is the most widely used strategy in real data warehouses precisely because it lets you answer 'what did this look like at that point in time' correctly — at the cost of a dimension table that grows every time an attribute changes, not just when a new entity is added."}
+},
+
+'m21::SCD Type 3': {
+  intro:"A Slowly Changing Dimension Type 3 (SCD3) is a middle ground between Type 1 and Type 2 — it adds a 'previous value' column to track just the immediately prior value, rather than either discarding history entirely or keeping a full row per change.",
+  body:[
+    {h:'One Extra Column, Limited History', p:"Before overwriting the current value, SCD3 shifts it into a previous_city column first — so you can see the last change, but not the full chain of every change before that.",
+     runner:{id:'scd3a', tabs:[
+       {label:'SCD3 Change in Action', sql:"CREATE TEMP TABLE dim_customer (customer_id INTEGER, current_city TEXT, previous_city TEXT);\nINSERT INTO dim_customer VALUES (10, 'Mumbai', NULL);\n\n-- Customer moves to Delhi: shift current into previous, then overwrite\nUPDATE dim_customer SET previous_city = current_city, current_city = 'Delhi' WHERE customer_id = 10;\n\nSELECT * FROM dim_customer;\nDROP TABLE dim_customer;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Rarely Used in Practice', text:"Because SCD3 only remembers one prior state (a second change overwrites the 'previous' column too, losing the original Mumbai value entirely), it's far less common in real warehouses than SCD2 — most teams reach for it only in narrow cases like tracking 'original vs current' for exactly one specific attribute."}
+},
+
+'m21::CDC': {
+  intro:"Change Data Capture (CDC) is the general term for detecting and capturing row-level INSERT, UPDATE, and DELETE events in a source system, so those changes can be propagated to a warehouse without reloading the entire source table each time.",
+  body:[
+    {h:'Three Common CDC Approaches', p:"<ul><li><strong>Log-based CDC</strong> — reads the database's own transaction/write-ahead log to detect changes; low overhead, used by tools like Debezium</li><li><strong>Trigger-based CDC</strong> — database triggers write every change into a separate audit/change table as it happens</li><li><strong>Timestamp-based CDC</strong> — relies on an updated_at column and periodically queries for rows changed since the last check (simplest, but can miss hard deletes)</li></ul>"},
+    {h:'A Trigger-Based CDC Simulation', p:"This mirrors what log-based CDC tools do automatically: every UPDATE on the source table produces a corresponding row in a change-tracking table, which a warehouse load job could later read and apply downstream.",
+     runner:{id:'cdc1', tabs:[
+       {label:'Trigger Captures Changes', sql:"CREATE TEMP TABLE source_customers (id INTEGER, city TEXT);\nCREATE TEMP TABLE cdc_log (id INTEGER, old_city TEXT, new_city TEXT, changed_at TEXT);\nINSERT INTO source_customers VALUES (10, 'Mumbai');\n\nCREATE TRIGGER capture_city_change AFTER UPDATE ON source_customers\nBEGIN\n  INSERT INTO cdc_log VALUES (OLD.id, OLD.city, NEW.city, DATETIME('now'));\nEND;\n\nUPDATE source_customers SET city = 'Delhi' WHERE id = 10;\n\nSELECT * FROM cdc_log;\nDROP TRIGGER capture_city_change;\nDROP TABLE source_customers;\nDROP TABLE cdc_log;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'CDC Powers Both Incremental Loads and SCD2', text:"CDC is what makes incremental loading and SCD2 history tracking practical at scale — without a reliable way to know exactly what changed since the last load, a warehouse would have no choice but to reload and reprocess everything, every time."}
+},
+
+'m21::Incremental Load': {
+  intro:"An incremental load pulls only the new or changed rows since the last successful load, rather than re-extracting the entire source table every time — dramatically reducing load time and resource usage on large tables.",
+  body:[
+    {h:'The Watermark Pattern', p:"Incremental loads typically rely on a 'watermark' — a timestamp or an ever-increasing id — recording exactly how far the last load got. Each new run simply asks for rows past that watermark.",
+     runner:{id:'incr1', tabs:[
+       {label:'Watermark-Based Incremental Load', sql:"CREATE TEMP TABLE source_orders (id INTEGER, amount INTEGER, updated_at TEXT);\nINSERT INTO source_orders VALUES (1, 500, '2026-06-01'), (2, 750, '2026-06-05'), (3, 900, '2026-06-10');\n\n-- Last load watermark was '2026-06-04' — only pull what changed after that\nSELECT * FROM source_orders WHERE updated_at > '2026-06-04';\nDROP TABLE source_orders;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Watermarks Must Be Trustworthy', text:"An incremental load is only as reliable as its watermark column — if updated_at can be missing, backdated, or a hard DELETE isn't reflected anywhere, the incremental load will silently miss data. This is exactly the gap that proper CDC is designed to close."}
+},
+
+'m21::Full Load': {
+  intro:"A full load reloads an entire dataset from the source every single time — wiping the target table completely and rebuilding it from scratch — simpler than incremental loading, but far more expensive as data volume grows.",
+  body:[
+    {h:'Wipe and Rebuild', p:"The classic full-load pattern: clear out the target table entirely, then insert everything fresh from the source — no watermark, no change tracking, no risk of missing an update, but also no shortcuts.",
+     runner:{id:'full1', tabs:[
+       {label:'Full Load Pattern', sql:"CREATE TEMP TABLE target_products (id INTEGER, name TEXT, price REAL);\nINSERT INTO target_products VALUES (1, 'Old Keyboard', 39.99);\n\n-- Full load: wipe everything, then reload the complete current source data\nDELETE FROM target_products;\nINSERT INTO target_products VALUES (1, 'Keyboard', 45.99), (2, 'Monitor', 210.00);\n\nSELECT * FROM target_products;\nDROP TABLE target_products;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'When Full Load Still Makes Sense', text:"Full loads remain the right choice for small dimension tables, the very first load of any dataset, or source systems with no reliable way to detect what changed — the simplicity and guaranteed correctness of 'just reload everything' can outweigh the performance cost when the table is small enough."}
+},  
 };
 
 // ═══════════════════════════════════════════════════════
