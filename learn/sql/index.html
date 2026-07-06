@@ -154,6 +154,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fn);min-height:100v
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════
+// MASTER DATA STRUCTURE — Single Source of Truth
+// Every module + every topic from the official index lives here.
+// "built:true" topics have full lesson content in LESSONS{}.
+// Everything else renders as a structured "coming soon" card
+// so NOTHING from the index is ever lost.
+// ═══════════════════════════════════════════════════════
 const MODULES = [
 {id:'m1',icon:'📗',title:'SQL Fundamentals',topics:['What is SQL?','History of SQL','SQL Architecture','Database Concepts','Tables, Rows & Columns','SQL Syntax','SQL Statements','SQL Comments','SQL Keywords','SQL Data Types','NULL Values','SQL Order of Execution','SQL Best Practices']},
 {id:'m2',icon:'📘',title:'SELECT Queries',topics:['SELECT','DISTINCT','Aliases','TOP','LIMIT','OFFSET','FETCH FIRST','Expressions','Calculated Columns']},
@@ -185,6 +192,11 @@ const MODULES = [
 {id:'res',icon:'📰',title:'Resources',topics:['SQL Blogs','FAQ','Release Notes',"What's New",'Community']},
 ];
 
+// ═══════════════════════════════════════════════════════
+// BUILT LESSONS — full content with live SQL runners.
+// Key format: "moduleId::topicName"
+// Add more entries here over time to progressively fill the course.
+// ═══════════════════════════════════════════════════════
 const LESSONS = {
 
 'm1::What is SQL?': {
@@ -2076,116 +2088,11 @@ const LESSONS = {
   ],
   tip:{type:'c-warn', title:'Standard Syntax (varies by database)', text:"PostgreSQL supports regex natively with the ~ operator: WHERE name ~ '^[AC]'; MySQL supports REGEXP/RLIKE out of the box: WHERE name REGEXP '^[AC]'; SQL Server has no built-in regex support at all and typically needs a CLR function or LIKE-based workarounds instead."}
 },
-
-'m19::Query Optimization': {
-  intro:"Query optimization is the practice of writing SQL and structuring data so the database's optimizer can find the fastest possible execution plan — the optimizer does the heavy lifting, but the choices you make heavily influence what's even possible for it to choose.",
-  body:[
-    {h:'Sargability: Keep Indexed Columns "Searchable"', p:"A condition is <strong>sargable</strong> (Search ARGument ABLE) when the database can use an index to evaluate it directly. Wrapping an indexed column in a function — like <span class='ic'>UPPER(name)</span> — usually forces a full scan, since the index stores the original values, not the function's output.",
-     runner:{id:'qo1', tabs:[
-       {label:'❌ Non-Sargable (function on column)', sql:"CREATE INDEX idx_name ON employees(name);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE UPPER(name) = 'ALICE';\nDROP INDEX idx_name;"},
-       {label:'✅ Sargable (plain column)', sql:"CREATE INDEX idx_name ON employees(name);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE name = 'Alice';\nDROP INDEX idx_name;"}
-     ]}}
-    },
-    {h:'A Quick Optimization Checklist', p:"<ul><li>Filter with WHERE as early and specifically as possible</li><li>Select only the columns you actually need, not SELECT *</li><li>Make sure JOIN and WHERE columns are indexed</li><li>Avoid wrapping indexed columns in functions or implicit type conversions</li><li>Check the execution plan — don't guess, verify</li></ul>"}
-  ],
-  tip:{type:'c-warn', title:'Optimize the Query, Not Just the Guess', text:"It's tempting to add indexes or rewrite queries based on intuition — but the only reliable way to know if a change actually helped is to compare EXPLAIN QUERY PLAN (or your database's equivalent) before and after."}
-},
-
-'m19::Explain Plan': {
-  intro:"An explain plan is the database's own explanation of how it intends to execute a specific query — the single most important diagnostic tool for understanding and fixing slow SQL. (See also 'Execution Plans' in the Indexes module for the indexing-focused angle on this same topic.)",
-  body:[
-    {h:'Comparing Plans Before and After Indexing', p:"Run the same filter with and without an index on the filtered column, and watch how the plan output changes from a full SCAN to a targeted SEARCH.",
-     runner:{id:'expl1', tabs:[
-       {label:'❌ No Index: Full Scan', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';"},
-       {label:'✅ With Index: Search', sql:"CREATE INDEX idx_dept_plan ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';\nDROP INDEX idx_dept_plan;"}
-     ]}},
-    {h:'Plan Syntax Differs by Database', p:"SQLite and MySQL use <span class='ic'>EXPLAIN</span> (SQLite: EXPLAIN QUERY PLAN for the readable version). PostgreSQL uses <span class='ic'>EXPLAIN ANALYZE</span> to show real, measured execution stats instead of just estimates. SQL Server uses <span class='ic'>SET SHOWPLAN_ALL ON</span> or the graphical plan in SSMS."}
-  ],
-  tip:{type:'c-tip', title:'Estimated vs Actual Costs', text:"A plain EXPLAIN shows the optimizer's estimated plan based on statistics — it can be wrong if those statistics are stale. PostgreSQL's EXPLAIN ANALYZE (and SQL Server's 'Actual Execution Plan') actually run the query and show real row counts and timings, which is far more trustworthy for diagnosing a genuinely slow query."}
-},
-
-'m19::Statistics': {
-  intro:"Query optimizers don't guess blindly — they rely on stored statistics about each table (row counts, how many distinct values a column has, value distribution) to estimate which execution plan will be fastest. Stale statistics are a common, easy-to-miss cause of suddenly bad query plans.",
-  body:[
-    {h:'Generating Statistics with ANALYZE', p:"SQLite's <span class='ic'>ANALYZE</span> command scans your tables and stores what it learns in an internal <span class='ic'>sqlite_stat1</span> table, which the query planner then consults for future queries.",
-     runner:{id:'stat1', tabs:[
-       {label:'Run ANALYZE', sql:"ANALYZE;\nSELECT * FROM sqlite_stat1;"}
-     ]}}
-  ],
-  tip:{type:'c-note', title:'Different Databases, Same Idea', text:"PostgreSQL runs ANALYZE (often automatically via autovacuum). SQL Server uses UPDATE STATISTICS, often on an automatic schedule. MySQL uses ANALYZE TABLE. Whatever the exact command, the underlying purpose is identical: keep the optimizer's picture of your data fresh so it keeps choosing good plans as data grows and changes."}
-},
-
-'m19::Partitioning': {
-  intro:"Partitioning splits one large logical table into several smaller physical pieces — typically by a date range, a region, or another natural key — so queries that only need one slice of data don't have to scan the whole table.",
-  body:[
-    {h:'Not Supported in SQLite', p:"PostgreSQL offers native declarative partitioning (<span class='ic'>PARTITION BY RANGE/LIST/HASH</span>), MySQL has its own <span class='ic'>PARTITION BY</span> syntax, and SQL Server supports partitioned tables via partition functions and schemes. SQLite has no native table partitioning feature at all — an entire SQLite database is just a single file."},
-    {h:'The Manual Equivalent: Separate Tables + UNION ALL', p:"Before native partitioning existed, this was exactly how large tables were split by hand — one physical table per time period, unified through a view. A query filtering for just one period only needs to touch its own dedicated table.",
-     runner:{id:'part1', tabs:[
-       {label:'Two "Partitions" as Separate Tables', sql:"CREATE TEMP TABLE sales_2025 (id INTEGER, amount INTEGER);\nCREATE TEMP TABLE sales_2026 (id INTEGER, amount INTEGER);\nINSERT INTO sales_2025 VALUES (1, 500), (2, 700);\nINSERT INTO sales_2026 VALUES (3, 900);\n\n-- A query only needing 2026 data touches only that one table\nSELECT * FROM sales_2026;\n\n-- A combined view unifies both, like a partitioned table would appear\nCREATE TEMP VIEW all_sales AS SELECT * FROM sales_2025 UNION ALL SELECT * FROM sales_2026;\nSELECT * FROM all_sales;\n\nDROP VIEW all_sales;\nDROP TABLE sales_2025;\nDROP TABLE sales_2026;"}
-     ]}}
-  ],
-  tip:{type:'c-warn', title:'"Partition Pruning" Is the Real Payoff', text:"The core benefit of real partitioning is that the optimizer can skip entire partitions that don't match your WHERE clause without even opening them — on PostgreSQL/SQL Server/MySQL this happens automatically; in the manual SQLite-style version above, you get the same benefit only if your queries explicitly target the right table."}
-},
-
-'m19::Parallel Processing': {
-  intro:"Parallel query processing splits a single query's work across multiple CPU cores (or even multiple machines) to run it faster — instead of one worker scanning a huge table alone, several workers each scan a slice simultaneously.",
-  body:[
-    {h:'Not Available in SQLite', p:"SQLite executes every query using a single thread on a single core — there is no parallel query execution at all, by design, since SQLite targets embedded and lightweight use cases rather than large-scale analytical workloads.",
-     runner:{id:'pp1', tabs:[
-       {label:'Plan Shows No Parallel Operators', sql:"EXPLAIN QUERY PLAN SELECT department, AVG(salary) FROM employees GROUP BY department;"}
-     ]}},
-    {h:'Where Real Parallelism Shows Up', p:"PostgreSQL's plans show a <span class='ic'>Gather</span> node with parallel workers for large scans and aggregates. SQL Server plans display a parallelism icon and DOP (degree of parallelism). Cloud data warehouses like Snowflake and Databricks SQL are built around massively parallel processing (MPP) by default, spreading work across many compute nodes at once."}
-  ],
-  tip:{type:'c-note', title:'Parallelism Isn't Always a Win', text:"Splitting work across workers adds coordination overhead — for small queries (like anything on this course's 6-row employees table), a single-threaded plan is often faster than a parallel one; databases typically only go parallel once a query is estimated to touch enough rows to make the coordination cost worthwhile."}
-},
-
-'m19::Query Hints': {
-  intro:"A query hint is an explicit instruction that overrides the optimizer's own decision — forcing a specific index, join order, or join algorithm — used sparingly, when you're confident you know better than the optimizer for one particular query.",
-  body:[
-    {h:"SQLite's Hint: INDEXED BY", p:"SQLite lets you force a specific index (or force a full table scan with <span class='ic'>NOT INDEXED</span>) using the <span class='ic'>INDEXED BY</span> clause.",
-     runner:{id:'qh1', tabs:[
-       {label:'Force a Specific Index', sql:"CREATE INDEX idx_dept_hint ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees INDEXED BY idx_dept_hint WHERE department = 'Engineering';\nDROP INDEX idx_dept_hint;"}
-     ]}},
-    {h:'Hint Syntax Varies Widely', p:"<ul><li><strong>MySQL</strong> — USE INDEX(idx_name), FORCE INDEX(idx_name), IGNORE INDEX(idx_name)</li><li><strong>SQL Server</strong> — WITH (INDEX(idx_name)), OPTION (HASH JOIN), OPTION (MAXDOP 1)</li><li><strong>Oracle</strong> — special /*+ INDEX(table idx_name) */ comment syntax</li><li><strong>PostgreSQL</strong> — no built-in hint syntax at all by design; relies on the planner, or the third-party pg_hint_plan extension</li></ul>"}
-  ],
-  tip:{type:'c-warn', title:'Hints Are a Last Resort, Not a First Move', text:"A hint freezes in today's decision even as your data grows and changes — a hint that was correct at 1,000 rows can become actively harmful at 10 million rows. Reach for better indexes, updated statistics, or a rewritten query first; treat hints as a targeted, well-documented exception."}
-},
-
-'m19::Query Caching': {
-  intro:"Query caching stores the result of a previously run query so an identical future query can be answered instantly, without re-executing any SQL at all — a different concept from execution plan caching, which reuses a compiled plan but still re-runs the query against current data.",
-  body:[
-    {h:'No Built-in Result Cache in SQLite', p:"SQLite has no built-in query result cache — every SELECT genuinely re-executes against the live data, every single time, as this course's runner has been doing for every example so far.",
-     runner:{id:'qc1', tabs:[
-       {label:'Always Re-Executes Live', sql:"SELECT COUNT(*) AS live_count FROM employees;"}
-     ]}},
-    {h:'Where Query Caching Does Exist', p:"MySQL had a built-in Query Cache feature, but it was deprecated in 5.7 and fully removed in MySQL 8.0 due to concurrency problems at scale. Modern approaches favor caching at the application layer instead — tools like Redis or Memcached, or the automatic result caching built into cloud warehouses like Snowflake and Databricks SQL."}
-  ],
-  tip:{type:'c-warn', title:'Cache Invalidation Is the Hard Part', text:"Result caching only helps if the underlying data hasn't changed since the cache was filled — the classic hard problem is knowing exactly when to invalidate a cached result. Plan/statement caching (reusing a compiled execution plan) is far more universal and far less risky than full result-set caching."}
-},
-
-'m19::Connection Pooling': {
-  intro:"Connection pooling reuses a small set of already-open database connections across many incoming requests, instead of opening a brand-new connection for every single query — because opening a connection (handshake, authentication, session setup) is surprisingly expensive compared to running a simple query.",
-  body:[
-    {h:'An Infrastructure Concept, Not a SQL Statement', p:"Connection pooling happens outside of SQL entirely — in your application framework, an ORM, or a dedicated pooling proxy that sits in front of the database. There's no SQL syntax to demonstrate directly in this runner, since this in-browser engine already runs as a single persistent in-memory connection for the whole page."},
-    {h:'Common Poolers in the Real World', p:"<ul><li><strong>PgBouncer</strong> — a lightweight, dedicated connection pooler for PostgreSQL</li><li><strong>Built-in ORM/driver pools</strong> — most frameworks (SQLAlchemy, HikariCP, Node's pg library) include their own pool manager</li><li><strong>Cloud-managed pooling</strong> — many managed database services (RDS Proxy, Cloud SQL) offer pooling as a built-in layer</li></ul>"}
-  ],
-  tip:{type:'c-warn', title:'Right-Sizing the Pool Matters', text:"A pool that's too small forces requests to queue and wait for a free connection under load. A pool that's too large can overwhelm the database server with more concurrent work than it can actually handle efficiently — pool size should be tuned to the database's real capacity, not just set arbitrarily high 'to be safe'."}
-},
-
-'m19::Performance Best Practices': {
-  intro:"Bringing together everything from this module and the Indexes/JOINs chapters: a practical checklist for keeping SQL fast as data grows, rather than a list of one-off tricks.",
-  body:[
-    {h:'The Core Checklist', p:"<ul><li>Index columns used in WHERE, JOIN, and ORDER BY — but don't over-index every column 'just in case'</li><li>Keep WHERE conditions sargable; avoid wrapping indexed columns in functions</li><li>Select only the columns you need, never SELECT * in production code</li><li>Filter as early as possible, before joining or grouping large tables</li><li>Check the execution plan instead of guessing when a query is slow</li><li>Keep table statistics fresh (run ANALYZE / equivalent after major data changes)</li><li>Use LIMIT/pagination for large result sets instead of pulling everything at once</li><li>Reserve query hints for rare, well-documented exceptions — not a default habit</li></ul>"},
-    {h:'A Concrete Before/After', p:"Combining several of these habits at once often produces a much clearer performance win than any single change in isolation.",
-     runner:{id:'pbp1', tabs:[
-       {label:'❌ Unoptimized', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE UPPER(department) = 'ENGINEERING' ORDER BY salary DESC;"},
-       {label:'✅ Optimized', sql:"CREATE INDEX idx_dept_salary_final ON employees(department, salary);\nEXPLAIN QUERY PLAN SELECT name, salary FROM employees WHERE department = 'Engineering' ORDER BY salary DESC;\nDROP INDEX idx_dept_salary_final;"}
-     ]}}
-  ],
-  tip:{type:'c-tip', title:'Measure, Don't Assume', text:"Performance tuning is an empirical discipline — the fix that helped one query on one dataset can do nothing (or even hurt) on another. Always validate a change with a real execution plan or timing comparison rather than applying 'best practices' blindly."}
-},
 };
 
+// ═══════════════════════════════════════════════════════
+// SQL.JS ENGINE SETUP
+// ═══════════════════════════════════════════════════════
 let sqlDB = null, sqlReady = false;
 async function initSQL() {
   try {
@@ -2251,6 +2158,9 @@ function loadSnippet(editorId, sql, runnerId, tabEl) {
   if (tabEl) { const p = tabEl.closest('.runner-tabs'); if(p) p.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active')); tabEl.classList.add('active'); }
 }
 
+// ═══════════════════════════════════════════════════════
+// RENDER: SIDEBAR (fully dynamic from MODULES)
+// ═══════════════════════════════════════════════════════
 function totalTopics(){ return MODULES.reduce((a,m)=>a+m.topics.length,0); }
 function builtCount(){ return Object.keys(LESSONS).length; }
 
@@ -2295,6 +2205,9 @@ function onMobileSelect(val) {
   openTopic(modId, topic);
 }
 
+// ═══════════════════════════════════════════════════════
+// RENDER: CONTENT AREA
+// ═══════════════════════════════════════════════════════
 function openTopic(modId, topic) {
   const mod = MODULES.find(m=>m.id===modId);
   const key = modId+'::'+topic;
@@ -2304,6 +2217,7 @@ function openTopic(modId, topic) {
   document.querySelectorAll('.sb-topic').forEach(el=>el.classList.remove('active'));
   const idx = mod.topics.indexOf(topic);
 
+  // open the right sidebar section & highlight
   const topicsDiv = document.getElementById('topics-'+modId);
   if (topicsDiv && !topicsDiv.classList.contains('open')) toggleMod(modId);
   const items = topicsDiv ? topicsDiv.querySelectorAll('.sb-topic') : [];
@@ -2328,6 +2242,7 @@ function openTopic(modId, topic) {
     </div>`;
   }
 
+  // module topic overview grid
   html += `<h2 style="margin-top:2rem">More in ${mod.title}</h2><div class="topic-grid">`;
   mod.topics.forEach(t=>{
     const b = !!LESSONS[modId+'::'+t];
@@ -2339,6 +2254,7 @@ function openTopic(modId, topic) {
   });
   html += `</div>`;
 
+  // prev/next nav
   const prevTopic = idx>0 ? mod.topics[idx-1] : null;
   const nextTopic = idx<mod.topics.length-1 ? mod.topics[idx+1] : null;
   html += `<div class="l-nav">`;
@@ -2364,6 +2280,7 @@ function buildRunnerHTML(runner) {
   </div>`;
 }
 
+// overview / home page
 function renderHome() {
   const content = document.getElementById('content');
   const total = totalTopics(), built = builtCount();
@@ -2409,6 +2326,9 @@ function searchTopics(q) {
   sb.innerHTML = html || `<div style="padding:1rem;color:var(--txt3);font-size:.8rem">No topics found</div>`;
 }
 
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
 renderSidebar();
 renderHome();
 </script>
