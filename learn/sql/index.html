@@ -2796,6 +2796,119 @@ const LESSONS = {
      runner:{id:'p500_30', tabs:[{label:'Solution', sql:"WITH dept_stats AS (\n  SELECT department, COUNT(*) AS headcount, ROUND(AVG(salary),2) AS avg_salary FROM employees GROUP BY department\n)\nSELECT department, headcount, avg_salary, RANK() OVER (ORDER BY avg_salary DESC) AS pay_rank FROM dept_stats;"}]}}
   ],
   tip:{type:'c-tip', title:'Batch 1 of a Growing Bank', text:"This is the first batch of 30 scenario-based problems. Ask for the next batch any time (e.g. \"next 30 practice questions\") and it gets appended right here, working incrementally toward a much larger practice bank."}
+},
+/* ═══════════════════════════════════════════════════════
+   MODULE 25 — INTERVIEW PREPARATION (7 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm24::...' entry and before the closing "};"
+   ═══════════════════════════════════════════════════════ */
+
+'m25::300 Interview Questions': {
+  intro:"A curated, growing checklist of interview-style questions, organized by topic area — unlike the Practice module (which pairs every problem with a full solution), this list is meant as a self-test: can you answer these confidently without looking anything up? Batch 1 below covers 45 questions across three areas; more batches are added over time.",
+  body:[
+    {h:'How This Differs From the Practice Bank', p:"The SQL Practice module gives you scenario problems WITH runnable solutions to learn from. This checklist is the opposite direction — a rapid-fire list to test what you already know. If a question here stumps you, that's a signal to revisit the matching module."},
+    {h:'Batch 1 — Foundations & Filtering (15 Questions)', p:"<ul><li>What's the difference between WHERE and HAVING?</li><li>Why does <code>salary = NULL</code> never return any rows?</li><li>What's the execution order of SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY?</li><li>When would you use BETWEEN instead of two comparison operators?</li><li>Why can LIKE '%text' hurt performance?</li><li>What's the difference between IN and EXISTS?</li><li>Why is NOT IN risky with a subquery that might return NULL?</li><li>What does DISTINCT actually operate on when multiple columns are selected?</li><li>What's the difference between COUNT(*) and COUNT(column)?</li><li>Why does AVG() sometimes surprise people compared to a manual sum/count?</li><li>What are the five categories of SQL statements (DDL, DML, DQL, DCL, TCL)?</li><li>Why do column aliases fail inside a WHERE clause?</li><li>What's the difference between CHAR and VARCHAR?</li><li>What does the ROLLUP clause add on top of a normal GROUP BY?</li><li>Why should you avoid SELECT * in production code?</li></ul>"},
+    {h:'Batch 1 — JOINs & Subqueries (15 Questions)', p:"<ul><li>What's the difference between INNER JOIN and LEFT JOIN?</li><li>How do you find rows in Table A with no match in Table B?</li><li>What's a self join, and when would you need one?</li><li>What's the difference between a correlated and a non-correlated subquery?</li><li>Why might EXISTS outperform IN on a large table?</li><li>What happens if you JOIN on columns with mismatched data types?</li><li>What's the difference between UNION and UNION ALL?</li><li>How would you simulate a FULL OUTER JOIN on a database that doesn't support it?</li><li>What's a Cartesian product, and how does CROSS JOIN produce one?</li><li>Why does column order matter in a composite index used for a JOIN?</li><li>What's the difference between a scalar subquery and a table subquery?</li><li>How do you find the second-highest value using a subquery, without window functions?</li><li>What's a derived table, and how does it differ from a CTE?</li><li>Why would a query need three or more JOINs, and how do you keep it readable?</li><li>What's the risk of using NATURAL JOIN in production code?</li></ul>"},
+    {h:'Batch 1 — Window Functions & Advanced (15 Questions)', p:"<ul><li>What's the difference between ROW_NUMBER, RANK, and DENSE_RANK?</li><li>What does PARTITION BY do differently from GROUP BY?</li><li>How do you find the top 3 rows per group?</li><li>What's the classic bug with LAST_VALUE, and how do you fix it?</li><li>How would you compute a running total in SQL?</li><li>What's a recursive CTE used for?</li><li>How do you guard a recursive CTE against infinite loops?</li><li>What's the difference between a CTE and a temporary table?</li><li>What's a covering index, and why does it speed up reads?</li><li>What's the difference between a clustered and non-clustered index?</li><li>Why might adding more indexes slow down writes?</li><li>What are ACID properties, and why do they matter?</li><li>What's the difference between optimistic and pessimistic locking (conceptually)?</li><li>What's the purpose of a SAVEPOINT inside a transaction?</li><li>What's the difference between SCD Type 1 and SCD Type 2?</li></ul>"}
+  ],
+  tip:{type:'c-tip', title:'Use It as a Gap Finder', text:"Go through each list without opening any notes. Every question you can't answer confidently points you to exactly which module to revisit — this is more valuable than passively re-reading content you already understand."}
+},
+
+'m25::300 Detailed Answers': {
+  intro:"Full worked answers to classic, frequently-asked interview questions — distinct from the Practice module's business scenarios, these are the definitional and comparison-style questions interviewers use to check real understanding, not just query-writing ability.",
+  body:[
+    {h:'Q: What\u2019s the practical difference between WHERE and HAVING?', p:"<strong>Answer:</strong> WHERE filters individual rows before grouping happens and cannot reference an aggregate function. HAVING filters entire groups after GROUP BY has run, and is the only place you can filter on an aggregate like AVG() or COUNT() directly.",
+     runner:{id:'da1', tabs:[{label:'Proof: WHERE with Aggregate Fails', sql:"SELECT department, AVG(salary) FROM employees WHERE AVG(salary) > 80000 GROUP BY department;"},{label:'Correct: HAVING Works', sql:"SELECT department, AVG(salary) FROM employees GROUP BY department HAVING AVG(salary) > 80000;"}]}},
+    {h:'Q: How do you find duplicate rows in a table?', p:"<strong>Answer:</strong> Group by the column(s) that should be unique, then filter groups with more than one row using HAVING COUNT(*) > 1.",
+     runner:{id:'da2', tabs:[{label:'Find Duplicates', sql:"CREATE TEMP TABLE demo_users (id INTEGER, email TEXT);\nINSERT INTO demo_users VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'a@x.com');\nSELECT email, COUNT(*) AS occurrences FROM demo_users GROUP BY email HAVING COUNT(*) > 1;\nDROP TABLE demo_users;"}]}},
+    {h:'Q: How do you find the Nth highest salary correctly, handling ties?', p:"<strong>Answer:</strong> Use DENSE_RANK() rather than RANK() or a naive LIMIT/OFFSET — DENSE_RANK never leaves gaps after ties, giving the correct 'Nth distinct value' every time.",
+     runner:{id:'da3', tabs:[{label:'3rd Highest Distinct Salary', sql:"SELECT salary FROM (SELECT DISTINCT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk FROM employees) t WHERE rnk = 3;"}]}},
+    {h:'Q: How would you find employees hired in the last 90 days?', p:"<strong>Answer:</strong> Compare the hire date column against the current date minus an interval, using your database's date arithmetic functions.",
+     runner:{id:'da4', tabs:[{label:'Recent Hires Pattern', sql:"CREATE TEMP TABLE staff_hire (name TEXT, hire_date TEXT);\nINSERT INTO staff_hire VALUES ('Zara','2026-05-01'),('Omar','2025-01-15');\nSELECT * FROM staff_hire WHERE hire_date >= DATE('now', '-90 days');\nDROP TABLE staff_hire;"}]}},
+    {h:'Q: How do you build a simple org chart with a self join?', p:"<strong>Answer:</strong> Join the employees table to itself, matching each row's manager_id to another row's id, with two distinct aliases for the two 'roles' of the same table.",
+     runner:{id:'da5', tabs:[{label:'Employee + Manager', sql:"SELECT e.name AS employee, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;"}]}},
+    {h:'Q: Why does <code>NOT IN</code> sometimes silently return zero rows?', p:"<strong>Answer:</strong> If the subquery list contains even one NULL, every comparison against that NULL evaluates to UNKNOWN rather than TRUE or FALSE — which makes the entire NOT IN condition unexpectedly false for every row. NOT EXISTS avoids this trap entirely.",
+     runner:{id:'da6', tabs:[{label:'The Trap', sql:"SELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees);"},{label:'The Fix', sql:"SELECT name FROM employees WHERE id NOT IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);"}]}},
+    {h:'Q: How can you tell if a query is actually using an index?', p:"<strong>Answer:</strong> Run EXPLAIN QUERY PLAN (or EXPLAIN / EXPLAIN ANALYZE on other databases) in front of the query — look for a SEARCH USING INDEX step rather than a full SCAN.",
+     runner:{id:'da7', tabs:[{label:'Check Index Usage', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';\nDROP INDEX idx_dept;"}]}},
+    {h:'Q: What\u2019s the difference between UNION and UNION ALL, and when do you choose each?', p:"<strong>Answer:</strong> UNION removes duplicate rows across the combined result sets, which requires extra sorting/comparison work. UNION ALL keeps every row including duplicates and skips that work entirely — always prefer UNION ALL unless you specifically need deduplication.",
+     runner:{id:'da8', tabs:[{label:'See the Difference', sql:"SELECT city FROM employees UNION SELECT location FROM departments;"},{label:'UNION ALL (Keeps Duplicates)', sql:"SELECT city FROM employees UNION ALL SELECT location FROM departments;"}]}}
+  ],
+  tip:{type:'c-tip', title:'Growing Bank', text:"This is the first batch of detailed interview answers. Ask for the next batch any time (e.g. \"next batch of detailed answers\") to keep expanding this section."}
+},
+
+'m25::100 Real Scenarios': {
+  intro:"Open-ended, case-study style problems — the kind where an interviewer describes a messy real-world situation and wants to see how you think through it, not just whether you know one specific keyword.",
+  body:[
+    {h:'Scenario 1: A Table With No Documentation', p:"You're handed a table called <span class='ic'>events</span> with no schema documentation. <strong>Approach:</strong> Before writing any analysis, inspect its structure and a sample of real data first.",
+     runner:{id:'sc1', tabs:[{label:'Investigate First', sql:"PRAGMA table_info(employees);\nSELECT * FROM employees LIMIT 5;"}]}},
+    {h:'Scenario 2: Suspiciously Low Row Count After a JOIN', p:"A report that should show all 6 employees only returns 4 after joining to departments. <strong>Approach:</strong> Suspect an INNER JOIN silently dropping unmatched rows — switch to LEFT JOIN to confirm and see which rows are missing.",
+     runner:{id:'sc2', tabs:[{label:'Diagnose the Missing Rows', sql:"SELECT e.name, d.dept_name FROM employees e LEFT JOIN departments d ON e.dept_id = d.id WHERE d.id IS NULL;"}]}},
+    {h:'Scenario 3: A Report That\u2019s Technically Correct but Misleading', p:"A dashboard shows AVG(salary) per department, but one department has only 1 person, making its 'average' look artificially extreme. <strong>Approach:</strong> Always pair an average with its underlying count so small-sample noise is visible.",
+     runner:{id:'sc3', tabs:[{label:'Average With Sample Size', sql:"SELECT department, COUNT(*) AS n, AVG(salary) AS avg_salary FROM employees GROUP BY department;"}]}},
+    {h:'Scenario 4: Data Arrives Late and Out of Order', p:"A pipeline processes daily files, but yesterday's file sometimes arrives after today's has already loaded. <strong>Approach:</strong> Don't rely purely on load order — use an actual event or business date column for logic, and treat incremental loads as needing to handle late-arriving rows (tie-in to the Incremental Load topic).",
+    },
+    {h:'Scenario 5: A "Simple" Delete Request', p:"A stakeholder asks you to 'just delete the test data' from a shared production table. <strong>Approach:</strong> Always write the equivalent SELECT with the same WHERE condition first, review exactly which rows would be affected, and only then run the DELETE — ideally inside a transaction you can roll back if the count looks wrong.",
+     runner:{id:'sc5', tabs:[{label:'Check Before You Delete', sql:"CREATE TEMP TABLE demo_data (id INTEGER, tag TEXT);\nINSERT INTO demo_data VALUES (1,'real'),(2,'test'),(3,'test');\n\n-- Step 1: check first\nSELECT * FROM demo_data WHERE tag = 'test';\n\n-- Step 2: only then delete\nDELETE FROM demo_data WHERE tag = 'test';\nSELECT * FROM demo_data;\nDROP TABLE demo_data;"}]}},
+    {h:'Scenario 6: Two Systems Disagree on a Number', p:"Sales dashboard shows different revenue than finance's report for the same month. <strong>Approach:</strong> Check for double-counting from an unintentional fan-out JOIN (joining to a table with multiple matching rows per key) — a very common, quiet cause of inflated totals.",
+     runner:{id:'sc6', tabs:[{label:'Spot a Fan-Out Join', sql:"CREATE TEMP TABLE orders_demo (id INTEGER, customer_id INTEGER, amount INTEGER);\nCREATE TEMP TABLE addresses_demo (customer_id INTEGER, label TEXT);\nINSERT INTO orders_demo VALUES (1,10,500);\nINSERT INTO addresses_demo VALUES (10,'Home'),(10,'Office');\n\n-- Naive join doubles the order because the customer has 2 addresses\nSELECT o.id, SUM(o.amount) AS total FROM orders_demo o JOIN addresses_demo a ON o.customer_id = a.customer_id GROUP BY o.id;\n\nDROP TABLE orders_demo; DROP TABLE addresses_demo;"}]}}
+  ],
+  tip:{type:'c-tip', title:'What Interviewers Are Really Testing', text:"Scenario questions rarely have one 'correct' query — interviewers are watching whether you ask clarifying questions, check your assumptions against real data, and think about edge cases before writing a single line of SQL."}
+},
+
+'m25::Company Wise': {
+  intro:"SQL interview style varies noticeably by the kind of company you're interviewing at — not because any one company's exact questions are public or fixed, but because different business models naturally emphasize different SQL skills.",
+  body:[
+    {h:'A Note on What This Section Is (and Isn\u2019t)', p:"These are general patterns observed across the industry, not verified, leaked, or official question banks from any specific employer — treat them as 'what to focus your prep on', not literal transcripts."},
+    {h:'Large Product / Tech Companies', p:"Tend to lean heavily on window functions, top-N-per-group problems, query optimization, and system-design-adjacent questions about how a query would perform at massive scale."},
+    {h:'E-Commerce & Retail', p:"Frequently center on funnel analysis, cohort retention, revenue-by-category rollups, and RFM-style customer segmentation — reporting-heavy GROUP BY and window function questions."},
+    {h:'Fintech & Banking', p:"Emphasize precision (DECIMAL vs FLOAT), transaction integrity (ACID, isolation levels), audit trails (SCD Type 2, CDC), and fraud-pattern detection style queries."},
+    {h:'Service / IT Consulting Companies', p:"Often focus more on SQL fundamentals — JOINs, subqueries, GROUP BY/HAVING — since candidates may work across many different client schemas and technologies rather than one deeply-optimized system."},
+    {h:'Startups', p:"Interviews vary widely by stage, but commonly include a practical take-home or live screen-share task using the company's actual (simplified) schema, testing whether you can navigate unfamiliar, sometimes messy real data quickly."}
+  ],
+  tip:{type:'c-warn', title:'Prioritize Fundamentals Over Guessing a Company\u2019s List', text:"No matter which category you're preparing for, deep comfort with JOINs, GROUP BY/HAVING, subqueries, and window functions covers the large majority of what actually gets asked anywhere — company-specific quirks are a small layer on top of that foundation."}
+},
+
+'m25::Experience Wise': {
+  intro:"The bar for a SQL interview shifts significantly with experience level — not just harder syntax, but a shift from 'can you write this query' toward 'can you make good judgment calls about data and systems.'",
+  body:[
+    {h:'0\u20132 Years (Entry-Level / Fresher)', p:"Expect fundamentals: SELECT/WHERE/ORDER BY, basic JOINs, GROUP BY with simple aggregates. <em>Example question:</em> 'Find the top 3 highest-paid employees.'",
+     runner:{id:'ew1', tabs:[{label:'Example', sql:"SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 3;"}]}},
+    {h:'2\u20135 Years (Mid-Level)', p:"Expect JOIN combinations across 3+ tables, correlated subqueries, window functions, and CTEs. <em>Example question:</em> 'Find the top 2 earners per department.'",
+     runner:{id:'ew2', tabs:[{label:'Example', sql:"WITH ranked AS (SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk FROM employees)\nSELECT * FROM ranked WHERE rnk <= 2;"}]}},
+    {h:'5\u201310 Years (Senior)', p:"Expect performance reasoning — index strategy, query plan interpretation, schema design trade-offs — often discussed conceptually rather than purely written as SQL. <em>Example question:</em> 'This report takes 30 seconds — walk me through how you'd diagnose why.'"},
+    {h:'10+ Years (Architect / Lead)', p:"Expect system-level judgment: choosing OLTP vs OLAP architecture, partitioning strategy, when to denormalize, data governance and access-control design — SQL knowledge is assumed, and the real evaluation is architectural thinking."}
+  ],
+  tip:{type:'c-note', title:'The Shift to Watch For', text:"As seniority increases, interviews shift from 'write me a query' toward 'defend a design decision' — the SQL syntax itself becomes almost table-stakes, and the conversation moves to trade-offs, scale, and maintainability."}
+},
+
+'m25::Data Engineer Interview': {
+  intro:"Data engineer interviews put extra weight on the topics covered in the Data Warehouse SQL and Performance Tuning modules — pipelines, incremental loading, change tracking, and schema design for analytics, rather than just application-style querying.",
+  body:[
+    {h:'Q: How would you design an incremental load for a 500-million-row table?', p:"<strong>Answer:</strong> Rely on a reliable watermark column (an updated_at timestamp or monotonically increasing id), pull only rows past the last successful watermark, and prefer CDC over full comparison whenever the source system supports it.",
+     runner:{id:'de1', tabs:[{label:'Watermark Pattern', sql:"CREATE TEMP TABLE source_orders (id INTEGER, amount INTEGER, updated_at TEXT);\nINSERT INTO source_orders VALUES (1,500,'2026-06-01'),(2,750,'2026-06-05');\nSELECT * FROM source_orders WHERE updated_at > '2026-06-02';\nDROP TABLE source_orders;"}]}},
+    {h:'Q: When would you choose SCD Type 2 over Type 1?', p:"<strong>Answer:</strong> Whenever historical accuracy matters — if a report needs to show what a customer's region was AT THE TIME of a past sale, SCD1 (overwrite) would incorrectly rewrite history, while SCD2 preserves the exact value that was true then."},
+    {h:'Q: How do you handle a small-file problem on cloud storage-backed tables?', p:"<strong>Answer:</strong> Periodically compact small files into larger ones — on Delta Lake specifically, this is exactly what the OPTIMIZE command does, optionally combined with ZORDER on frequently filtered columns."},
+    {h:'Q: Star schema or snowflake schema for a new warehouse?', p:"<strong>Answer:</strong> Star schema is the more common default for analytical performance and query simplicity; snowflake is chosen when dimension tables are large enough that normalizing them meaningfully reduces storage and improves consistency, at the cost of extra joins."},
+    {h:'Q: How would you detect and handle duplicate events from an upstream system?', p:"<strong>Answer:</strong> Deduplicate using a natural or business key plus an idempotent load pattern (like COPY INTO's file-tracking, or a MERGE INTO keyed on that business key) rather than relying on the source system to never send the same event twice.",
+     runner:{id:'de5', tabs:[{label:'Dedup Pattern', sql:"CREATE TEMP TABLE incoming_events (event_id INTEGER, payload TEXT);\nINSERT INTO incoming_events VALUES (1,'a'),(2,'b'),(1,'a');\nSELECT DISTINCT event_id, payload FROM incoming_events;\nDROP TABLE incoming_events;"}]}}
+  ],
+  tip:{type:'c-tip', title:'Cross-Reference', text:"Every answer above ties directly back to a full topic already covered — Incremental Load and CDC (Data Warehouse SQL module), OPTIMIZE/ZORDER (Databricks SQL module), and idempotent loading (COPY INTO topic) — revisit those if any answer here felt unfamiliar."}
+},
+
+'m25::SQL Cheat Sheet': {
+  intro:"A condensed, at-a-glance reference of the most commonly needed syntax across this entire course — meant for quick lookup during practice or right before an interview, not as a replacement for the full SQL Reference module.",
+  body:[
+    {h:'Query Basics', p:"<ul><li><code>SELECT col1, col2 FROM table;</code></li><li><code>SELECT DISTINCT col FROM table;</code></li><li><code>SELECT * FROM table LIMIT 5 OFFSET 10;</code></li><li><code>SELECT col AS alias FROM table;</code></li></ul>"},
+    {h:'Filtering', p:"<ul><li><code>WHERE col = value AND/OR col2 &gt; value2</code></li><li><code>WHERE col BETWEEN a AND b</code></li><li><code>WHERE col IN (a, b, c)</code></li><li><code>WHERE col LIKE 'A%'</code></li><li><code>WHERE col IS NULL</code></li></ul>"},
+    {h:'Sorting & Aggregation', p:"<ul><li><code>ORDER BY col DESC</code></li><li><code>GROUP BY col HAVING COUNT(*) &gt; 1</code></li><li><code>COUNT(*), SUM(col), AVG(col), MIN(col), MAX(col)</code></li></ul>"},
+    {h:'JOINs', p:"<ul><li><code>FROM a JOIN b ON a.id = b.a_id</code> (INNER)</li><li><code>FROM a LEFT JOIN b ON a.id = b.a_id</code></li><li>Anti-join: <code>LEFT JOIN ... WHERE b.id IS NULL</code></li></ul>"},
+    {h:'Window Functions', p:"<ul><li><code>ROW_NUMBER() OVER (ORDER BY col)</code></li><li><code>DENSE_RANK() OVER (PARTITION BY col ORDER BY col2 DESC)</code></li><li><code>SUM(col) OVER (ORDER BY col2)</code> — running total</li><li><code>LAG(col)/LEAD(col) OVER (ORDER BY col2)</code></li></ul>"},
+    {h:'CTEs & Subqueries', p:"<ul><li><code>WITH cte_name AS (SELECT ...) SELECT * FROM cte_name;</code></li><li><code>WITH RECURSIVE cte AS (... UNION ALL ...) SELECT * FROM cte;</code></li></ul>"},
+    {h:'DDL / DML Quick Reference', p:"<ul><li><code>CREATE TABLE t (id INT PRIMARY KEY, name TEXT);</code></li><li><code>ALTER TABLE t ADD COLUMN col TYPE;</code></li><li><code>INSERT INTO t VALUES (...);</code></li><li><code>UPDATE t SET col = val WHERE ...;</code></li><li><code>DELETE FROM t WHERE ...;</code></li></ul>"},
+    {h:'Transactions', p:"<ul><li><code>BEGIN TRANSACTION; ... COMMIT;</code></li><li><code>ROLLBACK;</code></li><li><code>SAVEPOINT name; ROLLBACK TO name;</code></li></ul>"}
+  ],
+  tip:{type:'c-note', title:'Need More Depth?', text:"This cheat sheet only covers the highlights — for the exhaustive, fully-documented version of every keyword, function, and operator, see the SQL Reference module."}
 },  
 };
 
