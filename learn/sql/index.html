@@ -1463,6 +1463,631 @@ const LESSONS = {
   ],
   tip:{type:'c-note', title:'ROWS vs RANGE Frames', text:"ROWS BETWEEN counts a fixed number of physical rows, regardless of their values — RANGE BETWEEN instead considers logical value ranges (e.g. 'all rows within 7 days of this one'). ROWS is simpler and far more commonly used for basic moving averages."}
 },
+
+'m11::INSERT': {
+  intro:"INSERT adds new rows into a table. Every example on this page runs against a temporary scratch table, not the real employees table, so it's completely safe to run as many times as you like.",
+  body:[
+    {h:'Basic INSERT ... VALUES', p:"You can optionally list the target columns explicitly right after the table name — if you omit the list, values must be supplied in the table's exact column order.",
+     runner:{id:'ins1', tabs:[
+       {label:'Single Row', sql:"CREATE TEMP TABLE demo_employees (id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO demo_employees (id, name, salary) VALUES (1, 'Zara', 72000);\nSELECT * FROM demo_employees;\nDROP TABLE demo_employees;"},
+       {label:'Multiple Rows at Once', sql:"CREATE TEMP TABLE demo_employees (id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO demo_employees VALUES\n  (1, 'Zara', 72000),\n  (2, 'Omar', 81000),\n  (3, 'Priya', 69000);\nSELECT * FROM demo_employees;\nDROP TABLE demo_employees;"}
+     ]}},
+    {h:'INSERT ... SELECT (Copying Data)', p:"Instead of literal VALUES, the rows to insert can come straight from another query — a common way to archive, backfill, or duplicate a filtered subset of data into a new table.",
+     runner:{id:'ins2', tabs:[
+       {label:'Copy Engineering Staff', sql:"CREATE TEMP TABLE eng_backup (id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO eng_backup SELECT id, name, salary FROM employees WHERE department = 'Engineering';\nSELECT * FROM eng_backup;\nDROP TABLE eng_backup;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Always Name Your Columns', text:"Relying on positional VALUES without a column list breaks silently if the table's column order ever changes — explicitly listing columns is safer and self-documenting, especially in application code."}
+},
+
+'m11::UPDATE': {
+  intro:"UPDATE modifies existing rows that match a WHERE condition. It's one of the few statements where a small mistake (a missing WHERE clause) can silently affect every row in the table.",
+  body:[
+    {h:'Updating Matching Rows', p:"The WHERE clause here scopes the change to exactly one row — everyone else in the scratch table is left untouched.",
+     runner:{id:'upd1', tabs:[
+       {label:'Update One Employee', sql:"CREATE TEMP TABLE demo_employees AS SELECT * FROM employees;\nUPDATE demo_employees SET salary = salary * 1.10 WHERE name = 'Bob';\nSELECT name, salary FROM demo_employees;\nDROP TABLE demo_employees;"}
+     ]}},
+    {h:'The Missing WHERE Trap', p:"Leave off WHERE entirely, and the SET applies to every single row in the table — this is one of the most common and most damaging mistakes in real-world SQL.",
+     runner:{id:'upd2', tabs:[
+       {label:'❌ Updates Every Row', sql:"CREATE TEMP TABLE demo_employees AS SELECT * FROM employees;\nUPDATE demo_employees SET salary = salary * 1.10;\nSELECT name, salary FROM demo_employees;\nDROP TABLE demo_employees;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Test with SELECT First', text:"Before running an UPDATE in production, run a SELECT using the exact same WHERE condition to confirm precisely which rows will be affected — this one habit prevents the majority of accidental mass-update incidents."}
+},
+
+'m11::DELETE': {
+  intro:"DELETE removes rows that match a WHERE condition. Like UPDATE, omitting WHERE deletes every row in the table — the table itself still exists, just empty.",
+  body:[
+    {h:'Deleting Matching Rows', p:"Only rows satisfying the condition are removed; everything else in the table stays exactly as it was.",
+     runner:{id:'del1', tabs:[
+       {label:'Delete One Department', sql:"CREATE TEMP TABLE demo_employees AS SELECT * FROM employees;\nDELETE FROM demo_employees WHERE department = 'HR';\nSELECT * FROM demo_employees;\nDROP TABLE demo_employees;"}
+     ]}},
+    {h:'The Missing WHERE Trap', p:"Just like UPDATE, a DELETE with no WHERE clause removes every row — the table structure remains, but it's now completely empty.",
+     runner:{id:'del2', tabs:[
+       {label:'❌ Deletes Every Row', sql:"CREATE TEMP TABLE demo_employees AS SELECT * FROM employees;\nDELETE FROM demo_employees;\nSELECT COUNT(*) AS remaining_rows FROM demo_employees;\nDROP TABLE demo_employees;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'DELETE vs TRUNCATE vs DROP', text:"DELETE removes rows one at a time and can be filtered with WHERE (DML, can be rolled back in a transaction). TRUNCATE empties an entire table in one fast operation with no WHERE support (DDL in most databases). DROP removes the table structure itself entirely."}
+},
+
+'m11::MERGE': {
+  intro:"MERGE combines INSERT, UPDATE, and even DELETE into a single statement by comparing a source dataset against a target table on a matching key — commonly called an 'upsert' operation when used for insert-or-update logic.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Standard SQL MERGE syntax (supported by SQL Server, Oracle, PostgreSQL 15+, Snowflake and Databricks SQL) looks roughly like: <span class='ic'>MERGE INTO target USING source ON target.id = source.id WHEN MATCHED THEN UPDATE SET ... WHEN NOT MATCHED THEN INSERT ...</span>. SQLite doesn't implement MERGE at all, but the exact same insert-or-update logic can be built manually with two statements."},
+    {h:'Simulating MERGE Manually', p:"This mirrors what MERGE would do: update the target row if the id already exists, otherwise insert it as new — run twice and notice the second run only updates, it never duplicates.",
+     runner:{id:'mrg1', tabs:[
+       {label:'Manual Upsert Logic', sql:"CREATE TEMP TABLE target (id INTEGER PRIMARY KEY, name TEXT, salary INTEGER);\nINSERT INTO target VALUES (1, 'Zara', 70000);\n\n-- Simulate MERGE: update if exists, insert if not\nUPDATE target SET salary = 76000 WHERE id = 1;\nINSERT INTO target (id, name, salary)\n  SELECT 2, 'Omar', 81000\n  WHERE NOT EXISTS (SELECT 1 FROM target WHERE id = 2);\n\nSELECT * FROM target;\nDROP TABLE target;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server/Oracle/Databricks SQL: MERGE INTO target t USING source s ON t.id = s.id WHEN MATCHED THEN UPDATE SET t.salary = s.salary WHEN NOT MATCHED THEN INSERT (id, name, salary) VALUES (s.id, s.name, s.salary);"}
+},
+
+'m11::UPSERT': {
+  intro:"UPSERT is shorthand for 'insert, or update if it already exists' — most modern databases provide dedicated syntax for this exact pattern instead of requiring a full MERGE statement or manual two-step logic.",
+  body:[
+    {h:'SQLite / PostgreSQL: ON CONFLICT', p:"When an INSERT would violate a uniqueness constraint (like a duplicate primary key), <span class='ic'>ON CONFLICT ... DO UPDATE</span> tells the database to update the existing row instead of raising an error.",
+     runner:{id:'ups1', tabs:[
+       {label:'Insert, Then Upsert Same ID', sql:"CREATE TEMP TABLE demo_pay (id INTEGER PRIMARY KEY, name TEXT, salary INTEGER);\nINSERT INTO demo_pay VALUES (1, 'Zara', 70000);\n\n-- id 1 already exists, so this UPDATEs instead of failing\nINSERT INTO demo_pay (id, name, salary) VALUES (1, 'Zara', 76000)\n  ON CONFLICT(id) DO UPDATE SET salary = excluded.salary;\n\nSELECT * FROM demo_pay;\nDROP TABLE demo_pay;"}
+     ]}},
+    {h:'A Fresh Row Just Inserts Normally', p:"When the id doesn't already exist, the exact same ON CONFLICT statement simply behaves like a plain INSERT — no error, no update needed.",
+     runner:{id:'ups2', tabs:[
+       {label:'New ID Inserts Cleanly', sql:"CREATE TEMP TABLE demo_pay (id INTEGER PRIMARY KEY, name TEXT, salary INTEGER);\nINSERT INTO demo_pay VALUES (1, 'Zara', 70000);\n\nINSERT INTO demo_pay (id, name, salary) VALUES (2, 'Omar', 81000)\n  ON CONFLICT(id) DO UPDATE SET salary = excluded.salary;\n\nSELECT * FROM demo_pay;\nDROP TABLE demo_pay;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Syntax Differs by Database', text:"SQLite and PostgreSQL use INSERT ... ON CONFLICT(column) DO UPDATE SET .... MySQL uses INSERT ... ON DUPLICATE KEY UPDATE .... SQL Server and Oracle typically use a full MERGE statement instead — the underlying goal is identical everywhere."}
+},
+
+'m12::CREATE DATABASE': {
+  intro:"CREATE DATABASE sets up a brand-new, empty database on the server — the container that will eventually hold your tables, views, and other objects. It's a server-level operation, not something you run against a specific table.",
+  body:[
+    {h:'Not a SQLite Concept', p:"In MySQL, PostgreSQL, or SQL Server you'd run <span class='ic'>CREATE DATABASE company_db;</span> to create a new database on the server. SQLite works differently — an entire SQLite database is just a single file, so a 'database' is created simply by opening a new file, with no CREATE DATABASE statement involved at all."},
+    {h:"SQLite's Related Concept: ATTACH", p:"SQLite does support attaching multiple database files to one connection and querying across them — the closest thing SQLite has to working with multiple databases. You can inspect the databases currently attached to this in-browser session below.",
+     runner:{id:'cdb1', tabs:[
+       {label:'List Attached Databases', sql:"PRAGMA database_list;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On MySQL/PostgreSQL/SQL Server: CREATE DATABASE company_db; — then DROP DATABASE company_db; to remove it entirely. Always double-check you're connected to the right server before running either statement, since both affect everything inside that database."}
+},
+
+'m12::CREATE TABLE': {
+  intro:"CREATE TABLE defines a brand-new table — its name, its columns, each column's data type, and any constraints those columns should enforce.",
+  body:[
+    {h:'Basic Table Definition', p:"Each column gets a name, a data type, and optional constraints like <span class='ic'>PRIMARY KEY</span>, <span class='ic'>NOT NULL</span>, or <span class='ic'>DEFAULT</span> — covered in full in the Constraints module.",
+     runner:{id:'ct1', tabs:[
+       {label:'Create + Inspect', sql:"CREATE TEMP TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  price REAL,\n  in_stock INTEGER DEFAULT 1\n);\nPRAGMA table_info(products);\nDROP TABLE products;"}
+     ]}},
+    {h:'Populating a New Table', p:"A freshly created table starts completely empty — INSERT is how you first put data into it.",
+     runner:{id:'ct2', tabs:[
+       {label:'Create, Insert, Select', sql:"CREATE TEMP TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL, in_stock INTEGER DEFAULT 1);\nINSERT INTO products (id, name, price) VALUES (1, 'Keyboard', 45.99), (2, 'Monitor', 210.00);\nSELECT * FROM products;\nDROP TABLE products;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'CREATE TABLE IF NOT EXISTS', text:"Adding IF NOT EXISTS — e.g. CREATE TABLE IF NOT EXISTS products (...) — prevents an error if the table already happens to exist, which is especially useful in setup scripts that might run more than once."}
+},
+
+'m12::ALTER TABLE': {
+  intro:"ALTER TABLE changes the structure of an existing table — adding, renaming, or removing columns, without needing to drop and recreate the whole table (and losing its data in the process).",
+  body:[
+    {h:'Adding a Column', p:"A new column is added to every existing row too — since there's no default supplied here, existing rows simply get NULL in the new column.",
+     runner:{id:'at1', tabs:[
+       {label:'ADD COLUMN', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT);\nINSERT INTO demo_staff VALUES (1, 'Zara'), (2, 'Omar');\nALTER TABLE demo_staff ADD COLUMN salary INTEGER;\nSELECT * FROM demo_staff;\nDROP TABLE demo_staff;"}
+     ]}},
+    {h:'Renaming a Column', p:"Modern SQLite (3.25+), PostgreSQL, MySQL 8+, and SQL Server all support renaming a column in place without rebuilding the table.",
+     runner:{id:'at2', tabs:[
+       {label:'RENAME COLUMN', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT);\nALTER TABLE demo_staff RENAME COLUMN name TO full_name;\nPRAGMA table_info(demo_staff);\nDROP TABLE demo_staff;"}
+     ]}},
+    {h:'Dropping a Column', p:"SQLite only added DROP COLUMN support in version 3.35.0 (2021) — older versions require rebuilding the table manually to remove a column. This runner uses a modern SQLite build.",
+     runner:{id:'at3', tabs:[
+       {label:'DROP COLUMN', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT, temp_note TEXT);\nALTER TABLE demo_staff DROP COLUMN temp_note;\nPRAGMA table_info(demo_staff);\nDROP TABLE demo_staff;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Big Tables, Bigger Caution', text:"On some databases, adding or dropping a column can lock or rewrite the entire table, which is risky on large production tables. Always check your specific database's behavior (and consider off-peak maintenance windows) before altering a heavily-used table."}
+},
+
+'m12::DROP TABLE': {
+  intro:"DROP TABLE permanently removes a table's structure AND all of its data — unlike DELETE, there's no table left behind afterward, and in most databases this can't be undone once committed.",
+  body:[
+    {h:'Before and After', p:"This checks whether a table exists in the database catalog, drops it, then checks again — confirming the table is completely gone, not just emptied.",
+     runner:{id:'dt1', tabs:[
+       {label:'Before Drop', sql:"CREATE TEMP TABLE scratch (id INTEGER);\nSELECT name FROM sqlite_temp_master WHERE type='table' AND name='scratch';"},
+       {label:'After Drop', sql:"CREATE TEMP TABLE scratch (id INTEGER);\nDROP TABLE scratch;\nSELECT name FROM sqlite_temp_master WHERE type='table' AND name='scratch';"}
+     ]}},
+    {h:'IF EXISTS Guards Against Errors', p:"Trying to DROP a table that doesn't exist normally throws an error — adding IF EXISTS makes the statement safely do nothing instead, which is handy in cleanup or setup scripts.",
+     runner:{id:'dt2', tabs:[
+       {label:'Safe Drop', sql:"DROP TABLE IF EXISTS a_table_that_was_never_created;\nSELECT 'No error thrown' AS result;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'DROP TABLE vs DELETE vs TRUNCATE', text:"DELETE removes rows but keeps the table and can be filtered with WHERE. TRUNCATE empties every row fast but keeps the table structure. DROP TABLE removes the structure itself — there's nothing left to insert into afterward until you CREATE TABLE again."}
+},
+
+'m12::TRUNCATE TABLE': {
+  intro:"TRUNCATE TABLE instantly empties every row from a table while keeping its structure, indexes, and constraints fully intact — much faster than DELETE for wiping an entire table, since it typically skips row-by-row logging.",
+  body:[
+    {h:'Not Supported in SQLite', p:"MySQL, PostgreSQL, SQL Server and Oracle all support <span class='ic'>TRUNCATE TABLE table_name;</span> directly. SQLite has no TRUNCATE keyword at all — but a DELETE with no WHERE clause achieves the same end result, and SQLite even applies an internal 'truncate optimization' to make it fast when there's no WHERE to evaluate.",
+     runner:{id:'tt1', tabs:[
+       {label:'SQLite Equivalent (DELETE, no WHERE)', sql:"CREATE TEMP TABLE demo_log (id INTEGER, msg TEXT);\nINSERT INTO demo_log VALUES (1,'a'), (2,'b'), (3,'c');\nSELECT COUNT(*) AS before_count FROM demo_log;\nDELETE FROM demo_log;\nSELECT COUNT(*) AS after_count FROM demo_log;\nDROP TABLE demo_log;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'TRUNCATE Is Usually DDL, Not DML', text:"On most databases that support it, TRUNCATE TABLE auto-commits immediately and often can't be rolled back inside a transaction the way DELETE can — treat it with the same caution as DROP TABLE, not the lighter caution of a filtered DELETE."}
+},
+
+'m12::RENAME TABLE': {
+  intro:"Renaming a table changes its name while leaving all of its data, columns, indexes, and constraints completely untouched — only the identifier used to refer to it changes.",
+  body:[
+    {h:'ALTER TABLE ... RENAME TO', p:"SQLite, PostgreSQL, and SQL Server all use this same ALTER TABLE-based syntax to rename a table in place.",
+     runner:{id:'rt1', tabs:[
+       {label:'Rename and Verify', sql:"CREATE TEMP TABLE old_staff (id INTEGER, name TEXT);\nALTER TABLE old_staff RENAME TO new_staff;\nSELECT name FROM sqlite_temp_master WHERE type='table' AND name='new_staff';\nDROP TABLE new_staff;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'MySQL Has Its Own RENAME TABLE Statement', text:"MySQL uniquely also supports a dedicated RENAME TABLE old_name TO new_name; statement (and can even rename several tables atomically in one go), separate from its ALTER TABLE syntax — but ALTER TABLE ... RENAME TO works there too, for consistency with other databases."}
+},
+
+'m13::PRIMARY KEY': {
+  intro:"A PRIMARY KEY uniquely identifies every row in a table — it automatically combines NOT NULL and UNIQUE, and a table can have only one primary key (though that key can span multiple columns).",
+  body:[
+    {h:'Defining and Using a Primary Key', p:"Once id is declared PRIMARY KEY, the database itself guarantees no two rows can ever share the same id value.",
+     runner:{id:'pk1', tabs:[
+       {label:'Define + Insert', sql:"CREATE TEMP TABLE demo_staff (id INTEGER PRIMARY KEY, name TEXT);\nINSERT INTO demo_staff VALUES (1, 'Zara'), (2, 'Omar');\nSELECT * FROM demo_staff;\nDROP TABLE demo_staff;"},
+       {label:'❌ Duplicate Key Fails', sql:"CREATE TEMP TABLE demo_staff (id INTEGER PRIMARY KEY, name TEXT);\nINSERT INTO demo_staff VALUES (1, 'Zara');\nINSERT INTO demo_staff VALUES (1, 'Omar');\nSELECT * FROM demo_staff;\nDROP TABLE demo_staff;"}
+     ]}},
+    {h:'Composite Primary Keys', p:"When no single column is unique on its own, you can declare a primary key across multiple columns together — the combination of values must be unique, even if individual columns repeat.",
+     runner:{id:'pk2', tabs:[
+       {label:'Composite Key', sql:"CREATE TEMP TABLE enrollments (student_id INTEGER, course_id INTEGER, grade TEXT, PRIMARY KEY (student_id, course_id));\nINSERT INTO enrollments VALUES (1, 101, 'A'), (1, 102, 'B'), (2, 101, 'C');\nSELECT * FROM enrollments;\nDROP TABLE enrollments;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'One Per Table, But Multiple Columns Allowed', text:"A table can only have one PRIMARY KEY constraint total — but that one constraint is free to cover several columns at once, as shown in the composite key example above."}
+},
+
+'m13::FOREIGN KEY': {
+  intro:"A FOREIGN KEY links a column in one table to the PRIMARY KEY of another, enforcing that every value in the child column must already exist in the parent table — this is what keeps related data consistent.",
+  body:[
+    {h:'Enabling Enforcement in SQLite', p:"Unlike most databases, SQLite doesn't enforce foreign keys by default — <span class='ic'>PRAGMA foreign_keys = ON;</span> must be run first (usually once per connection) before violations will actually be blocked.",
+     runner:{id:'fk1', tabs:[
+       {label:'Valid Reference', sql:"PRAGMA foreign_keys = ON;\nCREATE TEMP TABLE depts_demo (id INTEGER PRIMARY KEY, dept_name TEXT);\nCREATE TEMP TABLE staff_demo (id INTEGER, dept_id INTEGER, FOREIGN KEY (dept_id) REFERENCES depts_demo(id));\nINSERT INTO depts_demo VALUES (1, 'Engineering');\nINSERT INTO staff_demo VALUES (1, 1);\nSELECT * FROM staff_demo;\nDROP TABLE staff_demo;\nDROP TABLE depts_demo;"},
+       {label:'❌ Invalid Reference Fails', sql:"PRAGMA foreign_keys = ON;\nCREATE TEMP TABLE depts_demo (id INTEGER PRIMARY KEY, dept_name TEXT);\nCREATE TEMP TABLE staff_demo (id INTEGER, dept_id INTEGER, FOREIGN KEY (dept_id) REFERENCES depts_demo(id));\nINSERT INTO depts_demo VALUES (1, 'Engineering');\nINSERT INTO staff_demo VALUES (1, 99);\nSELECT * FROM staff_demo;\nDROP TABLE staff_demo;\nDROP TABLE depts_demo;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Check Your Database Default', text:"SQLite requires PRAGMA foreign_keys = ON; per connection to enforce foreign keys at all. PostgreSQL, SQL Server, Oracle and MySQL (with InnoDB) all enforce foreign keys by default the moment they're declared — no extra setup step needed."}
+},
+
+'m13::UNIQUE': {
+  intro:"A UNIQUE constraint ensures every value in a column (or set of columns) is distinct across the whole table — similar to PRIMARY KEY, but a table can have several UNIQUE constraints, and most databases allow more than one NULL in a UNIQUE column.",
+  body:[
+    {h:'Enforcing Distinct Values', p:"An email column is a classic candidate for UNIQUE — the business rule is that no two people should share the same email address.",
+     runner:{id:'uq1', tabs:[
+       {label:'Valid Unique Values', sql:"CREATE TEMP TABLE demo_users (id INTEGER, email TEXT UNIQUE);\nINSERT INTO demo_users VALUES (1, 'zara@example.com'), (2, 'omar@example.com');\nSELECT * FROM demo_users;\nDROP TABLE demo_users;"},
+       {label:'❌ Duplicate Value Fails', sql:"CREATE TEMP TABLE demo_users (id INTEGER, email TEXT UNIQUE);\nINSERT INTO demo_users VALUES (1, 'zara@example.com');\nINSERT INTO demo_users VALUES (2, 'zara@example.com');\nSELECT * FROM demo_users;\nDROP TABLE demo_users;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'UNIQUE vs PRIMARY KEY', text:"Both prevent duplicates, but a table can have only one PRIMARY KEY while it can have many UNIQUE constraints, and UNIQUE columns (unlike most primary keys) are typically still allowed to contain NULL values."}
+},
+
+'m13::CHECK': {
+  intro:"A CHECK constraint enforces a custom condition that every row must satisfy — anything that isn't a simple 'must be unique' or 'must reference another table' rule usually belongs in a CHECK.",
+  body:[
+    {h:'Validating a Business Rule', p:"This guarantees salary can never be stored as zero or negative — the database rejects any row that would violate the condition, no application-side validation required.",
+     runner:{id:'chk1', tabs:[
+       {label:'Valid Insert', sql:"CREATE TEMP TABLE demo_pay (id INTEGER, salary INTEGER CHECK (salary > 0));\nINSERT INTO demo_pay VALUES (1, 55000);\nSELECT * FROM demo_pay;\nDROP TABLE demo_pay;"},
+       {label:'❌ Violates CHECK', sql:"CREATE TEMP TABLE demo_pay (id INTEGER, salary INTEGER CHECK (salary > 0));\nINSERT INTO demo_pay VALUES (1, -500);\nSELECT * FROM demo_pay;\nDROP TABLE demo_pay;"}
+     ]}},
+    {h:'Checking Across Multiple Columns', p:"A CHECK condition can reference more than one column in the same row, enabling more complex validation logic.",
+     runner:{id:'chk2', tabs:[
+       {label:'Multi-Column CHECK', sql:"CREATE TEMP TABLE demo_dates (id INTEGER, start_date TEXT, end_date TEXT, CHECK (end_date > start_date));\nINSERT INTO demo_dates VALUES (1, '2026-01-01', '2026-06-01');\nSELECT * FROM demo_dates;\nDROP TABLE demo_dates;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Push Validation Down to the Database', text:"A CHECK constraint enforces a rule no matter which application, script, or person inserts data — application-level validation alone can always be bypassed by a direct database connection, but a CHECK constraint can't be."}
+},
+
+'m13::DEFAULT': {
+  intro:"A DEFAULT constraint supplies an automatic fallback value for a column whenever an INSERT doesn't explicitly provide one — useful for status flags, timestamps, and any 'usually this value' field.",
+  body:[
+    {h:'Automatic Fallback Values', p:"Omitting the status column entirely still fills it in — the DEFAULT value kicks in automatically, with no extra logic needed in the INSERT statement.",
+     runner:{id:'def1', tabs:[
+       {label:'DEFAULT Applied', sql:"CREATE TEMP TABLE demo_tasks (id INTEGER, title TEXT, status TEXT DEFAULT 'active');\nINSERT INTO demo_tasks (id, title) VALUES (1, 'Ship the report');\nSELECT * FROM demo_tasks;\nDROP TABLE demo_tasks;"},
+       {label:'Explicit Value Overrides Default', sql:"CREATE TEMP TABLE demo_tasks (id INTEGER, title TEXT, status TEXT DEFAULT 'active');\nINSERT INTO demo_tasks (id, title, status) VALUES (1, 'Ship the report', 'done');\nSELECT * FROM demo_tasks;\nDROP TABLE demo_tasks;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Defaults Can Be Expressions Too', text:"Many databases allow a function call as a default, not just a literal — e.g. created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP automatically stamps every new row with the moment it was inserted."}
+},
+
+'m13::IDENTITY': {
+  intro:"IDENTITY is SQL Server's (and standard SQL's newer) way of marking a column as auto-generated and auto-incrementing — the database assigns the next number in sequence automatically, so you never specify it manually on INSERT.",
+  body:[
+    {h:'Not SQLite Syntax', p:"SQL Server syntax looks like <span class='ic'>id INT IDENTITY(1,1) PRIMARY KEY</span> — starting at 1 and incrementing by 1 each time. SQLite doesn't use the IDENTITY keyword, but an <span class='ic'>INTEGER PRIMARY KEY</span> column automatically behaves as an auto-incrementing alias for SQLite's internal rowid, achieving the same practical result.",
+     runner:{id:'id1', tabs:[
+       {label:'SQLite Equivalent', sql:"CREATE TEMP TABLE demo_orders (id INTEGER PRIMARY KEY, customer TEXT);\nINSERT INTO demo_orders (customer) VALUES ('Zara'), ('Omar'), ('Priya');\nSELECT * FROM demo_orders;\nDROP TABLE demo_orders;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: CREATE TABLE demo_orders (id INT IDENTITY(1,1) PRIMARY KEY, customer VARCHAR(50)); — the (1,1) means 'start at 1, increment by 1'; other starting points and step sizes are also allowed."}
+},
+
+'m13::AUTO_INCREMENT': {
+  intro:"AUTO_INCREMENT is MySQL's keyword for the same auto-generated, self-incrementing column concept as IDENTITY — SQLite has its own AUTOINCREMENT keyword too, with one subtle but important difference from its default behavior.",
+  body:[
+    {h:'Default Behavior Can Reuse IDs', p:"Without AUTOINCREMENT, SQLite's default INTEGER PRIMARY KEY can sometimes reuse the highest deleted id's number after a row is removed and a new one is inserted.",
+     runner:{id:'ai1', tabs:[
+       {label:'Default: ID May Be Reused', sql:"CREATE TEMP TABLE demo_tickets (id INTEGER PRIMARY KEY, note TEXT);\nINSERT INTO demo_tickets (note) VALUES ('first'), ('second');\nDELETE FROM demo_tickets WHERE id = 2;\nINSERT INTO demo_tickets (note) VALUES ('third');\nSELECT * FROM demo_tickets;\nDROP TABLE demo_tickets;"}
+     ]}},
+    {h:'AUTOINCREMENT Guarantees No Reuse', p:"Adding the AUTOINCREMENT keyword forces SQLite to always hand out a number strictly higher than any id ever used before in that table — even after deletes — at a small performance cost.",
+     runner:{id:'ai2', tabs:[
+       {label:'AUTOINCREMENT: ID Never Reused', sql:"CREATE TEMP TABLE demo_tickets (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT);\nINSERT INTO demo_tickets (note) VALUES ('first'), ('second');\nDELETE FROM demo_tickets WHERE id = 2;\nINSERT INTO demo_tickets (note) VALUES ('third');\nSELECT * FROM demo_tickets;\nDROP TABLE demo_tickets;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'MySQL Syntax (not runnable here)', text:"On MySQL: CREATE TABLE demo_tickets (id INT AUTO_INCREMENT PRIMARY KEY, note VARCHAR(100)); — MySQL's AUTO_INCREMENT behaves like SQLite's plain INTEGER PRIMARY KEY by default (IDs can occasionally be skipped but not typically reused within the same session)."}
+},
+
+'m14::Views': {
+  intro:"A view is a saved, named SELECT query — a virtual table that stores no data of its own. Every time you query a view, the database re-runs its underlying SELECT against the real, current data behind the scenes.",
+  body:[
+    {h:'Creating and Querying a View', p:"Once created, a view can be queried exactly like a real table — the complexity of the underlying query is hidden behind a simple, reusable name.",
+     runner:{id:'vw1', tabs:[
+       {label:'Create + Query', sql:"CREATE TEMP VIEW high_earners_view AS\n  SELECT name, department, salary FROM employees WHERE salary > 85000;\nSELECT * FROM high_earners_view;\nDROP VIEW high_earners_view;"}
+     ]}},
+    {h:'A View Always Reflects Live Data', p:"Because a view has no storage of its own, inserting a new row into the underlying table immediately shows up through the view too — there's no syncing or refreshing needed.",
+     runner:{id:'vw2', tabs:[
+       {label:'View Updates Automatically', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO demo_staff VALUES (1, 'Zara', 60000);\nCREATE TEMP VIEW well_paid AS SELECT * FROM demo_staff WHERE salary > 55000;\nSELECT * FROM well_paid;\nINSERT INTO demo_staff VALUES (2, 'Omar', 90000);\nSELECT * FROM well_paid;\nDROP VIEW well_paid;\nDROP TABLE demo_staff;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Why Use a View at All?', text:"Views are great for hiding complexity behind a simple name (a big multi-JOIN report becomes 'SELECT * FROM sales_summary'), and for security — you can grant access to a view exposing only certain columns or rows, without giving access to the full underlying table."}
+},
+
+'m14::Materialized Views': {
+  intro:"A materialized view looks like a regular view but actually stores its result set physically, like a real table — trading automatic freshness for much faster read performance, since the query doesn't need to be re-run every time.",
+  body:[
+    {h:'Not Supported in SQLite', p:"SQLite only supports regular (non-materialized) views — there's no CREATE MATERIALIZED VIEW syntax at all. PostgreSQL, Oracle, and most cloud data warehouses (Snowflake, Databricks SQL) support them directly. The closest SQLite equivalent is simply a real table populated from a query, refreshed manually when needed.",
+     runner:{id:'mv1', tabs:[
+       {label:'SQLite "Snapshot Table" Equivalent', sql:"CREATE TEMP TABLE dept_summary_snapshot AS\n  SELECT department, COUNT(*) AS headcount, AVG(salary) AS avg_salary FROM employees GROUP BY department;\nSELECT * FROM dept_summary_snapshot;\nDROP TABLE dept_summary_snapshot;"}
+     ]}},
+    {h:'Refreshing Is a Manual Step', p:"Unlike a regular view, a materialized view does NOT automatically pick up changes to the underlying data — someone (or some schedule) has to explicitly refresh it.",}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL: CREATE MATERIALIZED VIEW dept_summary AS SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department; — then later, REFRESH MATERIALIZED VIEW dept_summary; to bring it back up to date with the latest underlying data."}
+},
+
+'m14::Indexed Views': {
+  intro:"An indexed view is SQL Server's term for a materialized view that also has a unique clustered index built directly on it — physically storing the data in sorted, indexed form for very fast reads, at the cost of slower writes to the underlying tables.",
+  body:[
+    {h:'Not Supported in SQLite (as a Named Feature)', p:"SQL Server requires the view be created WITH SCHEMABINDING, then a unique clustered index is added on top of it, which is what actually materializes and indexes the data. SQLite has no equivalent named feature, but the same practical benefit — an indexed physical snapshot — can be approximated with a real table plus a regular index.",
+     runner:{id:'iv1', tabs:[
+       {label:'SQLite Approximation', sql:"CREATE TEMP TABLE dept_summary_snapshot AS\n  SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department;\nCREATE INDEX idx_dept_summary ON dept_summary_snapshot(department);\nSELECT * FROM dept_summary_snapshot WHERE department = 'Engineering';\nDROP INDEX idx_dept_summary;\nDROP TABLE dept_summary_snapshot;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: CREATE VIEW dept_summary WITH SCHEMABINDING AS SELECT department, COUNT_BIG(*) AS headcount FROM dbo.employees GROUP BY department; then CREATE UNIQUE CLUSTERED INDEX idx_dept_summary ON dept_summary(department); — this is what actually materializes and indexes the view's data on disk."}
+},
+
+'m15::Clustered Index': {
+  intro:"A clustered index determines the actual physical storage order of a table's rows — since data can only be physically sorted one way, a table can have at most one clustered index.",
+  body:[
+    {h:'SQLite: Clustered Around the Primary Key', p:"An INTEGER PRIMARY KEY column in SQLite is stored as an alias for the table's internal rowid, and rows are physically organized around that value — functioning as a clustered index automatically, with no separate CREATE CLUSTERED INDEX statement needed.",
+     runner:{id:'ci1', tabs:[
+       {label:'Lookup by Primary Key', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE id = 3;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Explicit Elsewhere', text:"SQL Server and MySQL (InnoDB) make the primary key the clustered index by default too, but also let you explicitly declare a different column as clustered instead — SQLite doesn't expose that level of control; its rowid-based clustering is fixed."}
+},
+
+'m15::Non Clustered Index': {
+  intro:"A non-clustered index builds a separate lookup structure that points back to a table's rows, without changing the table's own physical row order — and unlike a clustered index, a table can have many non-clustered indexes.",
+  body:[
+    {h:'Before and After Adding an Index', p:"Without any index on department, the database must scan every row to find matches. After adding one, the query plan switches to a targeted search instead.",
+     runner:{id:'nci1', tabs:[
+       {label:'❌ Before: Full Table Scan', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';"},
+       {label:'✅ After: Index Search', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';\nDROP INDEX idx_dept;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'The Most Common Index Type', text:"When people say 'add an index' without further detail, they almost always mean a non-clustered (secondary) index — most CREATE INDEX statements you'll write day-to-day create this kind."}
+},
+
+'m15::Composite Index': {
+  intro:"A composite (or compound) index is built across two or more columns together — useful whenever queries commonly filter or sort using that exact combination of columns.",
+  body:[
+    {h:'Indexing Two Columns Together', p:"This index helps queries that filter on department AND salary together — far more effectively than two separate single-column indexes would for this specific combined condition.",
+     runner:{id:'cpi1', tabs:[
+       {label:'Composite Index in Action', sql:"CREATE INDEX idx_dept_salary ON employees(department, salary);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering' AND salary > 80000;\nDROP INDEX idx_dept_salary;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Column Order Matters — The Leftmost Prefix Rule', text:"An index on (department, salary) can efficiently serve queries filtering on department alone, or on department AND salary together — but it generally can't help a query that filters on salary alone, since salary isn't the leftmost column in the index."}
+},
+
+'m15::Covering Index': {
+  intro:"A covering index contains every single column a query needs — the SELECT columns, the WHERE columns, all of it — so the database can answer the query entirely from the index itself, without ever touching the underlying table.",
+  body:[
+    {h:'An Index That Answers the Whole Query', p:"Because name and salary are both included directly in the index (alongside the filtered department column), the database plan can potentially skip visiting the table rows altogether.",
+     runner:{id:'covi1', tabs:[
+       {label:'Covering Index Example', sql:"CREATE INDEX idx_covering ON employees(department, name, salary);\nEXPLAIN QUERY PLAN SELECT name, salary FROM employees WHERE department = 'Engineering';\nDROP INDEX idx_covering;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Fewer Table Lookups, Faster Reads', text:"Covering indexes trade extra storage and slightly slower writes for significantly faster reads — they're most valuable on frequently-run queries against large tables where avoiding the table lookup entirely makes a measurable difference."}
+},
+
+'m15::Bitmap Index': {
+  intro:"A bitmap index stores a compact string of bits per distinct column value — one bit per row, flagged 1 if that row has the value or 0 if not — making it extremely efficient at combining conditions across many low-cardinality columns.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Bitmap indexes are a specialty feature of Oracle and some data warehouse engines, ideal for columns with few distinct values (like gender, status, or region) in analytical (OLAP) workloads with lots of AND/OR filtering. SQLite always uses B-tree indexes internally and has no bitmap index type or syntax at all."},
+    {h:'Why Cardinality Matters', p:"On a high-cardinality column like an email address, a bitmap per value would be enormous and pointless — bitmap indexes only make sense when the number of distinct values is small relative to the row count."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Oracle: CREATE BITMAP INDEX idx_dept_bitmap ON employees(department); — best suited to read-heavy analytical tables, since bitmap indexes are typically much slower to update than B-tree indexes on write-heavy OLTP tables."}
+},
+
+'m15::Hash Index': {
+  intro:"A hash index runs each column value through a hash function and stores the result in buckets — this makes exact-match equality lookups extremely fast, but it can't support range queries like BETWEEN, >, or ORDER BY at all.",
+  body:[
+    {h:'Not Available in SQLite', p:"PostgreSQL supports <span class='ic'>CREATE INDEX ... USING HASH</span> as an explicit option, and MySQL's in-memory (MEMORY) storage engine supports HASH indexes too. SQLite only implements B-tree indexes — every SQLite index, whether on an equality or range condition, uses the same underlying B-tree structure."},
+    {h:'Equality-Only, By Design', p:"A hash index can answer 'find the row where email = X' almost instantly, but it's structurally incapable of answering 'find rows where salary BETWEEN 60000 AND 90000' — a B-tree index is required for that kind of range lookup."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL: CREATE INDEX idx_email_hash ON users USING HASH (email); — use this only for pure equality lookups on a column that will never need range-based filtering or sorting."}
+},
+
+'m15::Execution Plans': {
+  intro:"An execution plan (or query plan) shows exactly how the database engine intends to carry out a query — which indexes it will use, which tables it scans in full, and in what order it joins things. It's the single most important tool for diagnosing why a query is slow.",
+  body:[
+    {h:'Reading a Simple Plan', p:"<span class='ic'>EXPLAIN QUERY PLAN</span> in SQLite (similar to EXPLAIN in MySQL/PostgreSQL, or SET SHOWPLAN in SQL Server) prints a summary instead of actually running the query.",
+     runner:{id:'ep1', tabs:[
+       {label:'Simple SELECT Plan', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE salary > 80000;"}
+     ]}},
+    {h:'Reading a JOIN Plan', p:"With a JOIN, the plan reveals the order the tables are processed in and whether each step is a full SCAN or a targeted SEARCH using an index.",
+     runner:{id:'ep2', tabs:[
+       {label:'JOIN Plan', sql:"EXPLAIN QUERY PLAN SELECT e.name, d.dept_name FROM employees e JOIN departments d ON e.dept_id = d.id;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'SCAN vs SEARCH', text:"In SQLite's plan output, 'SCAN' means the engine reads every row of a table (slow on large tables), while 'SEARCH ... USING INDEX' means it jumped directly to matching rows via an index — that single word difference is often the whole story behind a performance problem."}
+},
+
+'m15::Index Optimization': {
+  intro:"Adding indexes isn't free — each one speeds up certain reads but adds overhead to every INSERT, UPDATE, and DELETE that touches the indexed columns. Index optimization is about choosing carefully, not indexing everything.",
+  body:[
+    {h:"What's Actually Worth Indexing", p:"<ul><li>Columns frequently used in WHERE clauses</li><li>Columns used to JOIN tables together (foreign keys especially)</li><li>Columns used in ORDER BY, particularly on large result sets</li><li>Columns with high cardinality (many distinct values) tend to benefit more than low-cardinality ones</li></ul>"},
+    {h:'Confirming an Index Is Actually Used', p:"Adding an index doesn't guarantee the optimizer will use it — always confirm with an execution plan rather than assuming.",
+     runner:{id:'iopt1', tabs:[
+       {label:'Verify Index Usage', sql:"CREATE INDEX idx_salary ON employees(salary);\nEXPLAIN QUERY PLAN SELECT name FROM employees WHERE salary > 80000 ORDER BY salary;\nDROP INDEX idx_salary;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Watch for Over-Indexing', text:"Every extra index makes writes slightly slower and consumes more storage — periodically review which indexes are actually being used by real queries (most databases expose index-usage statistics) and drop the ones that aren't earning their keep."}
+},
+
+'m16::ACID': {
+  intro:"ACID is the set of four guarantees a database transaction promises to uphold: Atomicity, Consistency, Isolation, and Durability — together they're what make transactions safe to rely on even when things go wrong mid-operation.",
+  body:[
+    {h:'The Four Guarantees', p:"<ul><li><strong>Atomicity</strong> — a transaction either completes entirely or not at all; there's no 'half-finished' state</li><li><strong>Consistency</strong> — a transaction can only bring the database from one valid state to another, never violating constraints</li><li><strong>Isolation</strong> — concurrent transactions don't see each other's incomplete, in-progress changes</li><li><strong>Durability</strong> — once committed, a change survives even a power loss or crash immediately afterward</li></ul>"},
+    {h:'Atomicity in Action: An All-or-Nothing Transfer', p:"This simulates a bank transfer — debit one account, credit another — then rolls the whole thing back, proving neither change survives on its own. Real money transfers rely on exactly this guarantee.",
+     runner:{id:'acid1', tabs:[
+       {label:'All-or-Nothing Transfer', sql:"CREATE TEMP TABLE accounts (name TEXT, balance INTEGER);\nINSERT INTO accounts VALUES ('Alice', 500), ('Bob', 200);\n\nBEGIN TRANSACTION;\nUPDATE accounts SET balance = balance - 100 WHERE name = 'Alice';\nUPDATE accounts SET balance = balance + 100 WHERE name = 'Bob';\nROLLBACK;\n\nSELECT * FROM accounts;\nDROP TABLE accounts;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Why This Matters for Money and Inventory', text:"Without atomicity, a crash between the debit and the credit above could leave Alice's money simply gone — deducted from one account but never added to the other. ACID is what makes financial systems, inventory systems, and booking systems trustworthy."}
+},
+
+'m16::BEGIN TRANSACTION': {
+  intro:"BEGIN TRANSACTION (or simply BEGIN) explicitly marks the start of a transaction — every statement that follows becomes part of one atomic unit, until it's ended with either COMMIT or ROLLBACK.",
+  body:[
+    {h:'Grouping Statements Together', p:"Without an explicit BEGIN, most databases auto-commit each statement individually. Wrapping several statements in BEGIN ... COMMIT makes them succeed or fail together as one unit.",
+     runner:{id:'bt1', tabs:[
+       {label:'Grouped Statements', sql:"CREATE TEMP TABLE demo_ledger (id INTEGER, note TEXT);\n\nBEGIN TRANSACTION;\nINSERT INTO demo_ledger VALUES (1, 'Order placed');\nINSERT INTO demo_ledger VALUES (2, 'Payment recorded');\nCOMMIT;\n\nSELECT * FROM demo_ledger;\nDROP TABLE demo_ledger;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Different Databases, Similar Keyword', text:"SQLite, PostgreSQL, and MySQL all accept BEGIN or BEGIN TRANSACTION interchangeably. SQL Server requires BEGIN TRANSACTION (or the shorthand BEGIN TRAN) — the underlying concept of marking a transaction's start is identical everywhere."}
+},
+
+'m16::COMMIT': {
+  intro:"COMMIT permanently saves every change made since the transaction began — once committed, those changes are durable and can no longer be undone with ROLLBACK.",
+  body:[
+    {h:'Making Changes Permanent', p:"After COMMIT runs, the inserted row is now a permanent part of the table — there's no going back to the pre-transaction state from here.",
+     runner:{id:'cmt1', tabs:[
+       {label:'Commit and Confirm', sql:"CREATE TEMP TABLE demo_orders (id INTEGER, status TEXT);\n\nBEGIN TRANSACTION;\nINSERT INTO demo_orders VALUES (1, 'pending');\nUPDATE demo_orders SET status = 'confirmed' WHERE id = 1;\nCOMMIT;\n\nSELECT * FROM demo_orders;\nDROP TABLE demo_orders;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Point of No Return', text:"Once a COMMIT succeeds, the only way to undo it is with a brand-new transaction that explicitly reverses the change (e.g. another UPDATE putting values back) — COMMIT itself cannot be rolled back after the fact."}
+},
+
+'m16::ROLLBACK': {
+  intro:"ROLLBACK undoes every change made since the transaction began, restoring the database to exactly how it looked right before BEGIN — as if the transaction never happened at all.",
+  body:[
+    {h:'Undoing an In-Progress Transaction', p:"The initial row exists before any transaction starts. Everything inserted or changed inside the BEGIN...ROLLBACK block below vanishes completely once ROLLBACK runs.",
+     runner:{id:'rb1', tabs:[
+       {label:'Rollback Undoes Everything', sql:"CREATE TEMP TABLE demo_cart (id INTEGER, item TEXT);\nINSERT INTO demo_cart VALUES (1, 'Keyboard');\n\nBEGIN TRANSACTION;\nINSERT INTO demo_cart VALUES (2, 'Mouse');\nINSERT INTO demo_cart VALUES (3, 'Monitor');\nROLLBACK;\n\nSELECT * FROM demo_cart;\nDROP TABLE demo_cart;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'A Safety Net for Risky Operations', text:"Wrapping a risky bulk UPDATE or DELETE in BEGIN TRANSACTION lets you inspect the results with a SELECT before deciding whether to COMMIT or ROLLBACK — a common safety habit before running mass changes in production."}
+},
+
+'m16::SAVEPOINT': {
+  intro:"A SAVEPOINT marks a named checkpoint inside a larger transaction — letting you roll back just part of the work done so far, without discarding the entire transaction.",
+  body:[
+    {h:'Rolling Back to a Checkpoint, Not the Start', p:"The insert before the savepoint survives; the insert after it gets undone by ROLLBACK TO — and the transaction is still open afterward, letting more work continue before the final COMMIT.",
+     runner:{id:'sp1', tabs:[
+       {label:'Partial Rollback with SAVEPOINT', sql:"CREATE TEMP TABLE demo_cart (id INTEGER, item TEXT);\n\nBEGIN TRANSACTION;\nINSERT INTO demo_cart VALUES (1, 'Keyboard');\nSAVEPOINT after_keyboard;\nINSERT INTO demo_cart VALUES (2, 'Broken Item');\nROLLBACK TO after_keyboard;\nINSERT INTO demo_cart VALUES (3, 'Mouse');\nCOMMIT;\n\nSELECT * FROM demo_cart;\nDROP TABLE demo_cart;"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Multiple Savepoints Are Allowed', text:"A single transaction can contain several named savepoints — rolling back to an earlier one automatically discards any savepoints created after it, while keeping the transaction itself open for further work."}
+},
+
+'m16::Isolation Levels': {
+  intro:"An isolation level controls how much of one transaction's in-progress, uncommitted work is visible to other transactions running at the same time — a trade-off between data consistency and concurrency performance.",
+  body:[
+    {h:'The Four Standard Levels', p:"<ul><li><strong>READ UNCOMMITTED</strong> — can see other transactions' uncommitted changes (dirty reads); fastest, least safe</li><li><strong>READ COMMITTED</strong> — only sees changes that have been committed; the common default in PostgreSQL and SQL Server</li><li><strong>REPEATABLE READ</strong> — guarantees the same query returns the same rows if repeated within one transaction; MySQL's InnoDB default</li><li><strong>SERIALIZABLE</strong> — the strictest level, behaving as if transactions ran one at a time in sequence; slowest, safest</li></ul>"},
+    {h:"SQLite's Approach", p:"SQLite doesn't expose the standard SET TRANSACTION ISOLATION LEVEL syntax — its default transaction behavior is effectively serializable-like for writers, since only one write transaction can be active at a time. It does offer a limited PRAGMA for read behavior.",
+     runner:{id:'iso1', tabs:[
+       {label:'Check read_uncommitted Setting', sql:"PRAGMA read_uncommitted;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Stricter Isolation, Less Concurrency', text:"Moving from READ COMMITTED toward SERIALIZABLE reduces the risk of anomalies like dirty reads, non-repeatable reads, and phantom reads — but it also increases blocking between concurrent transactions, so it's a genuine performance trade-off, not a free upgrade."}
+},
+
+'m16::Locks': {
+  intro:"Locks are how a database prevents concurrent transactions from making conflicting changes to the same data at the same time — a transaction acquires a lock on the data it's using, and other transactions must wait or coordinate around it.",
+  body:[
+    {h:'Shared vs Exclusive Locks', p:"A <strong>shared lock</strong> (used for reading) can be held by multiple transactions at once — many readers don't block each other. An <strong>exclusive lock</strong> (used for writing) can only be held by one transaction at a time, and blocks both other writers and, in stricter isolation levels, other readers too."},
+    {h:"SQLite's Locking Model", p:"SQLite locks at the level of the whole database file (SHARED, RESERVED, PENDING, EXCLUSIVE), not individual rows — this is much coarser than PostgreSQL, MySQL (InnoDB), or SQL Server, which all support fine-grained row-level locking, allowing far more concurrent writers on different rows of the same table."}
+  ],
+  tip:{type:'c-note', title:'Row-Level Locking Elsewhere', text:"In PostgreSQL, MySQL (InnoDB) and SQL Server, two transactions can typically update two different rows in the same table at the same time without blocking each other — SQLite's single-writer, whole-database lock model is one reason it's better suited to smaller-scale or embedded use cases than high-concurrency server workloads."}
+},
+
+'m16::Deadlocks': {
+  intro:"A deadlock happens when two (or more) transactions each hold a lock the other one needs — Transaction A is waiting on a lock held by Transaction B, while B is simultaneously waiting on a lock held by A. Neither can ever proceed on its own.",
+  body:[
+    {h:'A Classic Deadlock Scenario', p:"<ul><li>Transaction A locks Row 1, then tries to lock Row 2</li><li>Transaction B locks Row 2, then tries to lock Row 1</li><li>A is now waiting for B to release Row 2; B is waiting for A to release Row 1</li><li>Neither transaction can move forward — a true deadlock</li></ul> This requires two separate concurrent connections to actually occur, so it can't be demonstrated in this single-connection in-browser SQL runner."},
+    {h:'How Databases Resolve It', p:"Most production databases (PostgreSQL, MySQL, SQL Server, Oracle) run a deadlock detector in the background. When a cycle like the one above is found, the database picks one transaction as the 'deadlock victim', forcibly rolls it back with an error, and lets the other proceed."}
+  ],
+  tip:{type:'c-warn', title:'Reducing Deadlock Risk', text:"The most reliable fix is consistency: always acquire locks on multiple resources in the same order across every part of your application (e.g. always lock the lower id first). If A and B both lock rows in id order, the scenario above can't happen in the first place."}
+},
+
+'m17::Stored Procedures': {
+  intro:"A stored procedure is a named block of procedural SQL logic — with variables, conditionals, and loops — that's compiled once and stored inside the database, then executed by simply calling its name.",
+  body:[
+    {h:'Not Supported in SQLite', p:"SQLite has no procedural language at all — no PL/pgSQL, no T-SQL, no PL/SQL equivalent — so there's no CREATE PROCEDURE syntax to run. Application code, a sequence of plain SQL statements, or triggers typically fill the role that a stored procedure would play elsewhere."},
+    {h:'Simulating the Logic Manually', p:"What a stored procedure would wrap into a single reusable call, SQLite requires as a plain sequence of statements each time — this mirrors what a 'give_raise' procedure might do internally.",
+     runner:{id:'sp1', tabs:[
+       {label:'Manual Equivalent', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO demo_staff VALUES (1, 'Zara', 70000);\n\n-- What CALL give_raise(1, 0.10) would do internally:\nUPDATE demo_staff SET salary = salary * 1.10 WHERE id = 1;\n\nSELECT * FROM demo_staff;\nDROP TABLE demo_staff;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: CREATE PROCEDURE give_raise @emp_id INT, @pct DECIMAL AS BEGIN UPDATE employees SET salary = salary * (1 + @pct) WHERE id = @emp_id; END; — then simply EXEC give_raise 1, 0.10; to run it."}
+},
+
+'m17::User Defined Functions': {
+  intro:"A User Defined Function (UDF) lets you package a custom calculation into a reusable, named function — called inside a query just like a built-in function such as UPPER() or ROUND().",
+  body:[
+    {h:'No CREATE FUNCTION in Plain SQL', p:"SQLite doesn't support defining new functions purely through SQL statements — custom functions can only be registered programmatically through its C, Python, or JavaScript API (the host application registers a function before running any SQL), not via a CREATE FUNCTION statement you can type into this runner."},
+    {h:"SQLite's Rich Built-in Function Library", p:"While custom UDFs aren't creatable via plain SQL here, SQLite ships with a large set of built-in scalar and aggregate functions already covered throughout this course — UPPER, ROUND, COALESCE, strftime, and many more.",
+     runner:{id:'udf1', tabs:[
+       {label:'Using a Built-in Function', sql:"SELECT name, UPPER(name) AS shout_name, ROUND(salary / 12.0, 2) AS monthly FROM employees LIMIT 3;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL: CREATE FUNCTION annual_bonus(salary NUMERIC) RETURNS NUMERIC AS $$ SELECT salary * 0.10 $$ LANGUAGE SQL; — then SELECT annual_bonus(salary) FROM employees; uses it exactly like a built-in function."}
+},
+
+'m17::Triggers': {
+  intro:"A trigger is a piece of logic that fires automatically whenever a specific event — INSERT, UPDATE, or DELETE — happens on a table, without the application needing to explicitly call it. Unlike most other objects in this module, SQLite fully supports triggers.",
+  body:[
+    {h:'An AFTER UPDATE Trigger', p:"Every time a row's salary is updated in the demo table, this trigger automatically writes an entry into a separate audit log — no application code needs to remember to do this manually.",
+     runner:{id:'trg1', tabs:[
+       {label:'Auto-Logging Trigger', sql:"CREATE TEMP TABLE demo_staff (id INTEGER, name TEXT, salary INTEGER);\nCREATE TEMP TABLE salary_audit (staff_id INTEGER, old_salary INTEGER, new_salary INTEGER);\nINSERT INTO demo_staff VALUES (1, 'Zara', 70000);\n\nCREATE TRIGGER log_salary_change AFTER UPDATE ON demo_staff\nBEGIN\n  INSERT INTO salary_audit VALUES (OLD.id, OLD.salary, NEW.salary);\nEND;\n\nUPDATE demo_staff SET salary = 76000 WHERE id = 1;\n\nSELECT * FROM salary_audit;\nDROP TRIGGER log_salary_change;\nDROP TABLE demo_staff;\nDROP TABLE salary_audit;"}
+     ]}},
+    {h:'BEFORE vs AFTER Triggers', p:"A BEFORE trigger runs prior to the triggering statement actually taking effect (useful for validation), while an AFTER trigger runs once the change has already happened (useful for logging, as shown above, or cascading updates)."}
+  ],
+  tip:{type:'c-tip', title:'OLD and NEW Row References', text:"Inside a trigger, OLD refers to the row's values before the change and NEW refers to its values after — OLD is unavailable in an INSERT trigger (nothing existed before), and NEW is unavailable in a DELETE trigger (nothing exists after)."}
+},
+
+'m17::Sequences': {
+  intro:"A sequence is a standalone object that generates a series of unique numbers on demand — unlike an auto-incrementing primary key, a sequence isn't tied to any single table, and several tables can share the same sequence.",
+  body:[
+    {h:'Not Supported in SQLite', p:"PostgreSQL, Oracle, and SQL Server (2012+) all support <span class='ic'>CREATE SEQUENCE</span> as an independent object. SQLite has no such statement — the closest built-in mechanism is an AUTOINCREMENT column tied to one specific table, covered in the Constraints module."},
+    {h:'Simulating a Standalone Sequence', p:"A simple counter table with RETURNING (SQLite 3.35+) can approximate a real sequence's 'give me the next number' behavior, independent of any specific data table.",
+     runner:{id:'seq1', tabs:[
+       {label:'Manual Sequence Counter', sql:"CREATE TEMP TABLE order_seq (next_val INTEGER);\nINSERT INTO order_seq VALUES (1000);\n\nUPDATE order_seq SET next_val = next_val + 1 RETURNING next_val - 1 AS issued_number;\n\nDROP TABLE order_seq;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL: CREATE SEQUENCE order_number_seq START WITH 1000 INCREMENT BY 1; then SELECT nextval('order_number_seq'); each time a fresh number is needed — usable across multiple tables that all need unique numbering from the same source."}
+},
+
+'m17::Synonyms': {
+  intro:"A synonym is an alternate name for an existing database object — a table, view, or procedure — letting you reference it under a shorter, clearer, or schema/server-independent name.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Oracle and SQL Server both support <span class='ic'>CREATE SYNONYM</span> as a dedicated statement, often used to shield application code from schema or server changes behind the scenes. SQLite has no CREATE SYNONYM syntax at all — the closest equivalent is a simple pass-through VIEW that just mirrors the original table."},
+    {h:'A View as a Synonym Substitute', p:"This view acts exactly like a synonym would — a second name that transparently points back to the original table.",
+     runner:{id:'syn1', tabs:[
+       {label:'View as a Synonym', sql:"CREATE TEMP VIEW staff AS SELECT * FROM employees;\nSELECT name, department FROM staff LIMIT 3;\nDROP VIEW staff;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Oracle/SQL Server: CREATE SYNONYM staff FOR hr_schema.employees; — afterward, SELECT * FROM staff; works identically to querying hr_schema.employees directly, without callers needing to know the real schema name."}
+},
+
+'m17::Cursors': {
+  intro:"A cursor lets procedural code step through a query's result set one row at a time — fetching a row, doing some logic with it, then moving to the next — instead of processing the whole result set as a single unit the way ordinary SQL does.",
+  body:[
+    {h:'Not a SQL-Level Concept in SQLite', p:"SQLite has no CURSOR DECLARE/FETCH statements you can write in plain SQL — that's a feature of procedural extensions like PL/pgSQL (PostgreSQL), T-SQL (SQL Server), or PL/SQL (Oracle), used inside stored procedures. In SQLite, 'stepping through rows one at a time' happens naturally in whatever host language (Python, JavaScript, C) is calling the database API — each call to step() or fetchone() plays the same role a cursor's FETCH would."},
+    {h:'Why SQL Usually Avoids This', p:"Ordinary SQL is set-based by design — a single UPDATE or SELECT already operates across every matching row at once, which is typically far faster than looping row-by-row. Cursors are reached for only when per-row procedural logic genuinely can't be expressed as a single set-based statement."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: DECLARE emp_cursor CURSOR FOR SELECT id, salary FROM employees; OPEN emp_cursor; FETCH NEXT FROM emp_cursor INTO @id, @salary; ... WHILE @@FETCH_STATUS = 0 BEGIN ... FETCH NEXT FROM emp_cursor INTO @id, @salary; END; CLOSE emp_cursor; DEALLOCATE emp_cursor;"}
+},
+
+'m18::Pivot': {
+  intro:"PIVOT rotates row values into columns — turning long, narrow data into a wide, cross-tab style summary that's often much easier for humans to scan, like a spreadsheet-style report.",
+  body:[
+    {h:'Not a Keyword in SQLite', p:"SQL Server and Oracle both offer a dedicated PIVOT operator. SQLite has no PIVOT keyword at all — but the exact same result is achievable everywhere using CASE WHEN inside aggregate functions, one column per pivoted value.",
+     runner:{id:'piv1', tabs:[
+       {label:'Simulated PIVOT with CASE', sql:"SELECT department,\n  SUM(CASE WHEN city = 'Bangalore' THEN salary ELSE 0 END) AS bangalore_total,\n  SUM(CASE WHEN city = 'Delhi' THEN salary ELSE 0 END) AS delhi_total,\n  SUM(CASE WHEN city = 'Mumbai' THEN salary ELSE 0 END) AS mumbai_total\nFROM employees\nGROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: SELECT department, [Bangalore], [Delhi], [Mumbai] FROM (SELECT department, city, salary FROM employees) src PIVOT (SUM(salary) FOR city IN ([Bangalore], [Delhi], [Mumbai])) AS pvt; — the CASE WHEN version above works identically everywhere, including databases with no PIVOT keyword."}
+},
+
+'m18::Unpivot': {
+  intro:"UNPIVOT does the opposite of PIVOT — it takes wide data spread across several columns and stacks it back into long, narrow rows, one row per original column value.",
+  body:[
+    {h:'Not a Keyword in SQLite', p:"SQL Server and Oracle both offer a dedicated UNPIVOT operator. SQLite has no UNPIVOT keyword either — the standard workaround everywhere is to stack the columns back into rows using UNION ALL.",
+     runner:{id:'unp1', tabs:[
+       {label:'Simulated UNPIVOT with UNION ALL', sql:"CREATE TEMP TABLE quarterly_sales (department TEXT, q1 INTEGER, q2 INTEGER, q3 INTEGER, q4 INTEGER);\nINSERT INTO quarterly_sales VALUES ('Engineering', 120000, 135000, 128000, 142000), ('Marketing', 60000, 58000, 65000, 70000);\n\nSELECT department, 'Q1' AS quarter, q1 AS amount FROM quarterly_sales\nUNION ALL SELECT department, 'Q2', q2 FROM quarterly_sales\nUNION ALL SELECT department, 'Q3', q3 FROM quarterly_sales\nUNION ALL SELECT department, 'Q4', q4 FROM quarterly_sales\nORDER BY department, quarter;\n\nDROP TABLE quarterly_sales;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: SELECT department, quarter, amount FROM quarterly_sales UNPIVOT (amount FOR quarter IN (q1, q2, q3, q4)) AS unpvt; — the UNION ALL version above produces the identical long-format result on any database."}
+},
+
+'m18::Dynamic SQL': {
+  intro:"Dynamic SQL means building a SQL statement as a text string at runtime — with table names, column names, or conditions decided programmatically — and then executing that string, rather than running a statement that was hard-coded in advance.",
+  body:[
+    {h:'A Runtime Technique, Not a Static Statement', p:"Because dynamic SQL is about constructing and running a string, it isn't something you write as one fixed SQL statement — it's typically built inside application code, or inside a procedural block using EXECUTE IMMEDIATE (Oracle/PostgreSQL) or sp_executesql / EXEC (SQL Server)."},
+    {h:'Why It Exists', p:"A common use case: building a report where the table or column to query isn't known until the user picks it from a dropdown — dynamic SQL lets that choice get safely substituted into a query template at runtime."}
+  ],
+  tip:{type:'c-warn', title:'The SQL Injection Risk', text:"Dynamic SQL built by directly concatenating raw user input into a query string is the classic root cause of SQL injection vulnerabilities (covered in the SQL Security module). Always use parameterized queries or your database's proper escaping functions instead of naive string concatenation."}
+},
+
+'m18::Temporary Tables': {
+  intro:"A temporary table behaves exactly like a normal table, except it automatically disappears once its session or connection ends — perfect for scratch work and multi-step calculations that don't need to outlive the current task. You've actually been using these throughout this entire course already.",
+  body:[
+    {h:'Creating and Using One', p:"Every 'safe' example in the DML, DDL, and Constraints modules used exactly this pattern — a temp table that's created, used, and dropped, all without ever touching real persistent data.",
+     runner:{id:'tt1', tabs:[
+       {label:'Basic Temp Table', sql:"CREATE TEMP TABLE scratch_calc (id INTEGER, result INTEGER);\nINSERT INTO scratch_calc VALUES (1, 42), (2, 99);\nSELECT * FROM scratch_calc;\nDROP TABLE scratch_calc;"}
+     ]}},
+    {h:'Local vs Global Temp Tables', p:"SQL Server distinguishes between a local temp table (<span class='ic'>#table_name</span>, visible only to the current session) and a global temp table (<span class='ic'>##table_name</span>, visible to all sessions until every session referencing it disconnects). SQLite's TEMP tables behave like local temp tables — scoped to the current connection only."}
+  ],
+  tip:{type:'c-tip', title:'Why This Course Uses Them Everywhere', text:"Wrapping every DDL/DML demo in CREATE TEMP TABLE ... DROP TABLE is exactly why running the same lesson twice never causes an error — the scratch table is always fresh and always cleaned up, with zero risk to the real employees data used elsewhere in this course."}
+},
+
+'m18::Recursive Queries': {
+  intro:"A recursive query walks through hierarchical or graph-shaped data — like an org chart or a category tree — by repeatedly referencing its own previous results. The Recursive CTE topic in the CTE module covers the modern, portable way to do this; this topic looks at the different mechanisms databases use.",
+  body:[
+    {h:'WITH RECURSIVE — The Standard Approach', p:"SQLite, PostgreSQL, SQL Server and MySQL 8+ all support the ANSI-standard recursive CTE syntax covered earlier in this course.",
+     runner:{id:'rq1', tabs:[
+       {label:'Recursive CTE Recap', sql:"WITH RECURSIVE org_chart AS (\n  SELECT id, name, manager_id, 0 AS depth FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, oc.depth + 1 FROM employees e JOIN org_chart oc ON e.manager_id = oc.id\n)\nSELECT * FROM org_chart ORDER BY depth;"}
+     ]}},
+    {h:"Oracle's Alternative: CONNECT BY", p:"Oracle offers a completely different, older mechanism for the exact same kind of hierarchical query — no WITH RECURSIVE needed, just a special CONNECT BY clause built specifically for tree traversal."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Oracle: SELECT id, name, LEVEL AS depth FROM employees START WITH manager_id IS NULL CONNECT BY PRIOR id = manager_id; — CONNECT BY is Oracle-specific and predates the ANSI recursive CTE standard, but accomplishes the same hierarchical traversal."}
+},
+
+'m18::JSON Functions': {
+  intro:"Modern SQL databases can store and query JSON data directly inside a text or dedicated JSON column — SQLite ships with a full set of built-in json_ functions for extracting, building, and iterating over JSON values.",
+  body:[
+    {h:'Extracting a Value with json_extract', p:"<span class='ic'>json_extract(json, path)</span> pulls a specific value out of a JSON string using a $ path expression, similar to how you'd navigate a JavaScript object.",
+     runner:{id:'json1', tabs:[
+       {label:'Extract a Field', sql:"SELECT json_extract('{\"name\":\"Zara\",\"age\":30,\"city\":\"Mumbai\"}', '$.name') AS extracted_name;"},
+       {label:'Extract From a Table Column', sql:"CREATE TEMP TABLE demo_profiles (id INTEGER, data TEXT);\nINSERT INTO demo_profiles VALUES (1, '{\"city\":\"Mumbai\",\"role\":\"Engineer\"}');\nSELECT id, json_extract(data, '$.city') AS city, json_extract(data, '$.role') AS role FROM demo_profiles;\nDROP TABLE demo_profiles;"}
+     ]}},
+    {h:'Iterating a JSON Array with json_each', p:"<span class='ic'>json_each()</span> turns a JSON array into a set of rows — one row per array element — which can then be queried, joined, or aggregated like normal table data.",
+     runner:{id:'json2', tabs:[
+       {label:'Expand a JSON Array', sql:"SELECT value AS skill FROM json_each('[\"SQL\", \"Python\", \"Go\"]');"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Widely Supported, Slightly Different Syntax', text:"PostgreSQL uses the -> and ->> operators plus jsonb_* functions, MySQL uses JSON_EXTRACT() and the ->> shorthand, and SQL Server uses JSON_VALUE() and OPENJSON() — the underlying idea of querying inside a JSON blob is now nearly universal, even though the exact function names differ."}
+},
+
+'m18::XML Functions': {
+  intro:"Some databases support a native XML data type and dedicated functions for querying and constructing XML documents directly inside SQL — useful for systems that exchange data in XML rather than JSON.",
+  body:[
+    {h:'Not Supported in SQLite', p:"SQL Server has a dedicated <span class='ic'>xml</span> data type plus <span class='ic'>FOR XML</span> (to produce XML) and <span class='ic'>.value()/.nodes()</span> (to query it). PostgreSQL offers an <span class='ic'>xml</span> type with <span class='ic'>xpath()</span> queries. SQLite has no XML data type and no XML functions at all — XML data would need to be handled entirely in application code, or stored and manipulated as plain text."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On SQL Server: SELECT name, department FROM employees FOR XML PATH('employee'), ROOT('employees'); converts rows to XML. On PostgreSQL: SELECT xpath('/root/name/text()', xml_column) FROM some_table; extracts values from stored XML."}
+},
+
+'m18::Regular Expressions': {
+  intro:"Regular expressions (regex) allow far more powerful pattern matching than LIKE's simple % and _ wildcards — matching character classes, repetition counts, alternatives, and anchors all in one compact pattern.",
+  body:[
+    {h:'Not Enabled by Default in This Runner', p:"SQLite recognizes a REGEXP operator in its SQL grammar, but doesn't implement the matching logic itself — a host application must register a REGEXP function before it will work. This particular in-browser engine (sql.js) doesn't register one, so REGEXP queries here will raise a function-not-found error.",
+     runner:{id:'rgx1', tabs:[
+       {label:'❌ REGEXP Not Registered Here', sql:"SELECT name FROM employees WHERE name REGEXP '^[AC]';"},
+       {label:'✅ LIKE-Based Alternative', sql:"SELECT name FROM employees WHERE name LIKE 'A%' OR name LIKE 'C%';"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (varies by database)', text:"PostgreSQL supports regex natively with the ~ operator: WHERE name ~ '^[AC]'; MySQL supports REGEXP/RLIKE out of the box: WHERE name REGEXP '^[AC]'; SQL Server has no built-in regex support at all and typically needs a CLR function or LIKE-based workarounds instead."}
+},
 };
 
 // ═══════════════════════════════════════════════════════
