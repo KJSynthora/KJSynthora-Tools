@@ -2206,6 +2206,71 @@ const LESSONS = {
   ],
   tip:{type:'c-tip', title:'Measure Before You Optimize', text:"Don't guess at bottlenecks — use EXPLAIN plans and real timing measurements to confirm where time is actually being spent before making any change. Optimizing the wrong part of a query wastes effort and can even make things worse."}
 },  
+/* ═══════════════════════════════════════════════════════
+   MODULE 20 — SQL SECURITY (6 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm19::...' entry and before the closing "};"
+   ═══════════════════════════════════════════════════════ */
+
+'m20::SQL Injection': {
+  intro:"SQL injection happens when untrusted input gets merged directly into a SQL query's text — letting an attacker change what the query actually MEANS, not just what data it searches for.",
+  body:[
+    {h:'How a Vulnerable Query Breaks', p:"Imagine application code building a query by simple string concatenation: <span class='ic'>\"SELECT * FROM employees WHERE name = '\" + userInput + \"'\"</span>. If a user innocently searches for 'Alice', the query works exactly as intended.",
+     runner:{id:'sqli1', tabs:[
+       {label:'Intended Query', sql:"SELECT * FROM employees WHERE name = 'Alice';"}
+     ]}},
+    {h:'The Attack: Changing the Query\u2019s Logic', p:"But if the attacker types <span class='ic'>Alice' OR '1'='1</span> as their 'name', the closing quote ends the string early and the extra <span class='ic'>OR '1'='1'</span> is always true — turning a lookup for one person into a filter that matches every row in the table.",
+     runner:{id:'sqli2', tabs:[
+       {label:'Injected Input Changes Everything', sql:"-- If the app naively concatenated user input: Alice' OR '1'='1\nSELECT * FROM employees WHERE name = 'Alice' OR '1'='1';"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Real-World Impact', text:"The exact same pattern that bypasses a search filter above can bypass login checks entirely, dump an entire table's contents, or — with UPDATE/DELETE-capable input — modify or destroy data outright. This is why injection has topped security vulnerability rankings for over two decades."}
+},
+
+'m20::Prepared Statements': {
+  intro:"A prepared statement separates a query's fixed SQL structure from its data — placeholders stand in for values, which are sent to the database separately and never merged into the query text itself. This is the standard, reliable defense against SQL injection.",
+  body:[
+    {h:'A Runtime API Pattern, Not a Single SQL Statement', p:"Prepared statements are created through your application's database driver, not typed as one line of raw SQL — the exact placeholder syntax varies: SQLite and MySQL use <span class='ic'>?</span>, PostgreSQL uses <span class='ic'>$1, $2</span>, and Oracle uses named placeholders like <span class='ic'>:name</span>. A typical call looks like <span class='ic'>db.execute(\"SELECT * FROM employees WHERE name = ?\", [userInput])</span> in application code."},
+    {h:'Why the Injected String No Longer Works', p:"Because the placeholder value is transmitted as pure data — never parsed as SQL syntax — an attacker's <span class='ic'>Alice' OR '1'='1</span> is simply treated as a literal search string. The database looks for an employee whose name is literally that entire odd-looking phrase, finds no match, and returns nothing — the attack has no effect at all."}
+  ],
+  tip:{type:'c-tip', title:'The Single Most Effective Defense', text:"Prepared statements (parameterized queries) eliminate the entire class of classic SQL injection vulnerabilities almost automatically — always prefer them over building SQL through string concatenation, regardless of how carefully you think you're escaping input by hand."}
+},
+
+'m20::GRANT': {
+  intro:"GRANT gives a database user or role specific permissions — the ability to SELECT from a table, INSERT into it, EXECUTE a procedure, and more — controlling exactly what each account is allowed to do.",
+  body:[
+    {h:'Not Supported in SQLite', p:"SQLite has no built-in user or permission system at all — any connection that can open the database file has complete access to everything inside it, and access control is handled entirely by the operating system's file permissions instead. PostgreSQL, MySQL, SQL Server and Oracle all implement GRANT as part of a full user/role/privilege system."},
+    {h:'Standard GRANT Examples', p:"<span class='ic'>GRANT SELECT ON employees TO analyst_role;</span> allows read-only access to one table. <span class='ic'>GRANT INSERT, UPDATE ON orders TO app_user;</span> allows an application account to create and modify orders, but not delete them or touch other tables."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/MySQL: GRANT SELECT, INSERT ON employees TO 'reporting_user'@'%'; — the exact quoting and host-specification syntax differs slightly between databases, but the SELECT/INSERT/UPDATE/DELETE permission vocabulary is largely shared."}
+},
+
+'m20::REVOKE': {
+  intro:"REVOKE removes a permission that was previously granted — the direct mirror of GRANT, used to tighten access when a role changes or a security review finds excessive privileges.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Since SQLite has no GRANT system to begin with, it has no REVOKE either — for the same reason, file-level OS permissions are the only access control lever available. On real client-server databases, REVOKE undoes exactly what the matching GRANT gave."},
+    {h:'Standard REVOKE Examples', p:"<span class='ic'>REVOKE INSERT ON orders FROM app_user;</span> removes just the insert permission while leaving any other granted permissions (like SELECT) untouched. <span class='ic'>REVOKE ALL PRIVILEGES ON employees FROM analyst_role;</span> strips every permission that role had on that table."}
+  ],
+  tip:{type:'c-note', title:'Revoking Doesn\u2019t Always Cascade', text:"If Role A granted a permission to Role B, and Role A's own permission is later revoked, whether Role B keeps that permission depends on the database and the CASCADE/RESTRICT option used — always verify the actual resulting access after a REVOKE, don't just assume."}
+},
+
+'m20::Roles': {
+  intro:"A role is a named collection of permissions that can be granted to many users at once — instead of granting the same five permissions individually to fifty different people, you grant them once to a role and simply assign that role to each person.",
+  body:[
+    {h:'Not Supported in SQLite', p:"Because SQLite has no user accounts at all, it has no concept of roles either. PostgreSQL, MySQL 8+, SQL Server and Oracle all support creating a role, attaching permissions to it, and then assigning the role to individual users."},
+    {h:'Building and Assigning a Role', p:"<span class='ic'>CREATE ROLE analyst;</span> creates an empty role. <span class='ic'>GRANT SELECT ON employees TO analyst;</span> gives that role read access. <span class='ic'>GRANT analyst TO alice, bob;</span> then hands that entire bundle of permissions to two specific users in one step."}
+  ],
+  tip:{type:'c-tip', title:'Why Roles Beat Individual Grants', text:"When a new report needs access, you grant it once to the role and every member instantly has it. When someone leaves the analytics team, you simply remove their role membership instead of hunting down and revoking a dozen individually-granted permissions."}
+},
+
+'m20::Permissions': {
+  intro:"A permission (or privilege) is a specific action a user or role is allowed to perform on a database object — SELECT, INSERT, UPDATE, DELETE, EXECUTE, and several others each control a distinct capability.",
+  body:[
+    {h:'Common Permission Types', p:"<ul><li><strong>SELECT</strong> — read rows from a table or view</li><li><strong>INSERT</strong> — add new rows</li><li><strong>UPDATE</strong> — modify existing rows</li><li><strong>DELETE</strong> — remove rows</li><li><strong>EXECUTE</strong> — run a stored procedure or function</li><li><strong>REFERENCES</strong> — create a foreign key pointing at another table</li><li><strong>ALL PRIVILEGES</strong> — every permission at once (used sparingly)</li></ul>"},
+    {h:'The Principle of Least Privilege', p:"The standard security guideline is to grant only the specific permissions an account actually needs to do its job, nothing more — a reporting dashboard's database account should typically have SELECT only, with no ability to INSERT, UPDATE, or DELETE anything, even if it never intends to."}
+  ],
+  tip:{type:'c-tip', title:'Least Privilege Limits the Blast Radius', text:"If a read-only reporting account's credentials ever leak, an attacker can only read data — they can't modify or delete anything, simply because the permission to do so was never granted in the first place. Least privilege doesn't prevent every breach, but it drastically limits what any single compromised account can do."}
+},  
 };
 
 // ═══════════════════════════════════════════════════════
