@@ -2089,7 +2089,124 @@ const LESSONS = {
   tip:{type:'c-warn', title:'Standard Syntax (varies by database)', text:"PostgreSQL supports regex natively with the ~ operator: WHERE name ~ '^[AC]'; MySQL supports REGEXP/RLIKE out of the box: WHERE name REGEXP '^[AC]'; SQL Server has no built-in regex support at all and typically needs a CLR function or LIKE-based workarounds instead."}
 },
 };
+/* ═══════════════════════════════════════════════════════
+   MODULE 19 — PERFORMANCE TUNING (9 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm18::...' entry and before the closing "};"
+   ═══════════════════════════════════════════════════════ */
 
+'m19::Query Optimization': {
+  intro:"Query optimization means rewriting or restructuring a query so it does the same job using fewer resources — often, reshaping the SQL itself matters more than any index or hardware upgrade.",
+  body:[
+    {h:'Avoid Functions on Indexed Columns', p:"Wrapping a filtered column in a function — like <span class='ic'>UPPER(department)</span> — usually stops the optimizer from using an index on that column, forcing a full table scan even when an index exists.",
+     runner:{id:'qo1', tabs:[
+       {label:'❌ Function Blocks Index', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE UPPER(department) = 'ENGINEERING';\nDROP INDEX idx_dept;"},
+       {label:'✅ Rewritten (Index Used)', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering';\nDROP INDEX idx_dept;"}
+     ]}},
+    {h:'Filter Before You Join', p:"Reducing the row count as early as possible — before a JOIN happens — means less data flows into the more expensive join step. Filtering inside a subquery first can help the optimizer see this clearly.",
+     runner:{id:'qo2', tabs:[
+       {label:'Filter First, Then Join', sql:"SELECT e.name, d.dept_name FROM (SELECT * FROM employees WHERE salary > 90000) e JOIN departments d ON e.dept_id = d.id;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Rewrite Before You Reach for Hardware', text:"Query rewriting is usually the cheapest, fastest performance win available — try restructuring the SQL itself before adding indexes, upgrading hardware, or reaching for caching layers."}
+},
+
+'m19::Explain Plan': {
+  intro:"EXPLAIN (and its variants EXPLAIN ANALYZE, EXPLAIN QUERY PLAN) reveals the optimizer's chosen strategy for a query — and on some databases, actually runs the query to compare real timings against its own estimates.",
+  body:[
+    {h:'SQLite: Plan Only, No Cost Numbers', p:"EXPLAIN QUERY PLAN in SQLite shows the high-level strategy (scan vs. index search) but doesn't expose cost estimates or row counts the way Postgres or SQL Server do.",
+     runner:{id:'ep19a', tabs:[
+       {label:'Query Plan Summary', sql:"EXPLAIN QUERY PLAN SELECT * FROM employees WHERE department = 'Engineering' ORDER BY salary DESC;"}
+     ]}},
+    {h:'Full EXPLAIN — the Actual Bytecode', p:"Dropping QUERY PLAN and just writing EXPLAIN shows SQLite's internal virtual-machine bytecode for the query — far more detailed than most people need, but it exists if you want to go deeper than the plan summary.",
+     runner:{id:'ep19b', tabs:[
+       {label:'Raw Bytecode', sql:"EXPLAIN SELECT * FROM employees WHERE department = 'Engineering';"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL/MySQL: EXPLAIN ANALYZE SELECT ...; actually executes the query and shows both the ESTIMATED row count the optimizer expected and the ACTUAL row count returned — a big gap between the two usually means stale statistics."}
+},
+
+'m19::Statistics': {
+  intro:"The query optimizer decides everything — which index to use, which table to scan first, which join order to pick — based on internal statistics about your data's shape: row counts, distinct value counts, and value distributions.",
+  body:[
+    {h:'Why Stale Statistics Cause Bad Plans', p:"If a table has grown from 100 rows to 10 million since statistics were last collected, the optimizer may still think it's small — potentially choosing a full table scan or the wrong join order because its picture of the data is outdated."},
+    {h:'Updating Statistics in SQLite', p:"SQLite's <span class='ic'>ANALYZE</span> command scans tables and stores what it finds in an internal sqlite_stat1 table, which the optimizer then consults for future queries.",
+     runner:{id:'stat19', tabs:[
+       {label:'Run ANALYZE', sql:"ANALYZE employees;\nSELECT * FROM sqlite_stat1 WHERE tbl = 'employees';"}
+     ]}}
+  ],
+  tip:{type:'c-note', title:'Equivalents in Other Databases', text:"PostgreSQL runs ANALYZE automatically via autovacuum (and it can be run manually too). SQL Server uses UPDATE STATISTICS. MySQL uses ANALYZE TABLE. All of them exist to keep the optimizer's picture of your data current."}
+},
+
+'m19::Partitioning': {
+  intro:"Partitioning splits one very large logical table into smaller physical pieces — by range, list, or hash — so queries and maintenance operations can target just the relevant slice instead of scanning the whole table.",
+  body:[
+    {h:'Not Supported in SQLite', p:"PostgreSQL (declarative partitioning), MySQL (PARTITION BY), and SQL Server (partitioned tables) all let a single table be split by a key like date or region — a query filtering on that key can skip entire partitions ('partition pruning'). SQLite has no native partitioning feature at all — the common workaround is several separate tables combined through a view.",
+     runner:{id:'part19', tabs:[
+       {label:'Manual Partitioning (Separate Tables + View)', sql:"CREATE TEMP TABLE orders_2025 (id INTEGER, amount INTEGER);\nCREATE TEMP TABLE orders_2026 (id INTEGER, amount INTEGER);\nINSERT INTO orders_2025 VALUES (1, 500), (2, 750);\nINSERT INTO orders_2026 VALUES (3, 900);\n\nCREATE TEMP VIEW orders_all AS\n  SELECT *, '2025' AS year FROM orders_2025\n  UNION ALL SELECT *, '2026' AS year FROM orders_2026;\n\nSELECT * FROM orders_all WHERE year = '2026';\nDROP VIEW orders_all; DROP TABLE orders_2025; DROP TABLE orders_2026;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On PostgreSQL: CREATE TABLE orders (id INT, order_date DATE, amount NUMERIC) PARTITION BY RANGE (order_date); then CREATE TABLE orders_2026 PARTITION OF orders FOR VALUES FROM ('2026-01-01') TO ('2027-01-01'); — queries filtering by order_date automatically skip irrelevant partitions."}
+},
+
+'m19::Parallel Processing': {
+  intro:"Parallel processing splits a single query's work across multiple CPU cores — or even multiple machines in a distributed system — so it completes faster than one sequential worker could manage alone.",
+  body:[
+    {h:'Not Available in SQLite', p:"SQLite executes every query on a single thread with no parallel query execution at all — appropriate for its embedded, lightweight use case. This aggregate query below runs entirely sequentially in this environment, however large the table might be.",
+     runner:{id:'pp19', tabs:[
+       {label:'Aggregate (Single-Threaded Here)', sql:"SELECT department, COUNT(*) AS n, AVG(salary) AS avg_sal FROM employees GROUP BY department;"}
+     ]}},
+    {h:'Where Parallelism Actually Helps', p:"PostgreSQL can automatically parallelize large sequential scans and aggregates once a table passes a size threshold. Distributed engines like Snowflake and Databricks SQL take this further, spreading a single query across many machines by design — which is a major reason they scale to enormous datasets."}
+  ],
+  tip:{type:'c-note', title:'Parallelism Isn\u2019t Free', text:"Splitting work across threads or machines adds coordination overhead — for small, fast queries that overhead can outweigh the benefit, which is why databases only parallelize once a query is estimated to be large enough to be worth it."}
+},
+
+'m19::Query Hints': {
+  intro:"A query hint is a directive added to a statement to override or nudge the optimizer's default choice — forcing a specific index, join order, or algorithm when you believe you know better than the automatic planner.",
+  body:[
+    {h:'SQLite: INDEXED BY and NOT INDEXED', p:"SQLite lets you force a specific index with INDEXED BY, or force a full table scan (ignoring any index) with NOT INDEXED — both override the optimizer's own choice.",
+     runner:{id:'qh19', tabs:[
+       {label:'Force Index (INDEXED BY)', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees INDEXED BY idx_dept WHERE department = 'Engineering';\nDROP INDEX idx_dept;"},
+       {label:'Force Full Scan (NOT INDEXED)', sql:"CREATE INDEX idx_dept ON employees(department);\nEXPLAIN QUERY PLAN SELECT * FROM employees NOT INDEXED WHERE department = 'Engineering';\nDROP INDEX idx_dept;"}
+     ]}},
+    {h:'Hints on Other Databases', p:"MySQL offers FORCE INDEX / USE INDEX / IGNORE INDEX. SQL Server supports WITH (INDEX(...)) and query-level options like OPTION (HASH JOIN). Oracle uses special comment-embedded hints like /*+ INDEX(table idx_name) */."}
+  ],
+  tip:{type:'c-warn', title:'A Last Resort, Not a First Move', text:"The optimizer is usually right, and it re-evaluates its choice as data changes — a hardcoded hint freezes a decision that may become wrong as the table grows. Reach for hints only after confirming with EXPLAIN that the optimizer is genuinely choosing badly, not just because a query feels slow."}
+},
+
+'m19::Query Caching': {
+  intro:"Query caching stores the result of a previously run query so an identical future request can be answered instantly from memory, skipping re-execution entirely — powerful when it works, but easy to get wrong if the cache isn't invalidated correctly.",
+  body:[
+    {h:'Database-Level vs Application-Level', p:"MySQL once shipped a built-in query cache, but it was removed in MySQL 8.0 due to scalability problems under concurrent writes. Modern systems typically cache at the application layer instead — using tools like Redis or Memcached, or leaning on materialized views (covered in the Views module) for a database-native middle ground."},
+    {h:'No Real Caching in This Runner', p:"This in-browser SQLite engine recomputes every query from scratch each time — running the same aggregate twice below takes roughly the same time both times, since nothing is being cached here.",
+     runner:{id:'qc19', tabs:[
+       {label:'Run Twice — No Caching Happens', sql:"SELECT department, AVG(salary) FROM employees GROUP BY department;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Invalidation Is the Hard Part', text:"Deciding WHEN a cached result becomes stale and needs to be thrown away is usually much harder than the caching mechanism itself — a cache that never invalidates serves wrong answers, and one that invalidates too eagerly provides no benefit at all."}
+},
+
+'m19::Connection Pooling': {
+  intro:"Connection pooling reuses a small set of already-open database connections across many application requests, instead of opening and closing a brand-new connection for every single query — because establishing a connection is often more expensive than running a simple query itself.",
+  body:[
+    {h:'Why Opening Connections Is Expensive', p:"A new database connection typically involves a network handshake, authentication, and session setup — under load, with hundreds of requests per second, that overhead alone can dwarf the actual time spent running queries."},
+    {h:'Not a SQL-Level Concept', p:"Connection pooling lives in application frameworks and middleware — tools like PgBouncer (PostgreSQL), HikariCP (Java), SQLAlchemy's pool (Python), or Node's pg-pool — not in SQL syntax itself. This in-browser lesson environment keeps one connection open for your whole session, so pooling doesn't apply here directly, but it's a critical concern for any real backend serving concurrent users."}
+  ],
+  tip:{type:'c-tip', title:'Pool Size Is a Tuning Problem of Its Own', text:"A pool sized too small makes requests queue up waiting for a free connection; a pool sized too large can overwhelm the database server with more concurrent work than it can actually handle — right-sizing the pool is a separate production concern from writing efficient SQL."}
+},
+
+'m19::Performance Best Practices': {
+  intro:"Performance tuning is rarely one silver bullet — it's a checklist of habits that compound together: good indexes, fresh statistics, well-written queries, and sensible infrastructure choices all reinforce each other.",
+  body:[
+    {h:'The Checklist', p:"<ul><li>Index columns used in WHERE, JOIN, and ORDER BY — especially foreign keys</li><li>Keep statistics fresh so the optimizer's decisions stay accurate (ANALYZE / autovacuum / UPDATE STATISTICS)</li><li>Avoid wrapping indexed columns in functions inside WHERE</li><li>Select only the columns you actually need — avoid SELECT * in production</li><li>Filter as early as possible, before joins and aggregations</li><li>Check EXPLAIN plans before shipping a query that runs frequently or against large tables</li><li>Watch for N+1 query patterns in application code (one query per loop iteration instead of one batched query)</li><li>Use connection pooling in any real backend service</li><li>Consider caching for expensive, frequently-repeated reads</li></ul>"},
+    {h:'A Quick Before/After', p:"Small rewrites plus the right index together often produce the biggest single jump in performance you'll see in this whole module.",
+     runner:{id:'pbp19', tabs:[
+       {label:'❌ Unoptimized', sql:"SELECT * FROM employees WHERE UPPER(department) = 'ENGINEERING' ORDER BY salary DESC;"},
+       {label:'✅ Optimized', sql:"CREATE INDEX idx_dept_sal ON employees(department, salary);\nEXPLAIN QUERY PLAN SELECT name, salary FROM employees WHERE department = 'Engineering' ORDER BY salary DESC;\nDROP INDEX idx_dept_sal;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Measure Before You Optimize', text:"Don't guess at bottlenecks — use EXPLAIN plans and real timing measurements to confirm where time is actually being spent before making any change. Optimizing the wrong part of a query wastes effort and can even make things worse."}
+},
 // ═══════════════════════════════════════════════════════
 // SQL.JS ENGINE SETUP
 // ═══════════════════════════════════════════════════════
