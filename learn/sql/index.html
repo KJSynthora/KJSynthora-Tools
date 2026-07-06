@@ -2401,6 +2401,129 @@ const LESSONS = {
      ]}}
   ],
   tip:{type:'c-note', title:'When Full Load Still Makes Sense', text:"Full loads remain the right choice for small dimension tables, the very first load of any dataset, or source systems with no reliable way to detect what changed — the simplicity and guaranteed correctness of 'just reload everything' can outweigh the performance cost when the table is small enough."}
+},
+/* ═══════════════════════════════════════════════════════
+   MODULE 22 — DATABRICKS SQL (13 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm21::...' entry and before the closing "};"
+   ═══════════════════════════════════════════════════════ */
+
+'m22::Databricks SQL': {
+  intro:"Databricks SQL is the SQL interface built into the Databricks Lakehouse Platform — it lets you run standard, familiar SQL directly against data stored in a cloud data lake, combining a data warehouse's ease-of-use with a data lake's scale and openness.",
+  body:[
+    {h:'A SQL Layer on Top of a Lakehouse', p:"The 'Lakehouse' idea is combining the low-cost, flexible storage of a data lake (files in cloud storage) with the reliability and performance features traditionally only found in a data warehouse — ACID transactions, schema enforcement, and fast SQL queries — largely thanks to the Delta Lake format covered later in this module."},
+    {h:'Mostly Familiar Syntax', p:"The vast majority of everyday ANSI SQL you already know — SELECT, JOIN, GROUP BY, window functions, CTEs — works essentially unchanged on Databricks SQL. The differences that matter show up mainly in DDL and table-format-specific commands, which this module focuses on.",
+     runner:{id:'dbx1', tabs:[
+       {label:'Standard SQL Works As-Is', sql:"SELECT department, AVG(salary) AS avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'What This Module Covers', text:"Rather than re-teaching SQL syntax you already know, this module focuses specifically on the Databricks/Delta Lake-specific commands and concepts you won't find in a plain SQLite or PostgreSQL course."}
+},
+
+'m22::SQL Warehouses': {
+  intro:"A SQL Warehouse (formerly called a SQL endpoint) is the compute resource that actually executes your SQL queries in Databricks — a dedicated, auto-scaling cluster optimized specifically for SQL workloads rather than general-purpose data engineering code.",
+  body:[
+    {h:'Not a SQL Statement — a Compute Resource', p:"You don't create a SQL Warehouse with SQL syntax at all; it's configured through the Databricks UI or REST API, choosing a size (Small through 4X-Large or Serverless) and behaviors like auto-stop after inactivity and auto-scaling under load."},
+    {h:'Why It Matters for Performance', p:"An undersized or stopped SQL Warehouse is the most common cause of 'my Databricks SQL query is slow' complaints — the query itself might be perfectly written, but if the warehouse is cold-starting or too small for the workload, wall-clock time suffers regardless of SQL quality."}
+  ],
+  tip:{type:'c-note', title:'Cost vs Performance Trade-off', text:"Auto-stop settings save money by shutting down idle compute, but the next query then pays a 'cold start' cost to spin the warehouse back up — teams often tune this trade-off differently for interactive dashboards (keep warm) versus overnight batch jobs (auto-stop aggressively)."}
+},
+
+'m22::Unity Catalog': {
+  intro:"Unity Catalog is Databricks' centralized governance layer for all data and AI assets across a workspace — it introduces a three-level namespace and unified access control, lineage tracking, and auditing spanning every table, no matter which team created it.",
+  body:[
+    {h:'A Three-Level Namespace', p:"Most databases (including SQLite, MySQL, PostgreSQL) use a two-level structure: <span class='ic'>schema.table</span>. Unity Catalog adds a third level on top: <span class='ic'>catalog.schema.table</span> — letting an organization cleanly separate, say, production data from a sandbox environment at the very top level.",
+     runner:{id:'uc1', tabs:[
+       {label:'Familiar Two-Level Reference', sql:"SELECT * FROM main.employees;  -- schema.table style, works everywhere"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: SELECT * FROM prod_catalog.sales.orders; — the leading prod_catalog segment is the piece a two-level database like SQLite or plain MySQL simply doesn't have. GRANT/REVOKE (from the SQL Security module) also flow through Unity Catalog centrally across every workspace."}
+},
+
+'m22::Delta Tables': {
+  intro:"A Delta table is a regular table backed by Delta Lake — an open-source storage layer that adds ACID transactions, schema enforcement, and full change history on top of plain data files (typically Parquet) sitting in cloud storage.",
+  body:[
+    {h:'ACID on Top of Plain Files', p:"Ordinary files in a data lake have no built-in transaction guarantees — a failed write partway through can leave things in a broken, half-written state. Delta Lake solves this with a transaction log (a folder called <span class='ic'>_delta_log</span>) that records every change atomically, bringing the same ACID guarantees covered in the Transactions module to lake storage."},
+    {h:'Creating a Delta Table', p:"The only difference from an ordinary CREATE TABLE is the storage format clause — everything else about the table (columns, types, constraints) works exactly like the CREATE TABLE topic covered in the DDL module."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: CREATE TABLE sales (id INT, amount DECIMAL(10,2), sale_date DATE) USING DELTA; — USING DELTA is actually the default table format on Databricks, so it's often omitted entirely and just assumed."}
+},
+
+'m22::Delta Live Tables': {
+  intro:"Delta Live Tables (DLT) is a declarative framework for building reliable ETL pipelines — instead of writing step-by-step imperative code describing HOW to move and transform data, you declare WHAT the final tables should look like, and DLT figures out the execution order, dependencies, and error handling.",
+  body:[
+    {h:'Declarative, Not Imperative', p:"A traditional ETL script explicitly says 'read this file, then filter it, then write to that table, then trigger the next step.' A DLT pipeline instead declares each table as a query over an upstream source, and Databricks automatically determines the correct order to build them in."},
+    {h:'Built-in Data Quality Checks', p:"DLT supports an <span class='ic'>EXPECT</span> clause directly in the table definition to validate incoming data — rows failing an expectation can be dropped, flagged, or halt the pipeline entirely, depending on how strict you configure it."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: CREATE LIVE TABLE clean_orders AS SELECT * FROM STREAM(LIVE.raw_orders) WHERE amount IS NOT NULL; — combined with CONSTRAINT valid_amount EXPECT (amount > 0) to enforce a data quality rule automatically."}
+},
+
+'m22::MERGE INTO': {
+  intro:"MERGE INTO on Delta tables is the same general upsert concept covered in the DML module's MERGE topic, but it's the everyday, heavily-used workhorse of Lakehouse pipelines — most commonly used to apply Change Data Capture (CDC) updates from a source system directly into a Delta table.",
+  body:[
+    {h:'The Standard CDC-to-Delta Pattern', p:"A typical pipeline captures inserts, updates, and deletes from a source system (via CDC, covered in the Data Warehouse SQL module) into a staging table, then applies all three kinds of changes to the target Delta table in a single atomic MERGE INTO statement.",
+     runner:{id:'mgi1', tabs:[
+       {label:'The Underlying Upsert Logic (Portable Simulation)', sql:"CREATE TEMP TABLE target (id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);\nINSERT INTO target VALUES (1, 'Order A', 500);\n\n-- Simulates: MERGE INTO target USING changes ON target.id = changes.id\n--            WHEN MATCHED THEN UPDATE WHEN NOT MATCHED THEN INSERT\nINSERT INTO target (id, name, amount) VALUES (1, 'Order A', 650)\n  ON CONFLICT(id) DO UPDATE SET amount = excluded.amount;\n\nSELECT * FROM target;\nDROP TABLE target;"}
+     ]}}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: MERGE INTO target USING cdc_changes ON target.id = cdc_changes.id WHEN MATCHED AND cdc_changes.op = 'DELETE' THEN DELETE WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *; — handling insert, update, and delete from one CDC feed in a single statement."}
+},
+
+'m22::COPY INTO': {
+  intro:"COPY INTO is an idempotent, incremental bulk-loading command — it ingests new files (CSV, JSON, Parquet, and more) from cloud storage into a Delta table, automatically tracking which files it has already processed so re-running the exact same command never loads duplicate data.",
+  body:[
+    {h:'Idempotent by Design', p:"Unlike a plain INSERT, which would happily duplicate data if accidentally run twice, COPY INTO keeps an internal record of already-ingested files — making it safe to schedule the same command to run repeatedly (e.g. every hour) without worrying about double-loading."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: COPY INTO sales_delta FROM 's3://bucket/incoming/' FILEFORMAT = CSV FORMAT_OPTIONS ('header' = 'true'); — this is essentially a built-in, file-based version of the Incremental Load pattern covered in the Data Warehouse SQL module."}
+},
+
+'m22::OPTIMIZE': {
+  intro:"OPTIMIZE is a Delta Lake maintenance command that compacts many small underlying files into fewer, larger ones — since reading many tiny files from cloud storage carries real overhead, this 'small file problem' is common after lots of incremental writes.",
+  body:[
+    {h:'Why Small Files Hurt Performance', p:"Every incremental write (a streaming micro-batch, a small daily load) can leave behind another small file. Over time, a table backed by thousands of tiny files becomes slower to query than the same data stored in a handful of well-sized ones — OPTIMIZE rewrites the data into a more efficient layout."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: OPTIMIZE sales_delta; — often combined directly with ZORDER BY (covered next) as OPTIMIZE sales_delta ZORDER BY (customer_id); to both compact files and improve data layout for common filter columns in one pass."}
+},
+
+'m22::VACUUM': {
+  intro:"VACUUM permanently removes old, no-longer-referenced data files from a Delta table's storage — specifically, files that exist only to support Time Travel queries beyond a configured retention window.",
+  body:[
+    {h:'Cleaning Up After OPTIMIZE and Updates', p:"Every time data is updated, deleted, or compacted with OPTIMIZE, Delta Lake doesn't necessarily delete the old physical files immediately — it keeps them around so Time Travel can still query previous versions. VACUUM is what actually clears that accumulated storage out."}
+  ],
+  tip:{type:'c-warn', title:'Irreversible — Be Careful with Retention', text:"On Databricks: VACUUM sales_delta RETAIN 168 HOURS; (168 hours = 7 days, the default minimum). Running VACUUM with a shorter retention period than you actually need permanently destroys the ability to Time Travel back to those older versions — there's no undo once the files are gone."}
+},
+
+'m22::ZORDER': {
+  intro:"ZORDER is a data layout optimization applied during OPTIMIZE that co-locates related data together within the same set of files, based on the values of one or more chosen columns — dramatically speeding up queries that filter on those columns.",
+  body:[
+    {h:'Multi-Dimensional Clustering', p:"Unlike a simple sort (which only orders data well along one column), ZORDER uses a technique that keeps files well-clustered across multiple columns simultaneously — so filtering on any of the chosen ZORDER columns can skip reading irrelevant files, similar in spirit to how a covering index avoids unnecessary table lookups (covered in the Indexes module)."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: OPTIMIZE sales_delta ZORDER BY (customer_id, region); — choose columns the way you'd choose index columns: ones frequently used in WHERE filters, especially with high cardinality."}
+},
+
+'m22::Liquid Clustering': {
+  intro:"Liquid Clustering is Databricks' newer approach to data layout — replacing manual partitioning and ZORDER with automatic, incremental clustering that adapts as data grows and query patterns evolve, without needing a full table rewrite every time.",
+  body:[
+    {h:'Incremental, Not All-or-Nothing', p:"ZORDER requires re-running a full OPTIMIZE pass to re-cluster data as new rows arrive — an increasingly expensive operation on huge tables. Liquid Clustering instead clusters new data incrementally as it's written, avoiding the need to repeatedly reprocess the entire table."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: ALTER TABLE sales_delta CLUSTER BY (customer_id, region); — Databricks now generally recommends Liquid Clustering over both traditional static partitioning and ZORDER for new tables, since it adapts automatically as query patterns change over time."}
+},
+
+'m22::Time Travel': {
+  intro:"Time Travel lets you query a Delta table exactly as it looked at an earlier point — either a specific version number or a timestamp — made possible by the same transaction log that gives Delta tables their ACID guarantees.",
+  body:[
+    {h:'Querying Past Versions', p:"Because every change is recorded in the transaction log rather than simply overwriting data in place, Delta Lake can reconstruct any earlier state of the table on demand — extremely useful for auditing what data looked like at a point in time, debugging a bad pipeline run, or recovering from an accidental bad write."}
+  ],
+  tip:{type:'c-warn', title:'Standard Syntax (not runnable here)', text:"On Databricks: SELECT * FROM sales_delta VERSION AS OF 12; or SELECT * FROM sales_delta TIMESTAMP AS OF '2026-01-01'; — note that VACUUM (the previous topic) removes the old files these Time Travel queries depend on, so an aggressive VACUUM retention setting directly limits how far back you can travel."}
+},
+
+'m22::Photon': {
+  intro:"Photon is Databricks' native, vectorized query execution engine — written in C++ and designed to transparently accelerate SQL and DataFrame workloads on the Lakehouse, without requiring any changes to your actual queries or code.",
+  body:[
+    {h:'Vectorized, Not Row-at-a-Time', p:"Traditional Spark execution processes data largely row by row on the JVM. Photon instead processes data in batches using CPU vectorized (SIMD) instructions — similar in spirit to how modern analytical databases achieve speed — resulting in significantly faster execution for many SQL workloads."},
+    {h:'An Engine-Level Upgrade, Not a Syntax Change', p:"Enabling Photon is a configuration choice on a SQL Warehouse or cluster, not something expressed in SQL at all — your existing SELECT, JOIN, and GROUP BY statements run completely unchanged, just faster."}
+  ],
+  tip:{type:'c-tip', title:'No SQL Rewrite Required', text:"Unlike most of the other performance techniques in this module (ZORDER, Liquid Clustering, OPTIMIZE), Photon requires zero query changes — it's purely an execution-engine upgrade, which is part of why enabling it is often one of the easiest wins available on a Databricks workload."}
 },  
 };
 
