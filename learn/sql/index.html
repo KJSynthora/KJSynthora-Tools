@@ -2691,6 +2691,93 @@ const LESSONS = {
      ]}}
   ],
   tip:{type:'c-tip', title:'Skill Focus', text:"Occupancy-style percentage metrics (bookings ÷ capacity) are a pattern that generalizes far beyond airlines — the same COUNT ÷ total-capacity shape works for hotel room occupancy, event ticket sales, and warehouse space utilization."}
+},
+/* ═══════════════════════════════════════════════════════
+   MODULE 24 — SQL PRACTICE (5 topics)
+   PASTE THIS BLOCK into your existing LESSONS = { ... } object,
+   right after the last 'm23::...' entry and before the closing "};"
+   Structured as problem statement + runnable solution per item —
+   encourage trying the query yourself before running the solution tab.
+   ═══════════════════════════════════════════════════════ */
+
+'m24::500 Practice Questions': {
+  intro:"This section is a growing, hands-on problem bank organized by difficulty — Easy, Medium, Hard, and Expert — built to work exactly like a real interview practice set: read the problem, try writing the query yourself first, then run the Solution tab to check.",
+  body:[
+    {h:'How This Section Is Organized', p:"<ul><li><strong>Easy</strong> — single-table SELECT, WHERE, ORDER BY, basic aggregates</li><li><strong>Medium</strong> — JOINs, GROUP BY + HAVING, subqueries, self joins</li><li><strong>Hard</strong> — window functions, CTEs, multi-condition logic</li><li><strong>Expert</strong> — recursive CTEs, top-N-per-group, multi-step analytical problems</li></ul> Each difficulty tier currently ships with a curated starter set of problems, with more added over time — nothing here is meant to be memorized, only practiced."},
+    {h:'A Sample Problem, to Show the Format', p:"<strong>Problem:</strong> List every employee earning more than 80,000, sorted from highest to lowest salary. Try writing this yourself before checking the Solution tab.",
+     runner:{id:'pq0', tabs:[
+       {label:'Solution', sql:"SELECT name, salary FROM employees WHERE salary > 80000 ORDER BY salary DESC;"}
+     ]}}
+  ],
+  tip:{type:'c-tip', title:'Get the Most Out of Practice', text:"Resist jumping straight to the Solution tab — write your own attempt in the editor first, run it, compare the result shape to what the problem asks for, and only then check the provided solution. Struggling productively is where the actual learning happens."}
+},
+
+'m24::Easy': {
+  intro:"Five warm-up problems covering the fundamentals — SELECT, WHERE, ORDER BY, DISTINCT, and basic aggregate functions on a single table. If you've completed Modules 1–4, these should all be very approachable.",
+  body:[
+    {h:'Problem 1: High Earners, Sorted', p:"List the name and salary of every employee earning more than 70,000, ordered from highest salary to lowest.",
+     runner:{id:'eq1', tabs:[{label:'Solution', sql:"SELECT name, salary FROM employees WHERE salary > 70000 ORDER BY salary DESC;"}]}},
+    {h:'Problem 2: Headcount per Department', p:"Find the number of employees in each department.",
+     runner:{id:'eq2', tabs:[{label:'Solution', sql:"SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department;"}]}},
+    {h:"Problem 3: Names Starting With A or C", p:"List the names of employees whose name starts with either 'A' or 'C'.",
+     runner:{id:'eq3', tabs:[{label:'Solution', sql:"SELECT name FROM employees WHERE name LIKE 'A%' OR name LIKE 'C%';"}]}},
+    {h:'Problem 4: Company-Wide Average Salary', p:"Find the average salary across the entire company, rounded to 2 decimal places.",
+     runner:{id:'eq4', tabs:[{label:'Solution', sql:"SELECT ROUND(AVG(salary), 2) AS avg_salary FROM employees;"}]}},
+    {h:'Problem 5: Distinct Departments', p:"List every unique department name that appears in the employees table.",
+     runner:{id:'eq5', tabs:[{label:'Solution', sql:"SELECT DISTINCT department FROM employees;"}]}}
+  ],
+  tip:{type:'c-tip', title:'Ready for More?', text:"If all five felt straightforward without checking the solutions, move on to the Medium tier — it introduces JOINs, HAVING, and subqueries."}
+},
+
+'m24::Medium': {
+  intro:"Five problems that require combining data across tables and thinking in groups rather than single rows — JOINs, GROUP BY with HAVING, subqueries, and a self join. This is where most real day-to-day SQL work actually lives.",
+  body:[
+    {h:'Problem 1: Departments With More Than One Employee', p:"Using the departments and employees tables, find each department name along with its employee count — but only include departments with more than 1 employee.",
+     runner:{id:'mq1', tabs:[{label:'Solution', sql:"SELECT d.dept_name, COUNT(e.id) AS emp_count\nFROM departments d JOIN employees e ON e.dept_id = d.id\nGROUP BY d.dept_name HAVING COUNT(e.id) > 1;"}]}},
+    {h:'Problem 2: Above Company-Average Earners', p:"Find every employee who earns more than the overall company average salary.",
+     runner:{id:'mq2', tabs:[{label:'Solution', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);"}]}},
+    {h:'Problem 3: Employees With No Department Assigned', p:"List any employees whose dept_id is NULL — meaning they haven't been assigned to a department yet.",
+     runner:{id:'mq3', tabs:[{label:'Solution', sql:"SELECT name FROM employees WHERE dept_id IS NULL;"}]}},
+    {h:'Problem 4: Department With the Highest Total Payroll', p:"Find which single department has the highest combined salary expense.",
+     runner:{id:'mq4', tabs:[{label:'Solution', sql:"SELECT department, SUM(salary) AS total_payroll FROM employees GROUP BY department ORDER BY total_payroll DESC LIMIT 1;"}]}},
+    {h:"Problem 5: Employee and Manager Names Together", p:"List each employee's name alongside their manager's name, using the manager_id self-reference.",
+     runner:{id:'mq5', tabs:[{label:'Solution', sql:"SELECT e.name AS employee, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;"}]}}
+  ],
+  tip:{type:'c-tip', title:'Common Thread', text:"Notice how many of these reduce to 'JOIN, then GROUP BY, then optionally HAVING' — that three-step shape covers a huge fraction of real-world reporting SQL."}
+},
+
+'m24::Hard': {
+  intro:"Five problems built around window functions and CTEs — the tools that separate comfortable SQL users from confident ones. Expect PARTITION BY, DENSE_RANK, running totals, and named intermediate steps.",
+  body:[
+    {h:'Problem 1: Second Highest Salary (Handling Ties Correctly)', p:"Find the second highest DISTINCT salary in the company — your answer must handle ties correctly, unlike a naive OFFSET approach.",
+     runner:{id:'hq1', tabs:[{label:'Solution', sql:"SELECT salary FROM (SELECT DISTINCT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk FROM employees) t WHERE rnk = 2;"}]}},
+    {h:'Problem 2: Rank Employees Within Their Own Department', p:"Rank every employee by salary, but reset the ranking separately for each department.",
+     runner:{id:'hq2', tabs:[{label:'Solution', sql:"SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees;"}]}},
+    {h:'Problem 3: Running Total of Salaries', p:"Order employees by id and compute a running total of salary as you go down the list.",
+     runner:{id:'hq3', tabs:[{label:'Solution', sql:"SELECT id, name, salary, SUM(salary) OVER (ORDER BY id) AS running_total FROM employees;"}]}},
+    {h:'Problem 4: Departments With Above-Average Headcount (via CTE)', p:"Using a CTE, first compute headcount per department, then filter to only departments above the average headcount across all departments.",
+     runner:{id:'hq4', tabs:[{label:'Solution', sql:"WITH dept_counts AS (\n  SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department\n)\nSELECT * FROM dept_counts WHERE headcount > (SELECT AVG(headcount) FROM dept_counts);"}]}},
+    {h:'Problem 5: Everyone Who Out-Earns All of HR', p:"Find every employee who earns more than the single highest-paid person in the HR department.",
+     runner:{id:'hq5', tabs:[{label:'Solution', sql:"SELECT name, salary FROM employees WHERE salary > (SELECT MAX(salary) FROM employees WHERE department = 'HR');"}]}}
+  ],
+  tip:{type:'c-tip', title:'If You Got Stuck', text:"Problems 1 and 2 both lean on the DENSE_RANK pattern from the Window Functions module — if either felt shaky, that's the single topic worth revisiting before the Expert tier."}
+},
+
+'m24::Expert': {
+  intro:"Five multi-step problems that combine several advanced techniques at once — recursive CTEs, top-N-per-group patterns, month-over-month analysis, and classic 'gotcha' interview problems like duplicate detection and pivoting.",
+  body:[
+    {h:'Problem 1: Full Org Chart With Depth', p:"Using a recursive CTE, build the complete management hierarchy starting from the top (no manager), showing each employee's depth level.",
+     runner:{id:'xq1', tabs:[{label:'Solution', sql:"WITH RECURSIVE org AS (\n  SELECT id, name, manager_id, 0 AS depth FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, o.depth + 1 FROM employees e JOIN org o ON e.manager_id = o.id\n)\nSELECT * FROM org ORDER BY depth, name;"}]}},
+    {h:'Problem 2: Top 2 Earners in Each Department', p:"For every department, find only its top 2 highest-paid employees — the classic 'top-N per group' interview problem.",
+     runner:{id:'xq2', tabs:[{label:'Solution', sql:"WITH ranked AS (\n  SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk\n  FROM employees\n)\nSELECT name, department, salary FROM ranked WHERE rnk <= 2;"}]}},
+    {h:'Problem 3: Month-over-Month Revenue Growth', p:"Given a small monthly_sales table, compute each month's revenue alongside the previous month's revenue and the percentage change between them.",
+     runner:{id:'xq3', tabs:[{label:'Solution', sql:"CREATE TEMP TABLE monthly_sales (month TEXT, revenue INTEGER);\nINSERT INTO monthly_sales VALUES ('2026-01',180000),('2026-02',210000),('2026-03',195000);\n\nSELECT month, revenue,\n  LAG(revenue) OVER (ORDER BY month) AS prev_month,\n  ROUND((revenue - LAG(revenue) OVER (ORDER BY month)) * 100.0 / LAG(revenue) OVER (ORDER BY month), 1) AS pct_growth\nFROM monthly_sales;\n\nDROP TABLE monthly_sales;"}]}},
+    {h:'Problem 4: Find and Remove Duplicate Rows', p:"Given a table with accidental duplicate customer rows (same email), identify the duplicates and keep only the first occurrence of each.",
+     runner:{id:'xq4', tabs:[{label:'Solution', sql:"CREATE TEMP TABLE customers_dup (id INTEGER, email TEXT);\nINSERT INTO customers_dup VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'a@x.com'),(4,'a@x.com');\n\n-- Identify duplicates\nSELECT email, COUNT(*) AS occurrences FROM customers_dup GROUP BY email HAVING COUNT(*) > 1;\n\n-- Keep only the lowest id per email, delete the rest\nDELETE FROM customers_dup WHERE id NOT IN (\n  SELECT MIN(id) FROM customers_dup GROUP BY email\n);\nSELECT * FROM customers_dup;\n\nDROP TABLE customers_dup;"}]}},
+    {h:'Problem 5: Pivot Department Headcounts by Location', p:"Given employees spread across departments and cities, build a pivot-style report showing headcount per department, broken into separate columns per city.",
+     runner:{id:'xq5', tabs:[{label:'Solution', sql:"SELECT department,\n  COUNT(CASE WHEN city = 'Bangalore' THEN 1 END) AS bangalore,\n  COUNT(CASE WHEN city = 'Mumbai' THEN 1 END) AS mumbai,\n  COUNT(CASE WHEN city = 'Delhi' THEN 1 END) AS delhi\nFROM employees GROUP BY department;"}]}}
+  ],
+  tip:{type:'c-tip', title:'This Is Interview-Level Work', text:"Every one of these five problems has appeared, in some close variation, in real data analyst or data engineer interviews — comfortably solving all five independently is a strong signal you're ready for the Interview Preparation module next."}
 },  
 };
 
