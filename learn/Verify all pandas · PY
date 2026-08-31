@@ -1,0 +1,140 @@
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.width', 120)
+
+def show(name, df):
+    print(f"=== {name} ===")
+    print(df.to_string(index=False))
+    print()
+
+# Q1 Filter + groupby (mirrors SQL Q1 domain but different: web sessions)
+sessions = pd.DataFrame({
+    "channel": ["Organic","Organic","Organic","Paid","Paid","Referral","Referral"],
+    "sessions": [300,250,180,900,150,60,40]
+})
+grouped = sessions.groupby("channel", as_index=False)["sessions"].sum()
+result1 = grouped[grouped["sessions"] > 400].sort_values("sessions", ascending=False).reset_index(drop=True)
+show("Q1 Channels over 400 sessions", result1)
+
+# Q2 Categorize with np.select
+players = pd.DataFrame({
+    "player": ["Ari","Bo","Cleo","Dax","Emi","Finn","Gia","Hugo"],
+    "points": [12, 34, 88, 45, 5, 99, 67, 23]
+})
+conditions = [players["points"] < 20, players["points"].between(20,70)]
+choices = ["Rookie", "Pro"]
+players["tier"] = np.select(conditions, choices, default="Elite")
+result2 = players.groupby("tier", as_index=False).size().rename(columns={"size":"count"}).sort_values("count", ascending=False).reset_index(drop=True)
+show("Q2 Player tiers", result2)
+
+# Q3 anti-join: warehouses with no shipments
+warehouses = pd.DataFrame({"warehouse_id":[1,2,3,4], "city":["Pune","Nagpur","Indore","Surat"]})
+shipments = pd.DataFrame({"shipment_id":[1,2,3], "warehouse_id":[1,1,3]})
+result3 = warehouses[~warehouses["warehouse_id"].isin(shipments["warehouse_id"])].reset_index(drop=True)
+show("Q3 Warehouses with no shipments", result3)
+
+# Q4 join + revenue top n
+books = pd.DataFrame({"book_id":[1,2,3,4], "title":["Atlas","Nimbus","Cobalt","Fable"]})
+sales = pd.DataFrame({
+    "sale_id":[1,2,3,4,5,6],
+    "book_id":[1,1,2,3,4,3],
+    "copies":[10,5,50,4,3,2],
+    "unit_price":[5,5,1,60,25,60]
+})
+sales["revenue"] = sales["copies"]*sales["unit_price"]
+merged = sales.merge(books, on="book_id")
+result4 = merged.groupby("title", as_index=False)["revenue"].sum().sort_values("revenue", ascending=False).head(3).reset_index(drop=True)
+show("Q4 Top 3 books by revenue", result4)
+
+# Q5 self merge: employees earning more than manager
+emp = pd.DataFrame({
+    "emp_id":[1,2,3,4,5],
+    "name":["Rex","Sam","Tia","Uma","Vik"],
+    "salary":[90000,95000,70000,120000,60000],
+    "manager_id":[None,1,1,2,3]
+})
+merged5 = emp.merge(emp, left_on="manager_id", right_on="emp_id", suffixes=("_emp","_mgr"))
+result5 = merged5[merged5["salary_emp"] > merged5["salary_mgr"]][["name_emp","salary_emp","name_mgr","salary_mgr"]].reset_index(drop=True)
+show("Q5 Employees earning more than manager", result5)
+
+# Q6 rank within group
+students = pd.DataFrame({
+    "name":["Amy","Bo","Cy","Dee","Eva","Fin"],
+    "cls":["A","A","A","B","B","B"],
+    "score":[88,95,95,70,82,82]
+})
+students["class_rank"] = students.groupby("cls")["score"].rank(method="min", ascending=False).astype(int)
+result6 = students.sort_values(["cls","class_rank"]).reset_index(drop=True)
+show("Q6 Rank students in class", result6)
+
+# Q7 dedup keep latest
+users = pd.DataFrame({
+    "user_id":[1,2,3,4,5],
+    "email":["a@x.com","a@x.com","b@x.com","c@x.com","c@x.com"],
+    "signup_date": pd.to_datetime(["2024-01-01","2024-03-05","2024-02-10","2024-01-20","2023-12-01"])
+})
+result7 = users.sort_values("signup_date").drop_duplicates("email", keep="last").sort_values("email").reset_index(drop=True)
+show("Q7 Dedup keep latest signup", result7)
+
+# Q8 cumulative sum
+sales_m = pd.DataFrame({"month":["2024-01","2024-02","2024-03","2024-04"], "revenue":[1000,1500,900,2000]})
+sales_m = sales_m.sort_values("month")
+sales_m["cumulative_revenue"] = sales_m["revenue"].cumsum()
+show("Q8 Cumulative revenue", sales_m.reset_index(drop=True))
+
+# Q9 pct_change / lag
+sales_m2 = pd.DataFrame({"month":["2024-01","2024-02","2024-03","2024-04"], "revenue":[1000,1500,1200,1800]})
+sales_m2["prev_month_revenue"] = sales_m2["revenue"].shift(1)
+sales_m2["growth_pct"] = ((sales_m2["revenue"] - sales_m2["prev_month_revenue"]) / sales_m2["prev_month_revenue"] * 100).round(2)
+show("Q9 Month over month growth", sales_m2)
+
+# Q10 top 2 per group
+emp3 = pd.DataFrame({
+    "name":["Ann","Bud","Cid","Dot","Eve","Fox","Gia"],
+    "department":["Eng","Eng","Eng","Eng","Sales","Sales","Sales"],
+    "salary":[95000,95000,80000,70000,60000,75000,75000]
+})
+emp3["rnk"] = emp3.groupby("department")["salary"].rank(method="dense", ascending=False).astype(int)
+result10 = emp3[emp3["rnk"] <= 2].sort_values(["department","rnk"]).reset_index(drop=True)
+show("Q10 Top 2 earners per department", result10)
+
+# Q11 string split domain
+users2 = pd.DataFrame({"user_id":[1,2,3], "email":["joe@gmail.com","liz@yahoo.co.in","sam@company.org"]})
+users2["domain"] = users2["email"].str.split("@").str[1]
+show("Q11 Extract domain", users2)
+
+# Q12 recent signups relative to reference date
+users3 = pd.DataFrame({
+    "user_id":[1,2,3,4],
+    "name":["Al","Bea","Cho","Dan"],
+    "signup_date": pd.to_datetime(["2024-06-25","2024-05-10","2024-06-05","2024-04-01"])
+})
+ref_date = pd.Timestamp("2024-06-30")
+result12 = users3[users3["signup_date"] >= ref_date - pd.Timedelta(days=30)].sort_values("signup_date").reset_index(drop=True)
+show("Q12 Recent signups", result12)
+
+# Q13 fillna
+cust2 = pd.DataFrame({"customer_id":[1,2,3,4], "name":["Ivy","Jon","Kim","Lea"], "phone":["555-0101",None,"555-0303",None]})
+cust2["phone"] = cust2["phone"].fillna("Not Provided")
+show("Q13 Fill missing phone", cust2)
+
+# Q14 above category average (transform)
+prod2 = pd.DataFrame({
+    "product_name":["Laptop","Mouse","Monitor","Desk","Chair"],
+    "category":["Electronics","Electronics","Electronics","Furniture","Furniture"],
+    "price":[800,20,300,150,90]
+})
+prod2["cat_avg"] = prod2.groupby("category")["price"].transform("mean")
+result14 = prod2[prod2["price"] > prod2["cat_avg"]][["product_name","category","price"]].sort_values(["category","price"], ascending=[True,False]).reset_index(drop=True)
+show("Q14 Above category average", result14)
+
+# Q15 set difference: bought in Jan not Feb
+purchases = pd.DataFrame({
+    "customer_id":[1,2,3,1,4,2],
+    "purchase_month":["Jan","Jan","Jan","Feb","Jan","Feb"]
+})
+jan_customers = set(purchases[purchases["purchase_month"]=="Jan"]["customer_id"])
+feb_customers = set(purchases[purchases["purchase_month"]=="Feb"]["customer_id"])
+result15 = pd.DataFrame({"customer_id": sorted(jan_customers - feb_customers)})
+show("Q15 Bought in Jan not Feb", result15)
