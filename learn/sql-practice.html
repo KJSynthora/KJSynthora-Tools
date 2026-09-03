@@ -168,7 +168,7 @@
 <div class="topbar">
   <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL Practice</div>
   <div class="topbar-right">
-    <div class="progress-pill">Solved <b id="progressCount">0</b>/15</div>
+    <div class="progress-pill">Solved <b id="progressCount">0</b>/30</div>
     <a href="pyspark-practice.html">PySpark Practice →</a>
   </div>
 </div>
@@ -176,7 +176,7 @@
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-head">
-      <h1>15 SQL Scenarios</h1>
+      <h1>30 SQL Scenarios</h1>
       <p>Real SQLite engine, running entirely in your browser.</p>
     </div>
     <ul class="qlist" id="qlist"></ul>
@@ -700,6 +700,477 @@
       ],
       [
         4
+      ]
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Unique Buyers per Category",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "A category manager wants to know reach, not just volume. Using <b>sales_by_cat</b>, count the number of <i>distinct</i> customers who bought from each category.",
+    "schema": "\nCREATE TABLE sales_by_cat (sale_id INTEGER, category TEXT, customer_id INTEGER);\nINSERT INTO sales_by_cat VALUES\n(1,'Books',1),(2,'Books',2),(3,'Books',1),(4,'Toys',3),(5,'Toys',3),(6,'Toys',4),(7,'Toys',5);\n",
+    "starter": "SELECT category, COUNT(-- distinct customers) AS unique_buyers\nFROM sales_by_cat\n-- GROUP BY, ORDER BY\n",
+    "solution": "SELECT category, COUNT(DISTINCT customer_id) AS unique_buyers\nFROM sales_by_cat\nGROUP BY category\nORDER BY unique_buyers DESC;",
+    "hint": "COUNT(DISTINCT column) collapses repeat customers before counting \u2014 without DISTINCT you'd be counting rows, not people.",
+    "expectedCols": [
+      "category",
+      "unique_buyers"
+    ],
+    "expectedRows": [
+      [
+        "Toys",
+        3
+      ],
+      [
+        "Books",
+        2
+      ]
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Repeat Customers",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Loyalty wants to target customers who've ordered more than twice. Using <b>orders4</b>, list every customer_id with more than 2 orders, most orders first.",
+    "schema": "\nCREATE TABLE orders4 (order_id INTEGER, customer_id INTEGER);\nINSERT INTO orders4 VALUES\n(1,1),(2,1),(3,1),(4,2),(5,2),(6,3),(7,3),(8,3),(9,3),(10,4);\n",
+    "starter": "SELECT customer_id, COUNT(*) AS order_count\nFROM orders4\nGROUP BY customer_id\n-- HAVING, ORDER BY\n",
+    "solution": "SELECT customer_id, COUNT(*) AS order_count\nFROM orders4\nGROUP BY customer_id\nHAVING COUNT(*) > 2\nORDER BY order_count DESC;",
+    "hint": "HAVING filters groups after aggregation \u2014 you can't use WHERE here because COUNT(*) doesn't exist until GROUP BY has run.",
+    "expectedCols": [
+      "customer_id",
+      "order_count"
+    ],
+    "expectedRows": [
+      [
+        3,
+        4
+      ],
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Order Line Detail",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "Build a readable order report: for each line in <b>lines</b>, show the customer's name (from <b>custs</b>) and the product's name (from <b>prods</b>) alongside the quantity.",
+    "schema": "\nCREATE TABLE custs (customer_id INTEGER, customer_name TEXT);\nCREATE TABLE prods (product_id INTEGER, product_name TEXT);\nCREATE TABLE lines (line_id INTEGER, customer_id INTEGER, product_id INTEGER, qty INTEGER);\nINSERT INTO custs VALUES (1,'Reo Traders'),(2,'Blue Harbor Co');\nINSERT INTO prods VALUES (10,'Steel Bolt'),(20,'Rubber Gasket');\nINSERT INTO lines VALUES (1,1,10,100),(2,1,20,50),(3,2,10,30);\n",
+    "starter": "SELECT c.customer_name, p.product_name, l.qty\nFROM lines l\nJOIN custs c ON -- \nJOIN prods p ON -- \nORDER BY l.line_id;\n",
+    "solution": "SELECT c.customer_name, p.product_name, l.qty\nFROM lines l\nJOIN custs c ON l.customer_id = c.customer_id\nJOIN prods p ON l.product_id = p.product_id\nORDER BY l.line_id;",
+    "hint": "Chain two JOINs off the central fact table (lines), one to each lookup table \u2014 order of the JOINs doesn't matter here.",
+    "expectedCols": [
+      "customer_name",
+      "product_name",
+      "qty"
+    ],
+    "expectedRows": [
+      [
+        "Reo Traders",
+        "Steel Bolt",
+        100
+      ],
+      [
+        "Reo Traders",
+        "Rubber Gasket",
+        50
+      ],
+      [
+        "Blue Harbor Co",
+        "Steel Bolt",
+        30
+      ]
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Tags per Project",
+    "difficulty": "Medium",
+    "topic": "String Aggregation",
+    "scenario": "Show each project in <b>project_tags</b> with all of its tags combined into one comma-separated string, tags alphabetically ordered within each project.",
+    "schema": "\nCREATE TABLE project_tags (project TEXT, tag TEXT);\nINSERT INTO project_tags VALUES\n('Atlas','python'),('Atlas','sql'),('Atlas','api'),\n('Nimbus','frontend'),('Nimbus','css');\n",
+    "starter": "SELECT project, GROUP_CONCAT(tag) AS tags\nFROM (SELECT * FROM project_tags ORDER BY project, tag)\n-- GROUP BY\n",
+    "solution": "SELECT project, GROUP_CONCAT(tag) AS tags\nFROM (SELECT * FROM project_tags ORDER BY project, tag)\nGROUP BY project;",
+    "hint": "SQLite's GROUP_CONCAT has no built-in ORDER BY clause, so pre-sort the rows in a subquery before aggregating.",
+    "expectedCols": [
+      "project",
+      "tags"
+    ],
+    "expectedRows": [
+      [
+        "Atlas",
+        "api,python,sql"
+      ],
+      [
+        "Nimbus",
+        "css,frontend"
+      ]
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Salary Quartiles",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Split employees in <b>emp_q</b> into 4 equal-ish groups by salary (quartiles), 1 being the highest earners.",
+    "schema": "\nCREATE TABLE emp_q (name TEXT, salary INTEGER);\nINSERT INTO emp_q VALUES\n('A',100),('B',95),('C',90),('D',85),('E',80),('F',75),('G',70),('H',65);\n",
+    "starter": "SELECT name, salary,\n  NTILE(4) OVER (-- order by salary desc) AS quartile\nFROM emp_q\nORDER BY quartile, salary DESC;\n",
+    "solution": "SELECT name, salary,\n  NTILE(4) OVER (ORDER BY salary DESC) AS quartile\nFROM emp_q\nORDER BY quartile, salary DESC;",
+    "hint": "NTILE(4) slices the ordered rows into 4 roughly equal buckets numbered 1 through 4 in order.",
+    "expectedCols": [
+      "name",
+      "salary",
+      "quartile"
+    ],
+    "expectedRows": [
+      [
+        "A",
+        100,
+        1
+      ],
+      [
+        "B",
+        95,
+        1
+      ],
+      [
+        "C",
+        90,
+        2
+      ],
+      [
+        "D",
+        85,
+        2
+      ],
+      [
+        "E",
+        80,
+        3
+      ],
+      [
+        "F",
+        75,
+        3
+      ],
+      [
+        "G",
+        70,
+        4
+      ],
+      [
+        "H",
+        65,
+        4
+      ]
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Second Highest Salary",
+    "difficulty": "Medium",
+    "topic": "Subqueries",
+    "scenario": "Payroll wants the single second-highest salary in <b>emp_r</b> (not tied to a specific person) \u2014 handle it so it still returns a sensible answer if the top salary is duplicated.",
+    "schema": "\nCREATE TABLE emp_r (name TEXT, salary INTEGER);\nINSERT INTO emp_r VALUES ('A',100),('B',100),('C',90),('D',80);\n",
+    "starter": "SELECT MAX(salary) AS second_highest\nFROM emp_r\nWHERE salary < (-- subquery for the max salary)\n",
+    "solution": "SELECT MAX(salary) AS second_highest\nFROM emp_r\nWHERE salary < (SELECT MAX(salary) FROM emp_r);",
+    "hint": "Find every salary strictly less than the overall max, then take the max of what's left \u2014 that skips duplicate top salaries cleanly.",
+    "expectedCols": [
+      "second_highest"
+    ],
+    "expectedRows": [
+      [
+        90
+      ]
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Monthly Active Users",
+    "difficulty": "Medium",
+    "topic": "Date Functions",
+    "scenario": "Count how many distinct users were active in each calendar month, using <b>activity</b> (user_id, event_date).",
+    "schema": "\nCREATE TABLE activity (user_id INTEGER, event_date TEXT);\nINSERT INTO activity VALUES\n(1,'2024-01-05'),(2,'2024-01-20'),(1,'2024-01-28'),\n(1,'2024-02-02'),(3,'2024-02-15'),(2,'2024-02-18');\n",
+    "starter": "SELECT STRFTIME('%Y-%m', event_date) AS month, COUNT(-- distinct users) AS active_users\nFROM activity\n-- GROUP BY, ORDER BY\n",
+    "solution": "SELECT STRFTIME('%Y-%m', event_date) AS month, COUNT(DISTINCT user_id) AS active_users\nFROM activity\nGROUP BY month\nORDER BY month;",
+    "hint": "STRFTIME('%Y-%m', date_col) truncates a date down to its year-month, which becomes a natural GROUP BY key.",
+    "expectedCols": [
+      "month",
+      "active_users"
+    ],
+    "expectedRows": [
+      [
+        "2024-01",
+        2
+      ],
+      [
+        "2024-02",
+        3
+      ]
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Highest Earner per Department",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Alongside every employee row in <b>emp_fv</b>, show the name of the top earner in that same department (without filtering any rows out).",
+    "schema": "\nCREATE TABLE emp_fv (name TEXT, department TEXT, salary INTEGER);\nINSERT INTO emp_fv VALUES\n('Ann','Eng',95000),('Bud','Eng',80000),('Cid','Eng',70000),\n('Dee','Sales',60000),('Eve','Sales',75000);\n",
+    "starter": "SELECT name, department, salary,\n  FIRST_VALUE(name) OVER (-- partition by department, order by salary desc, full partition frame) AS top_earner\nFROM emp_fv\nORDER BY department, salary DESC;\n",
+    "solution": "SELECT name, department, salary,\n  FIRST_VALUE(name) OVER (\n    PARTITION BY department ORDER BY salary DESC\n    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\n  ) AS top_earner\nFROM emp_fv\nORDER BY department, salary DESC;",
+    "hint": "FIRST_VALUE needs a frame covering the whole partition (UNBOUNDED PRECEDING TO UNBOUNDED FOLLOWING), otherwise it only sees rows up to the current one.",
+    "expectedCols": [
+      "name",
+      "department",
+      "salary",
+      "top_earner"
+    ],
+    "expectedRows": [
+      [
+        "Ann",
+        "Eng",
+        95000,
+        "Ann"
+      ],
+      [
+        "Bud",
+        "Eng",
+        80000,
+        "Ann"
+      ],
+      [
+        "Cid",
+        "Eng",
+        70000,
+        "Ann"
+      ],
+      [
+        "Eve",
+        "Sales",
+        75000,
+        "Eve"
+      ],
+      [
+        "Dee",
+        "Sales",
+        60000,
+        "Eve"
+      ]
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Longest Login Streak",
+    "difficulty": "Hard",
+    "topic": "Gaps & Islands",
+    "scenario": "For a single user in <b>logins</b> (one row per day they logged in), find the length of their longest run of consecutive days.",
+    "schema": "\nCREATE TABLE logins (login_date TEXT);\nINSERT INTO logins VALUES\n('2024-01-01'),('2024-01-02'),('2024-01-03'),\n('2024-01-05'),\n('2024-01-07'),('2024-01-08'),('2024-01-09'),('2024-01-10');\n",
+    "starter": "WITH numbered AS (\n  SELECT login_date,\n    ROW_NUMBER() OVER (ORDER BY login_date) AS rn\n  FROM logins\n),\nislands AS (\n  SELECT login_date, DATE(login_date, -- subtract rn days) AS island_key\n  FROM numbered\n)\nSELECT COUNT(*) AS streak_length\nFROM islands\nGROUP BY island_key\nORDER BY streak_length DESC\nLIMIT 1;\n",
+    "solution": "WITH numbered AS (\n  SELECT login_date,\n    ROW_NUMBER() OVER (ORDER BY login_date) AS rn\n  FROM logins\n),\nislands AS (\n  SELECT login_date, DATE(login_date, '-' || rn || ' days') AS island_key\n  FROM numbered\n)\nSELECT COUNT(*) AS streak_length\nFROM islands\nGROUP BY island_key\nORDER BY streak_length DESC\nLIMIT 1;",
+    "hint": "Subtracting a running row number from each date collapses every consecutive run onto the same constant 'island_key' \u2014 then it's just a GROUP BY + COUNT.",
+    "expectedCols": [
+      "streak_length"
+    ],
+    "expectedRows": [
+      [
+        4
+      ]
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Revenue by Quarter, Pivoted",
+    "difficulty": "Hard",
+    "topic": "Conditional Aggregation",
+    "scenario": "Turn long-format <b>rev_rows</b> (month, revenue) into one summary row showing Q1 and Q2 revenue as separate columns.",
+    "schema": "\nCREATE TABLE rev_rows (month TEXT, revenue INTEGER);\nINSERT INTO rev_rows VALUES\n('2024-01',100),('2024-02',120),('2024-03',90),\n('2024-04',150),('2024-05',130),('2024-06',140);\n",
+    "starter": "SELECT\n  SUM(CASE WHEN month IN ('2024-01','2024-02','2024-03') THEN revenue END) AS q1_revenue,\n  -- add a similar SUM for Q2 (04, 05, 06)\nFROM rev_rows;\n",
+    "solution": "SELECT\n  SUM(CASE WHEN month IN ('2024-01','2024-02','2024-03') THEN revenue END) AS q1_revenue,\n  SUM(CASE WHEN month IN ('2024-04','2024-05','2024-06') THEN revenue END) AS q2_revenue\nFROM rev_rows;",
+    "hint": "A CASE inside SUM turns rows into columns: only matching rows contribute a number, everything else contributes NULL (ignored by SUM).",
+    "expectedCols": [
+      "q1_revenue",
+      "q2_revenue"
+    ],
+    "expectedRows": [
+      [
+        310,
+        420
+      ]
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Shipping Cost Tiers",
+    "difficulty": "Medium",
+    "topic": "CASE Expressions",
+    "scenario": "Shipping cost in <b>parcels</b> depends on both weight and whether it's an express order. Compute a shipping_cost: express parcels are a flat 20; standard parcels are 5 if weight \u2264 2, else 10.",
+    "schema": "\nCREATE TABLE parcels (parcel_id INTEGER, weight REAL, is_express INTEGER);\nINSERT INTO parcels VALUES (1,1.5,0),(2,3.0,0),(3,1.0,1),(4,5.0,1);\n",
+    "starter": "SELECT parcel_id, weight, is_express,\n  CASE\n    WHEN is_express = 1 THEN 20\n    -- handle the two standard-shipping cases\n  END AS shipping_cost\nFROM parcels\nORDER BY parcel_id;\n",
+    "solution": "SELECT parcel_id, weight, is_express,\n  CASE\n    WHEN is_express = 1 THEN 20\n    WHEN is_express = 0 AND weight <= 2 THEN 5\n    ELSE 10\n  END AS shipping_cost\nFROM parcels\nORDER BY parcel_id;",
+    "hint": "Check the express flag first since it overrides everything else, then branch on weight only for the remaining standard parcels.",
+    "expectedCols": [
+      "parcel_id",
+      "weight",
+      "is_express",
+      "shipping_cost"
+    ],
+    "expectedRows": [
+      [
+        1,
+        1.5,
+        0,
+        5
+      ],
+      [
+        2,
+        3.0,
+        0,
+        10
+      ],
+      [
+        3,
+        1.0,
+        1,
+        20
+      ],
+      [
+        4,
+        5.0,
+        1,
+        20
+      ]
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Org Chart Levels",
+    "difficulty": "Hard",
+    "topic": "Recursive CTEs",
+    "scenario": "Using the self-referencing <b>org</b> table (manager_id points to another emp_id, top boss has NULL manager_id), compute each employee's depth in the hierarchy \u2014 the top boss is level 1.",
+    "schema": "\nCREATE TABLE org (emp_id INTEGER, name TEXT, manager_id INTEGER);\nINSERT INTO org VALUES\n(1,'CEO',NULL),(2,'VP Eng',1),(3,'VP Sales',1),(4,'Eng Mgr',2),(5,'Engineer',4);\n",
+    "starter": "WITH RECURSIVE chart AS (\n  SELECT emp_id, name, manager_id, 1 AS level\n  FROM org WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.emp_id, o.name, o.manager_id, c.level + 1\n  FROM org o\n  JOIN chart c ON -- \n)\nSELECT name, level FROM chart ORDER BY level, name;\n",
+    "solution": "WITH RECURSIVE chart AS (\n  SELECT emp_id, name, manager_id, 1 AS level\n  FROM org WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.emp_id, o.name, o.manager_id, c.level + 1\n  FROM org o\n  JOIN chart c ON o.manager_id = c.emp_id\n)\nSELECT name, level FROM chart ORDER BY level, name;",
+    "hint": "The anchor member picks the row(s) with no manager at level 1; the recursive member joins org back onto the growing result one level at a time.",
+    "expectedCols": [
+      "name",
+      "level"
+    ],
+    "expectedRows": [
+      [
+        "CEO",
+        1
+      ],
+      [
+        "VP Eng",
+        2
+      ],
+      [
+        "VP Sales",
+        2
+      ],
+      [
+        "Eng Mgr",
+        3
+      ],
+      [
+        "Engineer",
+        4
+      ]
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Overloaded Managers",
+    "difficulty": "Medium",
+    "topic": "Self Joins",
+    "scenario": "Find every manager in <b>org2</b> who has more than 1 direct report, along with how many they have.",
+    "schema": "\nCREATE TABLE org2 (emp_id INTEGER, name TEXT, manager_id INTEGER);\nINSERT INTO org2 VALUES\n(1,'CEO',NULL),(2,'Ann',1),(3,'Bud',1),(4,'Cid',1),(5,'Dee',2);\n",
+    "starter": "SELECT m.name AS manager, COUNT(e.emp_id) AS direct_reports\nFROM org2 e\nJOIN org2 m ON e.manager_id = m.emp_id\nGROUP BY m.name\n-- HAVING\n",
+    "solution": "SELECT m.name AS manager, COUNT(e.emp_id) AS direct_reports\nFROM org2 e\nJOIN org2 m ON e.manager_id = m.emp_id\nGROUP BY m.name\nHAVING COUNT(e.emp_id) > 1\nORDER BY direct_reports DESC;",
+    "hint": "Self-join employees to their managers first (this naturally drops the top boss, who has no manager), then GROUP BY manager and filter with HAVING.",
+    "expectedCols": [
+      "manager",
+      "direct_reports"
+    ],
+    "expectedRows": [
+      [
+        "CEO",
+        3
+      ]
+    ]
+  },
+  {
+    "id": 29,
+    "title": "Reconcile Two Lists",
+    "difficulty": "Hard",
+    "topic": "Set Operations",
+    "scenario": "Compare <b>list_a</b> and <b>list_b</b> of customer_ids and show every id from either list, plus which list(s) it appeared in. SQLite has no FULL OUTER JOIN, so build it from two LEFT JOINs.",
+    "schema": "\nCREATE TABLE list_a (customer_id INTEGER);\nCREATE TABLE list_b (customer_id INTEGER);\nINSERT INTO list_a VALUES (1),(2),(3);\nINSERT INTO list_b VALUES (2),(3),(4);\n",
+    "starter": "SELECT COALESCE(a.customer_id, b.customer_id) AS customer_id,\n  CASE WHEN a.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_a,\n  CASE WHEN b.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_b\nFROM list_a a\nLEFT JOIN list_b b ON a.customer_id = b.customer_id\nUNION\n-- mirror query starting from list_b LEFT JOIN list_a\n",
+    "solution": "SELECT COALESCE(a.customer_id, b.customer_id) AS customer_id,\n  CASE WHEN a.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_a,\n  CASE WHEN b.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_b\nFROM list_a a\nLEFT JOIN list_b b ON a.customer_id = b.customer_id\nUNION\nSELECT COALESCE(a.customer_id, b.customer_id) AS customer_id,\n  CASE WHEN a.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_a,\n  CASE WHEN b.customer_id IS NOT NULL THEN 'yes' ELSE 'no' END AS in_b\nFROM list_b b\nLEFT JOIN list_a a ON a.customer_id = b.customer_id\nORDER BY customer_id;",
+    "hint": "A LEFT JOIN A\u2192B catches everything in A (plus matches); a LEFT JOIN B\u2192A catches everything in B. UNION them and dedupe the overlap.",
+    "expectedCols": [
+      "customer_id",
+      "in_a",
+      "in_b"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "yes",
+        "no"
+      ],
+      [
+        2,
+        "yes",
+        "yes"
+      ],
+      [
+        3,
+        "yes",
+        "yes"
+      ],
+      [
+        4,
+        "no",
+        "yes"
+      ]
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Each Order's Share of Revenue",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Show what percentage of total revenue each order in <b>orders5</b> represents.",
+    "schema": "\nCREATE TABLE orders5 (order_id INTEGER, amount REAL);\nINSERT INTO orders5 VALUES (1,100),(2,300),(3,600);\n",
+    "starter": "SELECT order_id, amount,\n  ROUND(amount * 100.0 / SUM(amount) OVER (), 2) AS pct_of_total\nFROM orders5\n-- ORDER BY\n",
+    "solution": "SELECT order_id, amount,\n  ROUND(amount * 100.0 / SUM(amount) OVER (), 2) AS pct_of_total\nFROM orders5\nORDER BY order_id;",
+    "hint": "SUM(amount) OVER () with empty parentheses \u2014 no PARTITION, no ORDER BY \u2014 gives you the grand total repeated on every row.",
+    "expectedCols": [
+      "order_id",
+      "amount",
+      "pct_of_total"
+    ],
+    "expectedRows": [
+      [
+        1,
+        100.0,
+        10.0
+      ],
+      [
+        2,
+        300.0,
+        30.0
+      ],
+      [
+        3,
+        600.0,
+        60.0
       ]
     ]
   }
