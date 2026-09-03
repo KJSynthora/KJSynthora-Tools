@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Practice — Run Real Queries in Your Browser | KJSynthora</title>
+<meta name="description" content="15 scenario-based SQL practice questions with a real in-browser SQL editor. Write, run, and check your queries instantly — no signup, no server.">
+<style>
+  :root{
+    --bg:#0a0e14;
+    --panel:#10151d;
+    --panel-alt:#151b25;
+    --border:#232b38;
+    --border-soft:#1a212c;
+    --text:#dce3ea;
+    --text-muted:#8391a3;
+    --text-dim:#5b6779;
+    --accent:#5b9dff;
+    --accent-dim:#2c5c9e;
+    --good:#3fd67a;
+    --good-dim:#173829;
+    --bad:#ff6b6b;
+    --bad-dim:#3a1e20;
+    --amber:#f5a623;
+    --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --radius: 6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.55;
+    min-height:100vh;
+  }
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code, .mono{font-family:var(--mono);}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px;
+    border-bottom:1px solid var(--border);
+    background:var(--panel);
+    position:sticky; top:0; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; color:var(--text);}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right{display:flex; align-items:center; gap:18px; font-size:13.5px;}
+  .topbar-right a{color:var(--text-muted);}
+  .topbar-right a:hover{color:var(--text);}
+  .progress-pill{
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel-alt); border:1px solid var(--border);
+    padding:5px 12px; border-radius:999px; font-size:12.5px; color:var(--text-muted);
+  }
+  .progress-pill b{color:var(--good); font-weight:600;}
+
+  /* ---------- layout ---------- */
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 57px);}
+  .sidebar{
+    width:300px; flex-shrink:0;
+    border-right:1px solid var(--border);
+    padding:18px 0 40px;
+    background:var(--panel);
+  }
+  .sidebar-head{padding:0 18px 14px; border-bottom:1px solid var(--border-soft); margin-bottom:8px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px; font-weight:600;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .qlist{list-style:none; margin:0; padding:6px 10px;}
+  .qlist li{margin-bottom:2px;}
+  .qbtn{
+    width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    color:var(--text-muted); padding:9px 10px; border-radius:var(--radius);
+    display:flex; align-items:center; gap:9px; font-size:13.5px; font-family:var(--sans);
+  }
+  .qbtn:hover{background:var(--panel-alt); color:var(--text);}
+  .qbtn.active{background:var(--panel-alt); color:var(--text); box-shadow: inset 2px 0 0 var(--accent);}
+  .qnum{
+    width:20px; height:20px; border-radius:5px; background:var(--border-soft);
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-dim);
+    flex-shrink:0; font-family:var(--mono);
+  }
+  .qbtn.done .qnum{background:var(--good-dim); color:var(--good);}
+  .qtitle{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .qdiff{font-size:10px; padding:2px 6px; border-radius:4px; flex-shrink:0; font-family:var(--mono);}
+  .diff-Easy{color:var(--good); background:var(--good-dim);}
+  .diff-Medium{color:var(--amber); background:#3a2c10;}
+  .diff-Hard{color:var(--bad); background:var(--bad-dim);}
+
+  /* ---------- main ---------- */
+  .main{flex:1; min-width:0; padding:28px 34px 60px;}
+  .qhead{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:6px;}
+  .qhead h2{font-size:21px; margin:0; font-weight:600;}
+  .qmeta{display:flex; gap:8px; align-items:center; flex-shrink:0;}
+  .tag{font-size:11.5px; padding:3px 9px; border-radius:999px; border:1px solid var(--border); color:var(--text-muted); font-family:var(--mono);}
+  .scenario{color:var(--text-muted); font-size:14.5px; margin:10px 0 24px; max-width:78ch;}
+  .scenario b{color:var(--text); font-weight:600;}
+
+  .section-label{font-size:12px; text-transform:none; color:var(--text-dim); margin:0 0 10px; font-weight:600; letter-spacing:0.2px;}
+
+  .tables-row{display:flex; gap:18px; flex-wrap:wrap; margin-bottom:26px;}
+  .table-card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; min-width:220px;}
+  .table-card .tname{padding:8px 12px; font-family:var(--mono); font-size:12.5px; color:var(--accent); border-bottom:1px solid var(--border-soft); background:var(--panel-alt);}
+  table.data{border-collapse:collapse; width:100%; font-size:12.5px;}
+  table.data th{text-align:left; padding:6px 12px; color:var(--text-dim); font-weight:500; border-bottom:1px solid var(--border-soft); font-family:var(--mono); white-space:nowrap;}
+  table.data td{padding:6px 12px; color:var(--text-muted); border-bottom:1px solid var(--border-soft); font-family:var(--mono); white-space:nowrap;}
+  table.data tr:last-child td{border-bottom:none;}
+
+  .editor-wrap{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .editor-bar{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-soft); background:var(--panel-alt);}
+  .editor-bar span{font-size:12px; color:var(--text-dim); font-family:var(--mono);}
+  textarea.editor{
+    width:100%; min-height:150px; resize:vertical; border:none; outline:none;
+    background:var(--panel); color:#c9e0ff; font-family:var(--mono); font-size:13.5px;
+    padding:14px; line-height:1.6; tab-size:2;
+  }
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;}
+  .btn{
+    font-family:var(--sans); font-size:13.5px; font-weight:500; padding:9px 16px; border-radius:var(--radius);
+    border:1px solid var(--border); background:var(--panel-alt); color:var(--text); cursor:pointer;
+  }
+  .btn:hover{border-color:var(--text-dim);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#04101f; font-weight:600;}
+  .btn.primary:hover{background:#79b0ff;}
+  .btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+  .output{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px; min-height:60px; margin-bottom:16px;}
+  .output.empty{color:var(--text-dim); font-size:13.5px;}
+  .verdict{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; margin-bottom:12px;}
+  .verdict.good{color:var(--good);}
+  .verdict.bad{color:var(--bad);}
+  .err{color:var(--bad); font-family:var(--mono); font-size:13px; white-space:pre-wrap;}
+
+  details.reveal{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px;}
+  details.reveal summary{padding:12px 16px; cursor:pointer; font-size:13.5px; color:var(--text-muted); list-style:none; display:flex; align-items:center; gap:8px;}
+  details.reveal summary::-webkit-details-marker{display:none;}
+  details.reveal summary:before{content:'▸'; color:var(--text-dim); transition:transform .15s;}
+  details.reveal[open] summary:before{transform:rotate(90deg);}
+  details.reveal .reveal-body{padding:0 16px 16px; color:var(--text-muted); font-size:13.5px;}
+  details.reveal pre{background:var(--bg); border:1px solid var(--border-soft); border-radius:5px; padding:12px; overflow-x:auto; font-family:var(--mono); font-size:13px; color:#c9e0ff;}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:30px; padding-top:20px; border-top:1px solid var(--border-soft);}
+
+  .loading-banner{
+    display:flex; align-items:center; gap:10px; background:var(--panel-alt); border:1px solid var(--border);
+    padding:10px 16px; border-radius:var(--radius); font-size:13px; color:var(--text-muted); margin-bottom:18px;
+  }
+  .spinner{width:13px;height:13px;border-radius:50%;border:2px solid var(--border-soft); border-top-color:var(--accent); animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%; border-right:none; border-bottom:1px solid var(--border); padding:12px 0;}
+    .qlist{display:flex; overflow-x:auto; gap:6px; padding:0 12px;}
+    .qlist li{margin:0; flex-shrink:0;}
+    .qbtn{white-space:nowrap;}
+    .main{padding:22px 16px 50px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL Practice</div>
+  <div class="topbar-right">
+    <div class="progress-pill">Solved <b id="progressCount">0</b>/15</div>
+    <a href="pyspark-practice.html">PySpark Practice →</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>15 SQL Scenarios</h1>
+      <p>Real SQLite engine, running entirely in your browser.</p>
+    </div>
+    <ul class="qlist" id="qlist"></ul>
+  </nav>
+
+  <main class="main" id="main">
+    <div class="loading-banner" id="loadingBanner">
+      <span class="spinner"></span> Starting the in-browser SQL engine…
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script id="sql-questions-data" type="application/json">[
+  {
+    "id": 1,
+    "title": "Orders Over the Threshold",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "A regional sales lead wants to know which regions are pulling their weight. You're given an <b>orders</b> table. Find every region whose combined order amount exceeds 500, and list the busiest region first.",
+    "schema": "\nCREATE TABLE orders (order_id INTEGER, region TEXT, amount REAL);\nINSERT INTO orders VALUES\n(1,'North',200),(2,'North',150),(3,'North',180),\n(4,'South',400),(5,'South',50),\n(6,'East',600),(7,'East',100),\n(8,'West',90),(9,'West',80);\n",
+    "starter": "SELECT region, SUM(amount) AS total_amount\nFROM orders\n-- add GROUP BY, HAVING and ORDER BY\n",
+    "solution": "SELECT region, SUM(amount) AS total_amount\nFROM orders\nGROUP BY region\nHAVING SUM(amount) > 500\nORDER BY total_amount DESC;",
+    "hint": "GROUP BY comes before HAVING; HAVING filters on the aggregated SUM, not the raw amount.",
+    "expectedCols": [
+      "region",
+      "total_amount"
+    ],
+    "expectedRows": [
+      [
+        "East",
+        700.0
+      ],
+      [
+        "North",
+        530.0
+      ]
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Salary Bands",
+    "difficulty": "Easy",
+    "topic": "CASE Expressions",
+    "scenario": "HR wants a quick headcount by pay band. Using the <b>employees</b> table, bucket each person into 'Junior' (&lt;50000), 'Mid' (50000\u201390000 inclusive) or 'Senior' (&gt;90000), then count how many fall into each band, busiest band first.",
+    "schema": "\nCREATE TABLE employees (emp_id INTEGER, name TEXT, salary INTEGER);\nINSERT INTO employees VALUES\n(1,'Ana',42000),(2,'Ben',55000),(3,'Cara',91000),(4,'Dev',48000),\n(5,'Eli',67000),(6,'Fay',120000),(7,'Gus',89000),(8,'Hana',31000);\n",
+    "starter": "WITH banded AS (\n  SELECT emp_id,\n    CASE\n      -- fill in the WHEN branches\n    END AS band\n  FROM employees\n)\nSELECT band, COUNT(*) AS no_of_employees\nFROM banded\n-- GROUP BY + ORDER BY\n",
+    "solution": "WITH banded AS (\n  SELECT emp_id,\n    CASE\n      WHEN salary < 50000 THEN 'Junior'\n      WHEN salary BETWEEN 50000 AND 90000 THEN 'Mid'\n      ELSE 'Senior'\n    END AS band\n  FROM employees\n)\nSELECT band, COUNT(*) AS no_of_employees\nFROM banded\nGROUP BY band\nORDER BY no_of_employees DESC;",
+    "hint": "CASE evaluates WHEN branches top to bottom \u2014 put the tightest condition first, and let ELSE catch 'Senior'.",
+    "expectedCols": [
+      "band",
+      "no_of_employees"
+    ],
+    "expectedRows": [
+      [
+        "Mid",
+        3
+      ],
+      [
+        "Junior",
+        3
+      ],
+      [
+        "Senior",
+        2
+      ]
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Customers Without Orders",
+    "difficulty": "Easy",
+    "topic": "Joins",
+    "scenario": "Marketing wants a win-back list. Find every customer in <b>customers</b> who has never placed a row in <b>orders</b>.",
+    "schema": "\nCREATE TABLE customers (customer_id INTEGER, name TEXT);\nCREATE TABLE orders2 (order_id INTEGER, customer_id INTEGER, amount REAL);\nINSERT INTO customers VALUES (1,'Nina'),(2,'Omar'),(3,'Priya'),(4,'Quinn');\nINSERT INTO orders2 VALUES (1,1,100),(2,1,50),(3,3,200);\n",
+    "starter": "SELECT c.customer_id, c.name\nFROM customers c\nLEFT JOIN orders2 o ON c.customer_id = o.customer_id\n-- filter for the customers with no matching order\n",
+    "solution": "SELECT c.customer_id, c.name\nFROM customers c\nLEFT JOIN orders2 o ON c.customer_id = o.customer_id\nWHERE o.order_id IS NULL\nORDER BY c.customer_id;",
+    "hint": "A LEFT JOIN keeps every customer row; unmatched ones get NULLs on the orders side. Filter where the order's key IS NULL.",
+    "expectedCols": [
+      "customer_id",
+      "name"
+    ],
+    "expectedRows": [
+      [
+        2,
+        "Omar"
+      ],
+      [
+        4,
+        "Quinn"
+      ]
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Top Selling Products",
+    "difficulty": "Medium",
+    "topic": "Joins & Aggregation",
+    "scenario": "Finance wants the 3 products generating the most revenue. <b>order_items</b> stores quantity and unit_price per line; join it to <b>products</b> and rank by total revenue (quantity \u00d7 unit_price).",
+    "schema": "\nCREATE TABLE products (product_id INTEGER, product_name TEXT);\nCREATE TABLE order_items (order_item_id INTEGER, product_id INTEGER, quantity INTEGER, unit_price REAL);\nINSERT INTO products VALUES (1,'Notebook'),(2,'Pen'),(3,'Backpack'),(4,'Desk Lamp');\nINSERT INTO order_items VALUES\n(1,1,10,5), (2,1,5,5), (3,2,50,1), (4,3,4,60), (5,4,3,25),(6,3,2,60);\n",
+    "starter": "SELECT p.product_name, SUM(oi.quantity * oi.unit_price) AS revenue\nFROM order_items oi\nJOIN products p ON p.product_id = oi.product_id\n-- GROUP BY, ORDER BY, LIMIT\n",
+    "solution": "SELECT p.product_name, SUM(oi.quantity * oi.unit_price) AS revenue\nFROM order_items oi\nJOIN products p ON p.product_id = oi.product_id\nGROUP BY p.product_name\nORDER BY revenue DESC\nLIMIT 3;",
+    "hint": "Compute revenue per line first (quantity * unit_price) inside SUM, then GROUP BY product before sorting.",
+    "expectedCols": [
+      "product_name",
+      "revenue"
+    ],
+    "expectedRows": [
+      [
+        "Backpack",
+        360.0
+      ],
+      [
+        "Notebook",
+        75.0
+      ],
+      [
+        "Desk Lamp",
+        75.0
+      ]
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Out-Earning the Boss",
+    "difficulty": "Medium",
+    "topic": "Self Joins",
+    "scenario": "A comp-review flagged some employees whose pay exceeds their own manager's. Using the self-referencing <b>emp2</b> table (manager_id points to another emp_id), list every employee/manager pair where this happens.",
+    "schema": "\nCREATE TABLE emp2 (emp_id INTEGER, name TEXT, salary INTEGER, manager_id INTEGER);\nINSERT INTO emp2 VALUES\n(1,'Rex',90000,NULL),\n(2,'Sam',95000,1),\n(3,'Tia',70000,1),\n(4,'Uma',120000,2),\n(5,'Vik',60000,3);\n",
+    "starter": "SELECT e.name AS employee, e.salary AS employee_salary, m.name AS manager, m.salary AS manager_salary\nFROM emp2 e\nJOIN emp2 m ON e.manager_id = m.emp_id\n-- filter for employee_salary > manager_salary\n",
+    "solution": "SELECT e.name AS employee, e.salary AS employee_salary, m.name AS manager, m.salary AS manager_salary\nFROM emp2 e\nJOIN emp2 m ON e.manager_id = m.emp_id\nWHERE e.salary > m.salary;",
+    "hint": "Join the table to itself: alias it once as the employee side, once as the manager side, matching manager_id to emp_id.",
+    "expectedCols": [
+      "employee",
+      "employee_salary",
+      "manager",
+      "manager_salary"
+    ],
+    "expectedRows": [
+      [
+        "Sam",
+        95000,
+        "Rex",
+        90000
+      ],
+      [
+        "Uma",
+        120000,
+        "Sam",
+        95000
+      ]
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Class Rankings",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "A teacher wants each student ranked by score within their own class, with ties sharing the same rank. Use <b>students</b> (student_id, name, class, score).",
+    "schema": "\nCREATE TABLE students (student_id INTEGER, name TEXT, class TEXT, score INTEGER);\nINSERT INTO students VALUES\n(1,'Amy','A',88),(2,'Bo','A',95),(3,'Cy','A',95),\n(4,'Dee','B',70),(5,'Eva','B',82),(6,'Fin','B',82);\n",
+    "starter": "SELECT name, class, score,\n  RANK() OVER (-- partition and order) AS class_rank\nFROM students\n-- ORDER BY class, class_rank\n",
+    "solution": "SELECT name, class, score,\n  RANK() OVER (PARTITION BY class ORDER BY score DESC) AS class_rank\nFROM students\nORDER BY class, class_rank;",
+    "hint": "PARTITION BY resets the ranking for each class; RANK() (not ROW_NUMBER) lets tied scores share a rank and skips the next one.",
+    "expectedCols": [
+      "name",
+      "class",
+      "score",
+      "class_rank"
+    ],
+    "expectedRows": [
+      [
+        "Bo",
+        "A",
+        95,
+        1
+      ],
+      [
+        "Cy",
+        "A",
+        95,
+        1
+      ],
+      [
+        "Amy",
+        "A",
+        88,
+        3
+      ],
+      [
+        "Eva",
+        "B",
+        82,
+        1
+      ],
+      [
+        "Fin",
+        "B",
+        82,
+        1
+      ],
+      [
+        "Dee",
+        "B",
+        70,
+        3
+      ]
+    ]
+  },
+  {
+    "id": 7,
+    "title": "One Row Per Email",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Duplicate signups crept into <b>users</b> (same email, multiple signup_date rows). Keep only the most recent signup per email.",
+    "schema": "\nCREATE TABLE users (user_id INTEGER, email TEXT, signup_date TEXT);\nINSERT INTO users VALUES\n(1,'a@x.com','2024-01-01'),\n(2,'a@x.com','2024-03-05'),\n(3,'b@x.com','2024-02-10'),\n(4,'c@x.com','2024-01-20'),\n(5,'c@x.com','2023-12-01');\n",
+    "starter": "WITH ranked AS (\n  SELECT user_id, email, signup_date,\n    ROW_NUMBER() OVER (-- partition by email, order to put latest first) AS rn\n  FROM users\n)\nSELECT user_id, email, signup_date FROM ranked -- keep rn = 1\n",
+    "solution": "WITH ranked AS (\n  SELECT user_id, email, signup_date,\n    ROW_NUMBER() OVER (PARTITION BY email ORDER BY signup_date DESC) AS rn\n  FROM users\n)\nSELECT user_id, email, signup_date\nFROM ranked\nWHERE rn = 1\nORDER BY email;",
+    "hint": "ROW_NUMBER() PARTITION BY email, ORDER BY signup_date DESC gives the newest row rn = 1 within each email group.",
+    "expectedCols": [
+      "user_id",
+      "email",
+      "signup_date"
+    ],
+    "expectedRows": [
+      [
+        2,
+        "a@x.com",
+        "2024-03-05"
+      ],
+      [
+        3,
+        "b@x.com",
+        "2024-02-10"
+      ],
+      [
+        4,
+        "c@x.com",
+        "2024-01-20"
+      ]
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Running Revenue Total",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Show a cumulative revenue column alongside each month's own revenue in <b>monthly_sales</b>, so leadership can see the running total build up.",
+    "schema": "\nCREATE TABLE monthly_sales (month TEXT, revenue INTEGER);\nINSERT INTO monthly_sales VALUES\n('2024-01',1000),('2024-02',1500),('2024-03',900),('2024-04',2000);\n",
+    "starter": "SELECT month, revenue,\n  SUM(revenue) OVER (-- order by month) AS cumulative_revenue\nFROM monthly_sales\nORDER BY month;\n",
+    "solution": "SELECT month, revenue,\n  SUM(revenue) OVER (ORDER BY month) AS cumulative_revenue\nFROM monthly_sales\nORDER BY month;",
+    "hint": "A window SUM with ORDER BY but no explicit frame defaults to 'running total up to the current row'.",
+    "expectedCols": [
+      "month",
+      "revenue",
+      "cumulative_revenue"
+    ],
+    "expectedRows": [
+      [
+        "2024-01",
+        1000,
+        1000
+      ],
+      [
+        "2024-02",
+        1500,
+        2500
+      ],
+      [
+        "2024-03",
+        900,
+        3400
+      ],
+      [
+        "2024-04",
+        2000,
+        5400
+      ]
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Month-over-Month Growth",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Show each month's revenue next to the prior month's, plus the percentage growth between them, for <b>monthly_sales2</b>.",
+    "schema": "\nCREATE TABLE monthly_sales2 (month TEXT, revenue INTEGER);\nINSERT INTO monthly_sales2 VALUES\n('2024-01',1000),('2024-02',1500),('2024-03',1200),('2024-04',1800);\n",
+    "starter": "SELECT month, revenue,\n  LAG(revenue) OVER (ORDER BY month) AS prev_month_revenue,\n  -- compute growth_pct from revenue and prev_month_revenue\nFROM monthly_sales2\nORDER BY month;\n",
+    "solution": "SELECT month, revenue,\n  LAG(revenue) OVER (ORDER BY month) AS prev_month_revenue,\n  ROUND( (revenue - LAG(revenue) OVER (ORDER BY month)) * 100.0 / LAG(revenue) OVER (ORDER BY month), 2) AS growth_pct\nFROM monthly_sales2\nORDER BY month;",
+    "hint": "LAG(revenue) OVER (ORDER BY month) grabs the previous row's value into the current row \u2014 then it's just arithmetic.",
+    "expectedCols": [
+      "month",
+      "revenue",
+      "prev_month_revenue",
+      "growth_pct"
+    ],
+    "expectedRows": [
+      [
+        "2024-01",
+        1000,
+        null,
+        null
+      ],
+      [
+        "2024-02",
+        1500,
+        1000,
+        50.0
+      ],
+      [
+        "2024-03",
+        1200,
+        1500,
+        -20.0
+      ],
+      [
+        "2024-04",
+        1800,
+        1200,
+        50.0
+      ]
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Top 2 Earners per Department",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Pull the top 2 highest-paid people in each department from <b>emp3</b>, keeping tied salaries together (so a department could show more than 2 rows if there's a tie for 2nd).",
+    "schema": "\nCREATE TABLE emp3 (emp_id INTEGER, name TEXT, department TEXT, salary INTEGER);\nINSERT INTO emp3 VALUES\n(1,'Ann','Eng',95000),(2,'Bud','Eng',95000),(3,'Cid','Eng',80000),(4,'Dot','Eng',70000),\n(5,'Eve','Sales',60000),(6,'Fox','Sales',75000),(7,'Gia','Sales',75000);\n",
+    "starter": "WITH ranked AS (\n  SELECT name, department, salary,\n    DENSE_RANK() OVER (-- partition by department, order by salary desc) AS rnk\n  FROM emp3\n)\nSELECT name, department, salary, rnk FROM ranked -- keep rnk <= 2\n",
+    "solution": "WITH ranked AS (\n  SELECT name, department, salary,\n    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk\n  FROM emp3\n)\nSELECT name, department, salary, rnk\nFROM ranked\nWHERE rnk <= 2\nORDER BY department, rnk;",
+    "hint": "DENSE_RANK (not RANK) keeps 'top 2' meaning 'top 2 distinct salary levels' \u2014 ties share a rank without creating a gap.",
+    "expectedCols": [
+      "name",
+      "department",
+      "salary",
+      "rnk"
+    ],
+    "expectedRows": [
+      [
+        "Ann",
+        "Eng",
+        95000,
+        1
+      ],
+      [
+        "Bud",
+        "Eng",
+        95000,
+        1
+      ],
+      [
+        "Cid",
+        "Eng",
+        80000,
+        2
+      ],
+      [
+        "Fox",
+        "Sales",
+        75000,
+        1
+      ],
+      [
+        "Gia",
+        "Sales",
+        75000,
+        1
+      ],
+      [
+        "Eve",
+        "Sales",
+        60000,
+        2
+      ]
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Extract the Email Domain",
+    "difficulty": "Easy",
+    "topic": "String Functions",
+    "scenario": "Split each address in <b>users2</b> into the part after the @ so support can see which providers customers use.",
+    "schema": "\nCREATE TABLE users2 (user_id INTEGER, email TEXT);\nINSERT INTO users2 VALUES (1,'joe@gmail.com'),(2,'liz@yahoo.co.in'),(3,'sam@company.org');\n",
+    "starter": "SELECT user_id, email,\n  -- pull everything after the '@'\nFROM users2;\n",
+    "solution": "SELECT user_id, email,\n  SUBSTR(email, INSTR(email, '@') + 1) AS domain\nFROM users2;",
+    "hint": "INSTR(email, '@') gives the position of '@'; SUBSTR from one past that position gives everything after it.",
+    "expectedCols": [
+      "user_id",
+      "email",
+      "domain"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "joe@gmail.com",
+        "gmail.com"
+      ],
+      [
+        2,
+        "liz@yahoo.co.in",
+        "yahoo.co.in"
+      ],
+      [
+        3,
+        "sam@company.org",
+        "company.org"
+      ]
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Recently Joined Users",
+    "difficulty": "Medium",
+    "topic": "Date Functions",
+    "scenario": "Relative to a reference date of 2024-06-30, find every user in <b>users3</b> who signed up within the last 30 days (inclusive).",
+    "schema": "\nCREATE TABLE users3 (user_id INTEGER, name TEXT, signup_date TEXT);\nINSERT INTO users3 VALUES\n(1,'Al','2024-06-25'),(2,'Bea','2024-05-10'),(3,'Cho','2024-06-05'),(4,'Dan','2024-04-01');\n",
+    "starter": "SELECT user_id, name, signup_date\nFROM users3\nWHERE signup_date >= DATE('2024-06-30', -- shift back 30 days\n\nORDER BY signup_date;\n",
+    "solution": "SELECT user_id, name, signup_date\nFROM users3\nWHERE signup_date >= DATE('2024-06-30', '-30 days')\nORDER BY signup_date;",
+    "hint": "SQLite's DATE() accepts a modifier string like '-30 days' as a second argument.",
+    "expectedCols": [
+      "user_id",
+      "name",
+      "signup_date"
+    ],
+    "expectedRows": [
+      [
+        3,
+        "Cho",
+        "2024-06-05"
+      ],
+      [
+        1,
+        "Al",
+        "2024-06-25"
+      ]
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Fill In Missing Phones",
+    "difficulty": "Easy",
+    "topic": "NULL Handling",
+    "scenario": "Customer service wants a clean export of <b>customers2</b> where any missing phone number reads 'Not Provided' instead of blank.",
+    "schema": "\nCREATE TABLE customers2 (customer_id INTEGER, name TEXT, phone TEXT);\nINSERT INTO customers2 VALUES (1,'Ivy','555-0101'),(2,'Jon',NULL),(3,'Kim','555-0303'),(4,'Lea',NULL);\n",
+    "starter": "SELECT customer_id, name, -- replace NULL phone with 'Not Provided'\nFROM customers2\nORDER BY customer_id;\n",
+    "solution": "SELECT customer_id, name, COALESCE(phone, 'Not Provided') AS phone\nFROM customers2\nORDER BY customer_id;",
+    "hint": "COALESCE(column, 'fallback') returns the first non-NULL value it's given.",
+    "expectedCols": [
+      "customer_id",
+      "name",
+      "phone"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "Ivy",
+        "555-0101"
+      ],
+      [
+        2,
+        "Jon",
+        "Not Provided"
+      ],
+      [
+        3,
+        "Kim",
+        "555-0303"
+      ],
+      [
+        4,
+        "Lea",
+        "Not Provided"
+      ]
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Priced Above Category Average",
+    "difficulty": "Medium",
+    "topic": "Subqueries",
+    "scenario": "Find every product in <b>products2</b> priced above the average price of its own category.",
+    "schema": "\nCREATE TABLE products2 (product_id INTEGER, product_name TEXT, category TEXT, price REAL);\nINSERT INTO products2 VALUES\n(1,'Laptop','Electronics',800),(2,'Mouse','Electronics',20),(3,'Monitor','Electronics',300),\n(4,'Desk','Furniture',150),(5,'Chair','Furniture',90);\n",
+    "starter": "SELECT p.product_name, p.category, p.price\nFROM products2 p\nJOIN (\n  -- subquery: average price per category\n) c ON p.category = c.category\nWHERE p.price > c.avg_price\nORDER BY p.category, p.price DESC;\n",
+    "solution": "SELECT p.product_name, p.category, p.price\nFROM products2 p\nJOIN (SELECT category, AVG(price) AS avg_price FROM products2 GROUP BY category) c\n  ON p.category = c.category\nWHERE p.price > c.avg_price\nORDER BY p.category, p.price DESC;",
+    "hint": "Build the category-average as its own derived table (a subquery in the FROM/JOIN clause), then join it back to the row-level data.",
+    "expectedCols": [
+      "product_name",
+      "category",
+      "price"
+    ],
+    "expectedRows": [
+      [
+        "Laptop",
+        "Electronics",
+        800.0
+      ],
+      [
+        "Desk",
+        "Furniture",
+        150.0
+      ]
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Bought in January, Not February",
+    "difficulty": "Hard",
+    "topic": "Set Operations",
+    "scenario": "Find customers in <b>purchases</b> who bought something in January but did not buy anything in February.",
+    "schema": "\nCREATE TABLE purchases (purchase_id INTEGER, customer_id INTEGER, purchase_month TEXT);\nINSERT INTO purchases VALUES\n(1,1,'Jan'),(2,2,'Jan'),(3,3,'Jan'),(4,1,'Feb'),(5,4,'Jan'),(6,2,'Feb');\n",
+    "starter": "SELECT customer_id FROM purchases WHERE purchase_month = 'Jan'\n-- combine with a set operator against the February customers\n",
+    "solution": "SELECT customer_id FROM purchases WHERE purchase_month = 'Jan'\nEXCEPT\nSELECT customer_id FROM purchases WHERE purchase_month = 'Feb'\nORDER BY customer_id;",
+    "hint": "EXCEPT returns rows from the first query that don't appear in the second \u2014 exactly a set-difference.",
+    "expectedCols": [
+      "customer_id"
+    ],
+    "expectedRows": [
+      [
+        3
+      ],
+      [
+        4
+      ]
+    ]
+  }
+]</script>
+<script>
+const QUESTIONS = JSON.parse(document.getElementById('sql-questions-data').textContent);
+const STORAGE_KEY = 'kjs_sql_practice_progress_v1';
+let SQL = null;
+let currentId = null;
+
+function getSolved(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; }
+}
+function markSolved(id){
+  const solved = getSolved();
+  solved[id] = true;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(solved));
+  renderSidebar();
+}
+function renderProgress(){
+  const solved = getSolved();
+  document.getElementById('progressCount').textContent = Object.keys(solved).length;
+}
+
+function renderSidebar(){
+  const solved = getSolved();
+  const list = document.getElementById('qlist');
+  list.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'qbtn' + (q.id === currentId ? ' active' : '') + (solved[q.id] ? ' done' : '');
+    btn.innerHTML = `<span class="qnum">${solved[q.id] ? '✓' : q.id}</span><span class="qtitle">${q.title}</span><span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>`;
+    btn.onclick = () => selectQuestion(q.id);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  renderProgress();
+}
+
+function buildDbForQuestion(q){
+  const db = new SQL.Database();
+  db.run(q.schema);
+  return db;
+}
+
+function getTableNames(db){
+  const res = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+  if(!res.length) return [];
+  return res[0].values.map(r => r[0]);
+}
+
+function renderDataTables(db){
+  const names = getTableNames(db);
+  return names.map(name => {
+    const res = db.exec(`SELECT * FROM ${name} LIMIT 25;`);
+    if(!res.length) return '';
+    const { columns, values } = res[0];
+    const head = columns.map(c => `<th>${c}</th>`).join('');
+    const rows = values.map(r => `<tr>${r.map(v => `<td>${v === null ? '<i style="color:var(--text-dim)">null</i>' : v}</td>`).join('')}</tr>`).join('');
+    return `<div class="table-card"><div class="tname">${name}</div><table class="data"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('');
+}
+
+function cellsEqual(a, b){
+  if(a === null || a === undefined) return b === null || b === undefined || b === '';
+  if(b === null || b === undefined) return false;
+  const na = Number(a), nb = Number(b);
+  if(!isNaN(na) && !isNaN(nb)) return Math.abs(na - nb) < 0.01;
+  return String(a).trim() === String(b).trim();
+}
+
+function compareResults(userValues, expectedRows){
+  if(userValues.length !== expectedRows.length) return false;
+  for(let i = 0; i < userValues.length; i++){
+    const r1 = userValues[i], r2 = expectedRows[i];
+    if(r1.length !== r2.length) return false;
+    for(let j = 0; j < r1.length; j++){
+      if(!cellsEqual(r1[j], r2[j])) return false;
+    }
+  }
+  return true;
+}
+
+function renderResultTable(columns, values){
+  if(!values.length) return '<p style="color:var(--text-dim); font-size:13px;">Query ran successfully but returned 0 rows.</p>';
+  const head = columns.map(c => `<th>${c}</th>`).join('');
+  const rows = values.map(r => `<tr>${r.map(v => `<td>${v === null ? '<i style="color:var(--text-dim)">null</i>' : v}</td>`).join('')}</tr>`).join('');
+  return `<table class="data"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function runQuery(q){
+  const editor = document.getElementById('editor');
+  const output = document.getElementById('output');
+  const db = buildDbForQuestion(q);
+  let res;
+  try{
+    res = db.exec(editor.value);
+  } catch(e){
+    output.className = 'output';
+    output.innerHTML = `<div class="verdict bad">✗ Query error</div><div class="err">${e.message}</div>`;
+    db.close();
+    return;
+  }
+  if(!res.length){
+    output.className = 'output';
+    output.innerHTML = `<div class="verdict bad">✗ No result set</div><p style="color:var(--text-muted); font-size:13.5px;">Your query ran but didn't return any rows/columns (is it a SELECT?).</p>`;
+    db.close();
+    return;
+  }
+  const { columns, values } = res[0];
+  const isMatch = compareResults(values, q.expectedRows);
+  output.className = 'output';
+  const verdictHtml = isMatch
+    ? `<div class="verdict good">✓ Correct — output matches the expected result</div>`
+    : `<div class="verdict bad">✗ Not quite — output doesn't match yet</div>`;
+  output.innerHTML = verdictHtml + renderResultTable(columns, values);
+  if(isMatch) markSolved(q.id);
+  db.close();
+}
+
+function selectQuestion(id){
+  currentId = id;
+  const q = QUESTIONS.find(x => x.id === id);
+  renderSidebar();
+
+  const db = buildDbForQuestion(q);
+  const tablesHtml = renderDataTables(db);
+  db.close();
+
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="qhead">
+      <h2>${q.id}. ${q.title}</h2>
+      <div class="qmeta">
+        <span class="tag">${q.topic}</span>
+        <span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>
+      </div>
+    </div>
+    <p class="scenario">${q.scenario}</p>
+
+    <p class="section-label">Sample data</p>
+    <div class="tables-row">${tablesHtml}</div>
+
+    <p class="section-label">Your query</p>
+    <div class="editor-wrap">
+      <div class="editor-bar"><span>query.sql</span><span>SQLite dialect</span></div>
+      <textarea class="editor" id="editor" spellcheck="false">${q.starter}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="runBtn">▶ Run query</button>
+      <button class="btn" id="resetBtn">Reset</button>
+    </div>
+
+    <p class="section-label">Output</p>
+    <div class="output empty" id="output">Run your query to see results here.</div>
+
+    <details class="reveal" id="hintBlock"><summary>Show hint</summary><div class="reveal-body">${q.hint}</div></details>
+    <details class="reveal" id="solutionBlock"><summary>Show solution</summary><div class="reveal-body"><pre>${q.solution}</pre></div></details>
+
+    <div class="nav-buttons">
+      <button class="btn" id="prevBtn">← Previous</button>
+      <button class="btn" id="nextBtn">Next →</button>
+    </div>
+  `;
+
+  document.getElementById('runBtn').onclick = () => runQuery(q);
+  document.getElementById('resetBtn').onclick = () => { document.getElementById('editor').value = q.starter; document.getElementById('output').className='output empty'; document.getElementById('output').innerHTML='Run your query to see results here.'; };
+  document.getElementById('editor').addEventListener('keydown', e => {
+    if(e.key === 'Tab'){ e.preventDefault(); const t=e.target; const s=t.selectionStart; t.value=t.value.slice(0,s)+'  '+t.value.slice(t.selectionEnd); t.selectionStart=t.selectionEnd=s+2; }
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ runQuery(q); }
+  });
+
+  const idx = QUESTIONS.findIndex(x => x.id === id);
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === QUESTIONS.length - 1;
+  document.getElementById('prevBtn').onclick = () => idx > 0 && selectQuestion(QUESTIONS[idx-1].id);
+  document.getElementById('nextBtn').onclick = () => idx < QUESTIONS.length-1 && selectQuestion(QUESTIONS[idx+1].id);
+}
+
+initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/${file}` }).then(sqljs => {
+  SQL = sqljs;
+  document.getElementById('loadingBanner').remove();
+  renderSidebar();
+  selectQuestion(1);
+}).catch(err => {
+  document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the SQL engine: ${err.message}. Check your connection and reload.</span>`;
+});
+</script>
+</body>
+</html>
