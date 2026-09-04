@@ -124,7 +124,7 @@
 <div class="topbar">
   <div class="brand"><span class="logo-dot"></span> KJSynthora · PySpark Practice</div>
   <div class="topbar-right">
-    <div class="progress-pill">Solved <b id="progressCount">0</b>/30</div>
+    <div class="progress-pill">Solved <b id="progressCount">0</b>/75</div>
     <a href="sql-practice.html">← SQL Practice</a>
   </div>
 </div>
@@ -132,7 +132,7 @@
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-head">
-      <h1>30 PySpark Scenarios</h1>
+      <h1>75 PySpark Scenarios</h1>
       <p>Runs on real Python + pandas in your browser; PySpark syntax shown as reference.</p>
     </div>
     <ul class="qlist" id="qlist"></ul>
@@ -1159,6 +1159,1536 @@
       "amount",
       "pct_of_total"
     ]
+  },
+  {
+    "id": 31,
+    "title": "Merge Current and Archived Orders",
+    "difficulty": "Easy",
+    "topic": "Set Operations",
+    "scenario": "Stack <b>current_orders</b> and <b>archived_orders</b> into one combined report, keeping duplicates.",
+    "setup": "import pandas as pd\n\ncurrent_orders = pd.DataFrame({\"order_id\": [101,102], \"customer_id\": [1,2], \"amount\": [50,80]})\narchived_orders = pd.DataFrame({\"order_id\": [90,91], \"customer_id\": [1,3], \"amount\": [40,60]})",
+    "starter": "result = pd.concat([current_orders, archived_orders], ignore_index=___).sort_values(\"order_id\").reset_index(drop=True)",
+    "solution": "result = pd.concat([current_orders, archived_orders], ignore_index=True).sort_values(\"order_id\").reset_index(drop=True)",
+    "pysparkRef": "result = current_orders_df.unionByName(archived_orders_df).orderBy(\"order_id\")",
+    "hint": "pd.concat([...]) stacks DataFrames on top of each other \u2014 pandas' equivalent of UNION ALL.",
+    "expected": [
+      {
+        "order_id": 90,
+        "customer_id": 1,
+        "amount": 40
+      },
+      {
+        "order_id": 91,
+        "customer_id": 3,
+        "amount": 60
+      },
+      {
+        "order_id": 101,
+        "customer_id": 1,
+        "amount": 50
+      },
+      {
+        "order_id": 102,
+        "customer_id": 2,
+        "amount": 80
+      }
+    ],
+    "expectedCols": [
+      "order_id",
+      "customer_id",
+      "amount"
+    ]
+  },
+  {
+    "id": 32,
+    "title": "Customers Who Bought Both A and B",
+    "difficulty": "Medium",
+    "topic": "Set Operations",
+    "scenario": "Find customers in <b>purchase_log</b> who bought both 'Product A' and 'Product B'.",
+    "setup": "import pandas as pd\n\npurchase_log = pd.DataFrame({\n    \"customer_id\": [1,1,2,3,4,4],\n    \"product\": [\"Product A\",\"Product B\",\"Product A\",\"Product B\",\"Product A\",\"Product B\"]\n})",
+    "starter": "a_buyers = set(purchase_log[purchase_log[\"product\"] == \"Product A\"][\"customer_id\"])\nb_buyers = set(purchase_log[purchase_log[\"product\"] == \"Product B\"][\"customer_id\"])\nresult = pd.DataFrame({\"customer_id\": sorted(a_buyers ___ b_buyers)})",
+    "solution": "a_buyers = set(purchase_log[purchase_log[\"product\"] == \"Product A\"][\"customer_id\"])\nb_buyers = set(purchase_log[purchase_log[\"product\"] == \"Product B\"][\"customer_id\"])\nresult = pd.DataFrame({\"customer_id\": sorted(a_buyers & b_buyers)})",
+    "pysparkRef": "a_ids = df.filter(F.col(\"product\") == \"Product A\").select(\"customer_id\")\nb_ids = df.filter(F.col(\"product\") == \"Product B\").select(\"customer_id\")\nresult = a_ids.intersect(b_ids).orderBy(\"customer_id\")",
+    "hint": "Python's set intersection (&) keeps only elements present in both sets \u2014 pandas' equivalent of INTERSECT.",
+    "expected": [
+      {
+        "customer_id": 1
+      },
+      {
+        "customer_id": 4
+      }
+    ],
+    "expectedCols": [
+      "customer_id"
+    ]
+  },
+  {
+    "id": 33,
+    "title": "Match Bonuses by Department and Quarter",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "Join <b>emp_bonus</b> to <b>bonus_rates</b> matching on both department and quarter.",
+    "setup": "import pandas as pd\n\nemp_bonus = pd.DataFrame({\n    \"emp_id\": [1,2,3], \"department\": [\"Eng\",\"Sales\",\"Eng\"], \"quarter\": [\"Q1\",\"Q1\",\"Q2\"], \"base_salary\": [10000,8000,10000]\n})\nbonus_rates = pd.DataFrame({\n    \"department\": [\"Eng\",\"Sales\",\"Eng\"], \"quarter\": [\"Q1\",\"Q1\",\"Q2\"], \"bonus_pct\": [0.10,0.05,0.12]\n})",
+    "starter": "result = emp_bonus.merge(bonus_rates, on=[___, ___]).sort_values(\"emp_id\").reset_index(drop=True)",
+    "solution": "result = emp_bonus.merge(bonus_rates, on=[\"department\",\"quarter\"]).sort_values(\"emp_id\").reset_index(drop=True)",
+    "pysparkRef": "result = emp_bonus_df.join(bonus_rates_df, [\"department\", \"quarter\"]).orderBy(\"emp_id\")",
+    "hint": "merge() accepts a list of columns for `on` \u2014 rows only match when every listed column agrees, same as ON a.x=b.x AND a.y=b.y.",
+    "expected": [
+      {
+        "emp_id": 1,
+        "department": "Eng",
+        "quarter": "Q1",
+        "base_salary": 10000,
+        "bonus_pct": 0.1
+      },
+      {
+        "emp_id": 2,
+        "department": "Sales",
+        "quarter": "Q1",
+        "base_salary": 8000,
+        "bonus_pct": 0.05
+      },
+      {
+        "emp_id": 3,
+        "department": "Eng",
+        "quarter": "Q2",
+        "base_salary": 10000,
+        "bonus_pct": 0.12
+      }
+    ],
+    "expectedCols": [
+      "emp_id",
+      "department",
+      "quarter",
+      "base_salary",
+      "bonus_pct"
+    ]
+  },
+  {
+    "id": 34,
+    "title": "Missing Size/Color Combinations",
+    "difficulty": "Medium",
+    "topic": "Cross Joins",
+    "scenario": "Cross join <b>sizes</b> and <b>colors</b> to get every combination, then find which ones are missing from <b>stock</b>.",
+    "setup": "import pandas as pd\n\nsizes = pd.DataFrame({\"size\": [\"S\",\"M\",\"L\"]})\ncolors = pd.DataFrame({\"color\": [\"Red\",\"Blue\"]})\nstock = pd.DataFrame({\"size\": [\"S\",\"M\",\"L\"], \"color\": [\"Red\",\"Blue\",\"Red\"]})",
+    "starter": "all_combos = sizes.merge(colors, how=___)\nmerged = all_combos.merge(stock, on=[\"size\", \"color\"], how=\"left\", indicator=True)\nresult = merged[merged[\"_merge\"] == \"left_only\"][[\"size\", \"color\"]].sort_values([\"size\", \"color\"]).reset_index(drop=True)",
+    "solution": "all_combos = sizes.merge(colors, how=\"cross\")\nmerged = all_combos.merge(stock, on=[\"size\",\"color\"], how=\"left\", indicator=True)\nresult = merged[merged[\"_merge\"] == \"left_only\"][[\"size\",\"color\"]].sort_values([\"size\",\"color\"]).reset_index(drop=True)",
+    "pysparkRef": "all_combos = sizes_df.crossJoin(colors_df)\nresult = (all_combos.join(stock_df, [\"size\",\"color\"], \"left_anti\"))",
+    "hint": "merge(..., how='cross') produces every row combination; indicator=True adds a _merge column so you can filter for 'left_only' (present in combos, missing from stock).",
+    "expected": [
+      {
+        "size": "L",
+        "color": "Blue"
+      },
+      {
+        "size": "M",
+        "color": "Red"
+      },
+      {
+        "size": "S",
+        "color": "Blue"
+      }
+    ],
+    "expectedCols": [
+      "size",
+      "color"
+    ]
+  },
+  {
+    "id": 35,
+    "title": "Days Until Next Order",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each order in <b>cust_orders</b>, compute days until that customer's next order (NaN if it's their last).",
+    "setup": "import pandas as pd\n\ncust_orders = pd.DataFrame({\n    \"customer_id\": [1,1,1,2,2],\n    \"order_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-10\",\"2024-01-25\",\"2024-02-01\",\"2024-02-05\"])\n})",
+    "starter": "cust_orders = cust_orders.sort_values([\"customer_id\", \"order_date\"])\ncust_orders[\"next_date\"] = cust_orders.groupby(\"customer_id\")[\"order_date\"].shift(___)\ncust_orders[\"days_to_next\"] = (cust_orders[\"next_date\"] - cust_orders[\"order_date\"]).dt.days\nresult = cust_orders[[\"customer_id\", \"order_date\", \"days_to_next\"]].reset_index(drop=True)",
+    "solution": "cust_orders = cust_orders.sort_values([\"customer_id\",\"order_date\"])\ncust_orders[\"next_date\"] = cust_orders.groupby(\"customer_id\")[\"order_date\"].shift(-1)\ncust_orders[\"days_to_next\"] = (cust_orders[\"next_date\"] - cust_orders[\"order_date\"]).dt.days\nresult = cust_orders[[\"customer_id\",\"order_date\",\"days_to_next\"]].reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"customer_id\").orderBy(\"order_date\")\nresult = df.withColumn(\"days_to_next\", F.datediff(F.lead(\"order_date\").over(w), F.col(\"order_date\")))",
+    "hint": "shift(-1) pulls the NEXT row's value up into the current row \u2014 pandas' equivalent of LEAD (shift(1) would be LAG).",
+    "expected": [
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-01",
+        "days_to_next": 9.0
+      },
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-10",
+        "days_to_next": 15.0
+      },
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-25",
+        "days_to_next": null
+      },
+      {
+        "customer_id": 2,
+        "order_date": "2024-02-01",
+        "days_to_next": 4.0
+      },
+      {
+        "customer_id": 2,
+        "order_date": "2024-02-05",
+        "days_to_next": null
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "order_date",
+      "days_to_next"
+    ]
+  },
+  {
+    "id": 36,
+    "title": "3-Day Rolling Average",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Compute a 3-day moving average of visits in <b>daily_visits</b> (current day plus the 2 before it).",
+    "setup": "import pandas as pd\n\ndaily_visits = pd.DataFrame({\n    \"day\": [\"2024-01-01\",\"2024-01-02\",\"2024-01-03\",\"2024-01-04\",\"2024-01-05\"],\n    \"visits\": [100,150,120,200,90]\n})",
+    "starter": "daily_visits = daily_visits.sort_values(\"day\")\ndaily_visits[\"moving_avg\"] = daily_visits[\"visits\"].rolling(window=___, min_periods=1).mean().round(2)\nresult = daily_visits.reset_index(drop=True)",
+    "solution": "daily_visits = daily_visits.sort_values(\"day\")\ndaily_visits[\"moving_avg\"] = daily_visits[\"visits\"].rolling(window=3, min_periods=1).mean().round(2)\nresult = daily_visits.reset_index(drop=True)",
+    "pysparkRef": "w = Window.orderBy(\"day\").rowsBetween(-2, 0)\nresult = df.withColumn(\"moving_avg\", F.round(F.avg(\"visits\").over(w), 2))",
+    "hint": "Series.rolling(window=3) defines a sliding 3-row window; min_periods=1 lets the first couple of rows average over however many rows exist so far.",
+    "expected": [
+      {
+        "day": "2024-01-01",
+        "visits": 100,
+        "moving_avg": 100.0
+      },
+      {
+        "day": "2024-01-02",
+        "visits": 150,
+        "moving_avg": 125.0
+      },
+      {
+        "day": "2024-01-03",
+        "visits": 120,
+        "moving_avg": 123.33
+      },
+      {
+        "day": "2024-01-04",
+        "visits": 200,
+        "moving_avg": 156.67
+      },
+      {
+        "day": "2024-01-05",
+        "visits": 90,
+        "moving_avg": 136.67
+      }
+    ],
+    "expectedCols": [
+      "day",
+      "visits",
+      "moving_avg"
+    ]
+  },
+  {
+    "id": 37,
+    "title": "Find Gmail Users",
+    "difficulty": "Easy",
+    "topic": "String Operations",
+    "scenario": "Find users in <b>contacts</b> whose email ends in @gmail.com.",
+    "setup": "import pandas as pd\n\ncontacts = pd.DataFrame({\"name\": [\"Al\",\"Bo\",\"Cy\"], \"email\": [\"al@gmail.com\",\"bo@yahoo.com\",\"cy@gmail.com\"]})",
+    "starter": "result = contacts[contacts[\"email\"].str.___(\"@gmail.com\")].sort_values(\"name\").reset_index(drop=True)",
+    "solution": "result = contacts[contacts[\"email\"].str.endswith(\"@gmail.com\")].sort_values(\"name\").reset_index(drop=True)",
+    "pysparkRef": "result = df.filter(F.col(\"email\").endswith(\"@gmail.com\")).orderBy(\"name\")",
+    "hint": "str.endswith('@gmail.com') is pandas' direct equivalent of SQL's LIKE '%@gmail.com'.",
+    "expected": [
+      {
+        "name": "Al",
+        "email": "al@gmail.com"
+      },
+      {
+        "name": "Cy",
+        "email": "cy@gmail.com"
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "email"
+    ]
+  },
+  {
+    "id": 38,
+    "title": "Customers Who Bought Electronics",
+    "difficulty": "Medium",
+    "topic": "Filtering",
+    "scenario": "Find customers in <b>orders6</b> who bought at least one product from the 'Electronics' category (lookup in <b>products3</b>).",
+    "setup": "import pandas as pd\n\nproducts3 = pd.DataFrame({\"product_id\": [1,2,3], \"category\": [\"Electronics\",\"Furniture\",\"Electronics\"]})\norders6 = pd.DataFrame({\"customer_id\": [10,11,12,13], \"product_id\": [1,2,3,2]})",
+    "starter": "electronics_ids = products3[products3[\"category\"] == \"Electronics\"][\"product_id\"]\nresult = pd.DataFrame({\"customer_id\": sorted(orders6[orders6[\"product_id\"].isin(___)][\"customer_id\"].unique())})",
+    "solution": "electronics_ids = products3[products3[\"category\"] == \"Electronics\"][\"product_id\"]\nresult = pd.DataFrame({\"customer_id\": sorted(orders6[orders6[\"product_id\"].isin(electronics_ids)][\"customer_id\"].unique())})",
+    "pysparkRef": "electronics_ids = [row.product_id for row in products3_df.filter(F.col(\"category\") == \"Electronics\").select(\"product_id\").collect()]\nresult = orders6_df.filter(F.col(\"product_id\").isin(electronics_ids)).select(\"customer_id\").distinct().orderBy(\"customer_id\")",
+    "hint": ".isin(list_of_ids) filters rows whose product_id is in that list \u2014 pandas' equivalent of an IN subquery.",
+    "expected": [
+      {
+        "customer_id": 10
+      },
+      {
+        "customer_id": 12
+      }
+    ],
+    "expectedCols": [
+      "customer_id"
+    ]
+  },
+  {
+    "id": 39,
+    "title": "Customers With at Least One Big Order",
+    "difficulty": "Medium",
+    "topic": "Filtering",
+    "scenario": "Find customers in <b>customers3</b> with at least one order over 500 in <b>orders7</b>.",
+    "setup": "import pandas as pd\n\ncustomers3 = pd.DataFrame({\"customer_id\": [1,2,3], \"name\": [\"Nina\",\"Omar\",\"Priya\"]})\norders7 = pd.DataFrame({\"order_id\": [1,2,3,4], \"customer_id\": [1,1,2,3], \"amount\": [600,50,100,700]})",
+    "starter": "big_spenders = orders7[orders7[\"amount\"] > ___][\"customer_id\"].unique()\nresult = customers3[customers3[\"customer_id\"].isin(big_spenders)].sort_values(\"customer_id\").reset_index(drop=True)",
+    "solution": "big_spenders = orders7[orders7[\"amount\"] > 500][\"customer_id\"].unique()\nresult = customers3[customers3[\"customer_id\"].isin(big_spenders)].sort_values(\"customer_id\").reset_index(drop=True)",
+    "pysparkRef": "big_spenders = orders7_df.filter(F.col(\"amount\") > 500).select(\"customer_id\").distinct()\nresult = customers3_df.join(big_spenders, \"customer_id\", \"left_semi\").orderBy(\"customer_id\")",
+    "hint": "Build the set of qualifying customer_ids first, then filter the customer table against it with .isin() \u2014 pandas' stand-in for EXISTS.",
+    "expected": [
+      {
+        "customer_id": 1,
+        "name": "Nina"
+      },
+      {
+        "customer_id": 3,
+        "name": "Priya"
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "name"
+    ]
+  },
+  {
+    "id": 40,
+    "title": "Products Never Ordered",
+    "difficulty": "Medium",
+    "topic": "Filtering",
+    "scenario": "Find products in <b>products4</b> that never appear in <b>order_lines2</b>.",
+    "setup": "import pandas as pd\n\nproducts4 = pd.DataFrame({\"product_id\": [1,2,3], \"product_name\": [\"Chair\",\"Desk\",\"Lamp\"]})\norder_lines2 = pd.DataFrame({\"line_id\": [1,2], \"product_id\": [1,1]})",
+    "starter": "ordered_ids = order_lines2[\"product_id\"].unique()\nresult = products4[~products4[\"product_id\"].isin(___)].sort_values(\"product_id\").reset_index(drop=True)",
+    "solution": "ordered_ids = order_lines2[\"product_id\"].unique()\nresult = products4[~products4[\"product_id\"].isin(ordered_ids)].sort_values(\"product_id\").reset_index(drop=True)",
+    "pysparkRef": "result = products4_df.join(order_lines2_df, \"product_id\", \"left_anti\").orderBy(\"product_id\")",
+    "hint": "The ~ negates the boolean mask from .isin(...) \u2014 pandas' equivalent of NOT EXISTS / left-anti join.",
+    "expected": [
+      {
+        "product_id": 2,
+        "product_name": "Desk"
+      },
+      {
+        "product_id": 3,
+        "product_name": "Lamp"
+      }
+    ],
+    "expectedCols": [
+      "product_id",
+      "product_name"
+    ]
+  },
+  {
+    "id": 41,
+    "title": "Percentile Rank of Exam Scores",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Compute each student's percentile rank (0 to 1) in <b>exam_scores</b>, based on score.",
+    "setup": "import pandas as pd\n\nexam_scores = pd.DataFrame({\"name\": [\"A\",\"B\",\"C\",\"D\",\"E\"], \"score\": [50,80,90,70,100]})",
+    "starter": "exam_scores = exam_scores.sort_values(\"score\").reset_index(drop=True)\nn = len(exam_scores)\nexam_scores[\"percentile\"] = (exam_scores.index / (n - ___)).round(2)\nresult = exam_scores",
+    "solution": "exam_scores = exam_scores.sort_values(\"score\").reset_index(drop=True)\nn = len(exam_scores)\nexam_scores[\"percentile\"] = (exam_scores.index / (n - 1)).round(2)\nresult = exam_scores",
+    "pysparkRef": "w = Window.orderBy(\"score\")\nresult = df.withColumn(\"percentile\", F.round(F.percent_rank().over(w), 2))",
+    "hint": "After sorting, a row's position divided by (n-1) reproduces PERCENT_RANK's formula exactly \u2014 lowest score gets 0.0, highest gets 1.0.",
+    "expected": [
+      {
+        "name": "A",
+        "score": 50,
+        "percentile": 0.0
+      },
+      {
+        "name": "D",
+        "score": 70,
+        "percentile": 0.25
+      },
+      {
+        "name": "B",
+        "score": 80,
+        "percentile": 0.5
+      },
+      {
+        "name": "C",
+        "score": 90,
+        "percentile": 0.75
+      },
+      {
+        "name": "E",
+        "score": 100,
+        "percentile": 1.0
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "score",
+      "percentile"
+    ]
+  },
+  {
+    "id": 42,
+    "title": "Returned vs Total Orders per Customer",
+    "difficulty": "Medium",
+    "topic": "Conditional Aggregation",
+    "scenario": "For each customer in <b>orders8</b>, show total order count and how many were returned.",
+    "setup": "import pandas as pd\n\norders8 = pd.DataFrame({\n    \"customer_id\": [1,1,1,2,2,2],\n    \"status\": [\"complete\",\"returned\",\"complete\",\"complete\",\"returned\",\"returned\"]\n})",
+    "starter": "result = orders8.groupby(\"customer_id\").agg(\n    total_orders=(\"status\", \"size\"),\n    returned_orders=(\"status\", lambda s: (s == ___).sum())\n).reset_index()",
+    "solution": "result = orders8.groupby(\"customer_id\").agg(\n    total_orders=(\"status\",\"size\"),\n    returned_orders=(\"status\", lambda s: (s == \"returned\").sum())\n).reset_index()",
+    "pysparkRef": "result = df.groupBy(\"customer_id\").agg(\n    F.count(\"status\").alias(\"total_orders\"),\n    F.sum(F.when(F.col(\"status\") == \"returned\", 1).otherwise(0)).alias(\"returned_orders\"))",
+    "hint": "Inside .agg(), a lambda comparing the Series to 'returned' and summing the booleans counts only the matching rows \u2014 True acts like 1.",
+    "expected": [
+      {
+        "customer_id": 1,
+        "total_orders": 3,
+        "returned_orders": 1
+      },
+      {
+        "customer_id": 2,
+        "total_orders": 3,
+        "returned_orders": 2
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "total_orders",
+      "returned_orders"
+    ]
+  },
+  {
+    "id": 43,
+    "title": "Revenue by Region and Month",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Break down total revenue in <b>region_sales</b> by both region and month.",
+    "setup": "import pandas as pd\n\nregion_sales = pd.DataFrame({\n    \"region\": [\"East\",\"East\",\"East\",\"West\",\"West\"],\n    \"month\": [\"2024-01\",\"2024-01\",\"2024-02\",\"2024-01\",\"2024-02\"],\n    \"revenue\": [100,50,80,200,60]\n})",
+    "starter": "result = region_sales.groupby([___, ___], as_index=False)[\"revenue\"].sum().rename(columns={\"revenue\": \"total_revenue\"}).sort_values([\"region\", \"month\"]).reset_index(drop=True)",
+    "solution": "result = region_sales.groupby([\"region\",\"month\"], as_index=False)[\"revenue\"].sum().rename(columns={\"revenue\":\"total_revenue\"}).sort_values([\"region\",\"month\"]).reset_index(drop=True)",
+    "pysparkRef": "result = df.groupBy(\"region\",\"month\").sum(\"revenue\").withColumnRenamed(\"sum(revenue)\",\"total_revenue\").orderBy(\"region\",\"month\")",
+    "hint": "groupby() accepts a list of columns \u2014 pandas creates one group per unique combination, same as SQL's GROUP BY a, b.",
+    "expected": [
+      {
+        "region": "East",
+        "month": "2024-01",
+        "total_revenue": 150
+      },
+      {
+        "region": "East",
+        "month": "2024-02",
+        "total_revenue": 80
+      },
+      {
+        "region": "West",
+        "month": "2024-01",
+        "total_revenue": 200
+      },
+      {
+        "region": "West",
+        "month": "2024-02",
+        "total_revenue": 60
+      }
+    ],
+    "expectedCols": [
+      "region",
+      "month",
+      "total_revenue"
+    ]
+  },
+  {
+    "id": 44,
+    "title": "Median Salary per Department",
+    "difficulty": "Hard",
+    "topic": "Grouped Statistics",
+    "scenario": "Compute the median salary within each department in <b>emp_med</b>.",
+    "setup": "import pandas as pd\n\nemp_med = pd.DataFrame({\n    \"department\": [\"Eng\",\"Eng\",\"Eng\",\"Sales\",\"Sales\"],\n    \"salary\": [50,60,70,40,80]\n})",
+    "starter": "result = emp_med.groupby(\"department\")[\"salary\"].___().reset_index(name=\"median_salary\").sort_values(\"department\").reset_index(drop=True)",
+    "solution": "result = emp_med.groupby(\"department\")[\"salary\"].median().reset_index(name=\"median_salary\").sort_values(\"department\").reset_index(drop=True)",
+    "pysparkRef": "# PySpark has no direct median in older versions; the common approach is percentile_approx:\nresult = df.groupBy(\"department\").agg(F.expr(\"percentile_approx(salary, 0.5)\").alias(\"median_salary\"))",
+    "hint": "pandas has a built-in .median() aggregate \u2014 no manual row-counting needed, unlike plain SQL.",
+    "expected": [
+      {
+        "department": "Eng",
+        "median_salary": 60.0
+      },
+      {
+        "department": "Sales",
+        "median_salary": 60.0
+      }
+    ],
+    "expectedCols": [
+      "department",
+      "median_salary"
+    ]
+  },
+  {
+    "id": 45,
+    "title": "Days Between Consecutive Orders",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "For each customer in <b>seq_orders</b>, compute days since that customer's immediately preceding order.",
+    "setup": "import pandas as pd\n\nseq_orders = pd.DataFrame({\n    \"customer_id\": [1,1,1,2,2],\n    \"order_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-10\",\"2024-01-25\",\"2024-02-01\",\"2024-02-20\"])\n})",
+    "starter": "seq_orders = seq_orders.sort_values([\"customer_id\", \"order_date\"])\nseq_orders[\"prev_date\"] = seq_orders.groupby(\"customer_id\")[\"order_date\"].shift(___)\nseq_orders[\"days_since_last\"] = (seq_orders[\"order_date\"] - seq_orders[\"prev_date\"]).dt.days\nresult = seq_orders[[\"customer_id\", \"order_date\", \"days_since_last\"]].reset_index(drop=True)",
+    "solution": "seq_orders = seq_orders.sort_values([\"customer_id\",\"order_date\"])\nseq_orders[\"prev_date\"] = seq_orders.groupby(\"customer_id\")[\"order_date\"].shift(1)\nseq_orders[\"days_since_last\"] = (seq_orders[\"order_date\"] - seq_orders[\"prev_date\"]).dt.days\nresult = seq_orders[[\"customer_id\",\"order_date\",\"days_since_last\"]].reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"customer_id\").orderBy(\"order_date\")\nresult = df.withColumn(\"days_since_last\", F.datediff(F.col(\"order_date\"), F.lag(\"order_date\").over(w)))",
+    "hint": "shift(1) pulls the PREVIOUS row's value down \u2014 pandas' equivalent of LAG \u2014 then subtract dates to get elapsed days.",
+    "expected": [
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-01",
+        "days_since_last": null
+      },
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-10",
+        "days_since_last": 9.0
+      },
+      {
+        "customer_id": 1,
+        "order_date": "2024-01-25",
+        "days_since_last": 15.0
+      },
+      {
+        "customer_id": 2,
+        "order_date": "2024-02-01",
+        "days_since_last": null
+      },
+      {
+        "customer_id": 2,
+        "order_date": "2024-02-20",
+        "days_since_last": 19.0
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "order_date",
+      "days_since_last"
+    ]
+  },
+  {
+    "id": 46,
+    "title": "Counts With a Boolean Mask",
+    "difficulty": "Medium",
+    "topic": "Conditional Aggregation",
+    "scenario": "Using <b>emp_filter</b>, count total employees and, separately, how many earn over 80000 \u2014 pandas' equivalent of SQL's FILTER clause.",
+    "setup": "import pandas as pd\n\nemp_filter = pd.DataFrame({\"emp_id\": [1,2,3,4], \"salary\": [50000,90000,85000,60000]})",
+    "starter": "result = pd.DataFrame({\n    \"total_employees\": [len(emp_filter)],\n    \"high_earners\": [(emp_filter[\"salary\"] > ___).sum()]\n})",
+    "solution": "result = pd.DataFrame({\n    \"total_employees\": [len(emp_filter)],\n    \"high_earners\": [(emp_filter[\"salary\"] > 80000).sum()]\n})",
+    "pysparkRef": "result = df.agg(F.count(\"*\").alias(\"total_employees\"),\n                 F.count(F.when(F.col(\"salary\") > 80000, True)).alias(\"high_earners\"))",
+    "hint": "A boolean mask like (salary > 80000) is a Series of True/False; .sum() treats True as 1, so it counts matches directly.",
+    "expected": [
+      {
+        "total_employees": 4,
+        "high_earners": 2
+      }
+    ],
+    "expectedCols": [
+      "total_employees",
+      "high_earners"
+    ]
+  },
+  {
+    "id": 47,
+    "title": "Lowest Earner per Department",
+    "difficulty": "Medium",
+    "topic": "Grouped Transforms",
+    "scenario": "Add a lowest_earner column to <b>emp_lv</b> holding the name of the lowest-paid person in that row's department.",
+    "setup": "import pandas as pd\n\nemp_lv = pd.DataFrame({\n    \"name\": [\"Ann\",\"Bud\",\"Cid\",\"Dee\",\"Eve\"],\n    \"department\": [\"Eng\",\"Eng\",\"Eng\",\"Sales\",\"Sales\"],\n    \"salary\": [95000,80000,70000,60000,75000]\n})",
+    "starter": "lowest_by_dept = emp_lv.sort_values(\"salary\").groupby(\"department\")[\"name\"].___()\nemp_lv[\"lowest_earner\"] = emp_lv[\"department\"].map(lowest_by_dept)\nresult = emp_lv.sort_values([\"department\", \"salary\"], ascending=[True, False]).reset_index(drop=True)",
+    "solution": "lowest_by_dept = emp_lv.sort_values(\"salary\").groupby(\"department\")[\"name\"].first()\nemp_lv[\"lowest_earner\"] = emp_lv[\"department\"].map(lowest_by_dept)\nresult = emp_lv.sort_values([\"department\",\"salary\"], ascending=[True,False]).reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"department\").orderBy(F.col(\"salary\").desc()).rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)\nresult = df.withColumn(\"lowest_earner\", F.last(\"name\").over(w)).orderBy(\"department\", F.col(\"salary\").desc())",
+    "hint": "Sort ascending by salary this time, then groupby(...)['name'].first() grabs the lowest earner per group.",
+    "expected": [
+      {
+        "name": "Ann",
+        "department": "Eng",
+        "salary": 95000,
+        "lowest_earner": "Cid"
+      },
+      {
+        "name": "Bud",
+        "department": "Eng",
+        "salary": 80000,
+        "lowest_earner": "Cid"
+      },
+      {
+        "name": "Cid",
+        "department": "Eng",
+        "salary": 70000,
+        "lowest_earner": "Cid"
+      },
+      {
+        "name": "Eve",
+        "department": "Sales",
+        "salary": 75000,
+        "lowest_earner": "Dee"
+      },
+      {
+        "name": "Dee",
+        "department": "Sales",
+        "salary": 60000,
+        "lowest_earner": "Dee"
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "department",
+      "salary",
+      "lowest_earner"
+    ]
+  },
+  {
+    "id": 48,
+    "title": "Order Amount Summary",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Give a one-row summary of <b>orders9</b>: smallest, largest, and average order amount.",
+    "setup": "import pandas as pd\n\norders9 = pd.DataFrame({\"order_id\": [1,2,3,4], \"amount\": [50,300,120,80]})",
+    "starter": "result = pd.DataFrame({\n    \"smallest_order\": [orders9[\"amount\"].___()],\n    \"largest_order\": [orders9[\"amount\"].max()],\n    \"average_order\": [round(orders9[\"amount\"].mean(), 2)]\n})",
+    "solution": "result = pd.DataFrame({\n    \"smallest_order\": [orders9[\"amount\"].min()],\n    \"largest_order\": [orders9[\"amount\"].max()],\n    \"average_order\": [round(orders9[\"amount\"].mean(), 2)]\n})",
+    "pysparkRef": "result = df.agg(F.min(\"amount\").alias(\"smallest_order\"),\n                 F.max(\"amount\").alias(\"largest_order\"),\n                 F.round(F.avg(\"amount\"), 2).alias(\"average_order\"))",
+    "hint": "pandas has direct .min(), .max(), and .mean() Series methods \u2014 call each on the same column to build a one-row summary.",
+    "expected": [
+      {
+        "smallest_order": 50,
+        "largest_order": 300,
+        "average_order": 137.5
+      }
+    ],
+    "expectedCols": [
+      "smallest_order",
+      "largest_order",
+      "average_order"
+    ]
+  },
+  {
+    "id": 49,
+    "title": "Cumulative Distribution of Scores",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Compute the cumulative distribution (fraction of scores \u2264 this row's score) for each row in <b>score_dist</b>.",
+    "setup": "import pandas as pd\n\nscore_dist = pd.DataFrame({\"name\": [\"A\",\"B\",\"C\",\"D\"], \"score\": [50,70,70,90]})",
+    "starter": "score_dist = score_dist.sort_values(\"score\").reset_index(drop=True)\nn = len(score_dist)\nscore_dist[\"cume_dist\"] = score_dist[\"score\"].apply(lambda s: round((score_dist[\"score\"] <= s).___() / n, 2))\nresult = score_dist",
+    "solution": "score_dist = score_dist.sort_values(\"score\").reset_index(drop=True)\nn = len(score_dist)\nscore_dist[\"cume_dist\"] = score_dist[\"score\"].apply(lambda s: round((score_dist[\"score\"] <= s).sum() / n, 2))\nresult = score_dist",
+    "pysparkRef": "w = Window.orderBy(\"score\")\nresult = df.withColumn(\"cume_dist\", F.round(F.cume_dist().over(w), 2))",
+    "hint": "For each score, count how many rows (including ties) are \u2264 it, then divide by the total row count \u2014 that's CUME_DIST's definition.",
+    "expected": [
+      {
+        "name": "A",
+        "score": 50,
+        "cume_dist": 0.25
+      },
+      {
+        "name": "B",
+        "score": 70,
+        "cume_dist": 0.75
+      },
+      {
+        "name": "C",
+        "score": 70,
+        "cume_dist": 0.75
+      },
+      {
+        "name": "D",
+        "score": 90,
+        "cume_dist": 1.0
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "score",
+      "cume_dist"
+    ]
+  },
+  {
+    "id": 50,
+    "title": "Group Events Into Sessions",
+    "difficulty": "Hard",
+    "topic": "Gaps & Islands",
+    "scenario": "Assign a session_id to every row in <b>clicks</b>: a new session starts whenever the gap since the previous click exceeds 30 minutes.",
+    "setup": "import pandas as pd\n\nclicks = pd.DataFrame({\n    \"click_time\": pd.to_datetime([\"2024-01-01 09:00:00\",\"2024-01-01 09:10:00\",\"2024-01-01 09:50:00\",\"2024-01-01 10:00:00\",\"2024-01-01 12:00:00\"])\n})",
+    "starter": "clicks = clicks.sort_values(\"click_time\").reset_index(drop=True)\ngap_minutes = clicks[\"click_time\"].diff().dt.total_seconds() / 60\nnew_session = ((gap_minutes.isna()) | (gap_minutes > ___)).astype(int)\nclicks[\"session_id\"] = new_session.___()\nresult = clicks",
+    "solution": "clicks = clicks.sort_values(\"click_time\").reset_index(drop=True)\ngap_minutes = clicks[\"click_time\"].diff().dt.total_seconds() / 60\nnew_session = ((gap_minutes.isna()) | (gap_minutes > 30)).astype(int)\nclicks[\"session_id\"] = new_session.cumsum()\nresult = clicks",
+    "pysparkRef": "w = Window.orderBy(\"click_time\")\ndf = df.withColumn(\"gap_minutes\", (F.unix_timestamp(\"click_time\") - F.unix_timestamp(F.lag(\"click_time\").over(w))) / 60)\ndf = df.withColumn(\"new_session\", F.when(F.col(\"gap_minutes\").isNull() | (F.col(\"gap_minutes\") > 30), 1).otherwise(0))\nresult = df.withColumn(\"session_id\", F.sum(\"new_session\").over(w.rowsBetween(Window.unboundedPreceding, 0)))",
+    "hint": ".diff() computes the gap from the previous row directly; a cumulative sum (.cumsum()) of the 'new session' flags produces an ever-increasing session id.",
+    "expected": [
+      {
+        "click_time": "2024-01-01 09:00:00",
+        "session_id": 1
+      },
+      {
+        "click_time": "2024-01-01 09:10:00",
+        "session_id": 1
+      },
+      {
+        "click_time": "2024-01-01 09:50:00",
+        "session_id": 2
+      },
+      {
+        "click_time": "2024-01-01 10:00:00",
+        "session_id": 2
+      },
+      {
+        "click_time": "2024-01-01 12:00:00",
+        "session_id": 3
+      }
+    ],
+    "expectedCols": [
+      "click_time",
+      "session_id"
+    ]
+  },
+  {
+    "id": 51,
+    "title": "Age in Full Years",
+    "difficulty": "Medium",
+    "topic": "Date Operations",
+    "scenario": "Compute each person's age in full years as of 2024-06-15 from their birthdate in <b>people</b>.",
+    "setup": "import pandas as pd\n\npeople = pd.DataFrame({\"name\": [\"Al\",\"Bo\",\"Cy\"], \"birthdate\": pd.to_datetime([\"2000-01-15\",\"2000-07-01\",\"1995-06-15\"])})",
+    "starter": "ref = pd.Timestamp(\"2024-06-15\")\ndef age_years(bd):\n    years = ref.year - bd.year\n    if (ref.month, ref.day) < (bd.month, bd.day):\n        years -= ___\n    return years\npeople[\"age\"] = people[\"birthdate\"].apply(age_years)\nresult = people",
+    "solution": "ref = pd.Timestamp(\"2024-06-15\")\ndef age_years(bd):\n    years = ref.year - bd.year\n    if (ref.month, ref.day) < (bd.month, bd.day):\n        years -= 1\n    return years\npeople[\"age\"] = people[\"birthdate\"].apply(age_years)\nresult = people",
+    "pysparkRef": "result = df.withColumn(\"age\", F.floor(F.datediff(F.lit(\"2024-06-15\"), F.col(\"birthdate\")) / 365.25))",
+    "hint": "Compare (month, day) tuples directly \u2014 Python compares tuples element-by-element, so this correctly detects 'birthday hasn't happened yet this year'.",
+    "expected": [
+      {
+        "name": "Al",
+        "birthdate": "2000-01-15",
+        "age": 24
+      },
+      {
+        "name": "Bo",
+        "birthdate": "2000-07-01",
+        "age": 23
+      },
+      {
+        "name": "Cy",
+        "birthdate": "1995-06-15",
+        "age": 29
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "birthdate",
+      "age"
+    ]
+  },
+  {
+    "id": 52,
+    "title": "Split Tags Into Rows",
+    "difficulty": "Medium",
+    "topic": "String Operations",
+    "scenario": "Split each row's comma-separated tags in <b>tagged_items</b> so every tag gets its own row.",
+    "setup": "import pandas as pd\n\ntagged_items = pd.DataFrame({\"item_id\": [1,2], \"tags\": [\"red,large\",\"blue,small,new\"]})",
+    "starter": "exploded = tagged_items.assign(tag=tagged_items[\"tags\"].str.split(___)).explode(\"tag\")\nresult = exploded[[\"item_id\", \"tag\"]].sort_values([\"item_id\", \"tag\"]).reset_index(drop=True)",
+    "solution": "exploded = tagged_items.assign(tag=tagged_items[\"tags\"].str.split(\",\")).explode(\"tag\")\nresult = exploded[[\"item_id\",\"tag\"]].sort_values([\"item_id\",\"tag\"]).reset_index(drop=True)",
+    "pysparkRef": "result = df.withColumn(\"tag\", F.explode(F.split(F.col(\"tags\"), \",\"))).select(\"item_id\", \"tag\")",
+    "hint": "str.split(',') turns the string into a list per row; .explode('tag') then unrolls each list into its own row \u2014 pandas needs no recursive CTE trick here.",
+    "expected": [
+      {
+        "item_id": 1,
+        "tag": "large"
+      },
+      {
+        "item_id": 1,
+        "tag": "red"
+      },
+      {
+        "item_id": 2,
+        "tag": "blue"
+      },
+      {
+        "item_id": 2,
+        "tag": "new"
+      },
+      {
+        "item_id": 2,
+        "tag": "small"
+      }
+    ],
+    "expectedCols": [
+      "item_id",
+      "tag"
+    ]
+  },
+  {
+    "id": 53,
+    "title": "Overlapping Room Bookings",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "Find every pair of bookings in <b>room_bookings</b> for the same room whose date ranges overlap.",
+    "setup": "import pandas as pd\n\nroom_bookings = pd.DataFrame({\n    \"booking_id\": [1,2,3,4],\n    \"room\": [\"A\",\"A\",\"A\",\"B\"],\n    \"start_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-04\",\"2024-01-10\",\"2024-01-01\"]),\n    \"end_date\": pd.to_datetime([\"2024-01-05\",\"2024-01-08\",\"2024-01-12\",\"2024-01-03\"])\n})",
+    "starter": "merged = room_bookings.merge(room_bookings, on=\"room\", suffixes=(\"_1\", \"_2\"))\nmerged = merged[merged[\"booking_id_1\"] < merged[\"booking_id_2\"]]\noverlap = merged[(merged[\"start_date_1\"] < merged[\"end_date_2\"]) & (merged[\"start_date_2\"] < merged[___])]\nresult = overlap[[\"booking_id_1\", \"booking_id_2\"]].rename(columns={\"booking_id_1\": \"booking_1\", \"booking_id_2\": \"booking_2\"}).sort_values([\"booking_1\", \"booking_2\"]).reset_index(drop=True)",
+    "solution": "merged = room_bookings.merge(room_bookings, on=\"room\", suffixes=(\"_1\",\"_2\"))\nmerged = merged[merged[\"booking_id_1\"] < merged[\"booking_id_2\"]]\noverlap = merged[(merged[\"start_date_1\"] < merged[\"end_date_2\"]) & (merged[\"start_date_2\"] < merged[\"end_date_1\"])]\nresult = overlap[[\"booking_id_1\",\"booking_id_2\"]].rename(columns={\"booking_id_1\":\"booking_1\",\"booking_id_2\":\"booking_2\"}).sort_values([\"booking_1\",\"booking_2\"]).reset_index(drop=True)",
+    "pysparkRef": "b1 = df.alias(\"b1\"); b2 = df.alias(\"b2\")\nresult = (b1.join(b2, (F.col(\"b1.room\") == F.col(\"b2.room\")) & (F.col(\"b1.booking_id\") < F.col(\"b2.booking_id\")))\n            .filter((F.col(\"b1.start_date\") < F.col(\"b2.end_date\")) & (F.col(\"b2.start_date\") < F.col(\"b1.end_date\")))\n            .select(F.col(\"b1.booking_id\").alias(\"booking_1\"), F.col(\"b2.booking_id\").alias(\"booking_2\")))",
+    "hint": "Merge the bookings table with itself on room, then apply the classic overlap test: start1 < end2 AND start2 < end1.",
+    "expected": [
+      {
+        "booking_1": 1,
+        "booking_2": 2
+      }
+    ],
+    "expectedCols": [
+      "booking_1",
+      "booking_2"
+    ]
+  },
+  {
+    "id": 54,
+    "title": "Order Counts Including Zero",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "Show every customer in <b>cust_zero</b> with their order count from <b>ord_zero</b> \u2014 customers with none should show 0.",
+    "setup": "import pandas as pd\n\ncust_zero = pd.DataFrame({\"customer_id\": [1,2,3], \"name\": [\"Nina\",\"Omar\",\"Priya\"]})\nord_zero = pd.DataFrame({\"order_id\": [1,2,3], \"customer_id\": [1,1,3]})",
+    "starter": "counts = ord_zero.groupby(\"customer_id\").size().rename(\"order_count\")\nresult = cust_zero.merge(counts, on=\"customer_id\", how=___)\nresult[\"order_count\"] = result[\"order_count\"].fillna(0).astype(int)\nresult = result.sort_values(\"customer_id\").reset_index(drop=True)",
+    "solution": "counts = ord_zero.groupby(\"customer_id\").size().rename(\"order_count\")\nresult = cust_zero.merge(counts, on=\"customer_id\", how=\"left\")\nresult[\"order_count\"] = result[\"order_count\"].fillna(0).astype(int)\nresult = result.sort_values(\"customer_id\").reset_index(drop=True)",
+    "pysparkRef": "result = (cust_zero_df.join(ord_zero_df.groupBy(\"customer_id\").count(), \"customer_id\", \"left\")\n                        .fillna(0, subset=[\"count\"]))",
+    "hint": "how='left' keeps every customer even without a match; the resulting NaN order_count for unmatched rows needs an explicit .fillna(0).",
+    "expected": [
+      {
+        "customer_id": 1,
+        "name": "Nina",
+        "order_count": 2
+      },
+      {
+        "customer_id": 2,
+        "name": "Omar",
+        "order_count": 0
+      },
+      {
+        "customer_id": 3,
+        "name": "Priya",
+        "order_count": 1
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "name",
+      "order_count"
+    ]
+  },
+  {
+    "id": 55,
+    "title": "Weighted Average Price",
+    "difficulty": "Medium",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Compute the quantity-weighted average unit price across <b>price_lines</b>.",
+    "setup": "import pandas as pd\n\nprice_lines = pd.DataFrame({\"unit_price\": [10,20,15], \"qty\": [100,10,50]})",
+    "starter": "weighted = (price_lines[\"unit_price\"] * price_lines[\"qty\"]).___() / price_lines[\"qty\"].sum()\nresult = pd.DataFrame({\"weighted_avg_price\": [round(weighted, 2)]})",
+    "solution": "weighted = (price_lines[\"unit_price\"] * price_lines[\"qty\"]).sum() / price_lines[\"qty\"].sum()\nresult = pd.DataFrame({\"weighted_avg_price\": [round(weighted, 2)]})",
+    "pysparkRef": "result = df.agg((F.sum(F.col(\"unit_price\") * F.col(\"qty\")) / F.sum(\"qty\")).alias(\"weighted_avg_price\"))",
+    "hint": "Multiply price by qty per row and sum that, then divide by the total qty \u2014 a plain .mean() on unit_price would treat every line equally regardless of size.",
+    "expected": [
+      {
+        "weighted_avg_price": 12.19
+      }
+    ],
+    "expectedCols": [
+      "weighted_avg_price"
+    ]
+  },
+  {
+    "id": 56,
+    "title": "Find Duplicate Customer Records",
+    "difficulty": "Medium",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Find every (name, email) combination in <b>cust_dupes</b> that appears more than once.",
+    "setup": "import pandas as pd\n\ncust_dupes = pd.DataFrame({\n    \"customer_id\": [1,2,3,4],\n    \"name\": [\"Nina\",\"Nina\",\"Omar\",\"Nina\"],\n    \"email\": [\"nina@x.com\",\"nina@x.com\",\"omar@x.com\",\"nina@x.com\"]\n})",
+    "starter": "counts = cust_dupes.groupby([\"name\", \"email\"], as_index=False).size().rename(columns={\"size\": \"occurrences\"})\nresult = counts[counts[\"occurrences\"] > ___].reset_index(drop=True)",
+    "solution": "counts = cust_dupes.groupby([\"name\",\"email\"], as_index=False).size().rename(columns={\"size\":\"occurrences\"})\nresult = counts[counts[\"occurrences\"] > 1].reset_index(drop=True)",
+    "pysparkRef": "result = df.groupBy(\"name\",\"email\").count().filter(F.col(\"count\") > 1)",
+    "hint": "Group by every column that defines a duplicate, then filter groups whose size is greater than 1.",
+    "expected": [
+      {
+        "name": "Nina",
+        "email": "nina@x.com",
+        "occurrences": 3
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "email",
+      "occurrences"
+    ]
+  },
+  {
+    "id": 57,
+    "title": "Ranking Functions Side by Side",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Show row position, RANK-style, and DENSE_RANK-style numbering side by side for <b>rank_demo</b>, ordered by score descending.",
+    "setup": "import pandas as pd\n\nrank_demo = pd.DataFrame({\"name\": [\"A\",\"B\",\"C\",\"D\",\"E\"], \"score\": [90,90,80,70,70]})",
+    "starter": "rank_demo = rank_demo.sort_values([\"score\", \"name\"], ascending=[False, True]).reset_index(drop=True)\nrank_demo[\"row_num\"] = range(1, len(rank_demo) + 1)\nrank_demo[\"rnk\"] = rank_demo[\"score\"].rank(method=___, ascending=False).astype(int)\nrank_demo[\"dense_rnk\"] = rank_demo[\"score\"].rank(method=\"dense\", ascending=False).astype(int)\nresult = rank_demo",
+    "solution": "rank_demo = rank_demo.sort_values([\"score\",\"name\"], ascending=[False,True]).reset_index(drop=True)\nrank_demo[\"row_num\"] = range(1, len(rank_demo)+1)\nrank_demo[\"rnk\"] = rank_demo[\"score\"].rank(method=\"min\", ascending=False).astype(int)\nrank_demo[\"dense_rnk\"] = rank_demo[\"score\"].rank(method=\"dense\", ascending=False).astype(int)\nresult = rank_demo",
+    "pysparkRef": "w = Window.orderBy(F.col(\"score\").desc())\nresult = (df.withColumn(\"row_num\", F.row_number().over(w))\n            .withColumn(\"rnk\", F.rank().over(w))\n            .withColumn(\"dense_rnk\", F.dense_rank().over(w)))",
+    "hint": "rank(method='min') mirrors SQL RANK (ties share the lower number, next rank skips ahead); rank(method='dense') mirrors DENSE_RANK (no gap).",
+    "expected": [
+      {
+        "name": "A",
+        "score": 90,
+        "row_num": 1,
+        "rnk": 1,
+        "dense_rnk": 1
+      },
+      {
+        "name": "B",
+        "score": 90,
+        "row_num": 2,
+        "rnk": 1,
+        "dense_rnk": 1
+      },
+      {
+        "name": "C",
+        "score": 80,
+        "row_num": 3,
+        "rnk": 3,
+        "dense_rnk": 2
+      },
+      {
+        "name": "D",
+        "score": 70,
+        "row_num": 4,
+        "rnk": 4,
+        "dense_rnk": 3
+      },
+      {
+        "name": "E",
+        "score": 70,
+        "row_num": 5,
+        "rnk": 4,
+        "dense_rnk": 3
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "score",
+      "row_num",
+      "rnk",
+      "dense_rnk"
+    ]
+  },
+  {
+    "id": 58,
+    "title": "Running Distinct Product Count",
+    "difficulty": "Hard",
+    "topic": "Iterative Logic",
+    "scenario": "For each sale in <b>timed_sales</b> (ordered by date), compute how many distinct products had been sold up to and including that date.",
+    "setup": "import pandas as pd\n\ntimed_sales = pd.DataFrame({\n    \"sale_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-02\",\"2024-01-03\",\"2024-01-04\",\"2024-01-05\"]),\n    \"product_id\": [1,2,1,3,2]\n})",
+    "starter": "timed_sales = timed_sales.sort_values(\"sale_date\").reset_index(drop=True)\nseen = set()\ncounts = []\nfor pid in timed_sales[\"product_id\"]:\n    seen.___(pid)\n    counts.append(len(seen))\ntimed_sales[\"distinct_products_so_far\"] = counts\nresult = timed_sales",
+    "solution": "timed_sales = timed_sales.sort_values(\"sale_date\").reset_index(drop=True)\nseen = set()\ncounts = []\nfor pid in timed_sales[\"product_id\"]:\n    seen.add(pid)\n    counts.append(len(seen))\ntimed_sales[\"distinct_products_so_far\"] = counts\nresult = timed_sales",
+    "pysparkRef": "# PySpark has no running COUNT(DISTINCT ...) window either; a common workaround\n# is collect_set() over an unbounded-preceding window and taking its size:\nw = Window.orderBy(\"sale_date\").rowsBetween(Window.unboundedPreceding, Window.currentRow)\nresult = df.withColumn(\"distinct_products_so_far\", F.size(F.collect_set(\"product_id\").over(w)))",
+    "hint": "A running Python set naturally tracks 'everything seen so far' \u2014 add the current row's product, then record the set's size at each step.",
+    "expected": [
+      {
+        "sale_date": "2024-01-01",
+        "product_id": 1,
+        "distinct_products_so_far": 1
+      },
+      {
+        "sale_date": "2024-01-02",
+        "product_id": 2,
+        "distinct_products_so_far": 2
+      },
+      {
+        "sale_date": "2024-01-03",
+        "product_id": 1,
+        "distinct_products_so_far": 2
+      },
+      {
+        "sale_date": "2024-01-04",
+        "product_id": 3,
+        "distinct_products_so_far": 3
+      },
+      {
+        "sale_date": "2024-01-05",
+        "product_id": 2,
+        "distinct_products_so_far": 3
+      }
+    ],
+    "expectedCols": [
+      "sale_date",
+      "product_id",
+      "distinct_products_so_far"
+    ]
+  },
+  {
+    "id": 59,
+    "title": "Year-over-Year Same Month",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "Using <b>yearly_rev</b> (year, month, revenue), show each 2024 month's revenue next to the same month's revenue in 2023.",
+    "setup": "import pandas as pd\n\nyearly_rev = pd.DataFrame({\"year\": [2023,2023,2024,2024], \"month\": [1,2,1,2], \"revenue\": [100,120,150,110]})",
+    "starter": "curr = yearly_rev[yearly_rev[\"year\"] == 2024].rename(columns={\"revenue\": \"revenue_2024\"})\nprev = yearly_rev[yearly_rev[\"year\"] == ___].rename(columns={\"revenue\": \"revenue_2023\"})\nresult = curr.merge(prev, on=\"month\")[[\"month\", \"revenue_2024\", \"revenue_2023\"]].sort_values(\"month\").reset_index(drop=True)",
+    "solution": "curr = yearly_rev[yearly_rev[\"year\"] == 2024].rename(columns={\"revenue\":\"revenue_2024\"})\nprev = yearly_rev[yearly_rev[\"year\"] == 2023].rename(columns={\"revenue\":\"revenue_2023\"})\nresult = curr.merge(prev, on=\"month\")[[\"month\",\"revenue_2024\",\"revenue_2023\"]].sort_values(\"month\").reset_index(drop=True)",
+    "pysparkRef": "curr = df.filter(F.col(\"year\") == 2024).withColumnRenamed(\"revenue\",\"revenue_2024\")\nprev = df.filter(F.col(\"year\") == 2023).withColumnRenamed(\"revenue\",\"revenue_2023\")\nresult = curr.join(prev, \"month\").select(\"month\",\"revenue_2024\",\"revenue_2023\").orderBy(\"month\")",
+    "hint": "Split the table into two filtered halves (one per year), then merge them back together on month \u2014 pandas' version of a self-join.",
+    "expected": [
+      {
+        "month": 1,
+        "revenue_2024": 150,
+        "revenue_2023": 100
+      },
+      {
+        "month": 2,
+        "revenue_2024": 110,
+        "revenue_2023": 120
+      }
+    ],
+    "expectedCols": [
+      "month",
+      "revenue_2024",
+      "revenue_2023"
+    ]
+  },
+  {
+    "id": 60,
+    "title": "Variance of Scores",
+    "difficulty": "Medium",
+    "topic": "Grouped Statistics",
+    "scenario": "Compute the population variance of scores in <b>var_scores</b>.",
+    "setup": "import pandas as pd\n\nvar_scores = pd.DataFrame({\"score\": [10,12,14,16,18]})",
+    "starter": "result = pd.DataFrame({\"variance\": [round(var_scores[\"score\"].var(ddof=___), 2)]})",
+    "solution": "result = pd.DataFrame({\"variance\": [round(var_scores[\"score\"].var(ddof=0), 2)]})",
+    "pysparkRef": "result = df.agg(F.variance(\"score\").alias(\"variance\"))  # note: Spark's variance() is the *sample* variance (ddof=1)",
+    "hint": "Series.var(ddof=0) computes population variance directly \u2014 pandas defaults to sample variance (ddof=1), so this argument matters.",
+    "expected": [
+      {
+        "variance": 8.0
+      }
+    ],
+    "expectedCols": [
+      "variance"
+    ]
+  },
+  {
+    "id": 61,
+    "title": "7-Day Rolling Sales Total",
+    "difficulty": "Hard",
+    "topic": "Time-Based Windows",
+    "scenario": "For each day in <b>daily_sales</b>, sum sales over that day and the 6 days before it (a true calendar window, not just 'the last N rows').",
+    "setup": "import pandas as pd\n\ndaily_sales = pd.DataFrame({\n    \"sale_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-02\",\"2024-01-05\",\"2024-01-08\",\"2024-01-09\"]),\n    \"amount\": [10,20,30,40,15]\n})",
+    "starter": "daily_sales = daily_sales.sort_values(\"sale_date\").reset_index(drop=True)\ndef rolling_7d(d):\n    window = daily_sales[(daily_sales[\"sale_date\"] <= d) & (daily_sales[\"sale_date\"] >= d - pd.Timedelta(days=___))]\n    return window[\"amount\"].sum()\ndaily_sales[\"rolling_7d_total\"] = daily_sales[\"sale_date\"].apply(rolling_7d)\nresult = daily_sales",
+    "solution": "daily_sales = daily_sales.sort_values(\"sale_date\").reset_index(drop=True)\ndef rolling_7d(d):\n    window = daily_sales[(daily_sales[\"sale_date\"] <= d) & (daily_sales[\"sale_date\"] >= d - pd.Timedelta(days=6))]\n    return window[\"amount\"].sum()\ndaily_sales[\"rolling_7d_total\"] = daily_sales[\"sale_date\"].apply(rolling_7d)\nresult = daily_sales",
+    "pysparkRef": "result = df.withColumn(\"epoch\", F.col(\"sale_date\").cast(\"timestamp\").cast(\"long\"))\nw = Window.orderBy(\"epoch\").rangeBetween(-6*86400, 0)\nresult = result.withColumn(\"rolling_7d_total\", F.sum(\"amount\").over(w))",
+    "hint": "pandas' .rolling() works on row counts, not calendar days when rows aren't evenly spaced \u2014 a small apply() function filtering by actual date range is the reliable approach.",
+    "expected": [
+      {
+        "sale_date": "2024-01-01",
+        "amount": 10,
+        "rolling_7d_total": 10
+      },
+      {
+        "sale_date": "2024-01-02",
+        "amount": 20,
+        "rolling_7d_total": 30
+      },
+      {
+        "sale_date": "2024-01-05",
+        "amount": 30,
+        "rolling_7d_total": 60
+      },
+      {
+        "sale_date": "2024-01-08",
+        "amount": 40,
+        "rolling_7d_total": 90
+      },
+      {
+        "sale_date": "2024-01-09",
+        "amount": 15,
+        "rolling_7d_total": 85
+      }
+    ],
+    "expectedCols": [
+      "sale_date",
+      "amount",
+      "rolling_7d_total"
+    ]
+  },
+  {
+    "id": 62,
+    "title": "Rank and Share of Total Together",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each product in <b>prod_sales</b>, compute its sales rank and its percentage share of total sales, in the same DataFrame.",
+    "setup": "import pandas as pd\n\nprod_sales = pd.DataFrame({\"product\": [\"A\",\"B\",\"C\"], \"sales\": [500,300,200]})",
+    "starter": "prod_sales[\"sales_rank\"] = prod_sales[\"sales\"].rank(method=\"min\", ascending=False).astype(int)\nprod_sales[\"pct_of_total\"] = (prod_sales[\"sales\"] * 100 / prod_sales[\"sales\"].___()).round(2)\nresult = prod_sales.sort_values(\"sales_rank\").reset_index(drop=True)",
+    "solution": "prod_sales[\"sales_rank\"] = prod_sales[\"sales\"].rank(method=\"min\", ascending=False).astype(int)\nprod_sales[\"pct_of_total\"] = (prod_sales[\"sales\"] * 100 / prod_sales[\"sales\"].sum()).round(2)\nresult = prod_sales.sort_values(\"sales_rank\").reset_index(drop=True)",
+    "pysparkRef": "w = Window.orderBy(F.col(\"sales\").desc())\nw_all = Window.partitionBy()\nresult = (df.withColumn(\"sales_rank\", F.rank().over(w))\n            .withColumn(\"pct_of_total\", F.round(F.col(\"sales\") * 100 / F.sum(\"sales\").over(w_all), 2)))",
+    "hint": "Nothing stops you from adding several derived columns to the same DataFrame \u2014 rank() and a plain .sum() ratio can live side by side.",
+    "expected": [
+      {
+        "product": "A",
+        "sales": 500,
+        "sales_rank": 1,
+        "pct_of_total": 50.0
+      },
+      {
+        "product": "B",
+        "sales": 300,
+        "sales_rank": 2,
+        "pct_of_total": 30.0
+      },
+      {
+        "product": "C",
+        "sales": 200,
+        "sales_rank": 3,
+        "pct_of_total": 20.0
+      }
+    ],
+    "expectedCols": [
+      "product",
+      "sales",
+      "sales_rank",
+      "pct_of_total"
+    ]
+  },
+  {
+    "id": 63,
+    "title": "Anti-Join Done Right",
+    "difficulty": "Medium",
+    "topic": "Filtering",
+    "scenario": "<b>blocked_ids</b> contains a missing value. Find every customer in <b>all_customers</b> whose id is not in <b>blocked_ids</b>, safely.",
+    "setup": "import pandas as pd\nimport numpy as np\n\nall_customers = pd.DataFrame({\"customer_id\": [1,2,3], \"name\": [\"Nina\",\"Omar\",\"Priya\"]})\nblocked_ids = pd.DataFrame({\"customer_id\": [2, np.nan]})",
+    "starter": "blocked_set = set(blocked_ids[\"customer_id\"].___())\nresult = all_customers[~all_customers[\"customer_id\"].isin(blocked_set)].sort_values(\"customer_id\").reset_index(drop=True)",
+    "solution": "blocked_set = set(blocked_ids[\"customer_id\"].dropna())\nresult = all_customers[~all_customers[\"customer_id\"].isin(blocked_set)].sort_values(\"customer_id\").reset_index(drop=True)",
+    "pysparkRef": "result = all_customers_df.join(blocked_ids_df.na.drop(), \"customer_id\", \"left_anti\")",
+    "hint": "Series.dropna() removes the missing value from the blocked set before checking membership \u2014 pandas' .isin() is actually NaN-safe by default, but it's good practice to be explicit about dropping it first.",
+    "expected": [
+      {
+        "customer_id": 1,
+        "name": "Nina"
+      },
+      {
+        "customer_id": 3,
+        "name": "Priya"
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "name"
+    ]
+  },
+  {
+    "id": 64,
+    "title": "Build the Full Manager Path",
+    "difficulty": "Hard",
+    "topic": "Recursive Logic",
+    "scenario": "For each employee in <b>org3</b>, build a readable path of their full management chain, like 'CEO > VP Eng > Eng Mgr'.",
+    "setup": "import pandas as pd\n\norg3 = pd.DataFrame({\"emp_id\": [1,2,3], \"name\": [\"CEO\",\"VP Eng\",\"Eng Mgr\"], \"manager_id\": [None,1,2]})",
+    "starter": "paths = {}\ndef build_path(emp_id):\n    if emp_id in paths:\n        return paths[emp_id]\n    row = org3[org3[\"emp_id\"] == emp_id].iloc[0]\n    if pd.isna(row[\"manager_id\"]):\n        paths[emp_id] = row[\"name\"]\n    else:\n        paths[emp_id] = build_path(int(row[\"manager_id\"])) + ___ + row[\"name\"]\n    return paths[emp_id]\n\norg3[\"full_path\"] = org3[\"emp_id\"].apply(build_path)\nresult = org3[[\"name\", \"full_path\"]].reset_index(drop=True)",
+    "solution": "paths = {}\ndef build_path(emp_id):\n    if emp_id in paths:\n        return paths[emp_id]\n    row = org3[org3[\"emp_id\"] == emp_id].iloc[0]\n    if pd.isna(row[\"manager_id\"]):\n        paths[emp_id] = row[\"name\"]\n    else:\n        paths[emp_id] = build_path(int(row[\"manager_id\"])) + \" > \" + row[\"name\"]\n    return paths[emp_id]\n\norg3[\"full_path\"] = org3[\"emp_id\"].apply(build_path)\nresult = org3[[\"name\",\"full_path\"]].reset_index(drop=True)",
+    "pysparkRef": "# Same iterative-join idea as the org-levels question earlier \u2014\n# build up path strings one level at a time until no rows are left to extend.",
+    "hint": "A small recursive helper walks up each employee's chain, building the string from the top down as the recursion unwinds.",
+    "expected": [
+      {
+        "name": "CEO",
+        "full_path": "CEO"
+      },
+      {
+        "name": "VP Eng",
+        "full_path": "CEO > VP Eng"
+      },
+      {
+        "name": "Eng Mgr",
+        "full_path": "CEO > VP Eng > Eng Mgr"
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "full_path"
+    ]
+  },
+  {
+    "id": 65,
+    "title": "Top 2 Scores, Ties Included",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Show the top 2 scores per game in <b>game_scores</b> \u2014 include every tie for 2nd place, not just an arbitrary two rows.",
+    "setup": "import pandas as pd\n\ngame_scores = pd.DataFrame({\n    \"game\": [\"Chess\",\"Chess\",\"Chess\",\"Chess\",\"Checkers\",\"Checkers\"],\n    \"player\": [\"A\",\"B\",\"C\",\"D\",\"E\",\"F\"],\n    \"score\": [90,80,80,70,60,50]\n})",
+    "starter": "game_scores[\"rnk\"] = game_scores.groupby(\"game\")[\"score\"].rank(method=\"min\", ascending=False).astype(int)\nresult = game_scores[game_scores[\"rnk\"] <= ___][[\"game\", \"player\", \"score\"]].sort_values([\"game\", \"score\"], ascending=[True, False]).reset_index(drop=True)",
+    "solution": "game_scores[\"rnk\"] = game_scores.groupby(\"game\")[\"score\"].rank(method=\"min\", ascending=False).astype(int)\nresult = game_scores[game_scores[\"rnk\"] <= 2][[\"game\",\"player\",\"score\"]].sort_values([\"game\",\"score\"], ascending=[True,False]).reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"game\").orderBy(F.col(\"score\").desc())\nresult = df.withColumn(\"rnk\", F.rank().over(w)).filter(F.col(\"rnk\") <= 2).select(\"game\",\"player\",\"score\")",
+    "hint": "rank(method='min') is pandas' RANK equivalent \u2014 tied scores share the same rank number, so filtering rnk <= 2 naturally keeps every tied player.",
+    "expected": [
+      {
+        "game": "Checkers",
+        "player": "E",
+        "score": 60
+      },
+      {
+        "game": "Checkers",
+        "player": "F",
+        "score": 50
+      },
+      {
+        "game": "Chess",
+        "player": "A",
+        "score": 90
+      },
+      {
+        "game": "Chess",
+        "player": "B",
+        "score": 80
+      },
+      {
+        "game": "Chess",
+        "player": "C",
+        "score": 80
+      }
+    ],
+    "expectedCols": [
+      "game",
+      "player",
+      "score"
+    ]
+  },
+  {
+    "id": 66,
+    "title": "Running Bank Balance",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Given signed transactions in <b>transactions</b> (positive = deposit, negative = withdrawal), compute the running balance after each one.",
+    "setup": "import pandas as pd\n\ntransactions = pd.DataFrame({\n    \"txn_date\": [\"2024-01-01\",\"2024-01-02\",\"2024-01-03\",\"2024-01-04\"],\n    \"amount\": [100,-30,50,-20]\n})",
+    "starter": "transactions = transactions.sort_values(\"txn_date\")\ntransactions[\"running_balance\"] = transactions[\"amount\"].___()\nresult = transactions.reset_index(drop=True)",
+    "solution": "transactions = transactions.sort_values(\"txn_date\")\ntransactions[\"running_balance\"] = transactions[\"amount\"].cumsum()\nresult = transactions.reset_index(drop=True)",
+    "pysparkRef": "w = Window.orderBy(\"txn_date\").rowsBetween(Window.unboundedPreceding, Window.currentRow)\nresult = df.withColumn(\"running_balance\", F.sum(\"amount\").over(w))",
+    "hint": "cumsum() is exactly the same running-total tool as before \u2014 signed values just make the balance rise and fall naturally.",
+    "expected": [
+      {
+        "txn_date": "2024-01-01",
+        "amount": 100,
+        "running_balance": 100
+      },
+      {
+        "txn_date": "2024-01-02",
+        "amount": -30,
+        "running_balance": 70
+      },
+      {
+        "txn_date": "2024-01-03",
+        "amount": 50,
+        "running_balance": 120
+      },
+      {
+        "txn_date": "2024-01-04",
+        "amount": -20,
+        "running_balance": 100
+      }
+    ],
+    "expectedCols": [
+      "txn_date",
+      "amount",
+      "running_balance"
+    ]
+  },
+  {
+    "id": 67,
+    "title": "Find Missing Dates",
+    "difficulty": "Hard",
+    "topic": "Date Operations",
+    "scenario": "Between 2024-01-01 and 2024-01-07 inclusive, find which dates are missing from <b>logged_days</b>.",
+    "setup": "import pandas as pd\n\nlogged_days = pd.DataFrame({\"log_date\": pd.to_datetime([\"2024-01-01\",\"2024-01-02\",\"2024-01-04\",\"2024-01-07\"])})",
+    "starter": "full_range = pd.date_range(\"2024-01-01\", ___)\nmissing = full_range.difference(logged_days[\"log_date\"])\nresult = pd.DataFrame({\"missing_date\": sorted(missing)})",
+    "solution": "full_range = pd.date_range(\"2024-01-01\", \"2024-01-07\")\nmissing = full_range.difference(logged_days[\"log_date\"])\nresult = pd.DataFrame({\"missing_date\": sorted(missing)})",
+    "pysparkRef": "calendar = spark.sql(\"SELECT explode(sequence(to_date('2024-01-01'), to_date('2024-01-07'), interval 1 day)) as d\")\nresult = calendar.join(logged_days_df, calendar.d == logged_days_df.log_date, \"left_anti\")",
+    "hint": "pd.date_range generates the full calendar in one call; .difference() then finds exactly the dates missing from your logged set \u2014 no recursion needed in pandas.",
+    "expected": [
+      {
+        "missing_date": "2024-01-03"
+      },
+      {
+        "missing_date": "2024-01-05"
+      },
+      {
+        "missing_date": "2024-01-06"
+      }
+    ],
+    "expectedCols": [
+      "missing_date"
+    ]
+  },
+  {
+    "id": 68,
+    "title": "Detect Price Increases",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each row in <b>price_history</b>, flag whether the price went up, down, or stayed flat compared to the previous recorded price for that product.",
+    "setup": "import pandas as pd\n\nprice_history = pd.DataFrame({\n    \"product\": [\"Widget\",\"Widget\",\"Widget\",\"Widget\"],\n    \"price_date\": [\"2024-01-01\",\"2024-02-01\",\"2024-03-01\",\"2024-04-01\"],\n    \"price\": [10,12,12,9]\n})",
+    "starter": "price_history = price_history.sort_values([\"product\", \"price_date\"])\nprice_history[\"prev_price\"] = price_history.groupby(\"product\")[\"price\"].shift(___)\ndef trend(row):\n    if pd.isna(row[\"prev_price\"]):\n        return \"no change\"\n    if row[\"price\"] > row[\"prev_price\"]:\n        return \"increase\"\n    if row[\"price\"] < row[\"prev_price\"]:\n        return \"decrease\"\n    return \"no change\"\nprice_history[\"trend\"] = price_history.apply(trend, axis=1)\nresult = price_history[[\"product\", \"price_date\", \"price\", \"trend\"]].reset_index(drop=True)",
+    "solution": "price_history = price_history.sort_values([\"product\",\"price_date\"])\nprice_history[\"prev_price\"] = price_history.groupby(\"product\")[\"price\"].shift(1)\ndef trend(row):\n    if pd.isna(row[\"prev_price\"]):\n        return \"no change\"\n    if row[\"price\"] > row[\"prev_price\"]:\n        return \"increase\"\n    if row[\"price\"] < row[\"prev_price\"]:\n        return \"decrease\"\n    return \"no change\"\nprice_history[\"trend\"] = price_history.apply(trend, axis=1)\nresult = price_history[[\"product\",\"price_date\",\"price\",\"trend\"]].reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"product\").orderBy(\"price_date\")\ndf = df.withColumn(\"prev_price\", F.lag(\"price\").over(w))\nresult = df.withColumn(\"trend\",\n    F.when(F.col(\"prev_price\").isNull(), \"no change\")\n     .when(F.col(\"price\") > F.col(\"prev_price\"), \"increase\")\n     .when(F.col(\"price\") < F.col(\"prev_price\"), \"decrease\")\n     .otherwise(\"no change\"))",
+    "hint": "shift(1) again gives you the previous row's price per group \u2014 then a small row-wise function turns the comparison into a readable label.",
+    "expected": [
+      {
+        "product": "Widget",
+        "price_date": "2024-01-01",
+        "price": 10,
+        "trend": "no change"
+      },
+      {
+        "product": "Widget",
+        "price_date": "2024-02-01",
+        "price": 12,
+        "trend": "increase"
+      },
+      {
+        "product": "Widget",
+        "price_date": "2024-03-01",
+        "price": 12,
+        "trend": "no change"
+      },
+      {
+        "product": "Widget",
+        "price_date": "2024-04-01",
+        "price": 9,
+        "trend": "decrease"
+      }
+    ],
+    "expectedCols": [
+      "product",
+      "price_date",
+      "price",
+      "trend"
+    ]
+  },
+  {
+    "id": 69,
+    "title": "Unpivot Quarters Into Rows",
+    "difficulty": "Medium",
+    "topic": "Reshaping",
+    "scenario": "Turn wide-format <b>wide_rev</b> (one column per quarter) into long format: one row per product per quarter.",
+    "setup": "import pandas as pd\n\nwide_rev = pd.DataFrame({\"product\": [\"Widget\",\"Gadget\"], \"q1\": [100,80], \"q2\": [120,90]})",
+    "starter": "long_q1 = wide_rev[[\"product\", \"q1\"]].rename(columns={\"q1\": \"revenue\"}).assign(quarter=\"Q1\")\nlong_q2 = wide_rev[[\"product\", \"q2\"]].rename(columns={\"q2\": \"revenue\"}).assign(quarter=___)\nresult = pd.concat([long_q1, long_q2])[[\"product\", \"quarter\", \"revenue\"]].sort_values([\"product\", \"quarter\"]).reset_index(drop=True)",
+    "solution": "long_q1 = wide_rev[[\"product\",\"q1\"]].rename(columns={\"q1\":\"revenue\"}).assign(quarter=\"Q1\")\nlong_q2 = wide_rev[[\"product\",\"q2\"]].rename(columns={\"q2\":\"revenue\"}).assign(quarter=\"Q2\")\nresult = pd.concat([long_q1, long_q2])[[\"product\",\"quarter\",\"revenue\"]].sort_values([\"product\",\"quarter\"]).reset_index(drop=True)",
+    "pysparkRef": "result = df.selectExpr(\"product\", \"stack(2, 'Q1', q1, 'Q2', q2) as (quarter, revenue)\")",
+    "hint": "pandas also has a built-in pd.melt() for this exact pattern; building it manually with concat() makes each step explicit.",
+    "expected": [
+      {
+        "product": "Gadget",
+        "quarter": "Q1",
+        "revenue": 80
+      },
+      {
+        "product": "Gadget",
+        "quarter": "Q2",
+        "revenue": 90
+      },
+      {
+        "product": "Widget",
+        "quarter": "Q1",
+        "revenue": 100
+      },
+      {
+        "product": "Widget",
+        "quarter": "Q2",
+        "revenue": 120
+      }
+    ],
+    "expectedCols": [
+      "product",
+      "quarter",
+      "revenue"
+    ]
+  },
+  {
+    "id": 70,
+    "title": "Customer Lifetime Value",
+    "difficulty": "Hard",
+    "topic": "Joins & Aggregation",
+    "scenario": "Compute each customer's net lifetime value: total order amount from <b>clv_orders</b> minus total refunds from <b>clv_refunds</b>.",
+    "setup": "import pandas as pd\n\nclv_orders = pd.DataFrame({\"customer_id\": [1,1,2], \"amount\": [100,50,200]})\nclv_refunds = pd.DataFrame({\"customer_id\": [1,2], \"amount\": [20,30]})",
+    "starter": "order_totals = clv_orders.groupby(\"customer_id\", as_index=False)[\"amount\"].sum().rename(columns={\"amount\": \"total_orders\"})\nrefund_totals = clv_refunds.groupby(\"customer_id\", as_index=False)[\"amount\"].sum().rename(columns={\"amount\": \"total_refunds\"})\nmerged = order_totals.merge(refund_totals, on=\"customer_id\", how=___)\nmerged[\"total_refunds\"] = merged[\"total_refunds\"].fillna(0)\nmerged[\"lifetime_value\"] = merged[\"total_orders\"] - merged[\"total_refunds\"]\nresult = merged[[\"customer_id\", \"lifetime_value\"]].sort_values(\"customer_id\").reset_index(drop=True)",
+    "solution": "order_totals = clv_orders.groupby(\"customer_id\", as_index=False)[\"amount\"].sum().rename(columns={\"amount\":\"total_orders\"})\nrefund_totals = clv_refunds.groupby(\"customer_id\", as_index=False)[\"amount\"].sum().rename(columns={\"amount\":\"total_refunds\"})\nmerged = order_totals.merge(refund_totals, on=\"customer_id\", how=\"left\")\nmerged[\"total_refunds\"] = merged[\"total_refunds\"].fillna(0)\nmerged[\"lifetime_value\"] = merged[\"total_orders\"] - merged[\"total_refunds\"]\nresult = merged[[\"customer_id\",\"lifetime_value\"]].sort_values(\"customer_id\").reset_index(drop=True)",
+    "pysparkRef": "order_totals = orders_df.groupBy(\"customer_id\").sum(\"amount\").withColumnRenamed(\"sum(amount)\",\"total_orders\")\nrefund_totals = refunds_df.groupBy(\"customer_id\").sum(\"amount\").withColumnRenamed(\"sum(amount)\",\"total_refunds\")\nresult = (order_totals.join(refund_totals, \"customer_id\", \"left\")\n                       .na.fill(0, subset=[\"total_refunds\"])\n                       .withColumn(\"lifetime_value\", F.col(\"total_orders\") - F.col(\"total_refunds\")))",
+    "hint": "Aggregate each side independently first, then merge them (how='left' keeps customers with orders but no refunds) and fill the resulting gap with 0.",
+    "expected": [
+      {
+        "customer_id": 1,
+        "lifetime_value": 130
+      },
+      {
+        "customer_id": 2,
+        "lifetime_value": 170
+      }
+    ],
+    "expectedCols": [
+      "customer_id",
+      "lifetime_value"
+    ]
+  },
+  {
+    "id": 71,
+    "title": "Managers Busier Than Their Boss",
+    "difficulty": "Hard",
+    "topic": "Grouped Transforms",
+    "scenario": "Find managers in <b>org4</b> who personally have more direct reports than their own manager has.",
+    "setup": "import pandas as pd\n\norg4 = pd.DataFrame({\n    \"emp_id\": [1,2,3,4,5,6],\n    \"name\": [\"CEO\",\"Ann\",\"Bud\",\"Cid\",\"Dee\",\"Eve\"],\n    \"manager_id\": [None,1,2,2,2,3]\n})",
+    "starter": "report_counts = org4.dropna(subset=[\"manager_id\"]).groupby(\"manager_id\").size()\norg4[\"own_reports\"] = org4[\"emp_id\"].map(report_counts).fillna(0).astype(int)\norg4[\"manager_reports\"] = org4[\"manager_id\"].map(report_counts).fillna(0).astype(int)\nresult = org4[org4[\"manager_id\"].notna() & (org4[\"own_reports\"] > 0) & (org4[\"own_reports\"] > org4[___])][[\"name\", \"own_reports\", \"manager_reports\"]].reset_index(drop=True)",
+    "solution": "report_counts = org4.dropna(subset=[\"manager_id\"]).groupby(\"manager_id\").size()\norg4[\"own_reports\"] = org4[\"emp_id\"].map(report_counts).fillna(0).astype(int)\norg4[\"manager_reports\"] = org4[\"manager_id\"].map(report_counts).fillna(0).astype(int)\nresult = org4[org4[\"manager_id\"].notna() & (org4[\"own_reports\"] > 0) & (org4[\"own_reports\"] > org4[\"manager_reports\"])][[\"name\",\"own_reports\",\"manager_reports\"]].reset_index(drop=True)",
+    "pysparkRef": "counts = df.filter(F.col(\"manager_id\").isNotNull()).groupBy(\"manager_id\").count()\ne = df.join(counts.withColumnRenamed(\"count\",\"own_reports\"), df.emp_id == counts.manager_id, \"left\")\nresult = (e.join(counts.withColumnRenamed(\"count\",\"manager_reports\"), e.manager_id == counts.manager_id, \"left\")\n           .filter(F.col(\"own_reports\") > F.col(\"manager_reports\")))",
+    "hint": "Build the report-count lookup once, then .map() it onto both emp_id (their own count) and manager_id (their boss's count) for a direct comparison.",
+    "expected": [
+      {
+        "name": "Ann",
+        "own_reports": 3,
+        "manager_reports": 1
+      }
+    ],
+    "expectedCols": [
+      "name",
+      "own_reports",
+      "manager_reports"
+    ]
+  },
+  {
+    "id": 72,
+    "title": "Rank Within Region and Category",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Rank products by sales within each region+category combination in <b>rc_sales</b>.",
+    "setup": "import pandas as pd\n\nrc_sales = pd.DataFrame({\n    \"region\": [\"East\",\"East\",\"West\",\"West\",\"West\"],\n    \"category\": [\"Tools\",\"Tools\",\"Tools\",\"Toys\",\"Toys\"],\n    \"product\": [\"Hammer\",\"Wrench\",\"Hammer\",\"Ball\",\"Doll\"],\n    \"sales\": [50,80,40,20,30]\n})",
+    "starter": "rc_sales[\"rnk\"] = rc_sales.groupby([___, ___])[\"sales\"].rank(method=\"min\", ascending=False).astype(int)\nresult = rc_sales.sort_values([\"region\", \"category\", \"rnk\"]).reset_index(drop=True)",
+    "solution": "rc_sales[\"rnk\"] = rc_sales.groupby([\"region\",\"category\"])[\"sales\"].rank(method=\"min\", ascending=False).astype(int)\nresult = rc_sales.sort_values([\"region\",\"category\",\"rnk\"]).reset_index(drop=True)",
+    "pysparkRef": "w = Window.partitionBy(\"region\",\"category\").orderBy(F.col(\"sales\").desc())\nresult = df.withColumn(\"rnk\", F.rank().over(w)).orderBy(\"region\",\"category\",\"rnk\")",
+    "hint": "groupby() accepts a list of columns for a compound partition key \u2014 the ranking resets for every unique region+category pair.",
+    "expected": [
+      {
+        "region": "East",
+        "category": "Tools",
+        "product": "Wrench",
+        "sales": 80,
+        "rnk": 1
+      },
+      {
+        "region": "East",
+        "category": "Tools",
+        "product": "Hammer",
+        "sales": 50,
+        "rnk": 2
+      },
+      {
+        "region": "West",
+        "category": "Tools",
+        "product": "Hammer",
+        "sales": 40,
+        "rnk": 1
+      },
+      {
+        "region": "West",
+        "category": "Toys",
+        "product": "Doll",
+        "sales": 30,
+        "rnk": 1
+      },
+      {
+        "region": "West",
+        "category": "Toys",
+        "product": "Ball",
+        "sales": 20,
+        "rnk": 2
+      }
+    ],
+    "expectedCols": [
+      "region",
+      "category",
+      "product",
+      "sales",
+      "rnk"
+    ]
+  },
+  {
+    "id": 73,
+    "title": "Safe Conversion Rate",
+    "difficulty": "Easy",
+    "topic": "Null Handling",
+    "scenario": "Compute conversion rate (orders / visits) for each channel in <b>channel_stats</b> without crashing on zero-visit channels.",
+    "setup": "import pandas as pd\nimport numpy as np\n\nchannel_stats = pd.DataFrame({\"channel\": [\"Organic\",\"Paid\",\"Referral\"], \"visits\": [1000,0,200], \"orders\": [50,0,10]})",
+    "starter": "channel_stats[\"conversion_rate\"] = (channel_stats[\"orders\"] / channel_stats[\"visits\"].replace(0, ___)).round(4)\nresult = channel_stats[[\"channel\", \"conversion_rate\"]].sort_values(\"channel\").reset_index(drop=True)",
+    "solution": "channel_stats[\"conversion_rate\"] = (channel_stats[\"orders\"] / channel_stats[\"visits\"].replace(0, np.nan)).round(4)\nresult = channel_stats[[\"channel\",\"conversion_rate\"]].sort_values(\"channel\").reset_index(drop=True)",
+    "pysparkRef": "result = df.withColumn(\"conversion_rate\", F.round(F.col(\"orders\") / F.nullif(F.col(\"visits\"), F.lit(0)), 4))",
+    "hint": "replace(0, np.nan) swaps zeros for NaN first, so dividing by it produces NaN instead of a ZeroDivisionError or an infinite value.",
+    "expected": [
+      {
+        "channel": "Organic",
+        "conversion_rate": 0.05
+      },
+      {
+        "channel": "Paid",
+        "conversion_rate": null
+      },
+      {
+        "channel": "Referral",
+        "conversion_rate": 0.05
+      }
+    ],
+    "expectedCols": [
+      "channel",
+      "conversion_rate"
+    ]
+  },
+  {
+    "id": 74,
+    "title": "Case-Insensitive Customer Grouping",
+    "difficulty": "Easy",
+    "topic": "String Operations",
+    "scenario": "Count orders per customer in <b>messy_names</b>, treating names as case-insensitive.",
+    "setup": "import pandas as pd\n\nmessy_names = pd.DataFrame({\"customer_name\": [\"Nina\",\"nina\",\"NINA\",\"Omar\"], \"order_id\": [1,2,3,4]})",
+    "starter": "messy_names[\"customer_key\"] = messy_names[\"customer_name\"].str.___()\nresult = messy_names.groupby(\"customer_key\", as_index=False).size().rename(columns={\"size\": \"order_count\"}).sort_values(\"customer_key\").reset_index(drop=True)",
+    "solution": "messy_names[\"customer_key\"] = messy_names[\"customer_name\"].str.lower()\nresult = messy_names.groupby(\"customer_key\", as_index=False).size().rename(columns={\"size\":\"order_count\"}).sort_values(\"customer_key\").reset_index(drop=True)",
+    "pysparkRef": "result = df.withColumn(\"customer_key\", F.lower(\"customer_name\")).groupBy(\"customer_key\").count()",
+    "hint": "str.lower() normalizes casing before grouping \u2014 group on the normalized column, not the original.",
+    "expected": [
+      {
+        "customer_key": "nina",
+        "order_count": 3
+      },
+      {
+        "customer_key": "omar",
+        "order_count": 1
+      }
+    ],
+    "expectedCols": [
+      "customer_key",
+      "order_count"
+    ]
+  },
+  {
+    "id": 75,
+    "title": "Assign Letter Grades",
+    "difficulty": "Easy",
+    "topic": "Conditional Logic",
+    "scenario": "Convert numeric scores in <b>grades</b> into letter grades: A (90-100), B (80-89), C (70-79), F (below 70).",
+    "setup": "import pandas as pd\nimport numpy as np\n\ngrades = pd.DataFrame({\"student\": [\"Al\",\"Bo\",\"Cy\",\"Dee\"], \"score\": [95,82,71,60]})",
+    "starter": "conditions = [\n    grades[\"score\"].between(90, 100),\n    grades[\"score\"].between(80, 89),\n    grades[\"score\"].between(___, 79),\n]\nchoices = [\"A\", \"B\", \"C\"]\ngrades[\"letter_grade\"] = np.select(conditions, choices, default=___)\nresult = grades.sort_values(\"score\", ascending=False).reset_index(drop=True)",
+    "solution": "conditions = [\n    grades[\"score\"].between(90,100),\n    grades[\"score\"].between(80,89),\n    grades[\"score\"].between(70,79),\n]\nchoices = [\"A\",\"B\",\"C\"]\ngrades[\"letter_grade\"] = np.select(conditions, choices, default=\"F\")\nresult = grades.sort_values(\"score\", ascending=False).reset_index(drop=True)",
+    "pysparkRef": "df = df.withColumn(\"letter_grade\",\n    F.when(F.col(\"score\").between(90,100), \"A\")\n     .when(F.col(\"score\").between(80,89), \"B\")\n     .when(F.col(\"score\").between(70,79), \"C\")\n     .otherwise(\"F\"))",
+    "hint": "Series.between(lo, hi) is inclusive on both ends \u2014 np.select checks the conditions top to bottom, so list them from highest grade to lowest.",
+    "expected": [
+      {
+        "student": "Al",
+        "score": 95,
+        "letter_grade": "A"
+      },
+      {
+        "student": "Bo",
+        "score": 82,
+        "letter_grade": "B"
+      },
+      {
+        "student": "Cy",
+        "score": 71,
+        "letter_grade": "C"
+      },
+      {
+        "student": "Dee",
+        "score": 60,
+        "letter_grade": "F"
+      }
+    ],
+    "expectedCols": [
+      "student",
+      "score",
+      "letter_grade"
+    ]
   }
 ]</script>
 <script>
@@ -1225,6 +2755,8 @@ def __to_records(df):
         except Exception:
             pass
         if isinstance(v, pd.Timestamp):
+            if v.hour or v.minute or v.second:
+                return v.strftime('%Y-%m-%d %H:%M:%S')
             return v.strftime('%Y-%m-%d')
         if isinstance(v, (np.integer,)):
             return int(v)
