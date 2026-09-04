@@ -168,7 +168,7 @@
 <div class="topbar">
   <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL Practice</div>
   <div class="topbar-right">
-    <div class="progress-pill">Solved <b id="progressCount">0</b>/30</div>
+    <div class="progress-pill">Solved <b id="progressCount">0</b>/75</div>
     <a href="pyspark-practice.html">PySpark Practice →</a>
   </div>
 </div>
@@ -176,7 +176,7 @@
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-head">
-      <h1>30 SQL Scenarios</h1>
+      <h1>75 SQL Scenarios</h1>
       <p>Real SQLite engine, running entirely in your browser.</p>
     </div>
     <ul class="qlist" id="qlist"></ul>
@@ -1171,6 +1171,1485 @@
         3,
         600.0,
         60.0
+      ]
+    ]
+  },
+  {
+    "id": 31,
+    "title": "Merge Current and Archived Orders",
+    "difficulty": "Easy",
+    "topic": "Set Operations",
+    "scenario": "Reporting needs one combined view of live and archived orders. Stack <b>current_orders</b> and <b>archived_orders</b> into a single result (keep duplicates if any \u2014 this is a report, not a dedup).",
+    "schema": "\nCREATE TABLE current_orders (order_id INTEGER, customer_id INTEGER, amount REAL);\nCREATE TABLE archived_orders (order_id INTEGER, customer_id INTEGER, amount REAL);\nINSERT INTO current_orders VALUES (101,1,50),(102,2,80);\nINSERT INTO archived_orders VALUES (90,1,40),(91,3,60);\n",
+    "starter": "SELECT order_id, customer_id, amount FROM current_orders\n-- combine with archived_orders, keeping duplicates\n",
+    "solution": "SELECT order_id, customer_id, amount FROM current_orders\nUNION ALL\nSELECT order_id, customer_id, amount FROM archived_orders\nORDER BY order_id;",
+    "hint": "UNION ALL stacks rows from both queries without removing duplicates \u2014 plain UNION would (needlessly) try to dedupe them.",
+    "expectedCols": [
+      "order_id",
+      "customer_id",
+      "amount"
+    ],
+    "expectedRows": [
+      [
+        90,
+        1,
+        40.0
+      ],
+      [
+        91,
+        3,
+        60.0
+      ],
+      [
+        101,
+        1,
+        50.0
+      ],
+      [
+        102,
+        2,
+        80.0
+      ]
+    ]
+  },
+  {
+    "id": 32,
+    "title": "Customers Who Bought Both A and B",
+    "difficulty": "Medium",
+    "topic": "Set Operations",
+    "scenario": "Find customers in <b>purchase_log</b> who have bought <i>both</i> 'Product A' and 'Product B' (not just one or the other).",
+    "schema": "\nCREATE TABLE purchase_log (customer_id INTEGER, product TEXT);\nINSERT INTO purchase_log VALUES\n(1,'Product A'),(1,'Product B'),(2,'Product A'),(3,'Product B'),(4,'Product A'),(4,'Product B');\n",
+    "starter": "SELECT customer_id FROM purchase_log WHERE product = 'Product A'\n-- combine with a set operator against Product B buyers\n",
+    "solution": "SELECT customer_id FROM purchase_log WHERE product = 'Product A'\nINTERSECT\nSELECT customer_id FROM purchase_log WHERE product = 'Product B'\nORDER BY customer_id;",
+    "hint": "INTERSECT keeps only rows that appear in both queries \u2014 exactly customers present in both product lists.",
+    "expectedCols": [
+      "customer_id"
+    ],
+    "expectedRows": [
+      [
+        1
+      ],
+      [
+        4
+      ]
+    ]
+  },
+  {
+    "id": 33,
+    "title": "Match Bonuses by Department and Quarter",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "Bonus rates in <b>bonus_rates</b> vary by department AND quarter. Join it to <b>emp_bonus</b> matching on both columns to attach the right bonus_pct to each employee record.",
+    "schema": "\nCREATE TABLE emp_bonus (emp_id INTEGER, department TEXT, quarter TEXT, base_salary REAL);\nCREATE TABLE bonus_rates (department TEXT, quarter TEXT, bonus_pct REAL);\nINSERT INTO emp_bonus VALUES (1,'Eng','Q1',10000),(2,'Sales','Q1',8000),(3,'Eng','Q2',10000);\nINSERT INTO bonus_rates VALUES ('Eng','Q1',0.10),('Sales','Q1',0.05),('Eng','Q2',0.12);\n",
+    "starter": "SELECT e.emp_id, e.department, e.quarter, e.base_salary, r.bonus_pct\nFROM emp_bonus e\nJOIN bonus_rates r ON -- match on both department and quarter\nORDER BY e.emp_id;\n",
+    "solution": "SELECT e.emp_id, e.department, e.quarter, e.base_salary, r.bonus_pct\nFROM emp_bonus e\nJOIN bonus_rates r ON e.department = r.department AND e.quarter = r.quarter\nORDER BY e.emp_id;",
+    "hint": "A join condition can chain multiple equalities with AND \u2014 both columns have to match for a row to be paired up.",
+    "expectedCols": [
+      "emp_id",
+      "department",
+      "quarter",
+      "base_salary",
+      "bonus_pct"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "Eng",
+        "Q1",
+        10000.0,
+        0.1
+      ],
+      [
+        2,
+        "Sales",
+        "Q1",
+        8000.0,
+        0.05
+      ],
+      [
+        3,
+        "Eng",
+        "Q2",
+        10000.0,
+        0.12
+      ]
+    ]
+  },
+  {
+    "id": 34,
+    "title": "Missing Size/Color Combinations",
+    "difficulty": "Medium",
+    "topic": "Cross Joins",
+    "scenario": "Merchandising wants to know which size \u00d7 color combinations aren't in stock yet. Cross join <b>sizes</b> and <b>colors</b> to get every possible combination, then find which ones are missing from <b>stock</b>.",
+    "schema": "\nCREATE TABLE sizes (size TEXT);\nCREATE TABLE colors (color TEXT);\nCREATE TABLE stock (size TEXT, color TEXT);\nINSERT INTO sizes VALUES ('S'),('M'),('L');\nINSERT INTO colors VALUES ('Red'),('Blue');\nINSERT INTO stock VALUES ('S','Red'),('M','Blue'),('L','Red');\n",
+    "starter": "SELECT s.size, c.color\nFROM sizes s\nCROSS JOIN colors c\nLEFT JOIN stock st ON s.size = st.size AND c.color = st.color\n-- keep only the combinations with no matching stock row\n",
+    "solution": "SELECT s.size, c.color\nFROM sizes s\nCROSS JOIN colors c\nLEFT JOIN stock st ON s.size = st.size AND c.color = st.color\nWHERE st.size IS NULL\nORDER BY s.size, c.color;",
+    "hint": "CROSS JOIN generates every combination first; the LEFT JOIN + IS NULL filter afterward finds the combinations stock has no row for.",
+    "expectedCols": [
+      "size",
+      "color"
+    ],
+    "expectedRows": [
+      [
+        "L",
+        "Blue"
+      ],
+      [
+        "M",
+        "Red"
+      ],
+      [
+        "S",
+        "Blue"
+      ]
+    ]
+  },
+  {
+    "id": 35,
+    "title": "Days Until Next Order",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each order in <b>cust_orders</b>, show how many days until that same customer's next order (NULL if it was their last).",
+    "schema": "\nCREATE TABLE cust_orders (customer_id INTEGER, order_date TEXT);\nINSERT INTO cust_orders VALUES\n(1,'2024-01-01'),(1,'2024-01-10'),(1,'2024-01-25'),\n(2,'2024-02-01'),(2,'2024-02-05');\n",
+    "starter": "SELECT customer_id, order_date,\n  JULIANDAY(LEAD(order_date) OVER (-- partition by customer, order by date)) - JULIANDAY(order_date) AS days_to_next\nFROM cust_orders\nORDER BY customer_id, order_date;\n",
+    "solution": "SELECT customer_id, order_date,\n  JULIANDAY(LEAD(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) - JULIANDAY(order_date) AS days_to_next\nFROM cust_orders\nORDER BY customer_id, order_date;",
+    "hint": "LEAD grabs the NEXT row's value into the current row (the mirror image of LAG); JULIANDAY lets you subtract two dates to get a day count.",
+    "expectedCols": [
+      "customer_id",
+      "order_date",
+      "days_to_next"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "2024-01-01",
+        9.0
+      ],
+      [
+        1,
+        "2024-01-10",
+        15.0
+      ],
+      [
+        1,
+        "2024-01-25",
+        null
+      ],
+      [
+        2,
+        "2024-02-01",
+        4.0
+      ],
+      [
+        2,
+        "2024-02-05",
+        null
+      ]
+    ]
+  },
+  {
+    "id": 36,
+    "title": "3-Day Rolling Average",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Smooth out daily noise in <b>daily_visits</b> by computing a 3-day moving average (current day plus the 2 before it).",
+    "schema": "\nCREATE TABLE daily_visits (day TEXT, visits INTEGER);\nINSERT INTO daily_visits VALUES\n('2024-01-01',100),('2024-01-02',150),('2024-01-03',120),('2024-01-04',200),('2024-01-05',90);\n",
+    "starter": "SELECT day, visits,\n  ROUND(AVG(visits) OVER (ORDER BY day ROWS BETWEEN -- 2 preceding AND current row), 2) AS moving_avg\nFROM daily_visits\nORDER BY day;\n",
+    "solution": "SELECT day, visits,\n  ROUND(AVG(visits) OVER (ORDER BY day ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS moving_avg\nFROM daily_visits\nORDER BY day;",
+    "hint": "ROWS BETWEEN 2 PRECEDING AND CURRENT ROW defines an explicit sliding window of exactly 3 rows (or fewer, near the start).",
+    "expectedCols": [
+      "day",
+      "visits",
+      "moving_avg"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-01",
+        100,
+        100.0
+      ],
+      [
+        "2024-01-02",
+        150,
+        125.0
+      ],
+      [
+        "2024-01-03",
+        120,
+        123.33
+      ],
+      [
+        "2024-01-04",
+        200,
+        156.67
+      ],
+      [
+        "2024-01-05",
+        90,
+        136.67
+      ]
+    ]
+  },
+  {
+    "id": 37,
+    "title": "Find Gmail Users",
+    "difficulty": "Easy",
+    "topic": "String Functions",
+    "scenario": "Find every user in <b>contacts</b> whose email ends in @gmail.com.",
+    "schema": "\nCREATE TABLE contacts (name TEXT, email TEXT);\nINSERT INTO contacts VALUES ('Al','al@gmail.com'),('Bo','bo@yahoo.com'),('Cy','cy@gmail.com');\n",
+    "starter": "SELECT name, email\nFROM contacts\nWHERE email -- pattern match ending in @gmail.com\nORDER BY name;\n",
+    "solution": "SELECT name, email\nFROM contacts\nWHERE email LIKE '%@gmail.com'\nORDER BY name;",
+    "hint": "LIKE '%@gmail.com' \u2014 the % wildcard matches any prefix, anchoring only the suffix.",
+    "expectedCols": [
+      "name",
+      "email"
+    ],
+    "expectedRows": [
+      [
+        "Al",
+        "al@gmail.com"
+      ],
+      [
+        "Cy",
+        "cy@gmail.com"
+      ]
+    ]
+  },
+  {
+    "id": 38,
+    "title": "Customers Who Bought Electronics",
+    "difficulty": "Medium",
+    "topic": "Subqueries",
+    "scenario": "Find customers in <b>orders6</b> who bought at least one product from the 'Electronics' category, using the category lookup in <b>products3</b>.",
+    "schema": "\nCREATE TABLE products3 (product_id INTEGER, category TEXT);\nCREATE TABLE orders6 (customer_id INTEGER, product_id INTEGER);\nINSERT INTO products3 VALUES (1,'Electronics'),(2,'Furniture'),(3,'Electronics');\nINSERT INTO orders6 VALUES (10,1),(11,2),(12,3),(13,2);\n",
+    "starter": "SELECT DISTINCT customer_id\nFROM orders6\nWHERE product_id IN (-- subquery: product_ids in Electronics)\nORDER BY customer_id;\n",
+    "solution": "SELECT DISTINCT customer_id\nFROM orders6\nWHERE product_id IN (SELECT product_id FROM products3 WHERE category = 'Electronics')\nORDER BY customer_id;",
+    "hint": "An IN subquery returns a list of valid product_ids; the outer query just checks membership against that list.",
+    "expectedCols": [
+      "customer_id"
+    ],
+    "expectedRows": [
+      [
+        10
+      ],
+      [
+        12
+      ]
+    ]
+  },
+  {
+    "id": 39,
+    "title": "Customers With at Least One Big Order",
+    "difficulty": "Medium",
+    "topic": "Subqueries",
+    "scenario": "Find every customer in <b>customers3</b> who has placed at least one order over 500 in <b>orders7</b>, using EXISTS.",
+    "schema": "\nCREATE TABLE customers3 (customer_id INTEGER, name TEXT);\nCREATE TABLE orders7 (order_id INTEGER, customer_id INTEGER, amount REAL);\nINSERT INTO customers3 VALUES (1,'Nina'),(2,'Omar'),(3,'Priya');\nINSERT INTO orders7 VALUES (1,1,600),(2,1,50),(3,2,100),(4,3,700);\n",
+    "starter": "SELECT c.customer_id, c.name\nFROM customers3 c\nWHERE EXISTS (\n  SELECT 1 FROM orders7 o WHERE o.customer_id = c.customer_id AND o.amount > 500\n)\n-- ORDER BY\n",
+    "solution": "SELECT c.customer_id, c.name\nFROM customers3 c\nWHERE EXISTS (\n  SELECT 1 FROM orders7 o WHERE o.customer_id = c.customer_id AND o.amount > 500\n)\nORDER BY c.customer_id;",
+    "hint": "EXISTS just checks whether the correlated subquery returns any row at all \u2014 it doesn't care what columns it selects, so SELECT 1 is idiomatic.",
+    "expectedCols": [
+      "customer_id",
+      "name"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "Nina"
+      ],
+      [
+        3,
+        "Priya"
+      ]
+    ]
+  },
+  {
+    "id": 40,
+    "title": "Products Never Ordered",
+    "difficulty": "Medium",
+    "topic": "Subqueries",
+    "scenario": "Find every product in <b>products4</b> that has never appeared in <b>order_lines2</b>, using NOT EXISTS.",
+    "schema": "\nCREATE TABLE products4 (product_id INTEGER, product_name TEXT);\nCREATE TABLE order_lines2 (line_id INTEGER, product_id INTEGER);\nINSERT INTO products4 VALUES (1,'Chair'),(2,'Desk'),(3,'Lamp');\nINSERT INTO order_lines2 VALUES (1,1),(2,1);\n",
+    "starter": "SELECT p.product_id, p.product_name\nFROM products4 p\nWHERE NOT EXISTS (\n  SELECT 1 FROM order_lines2 o WHERE o.product_id = p.product_id\n)\n-- ORDER BY\n",
+    "solution": "SELECT p.product_id, p.product_name\nFROM products4 p\nWHERE NOT EXISTS (\n  SELECT 1 FROM order_lines2 o WHERE o.product_id = p.product_id\n)\nORDER BY p.product_id;",
+    "hint": "NOT EXISTS is the direct negation of EXISTS \u2014 keep rows where the correlated subquery finds nothing.",
+    "expectedCols": [
+      "product_id",
+      "product_name"
+    ],
+    "expectedRows": [
+      [
+        2,
+        "Desk"
+      ],
+      [
+        3,
+        "Lamp"
+      ]
+    ]
+  },
+  {
+    "id": 41,
+    "title": "Percentile Rank of Exam Scores",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Show each student's percentile rank (0 to 1) within <b>exam_scores</b>, based on their score.",
+    "schema": "\nCREATE TABLE exam_scores (name TEXT, score INTEGER);\nINSERT INTO exam_scores VALUES ('A',50),('B',80),('C',90),('D',70),('E',100);\n",
+    "starter": "SELECT name, score,\n  ROUND(PERCENT_RANK() OVER (-- order by score), 2) AS percentile\nFROM exam_scores\nORDER BY score;\n",
+    "solution": "SELECT name, score,\n  ROUND(PERCENT_RANK() OVER (ORDER BY score), 2) AS percentile\nFROM exam_scores\nORDER BY score;",
+    "hint": "PERCENT_RANK() computes (rank - 1) / (total_rows - 1) automatically \u2014 the lowest score always lands at 0.0, the highest at 1.0.",
+    "expectedCols": [
+      "name",
+      "score",
+      "percentile"
+    ],
+    "expectedRows": [
+      [
+        "A",
+        50,
+        0.0
+      ],
+      [
+        "D",
+        70,
+        0.25
+      ],
+      [
+        "B",
+        80,
+        0.5
+      ],
+      [
+        "C",
+        90,
+        0.75
+      ],
+      [
+        "E",
+        100,
+        1.0
+      ]
+    ]
+  },
+  {
+    "id": 42,
+    "title": "Returned vs Total Orders per Customer",
+    "difficulty": "Medium",
+    "topic": "Conditional Aggregation",
+    "scenario": "For each customer in <b>orders8</b>, show their total order count and how many of those were returned (status = 'returned').",
+    "schema": "\nCREATE TABLE orders8 (customer_id INTEGER, status TEXT);\nINSERT INTO orders8 VALUES\n(1,'complete'),(1,'returned'),(1,'complete'),\n(2,'complete'),(2,'returned'),(2,'returned');\n",
+    "starter": "SELECT customer_id,\n  COUNT(*) AS total_orders,\n  SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) AS returned_orders\nFROM orders8\n-- GROUP BY, ORDER BY\n",
+    "solution": "SELECT customer_id,\n  COUNT(*) AS total_orders,\n  SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) AS returned_orders\nFROM orders8\nGROUP BY customer_id\nORDER BY customer_id;",
+    "hint": "SUM(CASE WHEN condition THEN 1 ELSE 0 END) counts only the rows matching the condition \u2014 a conditional counter inside a normal aggregate.",
+    "expectedCols": [
+      "customer_id",
+      "total_orders",
+      "returned_orders"
+    ],
+    "expectedRows": [
+      [
+        1,
+        3,
+        1
+      ],
+      [
+        2,
+        3,
+        2
+      ]
+    ]
+  },
+  {
+    "id": 43,
+    "title": "Revenue by Region and Month",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Break down total revenue in <b>region_sales</b> by both region and month.",
+    "schema": "\nCREATE TABLE region_sales (region TEXT, month TEXT, revenue REAL);\nINSERT INTO region_sales VALUES\n('East','2024-01',100),('East','2024-01',50),('East','2024-02',80),\n('West','2024-01',200),('West','2024-02',60);\n",
+    "starter": "SELECT region, month, SUM(revenue) AS total_revenue\nFROM region_sales\n-- GROUP BY both columns, ORDER BY\n",
+    "solution": "SELECT region, month, SUM(revenue) AS total_revenue\nFROM region_sales\nGROUP BY region, month\nORDER BY region, month;",
+    "hint": "GROUP BY can take more than one column \u2014 SQL creates a separate group for every unique region+month pair.",
+    "expectedCols": [
+      "region",
+      "month",
+      "total_revenue"
+    ],
+    "expectedRows": [
+      [
+        "East",
+        "2024-01",
+        150.0
+      ],
+      [
+        "East",
+        "2024-02",
+        80.0
+      ],
+      [
+        "West",
+        "2024-01",
+        200.0
+      ],
+      [
+        "West",
+        "2024-02",
+        60.0
+      ]
+    ]
+  },
+  {
+    "id": 44,
+    "title": "Median Salary per Department",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Compute the median salary within each department in <b>emp_med</b>. SQLite has no MEDIAN() function, so build it from ordering + row counts.",
+    "schema": "\nCREATE TABLE emp_med (department TEXT, salary INTEGER);\nINSERT INTO emp_med VALUES\n('Eng',50),('Eng',60),('Eng',70),\n('Sales',40),('Sales',80);\n",
+    "starter": "WITH ranked AS (\n  SELECT department, salary,\n    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary) AS rn,\n    COUNT(*) OVER (PARTITION BY department) AS cnt\n  FROM emp_med\n)\nSELECT department, AVG(salary) AS median_salary\nFROM ranked\nWHERE rn IN (-- the middle row, or two middle rows if cnt is even)\nGROUP BY department;\n",
+    "solution": "WITH ranked AS (\n  SELECT department, salary,\n    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary) AS rn,\n    COUNT(*) OVER (PARTITION BY department) AS cnt\n  FROM emp_med\n)\nSELECT department, AVG(salary) AS median_salary\nFROM ranked\nWHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2)\nGROUP BY department\nORDER BY department;",
+    "hint": "With integer division, (cnt+1)/2 and (cnt+2)/2 both point at the single middle row when cnt is odd, and at the two middle rows when cnt is even \u2014 averaging them always gives the median.",
+    "expectedCols": [
+      "department",
+      "median_salary"
+    ],
+    "expectedRows": [
+      [
+        "Eng",
+        60.0
+      ],
+      [
+        "Sales",
+        60.0
+      ]
+    ]
+  },
+  {
+    "id": 45,
+    "title": "Days Between Consecutive Orders",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "For each customer in <b>seq_orders</b>, compute the number of days between each order and that customer's immediately preceding order.",
+    "schema": "\nCREATE TABLE seq_orders (customer_id INTEGER, order_date TEXT);\nINSERT INTO seq_orders VALUES\n(1,'2024-01-01'),(1,'2024-01-10'),(1,'2024-01-25'),\n(2,'2024-02-01'),(2,'2024-02-20');\n",
+    "starter": "SELECT customer_id, order_date,\n  JULIANDAY(order_date) - JULIANDAY(LAG(order_date) OVER (-- partition by customer, order by date)) AS days_since_last\nFROM seq_orders\nORDER BY customer_id, order_date;\n",
+    "solution": "SELECT customer_id, order_date,\n  JULIANDAY(order_date) - JULIANDAY(LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) AS days_since_last\nFROM seq_orders\nORDER BY customer_id, order_date;",
+    "hint": "This is LAG again, but framed as a gap-detection problem: subtract the previous row's date from the current one to get elapsed days.",
+    "expectedCols": [
+      "customer_id",
+      "order_date",
+      "days_since_last"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "2024-01-01",
+        null
+      ],
+      [
+        1,
+        "2024-01-10",
+        9.0
+      ],
+      [
+        1,
+        "2024-01-25",
+        15.0
+      ],
+      [
+        2,
+        "2024-02-01",
+        null
+      ],
+      [
+        2,
+        "2024-02-20",
+        19.0
+      ]
+    ]
+  },
+  {
+    "id": 46,
+    "title": "Counts With a FILTER Clause",
+    "difficulty": "Medium",
+    "topic": "Conditional Aggregation",
+    "scenario": "Using <b>emp_filter</b>, count total employees and, in the same row, count only those earning over 80000 \u2014 using the FILTER clause instead of a CASE expression.",
+    "schema": "\nCREATE TABLE emp_filter (emp_id INTEGER, salary INTEGER);\nINSERT INTO emp_filter VALUES (1,50000),(2,90000),(3,85000),(4,60000);\n",
+    "starter": "SELECT\n  COUNT(*) AS total_employees,\n  COUNT(*) FILTER (-- WHERE salary > 80000) AS high_earners\nFROM emp_filter;\n",
+    "solution": "SELECT\n  COUNT(*) AS total_employees,\n  COUNT(*) FILTER (WHERE salary > 80000) AS high_earners\nFROM emp_filter;",
+    "hint": "FILTER (WHERE condition) attaches directly after an aggregate function, restricting which rows that one aggregate sees \u2014 a cleaner alternative to CASE WHEN ... THEN 1 END.",
+    "expectedCols": [
+      "total_employees",
+      "high_earners"
+    ],
+    "expectedRows": [
+      [
+        4,
+        2
+      ]
+    ]
+  },
+  {
+    "id": 47,
+    "title": "Lowest Earner per Department",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Alongside every row in <b>emp_lv</b>, show the name of the lowest earner in that same department.",
+    "schema": "\nCREATE TABLE emp_lv (name TEXT, department TEXT, salary INTEGER);\nINSERT INTO emp_lv VALUES\n('Ann','Eng',95000),('Bud','Eng',80000),('Cid','Eng',70000),\n('Dee','Sales',60000),('Eve','Sales',75000);\n",
+    "starter": "SELECT name, department, salary,\n  LAST_VALUE(name) OVER (-- partition by department, order by salary desc, full partition frame) AS lowest_earner\nFROM emp_lv\nORDER BY department, salary DESC;\n",
+    "solution": "SELECT name, department, salary,\n  LAST_VALUE(name) OVER (\n    PARTITION BY department ORDER BY salary DESC\n    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\n  ) AS lowest_earner\nFROM emp_lv\nORDER BY department, salary DESC;",
+    "hint": "Like FIRST_VALUE, LAST_VALUE needs a frame spanning the whole partition (UNBOUNDED PRECEDING TO UNBOUNDED FOLLOWING) or it'll only ever see up to the current row.",
+    "expectedCols": [
+      "name",
+      "department",
+      "salary",
+      "lowest_earner"
+    ],
+    "expectedRows": [
+      [
+        "Ann",
+        "Eng",
+        95000,
+        "Cid"
+      ],
+      [
+        "Bud",
+        "Eng",
+        80000,
+        "Cid"
+      ],
+      [
+        "Cid",
+        "Eng",
+        70000,
+        "Cid"
+      ],
+      [
+        "Eve",
+        "Sales",
+        75000,
+        "Dee"
+      ],
+      [
+        "Dee",
+        "Sales",
+        60000,
+        "Dee"
+      ]
+    ]
+  },
+  {
+    "id": 48,
+    "title": "Order Amount Summary",
+    "difficulty": "Easy",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Give finance a one-row summary of <b>orders9</b>: the smallest order, the largest order, and the average order amount.",
+    "schema": "\nCREATE TABLE orders9 (order_id INTEGER, amount REAL);\nINSERT INTO orders9 VALUES (1,50),(2,300),(3,120),(4,80);\n",
+    "starter": "SELECT\n  MIN(amount) AS smallest_order,\n  MAX(amount) AS largest_order,\n  ROUND(AVG(amount), 2) AS average_order\nFROM orders9;\n",
+    "solution": "SELECT\n  MIN(amount) AS smallest_order,\n  MAX(amount) AS largest_order,\n  ROUND(AVG(amount), 2) AS average_order\nFROM orders9;",
+    "hint": "You can compute several different aggregate functions in the same SELECT \u2014 each one just scans the same rows independently.",
+    "expectedCols": [
+      "smallest_order",
+      "largest_order",
+      "average_order"
+    ],
+    "expectedRows": [
+      [
+        50.0,
+        300.0,
+        137.5
+      ]
+    ]
+  },
+  {
+    "id": 49,
+    "title": "Cumulative Distribution of Scores",
+    "difficulty": "Hard",
+    "topic": "Window Functions",
+    "scenario": "Show the cumulative distribution (fraction of scores \u2264 this row's score) for each row in <b>score_dist</b>.",
+    "schema": "\nCREATE TABLE score_dist (name TEXT, score INTEGER);\nINSERT INTO score_dist VALUES ('A',50),('B',70),('C',70),('D',90);\n",
+    "starter": "SELECT name, score,\n  ROUND(CUME_DIST() OVER (-- order by score), 2) AS cume_dist\nFROM score_dist\nORDER BY score;\n",
+    "solution": "SELECT name, score,\n  ROUND(CUME_DIST() OVER (ORDER BY score), 2) AS cume_dist\nFROM score_dist\nORDER BY score;",
+    "hint": "CUME_DIST() = (number of rows with a value \u2264 this row) / (total rows) \u2014 tied values share the same cumulative fraction.",
+    "expectedCols": [
+      "name",
+      "score",
+      "cume_dist"
+    ],
+    "expectedRows": [
+      [
+        "A",
+        50,
+        0.25
+      ],
+      [
+        "B",
+        70,
+        0.75
+      ],
+      [
+        "C",
+        70,
+        0.75
+      ],
+      [
+        "D",
+        90,
+        1.0
+      ]
+    ]
+  },
+  {
+    "id": 50,
+    "title": "Group Events Into Sessions",
+    "difficulty": "Hard",
+    "topic": "Gaps & Islands",
+    "scenario": "A user's clicks in <b>clicks</b> should be grouped into sessions: a new session starts whenever the gap since the previous click exceeds 30 minutes. Assign a session_id (starting at 1) to every click.",
+    "schema": "\nCREATE TABLE clicks (click_time TEXT);\nINSERT INTO clicks VALUES\n('2024-01-01 09:00:00'),('2024-01-01 09:10:00'),('2024-01-01 09:50:00'),\n('2024-01-01 10:00:00'),('2024-01-01 12:00:00');\n",
+    "starter": "WITH gaps AS (\n  SELECT click_time,\n    (JULIANDAY(click_time) - JULIANDAY(LAG(click_time) OVER (ORDER BY click_time))) * 24 * 60 AS gap_minutes\n  FROM clicks\n),\nflags AS (\n  SELECT click_time,\n    CASE WHEN gap_minutes IS NULL OR gap_minutes > 30 THEN 1 ELSE 0 END AS new_session\n  FROM gaps\n)\nSELECT click_time,\n  SUM(new_session) OVER (-- running total ordered by click_time) AS session_id\nFROM flags\nORDER BY click_time;\n",
+    "solution": "WITH gaps AS (\n  SELECT click_time,\n    (JULIANDAY(click_time) - JULIANDAY(LAG(click_time) OVER (ORDER BY click_time))) * 24 * 60 AS gap_minutes\n  FROM clicks\n),\nflags AS (\n  SELECT click_time,\n    CASE WHEN gap_minutes IS NULL OR gap_minutes > 30 THEN 1 ELSE 0 END AS new_session\n  FROM gaps\n)\nSELECT click_time,\n  SUM(new_session) OVER (ORDER BY click_time) AS session_id\nFROM flags\nORDER BY click_time;",
+    "hint": "First flag every row where the gap since the last click exceeds 30 minutes (or it's the very first click), then a running SUM of those flags gives you an ever-increasing session_id.",
+    "expectedCols": [
+      "click_time",
+      "session_id"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-01 09:00:00",
+        1
+      ],
+      [
+        "2024-01-01 09:10:00",
+        1
+      ],
+      [
+        "2024-01-01 09:50:00",
+        2
+      ],
+      [
+        "2024-01-01 10:00:00",
+        2
+      ],
+      [
+        "2024-01-01 12:00:00",
+        3
+      ]
+    ]
+  },
+  {
+    "id": 51,
+    "title": "Age in Full Years",
+    "difficulty": "Medium",
+    "topic": "Date Functions",
+    "scenario": "Compute each person's age in full years as of 2024-06-15, using their birthdate in <b>people</b>. Someone born on 2000-07-01 should be 23, not 24, since their birthday hasn't happened yet that year.",
+    "schema": "\nCREATE TABLE people (name TEXT, birthdate TEXT);\nINSERT INTO people VALUES ('Al','2000-01-15'),('Bo','2000-07-01'),('Cy','1995-06-15');\n",
+    "starter": "SELECT name, birthdate,\n  (STRFTIME('%Y', '2024-06-15') - STRFTIME('%Y', birthdate))\n    - (STRFTIME('%m-%d', '2024-06-15') < STRFTIME('%m-%d', birthdate)) AS age\nFROM people\nORDER BY name;\n",
+    "solution": "SELECT name, birthdate,\n  (STRFTIME('%Y', '2024-06-15') - STRFTIME('%Y', birthdate))\n    - (STRFTIME('%m-%d', '2024-06-15') < STRFTIME('%m-%d', birthdate)) AS age\nFROM people\nORDER BY name;",
+    "hint": "Subtract the birth year from the reference year, then subtract 1 more if the reference month-day hasn't reached the birth month-day yet (SQLite treats that boolean comparison as 0 or 1).",
+    "expectedCols": [
+      "name",
+      "birthdate",
+      "age"
+    ],
+    "expectedRows": [
+      [
+        "Al",
+        "2000-01-15",
+        24
+      ],
+      [
+        "Bo",
+        "2000-07-01",
+        23
+      ],
+      [
+        "Cy",
+        "1995-06-15",
+        29
+      ]
+    ]
+  },
+  {
+    "id": 52,
+    "title": "Split Tags Into Rows",
+    "difficulty": "Hard",
+    "topic": "Recursive CTEs",
+    "scenario": "Each row in <b>tagged_items</b> has a comma-separated tags string. Split every row so each tag gets its own output row, item_id repeated as needed.",
+    "schema": "\nCREATE TABLE tagged_items (item_id INTEGER, tags TEXT);\nINSERT INTO tagged_items VALUES (1,'red,large'),(2,'blue,small,new');\n",
+    "starter": "WITH RECURSIVE split(item_id, tag, rest) AS (\n  SELECT item_id,\n    SUBSTR(tags, 1, INSTR(tags || ',', ',') - 1),\n    SUBSTR(tags || ',', INSTR(tags || ',', ',') + 1)\n  FROM tagged_items\n  UNION ALL\n  SELECT item_id,\n    SUBSTR(rest, 1, INSTR(rest, ',') - 1),\n    SUBSTR(rest, INSTR(rest, ',') + 1)\n  FROM split\n  WHERE -- continue while there's still text left in rest\n)\nSELECT item_id, tag FROM split ORDER BY item_id, tag;\n",
+    "solution": "WITH RECURSIVE split(item_id, tag, rest) AS (\n  SELECT item_id,\n    SUBSTR(tags, 1, INSTR(tags || ',', ',') - 1),\n    SUBSTR(tags || ',', INSTR(tags || ',', ',') + 1)\n  FROM tagged_items\n  UNION ALL\n  SELECT item_id,\n    SUBSTR(rest, 1, INSTR(rest, ',') - 1),\n    SUBSTR(rest, INSTR(rest, ',') + 1)\n  FROM split\n  WHERE rest <> ''\n)\nSELECT item_id, tag FROM split ORDER BY item_id, tag;",
+    "hint": "Append a trailing comma so every tag (including the last one) has a delimiter to split on; the recursive step keeps peeling off one tag at a time until rest is empty.",
+    "expectedCols": [
+      "item_id",
+      "tag"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "large"
+      ],
+      [
+        1,
+        "red"
+      ],
+      [
+        2,
+        "blue"
+      ],
+      [
+        2,
+        "new"
+      ],
+      [
+        2,
+        "small"
+      ]
+    ]
+  },
+  {
+    "id": 53,
+    "title": "Overlapping Room Bookings",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "Find every pair of bookings in <b>room_bookings</b> for the same room whose date ranges overlap.",
+    "schema": "\nCREATE TABLE room_bookings (booking_id INTEGER, room TEXT, start_date TEXT, end_date TEXT);\nINSERT INTO room_bookings VALUES\n(1,'A','2024-01-01','2024-01-05'),\n(2,'A','2024-01-04','2024-01-08'),\n(3,'A','2024-01-10','2024-01-12'),\n(4,'B','2024-01-01','2024-01-03');\n",
+    "starter": "SELECT b1.booking_id AS booking_1, b2.booking_id AS booking_2\nFROM room_bookings b1\nJOIN room_bookings b2\n  ON b1.room = b2.room\n  AND b1.booking_id < b2.booking_id\n  AND -- overlap condition: b1 starts before b2 ends AND b2 starts before b1 ends\nORDER BY booking_1, booking_2;\n",
+    "solution": "SELECT b1.booking_id AS booking_1, b2.booking_id AS booking_2\nFROM room_bookings b1\nJOIN room_bookings b2\n  ON b1.room = b2.room\n  AND b1.booking_id < b2.booking_id\n  AND b1.start_date < b2.end_date\n  AND b2.start_date < b1.end_date\nORDER BY booking_1, booking_2;",
+    "hint": "Two ranges overlap exactly when start1 < end2 AND start2 < end1 \u2014 the b1.booking_id < b2.booking_id condition avoids matching a booking with itself or listing each pair twice.",
+    "expectedCols": [
+      "booking_1",
+      "booking_2"
+    ],
+    "expectedRows": [
+      [
+        1,
+        2
+      ]
+    ]
+  },
+  {
+    "id": 54,
+    "title": "Order Counts Including Zero",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "Show every customer in <b>cust_zero</b> with their order count from <b>ord_zero</b> \u2014 customers with no orders should show 0, not be dropped.",
+    "schema": "\nCREATE TABLE cust_zero (customer_id INTEGER, name TEXT);\nCREATE TABLE ord_zero (order_id INTEGER, customer_id INTEGER);\nINSERT INTO cust_zero VALUES (1,'Nina'),(2,'Omar'),(3,'Priya');\nINSERT INTO ord_zero VALUES (1,1),(2,1),(3,3);\n",
+    "starter": "SELECT c.customer_id, c.name, COUNT(-- count only matched orders, not COUNT(*)) AS order_count\nFROM cust_zero c\nLEFT JOIN ord_zero o ON c.customer_id = o.customer_id\n-- GROUP BY, ORDER BY\n",
+    "solution": "SELECT c.customer_id, c.name, COUNT(o.order_id) AS order_count\nFROM cust_zero c\nLEFT JOIN ord_zero o ON c.customer_id = o.customer_id\nGROUP BY c.customer_id, c.name\nORDER BY c.customer_id;",
+    "hint": "COUNT(o.order_id) only counts non-NULL order_ids, so unmatched customers correctly get 0. COUNT(*) would be wrong here \u2014 it counts rows, and a LEFT JOIN still produces one row even with no match.",
+    "expectedCols": [
+      "customer_id",
+      "name",
+      "order_count"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "Nina",
+        2
+      ],
+      [
+        2,
+        "Omar",
+        0
+      ],
+      [
+        3,
+        "Priya",
+        1
+      ]
+    ]
+  },
+  {
+    "id": 55,
+    "title": "Weighted Average Price",
+    "difficulty": "Medium",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Compute the quantity-weighted average unit price across all lines in <b>price_lines</b> (a straight AVG(unit_price) would ignore that some lines represent way more units than others).",
+    "schema": "\nCREATE TABLE price_lines (unit_price REAL, qty INTEGER);\nINSERT INTO price_lines VALUES (10,100),(20,10),(15,50);\n",
+    "starter": "SELECT ROUND(SUM(unit_price * qty) * 1.0 / SUM(qty), 2) AS weighted_avg_price\nFROM price_lines;\n",
+    "solution": "SELECT ROUND(SUM(unit_price * qty) * 1.0 / SUM(qty), 2) AS weighted_avg_price\nFROM price_lines;",
+    "hint": "Weighted average = total value (price \u00d7 qty, summed) divided by total quantity \u2014 not a simple average of the prices themselves.",
+    "expectedCols": [
+      "weighted_avg_price"
+    ],
+    "expectedRows": [
+      [
+        12.19
+      ]
+    ]
+  },
+  {
+    "id": 56,
+    "title": "Find Duplicate Customer Records",
+    "difficulty": "Medium",
+    "topic": "Filtering & Aggregation",
+    "scenario": "Data entry created accidental duplicates in <b>cust_dupes</b>. Find every (name, email) combination that appears more than once, with a count.",
+    "schema": "\nCREATE TABLE cust_dupes (customer_id INTEGER, name TEXT, email TEXT);\nINSERT INTO cust_dupes VALUES\n(1,'Nina','nina@x.com'),(2,'Nina','nina@x.com'),(3,'Omar','omar@x.com'),(4,'Nina','nina@x.com');\n",
+    "starter": "SELECT name, email, COUNT(*) AS occurrences\nFROM cust_dupes\nGROUP BY name, email\n-- HAVING\n",
+    "solution": "SELECT name, email, COUNT(*) AS occurrences\nFROM cust_dupes\nGROUP BY name, email\nHAVING COUNT(*) > 1;",
+    "hint": "Group by every column that defines 'the same record', then HAVING COUNT(*) > 1 keeps only the groups with repeats.",
+    "expectedCols": [
+      "name",
+      "email",
+      "occurrences"
+    ],
+    "expectedRows": [
+      [
+        "Nina",
+        "nina@x.com",
+        3
+      ]
+    ]
+  },
+  {
+    "id": 57,
+    "title": "Ranking Functions Side by Side",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "To see exactly how they differ on ties, show ROW_NUMBER, RANK, and DENSE_RANK side by side for the scores in <b>rank_demo</b>, ordered by score descending.",
+    "schema": "\nCREATE TABLE rank_demo (name TEXT, score INTEGER);\nINSERT INTO rank_demo VALUES ('A',90),('B',90),('C',80),('D',70),('E',70);\n",
+    "starter": "SELECT name, score,\n  ROW_NUMBER() OVER (ORDER BY score DESC) AS row_num,\n  RANK() OVER (ORDER BY score DESC) AS rnk,\n  DENSE_RANK() OVER (ORDER BY score DESC) AS dense_rnk\nFROM rank_demo\nORDER BY score DESC, name;\n",
+    "solution": "SELECT name, score,\n  ROW_NUMBER() OVER (ORDER BY score DESC) AS row_num,\n  RANK() OVER (ORDER BY score DESC) AS rnk,\n  DENSE_RANK() OVER (ORDER BY score DESC) AS dense_rnk\nFROM rank_demo\nORDER BY score DESC, name;",
+    "hint": "ROW_NUMBER always increases by 1 even for ties; RANK gives ties the same number but skips ahead afterward; DENSE_RANK gives ties the same number without leaving a gap.",
+    "expectedCols": [
+      "name",
+      "score",
+      "row_num",
+      "rnk",
+      "dense_rnk"
+    ],
+    "expectedRows": [
+      [
+        "A",
+        90,
+        1,
+        1,
+        1
+      ],
+      [
+        "B",
+        90,
+        2,
+        1,
+        1
+      ],
+      [
+        "C",
+        80,
+        3,
+        3,
+        2
+      ],
+      [
+        "D",
+        70,
+        4,
+        4,
+        3
+      ],
+      [
+        "E",
+        70,
+        5,
+        4,
+        3
+      ]
+    ]
+  },
+  {
+    "id": 58,
+    "title": "Running Distinct Product Count",
+    "difficulty": "Hard",
+    "topic": "Subqueries",
+    "scenario": "For each sale in <b>timed_sales</b> (ordered by date), show how many distinct products had been sold up to and including that date.",
+    "schema": "\nCREATE TABLE timed_sales (sale_date TEXT, product_id INTEGER);\nINSERT INTO timed_sales VALUES\n('2024-01-01',1),('2024-01-02',2),('2024-01-03',1),('2024-01-04',3),('2024-01-05',2);\n",
+    "starter": "SELECT t1.sale_date, t1.product_id,\n  (SELECT COUNT(DISTINCT t2.product_id) FROM timed_sales t2 WHERE t2.sale_date <= t1.sale_date) AS distinct_products_so_far\nFROM timed_sales t1\nORDER BY t1.sale_date;\n",
+    "solution": "SELECT t1.sale_date, t1.product_id,\n  (SELECT COUNT(DISTINCT t2.product_id) FROM timed_sales t2 WHERE t2.sale_date <= t1.sale_date) AS distinct_products_so_far\nFROM timed_sales t1\nORDER BY t1.sale_date;",
+    "hint": "Window functions can't do COUNT(DISTINCT ...) with a running frame in SQLite \u2014 a correlated subquery counting distinct products up to each row's date sidesteps that limitation.",
+    "expectedCols": [
+      "sale_date",
+      "product_id",
+      "distinct_products_so_far"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-01",
+        1,
+        1
+      ],
+      [
+        "2024-01-02",
+        2,
+        2
+      ],
+      [
+        "2024-01-03",
+        1,
+        2
+      ],
+      [
+        "2024-01-04",
+        3,
+        3
+      ],
+      [
+        "2024-01-05",
+        2,
+        3
+      ]
+    ]
+  },
+  {
+    "id": 59,
+    "title": "Year-over-Year Same Month",
+    "difficulty": "Hard",
+    "topic": "Self Joins",
+    "scenario": "Using <b>yearly_rev</b> (year, month, revenue), show each 2024 month's revenue next to the same month's revenue in 2023.",
+    "schema": "\nCREATE TABLE yearly_rev (year INTEGER, month INTEGER, revenue INTEGER);\nINSERT INTO yearly_rev VALUES\n(2023,1,100),(2023,2,120),(2024,1,150),(2024,2,110);\n",
+    "starter": "SELECT curr.month, curr.revenue AS revenue_2024, prev.revenue AS revenue_2023\nFROM yearly_rev curr\nJOIN yearly_rev prev\n  ON curr.month = prev.month\n  AND curr.year = 2024 AND prev.year = -- last year\nORDER BY curr.month;\n",
+    "solution": "SELECT curr.month, curr.revenue AS revenue_2024, prev.revenue AS revenue_2023\nFROM yearly_rev curr\nJOIN yearly_rev prev\n  ON curr.month = prev.month\n  AND curr.year = 2024 AND prev.year = 2023\nORDER BY curr.month;",
+    "hint": "Self-join the table to itself on matching month, pinning one side to year = 2024 and the other to year = 2023.",
+    "expectedCols": [
+      "month",
+      "revenue_2024",
+      "revenue_2023"
+    ],
+    "expectedRows": [
+      [
+        1,
+        150,
+        100
+      ],
+      [
+        2,
+        110,
+        120
+      ]
+    ]
+  },
+  {
+    "id": 60,
+    "title": "Variance of Scores",
+    "difficulty": "Hard",
+    "topic": "Grouped Statistics",
+    "scenario": "SQLite has no built-in VARIANCE() function. Compute the population variance of scores in <b>var_scores</b> manually: the average of the squared differences from the mean.",
+    "schema": "\nCREATE TABLE var_scores (score REAL);\nINSERT INTO var_scores VALUES (10),(12),(14),(16),(18);\n",
+    "starter": "WITH stats AS (SELECT AVG(score) AS mean_score FROM var_scores)\nSELECT ROUND(AVG((score - stats.mean_score) * (score - stats.mean_score)), 2) AS variance\nFROM var_scores, stats;\n",
+    "solution": "WITH stats AS (SELECT AVG(score) AS mean_score FROM var_scores)\nSELECT ROUND(AVG((score - stats.mean_score) * (score - stats.mean_score)), 2) AS variance\nFROM var_scores, stats;",
+    "hint": "Compute the mean first in a CTE, cross it with the raw rows, then average the squared distance of each score from that mean \u2014 that's the definition of variance.",
+    "expectedCols": [
+      "variance"
+    ],
+    "expectedRows": [
+      [
+        8.0
+      ]
+    ]
+  },
+  {
+    "id": 61,
+    "title": "7-Day Rolling Sales Total",
+    "difficulty": "Hard",
+    "topic": "Subqueries",
+    "scenario": "For each day in <b>daily_sales</b>, show the sum of sales over that day and the 6 days before it (a true date-based window, not just 'the last 7 rows').",
+    "schema": "\nCREATE TABLE daily_sales (sale_date TEXT, amount INTEGER);\nINSERT INTO daily_sales VALUES\n('2024-01-01',10),('2024-01-02',20),('2024-01-05',30),('2024-01-08',40),('2024-01-09',15);\n",
+    "starter": "SELECT d1.sale_date,\n  (SELECT SUM(d2.amount) FROM daily_sales d2\n     WHERE d2.sale_date <= d1.sale_date\n     AND d2.sale_date >= DATE(d1.sale_date, -- 6 days earlier, inclusive)\n  ) AS rolling_7d_total\nFROM daily_sales d1\nORDER BY d1.sale_date;\n",
+    "solution": "SELECT d1.sale_date,\n  (SELECT SUM(d2.amount) FROM daily_sales d2\n     WHERE d2.sale_date <= d1.sale_date\n     AND d2.sale_date >= DATE(d1.sale_date, '-6 days')\n  ) AS rolling_7d_total\nFROM daily_sales d1\nORDER BY d1.sale_date;",
+    "hint": "A correlated subquery lets you window by actual calendar days instead of row count \u2014 sum every row whose date falls within 6 days before the current one, inclusive on both ends (7 days total).",
+    "expectedCols": [
+      "sale_date",
+      "rolling_7d_total"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-01",
+        10
+      ],
+      [
+        "2024-01-02",
+        30
+      ],
+      [
+        "2024-01-05",
+        60
+      ],
+      [
+        "2024-01-08",
+        90
+      ],
+      [
+        "2024-01-09",
+        85
+      ]
+    ]
+  },
+  {
+    "id": 62,
+    "title": "Rank and Share of Total Together",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each product in <b>prod_sales</b>, show its sales rank (highest first) and what percentage of total sales it represents, in one query.",
+    "schema": "\nCREATE TABLE prod_sales (product TEXT, sales INTEGER);\nINSERT INTO prod_sales VALUES ('A',500),('B',300),('C',200);\n",
+    "starter": "SELECT product, sales,\n  RANK() OVER (ORDER BY sales DESC) AS sales_rank,\n  ROUND(sales * 100.0 / SUM(sales) OVER (), 2) AS pct_of_total\nFROM prod_sales\nORDER BY sales_rank;\n",
+    "solution": "SELECT product, sales,\n  RANK() OVER (ORDER BY sales DESC) AS sales_rank,\n  ROUND(sales * 100.0 / SUM(sales) OVER (), 2) AS pct_of_total\nFROM prod_sales\nORDER BY sales_rank;",
+    "hint": "You can stack as many window functions as you like in one SELECT \u2014 each OVER (...) clause is independent, even when they use different framing.",
+    "expectedCols": [
+      "product",
+      "sales",
+      "sales_rank",
+      "pct_of_total"
+    ],
+    "expectedRows": [
+      [
+        "A",
+        500,
+        1,
+        50.0
+      ],
+      [
+        "B",
+        300,
+        2,
+        30.0
+      ],
+      [
+        "C",
+        200,
+        3,
+        20.0
+      ]
+    ]
+  },
+  {
+    "id": 63,
+    "title": "Anti-Join Done Right",
+    "difficulty": "Medium",
+    "topic": "Joins",
+    "scenario": "<b>blocked_ids</b> contains a NULL value, which silently breaks a plain NOT IN. Find every customer in <b>all_customers</b> whose id is NOT in <b>blocked_ids</b>, safely.",
+    "schema": "\nCREATE TABLE all_customers (customer_id INTEGER, name TEXT);\nCREATE TABLE blocked_ids (customer_id INTEGER);\nINSERT INTO all_customers VALUES (1,'Nina'),(2,'Omar'),(3,'Priya');\nINSERT INTO blocked_ids VALUES (2), (NULL);\n",
+    "starter": "-- A plain WHERE customer_id NOT IN (SELECT customer_id FROM blocked_ids)\n-- returns ZERO rows here because of the NULL. Use a NOT EXISTS or LEFT JOIN instead.\nSELECT c.customer_id, c.name\nFROM all_customers c\nWHERE NOT EXISTS (\n  SELECT 1 FROM blocked_ids b WHERE b.customer_id = c.customer_id\n)\nORDER BY c.customer_id;\n",
+    "solution": "SELECT c.customer_id, c.name\nFROM all_customers c\nWHERE NOT EXISTS (\n  SELECT 1 FROM blocked_ids b WHERE b.customer_id = c.customer_id\n)\nORDER BY c.customer_id;",
+    "hint": "NOT IN treats any NULL in the subquery's result as 'unknown', which poisons the whole comparison and can return zero rows. NOT EXISTS (or a LEFT JOIN + IS NULL) sidesteps that trap entirely.",
+    "expectedCols": [
+      "customer_id",
+      "name"
+    ],
+    "expectedRows": [
+      [
+        1,
+        "Nina"
+      ],
+      [
+        3,
+        "Priya"
+      ]
+    ]
+  },
+  {
+    "id": 64,
+    "title": "Build the Full Manager Path",
+    "difficulty": "Hard",
+    "topic": "Recursive CTEs",
+    "scenario": "For each employee in <b>org3</b>, build a readable path of their full management chain, like 'CEO > VP Eng > Eng Mgr'.",
+    "schema": "\nCREATE TABLE org3 (emp_id INTEGER, name TEXT, manager_id INTEGER);\nINSERT INTO org3 VALUES (1,'CEO',NULL),(2,'VP Eng',1),(3,'Eng Mgr',2);\n",
+    "starter": "WITH RECURSIVE path AS (\n  SELECT emp_id, name, manager_id, name AS full_path\n  FROM org3 WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.emp_id, o.name, o.manager_id, p.full_path || ' > ' || o.name\n  FROM org3 o\n  JOIN path p ON -- \n)\nSELECT name, full_path FROM path ORDER BY emp_id;\n",
+    "solution": "WITH RECURSIVE path AS (\n  SELECT emp_id, name, manager_id, name AS full_path\n  FROM org3 WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.emp_id, o.name, o.manager_id, p.full_path || ' > ' || o.name\n  FROM org3 o\n  JOIN path p ON o.manager_id = p.emp_id\n)\nSELECT name, full_path FROM path ORDER BY emp_id;",
+    "hint": "Each recursive step appends the current employee's name onto the path already built for their manager \u2014 the string just keeps growing one level at a time.",
+    "expectedCols": [
+      "name",
+      "full_path"
+    ],
+    "expectedRows": [
+      [
+        "CEO",
+        "CEO"
+      ],
+      [
+        "VP Eng",
+        "CEO > VP Eng"
+      ],
+      [
+        "Eng Mgr",
+        "CEO > VP Eng > Eng Mgr"
+      ]
+    ]
+  },
+  {
+    "id": 65,
+    "title": "Top 2 Scores, Ties Included",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Show the top 2 scores per game in <b>game_scores</b> \u2014 if there's a tie for 2nd place, include all of them (SQLite has no FETCH ... WITH TIES, so build it with RANK instead).",
+    "schema": "\nCREATE TABLE game_scores (game TEXT, player TEXT, score INTEGER);\nINSERT INTO game_scores VALUES\n('Chess','A',90),('Chess','B',80),('Chess','C',80),('Chess','D',70),\n('Checkers','E',60),('Checkers','F',50);\n",
+    "starter": "WITH ranked AS (\n  SELECT game, player, score,\n    RANK() OVER (PARTITION BY game ORDER BY score DESC) AS rnk\n  FROM game_scores\n)\nSELECT game, player, score FROM ranked WHERE rnk <= -- top 2\nORDER BY game, score DESC;\n",
+    "solution": "WITH ranked AS (\n  SELECT game, player, score,\n    RANK() OVER (PARTITION BY game ORDER BY score DESC) AS rnk\n  FROM game_scores\n)\nSELECT game, player, score FROM ranked WHERE rnk <= 2\nORDER BY game, score DESC;",
+    "hint": "RANK() (not ROW_NUMBER) is what makes ties possible in the output \u2014 a tie for 2nd keeps rnk = 2 for every tied player, so rnk <= 2 naturally includes all of them.",
+    "expectedCols": [
+      "game",
+      "player",
+      "score"
+    ],
+    "expectedRows": [
+      [
+        "Checkers",
+        "E",
+        60
+      ],
+      [
+        "Checkers",
+        "F",
+        50
+      ],
+      [
+        "Chess",
+        "A",
+        90
+      ],
+      [
+        "Chess",
+        "B",
+        80
+      ],
+      [
+        "Chess",
+        "C",
+        80
+      ]
+    ]
+  },
+  {
+    "id": 66,
+    "title": "Running Bank Balance",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Given signed transactions in <b>transactions</b> (positive = deposit, negative = withdrawal), show the running account balance after each one, in date order.",
+    "schema": "\nCREATE TABLE transactions (txn_date TEXT, amount INTEGER);\nINSERT INTO transactions VALUES\n('2024-01-01',100),('2024-01-02',-30),('2024-01-03',50),('2024-01-04',-20);\n",
+    "starter": "SELECT txn_date, amount,\n  SUM(amount) OVER (-- order by date) AS running_balance\nFROM transactions\nORDER BY txn_date;\n",
+    "solution": "SELECT txn_date, amount,\n  SUM(amount) OVER (ORDER BY txn_date) AS running_balance\nFROM transactions\nORDER BY txn_date;",
+    "hint": "This is the same running-total pattern as before \u2014 signed amounts just mean the running SUM naturally goes up and down like a real balance.",
+    "expectedCols": [
+      "txn_date",
+      "amount",
+      "running_balance"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-01",
+        100,
+        100
+      ],
+      [
+        "2024-01-02",
+        -30,
+        70
+      ],
+      [
+        "2024-01-03",
+        50,
+        120
+      ],
+      [
+        "2024-01-04",
+        -20,
+        100
+      ]
+    ]
+  },
+  {
+    "id": 67,
+    "title": "Find Missing Dates",
+    "difficulty": "Hard",
+    "topic": "Recursive CTEs",
+    "scenario": "Between 2024-01-01 and 2024-01-07 inclusive, find which dates are missing from <b>logged_days</b> (a report should exist for every day in that range).",
+    "schema": "\nCREATE TABLE logged_days (log_date TEXT);\nINSERT INTO logged_days VALUES ('2024-01-01'),('2024-01-02'),('2024-01-04'),('2024-01-07');\n",
+    "starter": "WITH RECURSIVE calendar(d) AS (\n  SELECT DATE('2024-01-01')\n  UNION ALL\n  SELECT DATE(d, '+1 day') FROM calendar WHERE d < DATE('2024-01-07')\n)\nSELECT d AS missing_date\nFROM calendar\nWHERE d NOT IN (-- select from logged_days)\nORDER BY d;\n",
+    "solution": "WITH RECURSIVE calendar(d) AS (\n  SELECT DATE('2024-01-01')\n  UNION ALL\n  SELECT DATE(d, '+1 day') FROM calendar WHERE d < DATE('2024-01-07')\n)\nSELECT d AS missing_date\nFROM calendar\nWHERE d NOT IN (SELECT log_date FROM logged_days)\nORDER BY d;",
+    "hint": "A recursive CTE can generate a full calendar of dates from scratch by adding 1 day each step \u2014 then it's a simple NOT IN against the actual logged dates.",
+    "expectedCols": [
+      "missing_date"
+    ],
+    "expectedRows": [
+      [
+        "2024-01-03"
+      ],
+      [
+        "2024-01-05"
+      ],
+      [
+        "2024-01-06"
+      ]
+    ]
+  },
+  {
+    "id": 68,
+    "title": "Detect Price Increases",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "For each row in <b>price_history</b> (ordered by date), flag whether the price went up compared to the previous recorded price for that product.",
+    "schema": "\nCREATE TABLE price_history (product TEXT, price_date TEXT, price REAL);\nINSERT INTO price_history VALUES\n('Widget','2024-01-01',10),('Widget','2024-02-01',12),('Widget','2024-03-01',12),('Widget','2024-04-01',9);\n",
+    "starter": "SELECT product, price_date, price,\n  CASE WHEN price > LAG(price) OVER (-- partition by product, order by date) THEN 'increase'\n       WHEN price < LAG(price) OVER (PARTITION BY product ORDER BY price_date) THEN 'decrease'\n       ELSE 'no change' END AS trend\nFROM price_history\nORDER BY product, price_date;\n",
+    "solution": "SELECT product, price_date, price,\n  CASE WHEN price > LAG(price) OVER (PARTITION BY product ORDER BY price_date) THEN 'increase'\n       WHEN price < LAG(price) OVER (PARTITION BY product ORDER BY price_date) THEN 'decrease'\n       ELSE 'no change' END AS trend\nFROM price_history\nORDER BY product, price_date;",
+    "hint": "LAG(price) fetches the previous price into the current row so you can compare directly \u2014 the very first row per product has no previous price, so it falls to ELSE.",
+    "expectedCols": [
+      "product",
+      "price_date",
+      "price",
+      "trend"
+    ],
+    "expectedRows": [
+      [
+        "Widget",
+        "2024-01-01",
+        10.0,
+        "no change"
+      ],
+      [
+        "Widget",
+        "2024-02-01",
+        12.0,
+        "increase"
+      ],
+      [
+        "Widget",
+        "2024-03-01",
+        12.0,
+        "no change"
+      ],
+      [
+        "Widget",
+        "2024-04-01",
+        9.0,
+        "decrease"
+      ]
+    ]
+  },
+  {
+    "id": 69,
+    "title": "Unpivot Quarters Into Rows",
+    "difficulty": "Medium",
+    "topic": "Set Operations",
+    "scenario": "Turn wide-format <b>wide_rev</b> (one column per quarter) into long format: one row per product per quarter.",
+    "schema": "\nCREATE TABLE wide_rev (product TEXT, q1 INTEGER, q2 INTEGER);\nINSERT INTO wide_rev VALUES ('Widget',100,120),('Gadget',80,90);\n",
+    "starter": "SELECT product, 'Q1' AS quarter, q1 AS revenue FROM wide_rev\n-- UNION ALL a similar SELECT for Q2\nORDER BY product, quarter;\n",
+    "solution": "SELECT product, 'Q1' AS quarter, q1 AS revenue FROM wide_rev\nUNION ALL\nSELECT product, 'Q2' AS quarter, q2 AS revenue FROM wide_rev\nORDER BY product, quarter;",
+    "hint": "Each UNION ALL branch peels off one column and relabels it with a literal quarter name \u2014 stacking them turns columns into rows.",
+    "expectedCols": [
+      "product",
+      "quarter",
+      "revenue"
+    ],
+    "expectedRows": [
+      [
+        "Gadget",
+        "Q1",
+        80
+      ],
+      [
+        "Gadget",
+        "Q2",
+        90
+      ],
+      [
+        "Widget",
+        "Q1",
+        100
+      ],
+      [
+        "Widget",
+        "Q2",
+        120
+      ]
+    ]
+  },
+  {
+    "id": 70,
+    "title": "Customer Lifetime Value",
+    "difficulty": "Hard",
+    "topic": "CTEs",
+    "scenario": "Compute each customer's net lifetime value: total order amount from <b>clv_orders</b> minus total refunds from <b>clv_refunds</b>.",
+    "schema": "\nCREATE TABLE clv_orders (customer_id INTEGER, amount REAL);\nCREATE TABLE clv_refunds (customer_id INTEGER, amount REAL);\nINSERT INTO clv_orders VALUES (1,100),(1,50),(2,200);\nINSERT INTO clv_refunds VALUES (1,20),(2,30);\n",
+    "starter": "WITH order_totals AS (\n  SELECT customer_id, SUM(amount) AS total_orders FROM clv_orders GROUP BY customer_id\n),\nrefund_totals AS (\n  SELECT customer_id, SUM(amount) AS total_refunds FROM clv_refunds GROUP BY customer_id\n)\nSELECT o.customer_id, o.total_orders - COALESCE(r.total_refunds, 0) AS lifetime_value\nFROM order_totals o\nLEFT JOIN refund_totals r ON -- \nORDER BY o.customer_id;\n",
+    "solution": "WITH order_totals AS (\n  SELECT customer_id, SUM(amount) AS total_orders FROM clv_orders GROUP BY customer_id\n),\nrefund_totals AS (\n  SELECT customer_id, SUM(amount) AS total_refunds FROM clv_refunds GROUP BY customer_id\n)\nSELECT o.customer_id, o.total_orders - COALESCE(r.total_refunds, 0) AS lifetime_value\nFROM order_totals o\nLEFT JOIN refund_totals r ON o.customer_id = r.customer_id\nORDER BY o.customer_id;",
+    "hint": "Build each total separately in its own CTE first, then join them \u2014 COALESCE handles customers who have orders but no refunds at all.",
+    "expectedCols": [
+      "customer_id",
+      "lifetime_value"
+    ],
+    "expectedRows": [
+      [
+        1,
+        130.0
+      ],
+      [
+        2,
+        170.0
+      ]
+    ]
+  },
+  {
+    "id": 71,
+    "title": "Managers Busier Than Their Boss",
+    "difficulty": "Hard",
+    "topic": "Subqueries",
+    "scenario": "Find managers in <b>org4</b> who personally have more direct reports than their own manager has.",
+    "schema": "\nCREATE TABLE org4 (emp_id INTEGER, name TEXT, manager_id INTEGER);\nINSERT INTO org4 VALUES\n(1,'CEO',NULL),(2,'Ann',1),(3,'Bud',2),(4,'Cid',2),(5,'Dee',2),(6,'Eve',3);\n",
+    "starter": "WITH report_counts AS (\n  SELECT manager_id, COUNT(*) AS reports\n  FROM org4\n  WHERE manager_id IS NOT NULL\n  GROUP BY manager_id\n)\nSELECT o.name, rc.reports AS own_reports, rc2.reports AS manager_reports\nFROM org4 o\nJOIN report_counts rc ON o.emp_id = rc.manager_id\nJOIN report_counts rc2 ON o.manager_id = -- link to manager's own report count\nWHERE rc.reports > rc2.reports;\n",
+    "solution": "WITH report_counts AS (\n  SELECT manager_id, COUNT(*) AS reports\n  FROM org4\n  WHERE manager_id IS NOT NULL\n  GROUP BY manager_id\n)\nSELECT o.name, rc.reports AS own_reports, rc2.reports AS manager_reports\nFROM org4 o\nJOIN report_counts rc ON o.emp_id = rc.manager_id\nJOIN report_counts rc2 ON o.manager_id = rc2.manager_id\nWHERE rc.reports > rc2.reports;",
+    "hint": "Build a report_counts table once (manager_id \u2192 how many direct reports), then join it in twice: once for the person's own count, once for their manager's count.",
+    "expectedCols": [
+      "name",
+      "own_reports",
+      "manager_reports"
+    ],
+    "expectedRows": [
+      [
+        "Ann",
+        3,
+        1
+      ]
+    ]
+  },
+  {
+    "id": 72,
+    "title": "Rank Within Region and Category",
+    "difficulty": "Medium",
+    "topic": "Window Functions",
+    "scenario": "Rank products by sales within each region+category combination in <b>rc_sales</b> (a Widget in the East counts separately from a Widget in the West).",
+    "schema": "\nCREATE TABLE rc_sales (region TEXT, category TEXT, product TEXT, sales INTEGER);\nINSERT INTO rc_sales VALUES\n('East','Tools','Hammer',50),('East','Tools','Wrench',80),\n('West','Tools','Hammer',40),('West','Toys','Ball',20),('West','Toys','Doll',30);\n",
+    "starter": "SELECT region, category, product, sales,\n  RANK() OVER (-- partition by region AND category, order by sales desc) AS rnk\nFROM rc_sales\nORDER BY region, category, rnk;\n",
+    "solution": "SELECT region, category, product, sales,\n  RANK() OVER (PARTITION BY region, category ORDER BY sales DESC) AS rnk\nFROM rc_sales\nORDER BY region, category, rnk;",
+    "hint": "PARTITION BY accepts multiple columns \u2014 the ranking resets for every unique combination of region AND category, not just one or the other.",
+    "expectedCols": [
+      "region",
+      "category",
+      "product",
+      "sales",
+      "rnk"
+    ],
+    "expectedRows": [
+      [
+        "East",
+        "Tools",
+        "Wrench",
+        80,
+        1
+      ],
+      [
+        "East",
+        "Tools",
+        "Hammer",
+        50,
+        2
+      ],
+      [
+        "West",
+        "Tools",
+        "Hammer",
+        40,
+        1
+      ],
+      [
+        "West",
+        "Toys",
+        "Doll",
+        30,
+        1
+      ],
+      [
+        "West",
+        "Toys",
+        "Ball",
+        20,
+        2
+      ]
+    ]
+  },
+  {
+    "id": 73,
+    "title": "Safe Conversion Rate",
+    "difficulty": "Easy",
+    "topic": "NULL Handling",
+    "scenario": "Compute conversion rate (orders / visits) for each channel in <b>channel_stats</b> without crashing on channels that had zero visits.",
+    "schema": "\nCREATE TABLE channel_stats (channel TEXT, visits INTEGER, orders INTEGER);\nINSERT INTO channel_stats VALUES ('Organic',1000,50),('Paid',0,0),('Referral',200,10);\n",
+    "starter": "SELECT channel,\n  ROUND(orders * 1.0 / -- guard the denominator against zero, 4) AS conversion_rate\nFROM channel_stats\nORDER BY channel;\n",
+    "solution": "SELECT channel,\n  ROUND(orders * 1.0 / NULLIF(visits, 0), 4) AS conversion_rate\nFROM channel_stats\nORDER BY channel;",
+    "hint": "NULLIF(visits, 0) turns a zero into NULL, and dividing by NULL just gives NULL instead of an error \u2014 a clean way to guard against divide-by-zero.",
+    "expectedCols": [
+      "channel",
+      "conversion_rate"
+    ],
+    "expectedRows": [
+      [
+        "Organic",
+        0.05
+      ],
+      [
+        "Paid",
+        null
+      ],
+      [
+        "Referral",
+        0.05
+      ]
+    ]
+  },
+  {
+    "id": 74,
+    "title": "Case-Insensitive Customer Grouping",
+    "difficulty": "Easy",
+    "topic": "String Functions",
+    "scenario": "Duplicate-looking customer names in <b>messy_names</b> differ only by letter casing ('nina' vs 'Nina'). Count orders per customer treating names as case-insensitive.",
+    "schema": "\nCREATE TABLE messy_names (customer_name TEXT, order_id INTEGER);\nINSERT INTO messy_names VALUES ('Nina',1),('nina',2),('NINA',3),('Omar',4);\n",
+    "starter": "SELECT LOWER(customer_name) AS customer_key, COUNT(*) AS order_count\nFROM messy_names\n-- GROUP BY the normalized name, ORDER BY\n",
+    "solution": "SELECT LOWER(customer_name) AS customer_key, COUNT(*) AS order_count\nFROM messy_names\nGROUP BY LOWER(customer_name)\nORDER BY customer_key;",
+    "hint": "Wrap the column in LOWER() both in the SELECT and the GROUP BY \u2014 grouping on the normalized value merges the casing variants together.",
+    "expectedCols": [
+      "customer_key",
+      "order_count"
+    ],
+    "expectedRows": [
+      [
+        "nina",
+        3
+      ],
+      [
+        "omar",
+        1
+      ]
+    ]
+  },
+  {
+    "id": 75,
+    "title": "Assign Letter Grades",
+    "difficulty": "Easy",
+    "topic": "CASE Expressions",
+    "scenario": "Convert numeric scores in <b>grades</b> into letter grades: A (90-100), B (80-89), C (70-79), F (below 70).",
+    "schema": "\nCREATE TABLE grades (student TEXT, score INTEGER);\nINSERT INTO grades VALUES ('Al',95),('Bo',82),('Cy',71),('Dee',60);\n",
+    "starter": "SELECT student, score,\n  CASE\n    WHEN score BETWEEN 90 AND 100 THEN 'A'\n    -- add branches for B, C, and F\n  END AS letter_grade\nFROM grades\nORDER BY score DESC;\n",
+    "solution": "SELECT student, score,\n  CASE\n    WHEN score BETWEEN 90 AND 100 THEN 'A'\n    WHEN score BETWEEN 80 AND 89 THEN 'B'\n    WHEN score BETWEEN 70 AND 79 THEN 'C'\n    ELSE 'F'\n  END AS letter_grade\nFROM grades\nORDER BY score DESC;",
+    "hint": "BETWEEN x AND y is inclusive on both ends \u2014 order the WHEN branches from highest range to lowest so each score only matches one bucket.",
+    "expectedCols": [
+      "student",
+      "score",
+      "letter_grade"
+    ],
+    "expectedRows": [
+      [
+        "Al",
+        95,
+        "A"
+      ],
+      [
+        "Bo",
+        82,
+        "B"
+      ],
+      [
+        "Cy",
+        71,
+        "C"
+      ],
+      [
+        "Dee",
+        60,
+        "F"
       ]
     ]
   }
