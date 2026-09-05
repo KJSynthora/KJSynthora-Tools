@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PySpark Concepts Guide — Learn Before You Practice | KJSynthora</title>
+<meta name="description" content="A beginner-to-advanced pandas/PySpark concepts guide with live, runnable examples for every topic used in the 100-question practice set.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#f5a623; --accent-ink:#241704; --good:#3fd67a; --good-dim:#173829;
+    --amber:#f5a623; --bad:#ff6b6b; --bad-dim:#3a1e20; --blue:#5b9dff;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:18px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:260px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .level-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:7px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13.5px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:70ch; margin-bottom:36px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+
+  .concept{border-top:1px solid var(--border-soft); padding:34px 0; scroll-margin-top:75px;}
+  .concept:first-of-type{border-top:none;}
+  .chead{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .chead h2{font-size:20px; margin:0;}
+  .badge{font-size:11px; padding:3px 9px; border-radius:999px; font-family:var(--mono); border:1px solid var(--border);}
+  .badge.Beginner{color:var(--good); background:var(--good-dim); border-color:transparent;}
+  .badge.Intermediate{color:var(--amber); background:#3a2c10; border-color:transparent;}
+  .badge.Advanced{color:var(--bad); background:var(--bad-dim); border-color:transparent;}
+  .explain{color:var(--text-muted); max-width:78ch; margin:0 0 18px; font-size:14.5px;}
+  .explain b{color:var(--text);}
+
+  .pattern{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:18px; overflow-x:auto;}
+  .pattern pre{margin:0; font-family:var(--mono); font-size:13px; color:#ffcf8a; white-space:pre;}
+
+  .playground{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .pg-bar{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-soft); background:var(--panel-alt); font-size:12px; color:var(--text-dim); font-family:var(--mono);}
+  textarea.editor{width:100%; min-height:100px; resize:vertical; border:none; outline:none; background:var(--panel); color:#ffe0ad; font-family:var(--mono); font-size:13.5px; padding:14px; line-height:1.6; tab-size:4;}
+  .btn-row{display:flex; gap:10px; margin-bottom:14px;}
+  .btn{font-family:var(--sans); font-size:13px; font-weight:500; padding:8px 14px; border-radius:var(--radius); border:1px solid var(--border); background:var(--panel-alt); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--text-dim);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600;}
+  .btn.primary:hover{background:#ffbb47;}
+  .output{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:16px; min-height:40px;}
+  .output.empty{color:var(--text-dim); font-size:13px;}
+  .err{color:var(--bad); font-family:var(--mono); font-size:12.5px; white-space:pre-wrap;}
+  table.data{border-collapse:collapse; width:100%; font-size:12.5px;}
+  table.data th{text-align:left; padding:6px 10px; color:var(--text-dim); border-bottom:1px solid var(--border-soft); font-family:var(--mono); white-space:nowrap;}
+  table.data td{padding:6px 10px; color:var(--text-muted); border-bottom:1px solid var(--border-soft); font-family:var(--mono); white-space:nowrap;}
+  table.data tr:last-child td{border-bottom:none;}
+
+  .usedin{font-size:13px; color:var(--text-muted);}
+  .usedin .qlinks{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .usedin a.qlink{font-family:var(--mono); font-size:12px; padding:3px 8px; border:1px solid var(--border); border-radius:5px; color:var(--blue);}
+  .usedin a.qlink:hover{background:var(--panel-alt); text-decoration:none;}
+
+  .loading-banner{display:flex; align-items:center; gap:10px; background:var(--panel-alt); border:1px solid var(--border); padding:10px 16px; border-radius:var(--radius); font-size:13px; color:var(--text-muted); margin-bottom:24px;}
+  .spinner{width:13px;height:13px;border-radius:50%;border:2px solid var(--border-soft); border-top-color:var(--accent); animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .dataset-note{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:30px; font-size:13.5px; color:var(--text-muted);}
+  .dataset-note b{color:var(--text);}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · PySpark Concepts Guide</div>
+  <div class="topbar-right">
+    <a href="pyspark-practice.html">PySpark Practice (100 Qs) →</a>
+    <a href="sql-concepts.html">SQL Concepts →</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="main">
+    <div class="intro">
+      <h1>Learn the pattern, then practice it</h1>
+      <p>18 topics, ordered beginner → advanced, each with a plain-English explanation, the pandas syntax pattern, and a live playground running real Python in your browser. Every section links straight to the practice questions that use it.</p>
+    </div>
+    <div class="dataset-note" id="loadingBanner">
+      <span class="spinner"></span> <span id="loadingText">Booting the in-browser Python runtime…</span>
+    </div>
+    <div id="concepts"></div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script id="concepts-data" type="application/json">[
+  {
+    "slug": "filtering-aggregation",
+    "order": 1,
+    "level": "Beginner",
+    "title": "Filtering & Aggregation",
+    "explain": "A pandas DataFrame is a table; a boolean mask like <code>df[df['salary'] > 70000]</code> keeps only matching rows \u2014 pandas' equivalent of WHERE. <b>.groupby(col)</b> splits the DataFrame into groups, and calling <b>.sum()</b>, <b>.mean()</b>, <b>.size()</b> etc. after it collapses each group down to one row \u2014 pandas' equivalent of GROUP BY.",
+    "pattern": "df[df['col'] > value]                 # filter (WHERE)\ndf.groupby('group_col')['val'].mean()  # aggregate (GROUP BY)",
+    "example": "dept_stats = employees.groupby('department', as_index=False).agg(headcount=('salary','size'), avg_salary=('salary','mean'))\ndept_stats",
+    "usedIn": [
+      1,
+      16,
+      17,
+      21,
+      38,
+      39,
+      40,
+      43,
+      48,
+      55,
+      56,
+      63,
+      76,
+      86
+    ]
+  },
+  {
+    "slug": "conditional-logic",
+    "order": 2,
+    "level": "Beginner",
+    "title": "Conditional Logic",
+    "explain": "pandas has two common ways to write if/elif/else logic across a column: <b>np.where(condition, a, b)</b> for a simple two-way choice, and <b>np.select([cond1, cond2, ...], [val1, val2, ...], default=...)</b> when you have several conditions checked in order \u2014 the pandas equivalent of SQL's CASE.",
+    "pattern": "import numpy as np\ndf['level'] = np.where(df['salary'] >= 80000, 'Senior', 'Junior')\n\n# multiple conditions, checked in order:\nconditions = [df['x'] < 10, df['x'] < 50]\nchoices = ['Low', 'Medium']\ndf['band'] = np.select(conditions, choices, default='High')",
+    "example": "import numpy as np\nemployees['level'] = np.where(employees['salary'] >= 80000, 'Senior', 'Junior')\nemployees[['name','salary','level']]",
+    "usedIn": [
+      2,
+      26,
+      75,
+      85,
+      89
+    ]
+  },
+  {
+    "slug": "null-handling",
+    "order": 3,
+    "level": "Beginner",
+    "title": "Null Handling",
+    "explain": "Missing values show up as NaN (or None, or NaT for dates) in pandas. <b>.isna()</b> / <b>.notna()</b> check for missing values row by row. <b>.fillna(value)</b> replaces every missing value with a default \u2014 pandas' COALESCE. <b>.dropna()</b> removes rows with missing values entirely.",
+    "pattern": "df['col'].isna()          # True where missing\ndf['col'].fillna(0)       # replace missing with 0\ndf.dropna(subset=['col']) # drop rows missing that column",
+    "example": "employees['manager_or_zero'] = employees['manager_id'].fillna(0).astype(int)\nemployees[['name','manager_id','manager_or_zero']]",
+    "usedIn": [
+      13,
+      73
+    ]
+  },
+  {
+    "slug": "string-operations",
+    "order": 4,
+    "level": "Beginner",
+    "title": "String Operations",
+    "explain": "Any column of text needs the <b>.str</b> accessor before you can call string methods on it \u2014 <code>df['col'].str.upper()</code>, not <code>df['col'].upper()</code>. Common ones: .str.upper()/.lower(), .str.len(), .str.split(), .str.replace(), .str.contains() (like SQL's LIKE), and .str.endswith()/.startswith().",
+    "pattern": "df['col'].str.upper()\ndf['col'].str.len()\ndf['col'].str.split(',')\ndf['col'].str.contains('text')",
+    "example": "employees['name_upper'] = employees['name'].str.upper()\nemployees['name_length'] = employees['name'].str.len()\nemployees[['name','name_upper','name_length']]",
+    "usedIn": [
+      11,
+      37,
+      52,
+      74,
+      88,
+      93
+    ]
+  },
+  {
+    "slug": "date-operations",
+    "order": 5,
+    "level": "Beginner",
+    "title": "Date Operations",
+    "explain": "Once a column is converted with <b>pd.to_datetime()</b>, the <b>.dt</b> accessor unlocks date parts: .dt.year, .dt.month, .dt.day, .dt.hour. Subtracting two datetime columns gives a Timedelta, and <b>.dt.days</b> turns that into a plain day count.",
+    "pattern": "df['date_col'] = pd.to_datetime(df['date_col'])\ndf['year'] = df['date_col'].dt.year\n(df['date_a'] - df['date_b']).dt.days   # days between two dates",
+    "example": "employees['hire_year'] = employees['hire_date'].dt.year\nemployees[['name','hire_date','hire_year']]",
+    "usedIn": [
+      12,
+      22,
+      51,
+      67
+    ]
+  },
+  {
+    "slug": "joins",
+    "order": 6,
+    "level": "Beginner",
+    "title": "Joins",
+    "explain": "pandas' equivalent of SQL JOIN is <b>.merge()</b>. <code>how='inner'</code> (the default) only keeps matching rows; <code>how='left'</code> keeps every row from the left DataFrame, filling NaN where there's no match \u2014 exactly like SQL's LEFT JOIN, and the way you find 'things with no match' after filtering for NaN.",
+    "pattern": "a.merge(b, on='key_col')                # inner join\na.merge(b, on='key_col', how='left')     # left join",
+    "example": "orders.merge(customers, on='customer_id')[['order_id','name','amount']]",
+    "usedIn": [
+      3,
+      4,
+      18,
+      33,
+      54,
+      70,
+      77,
+      78,
+      96
+    ]
+  },
+  {
+    "slug": "self-joins",
+    "order": 7,
+    "level": "Intermediate",
+    "title": "Self Joins",
+    "explain": "To join a DataFrame to itself (e.g. matching employees to their managers within the same table), merge it with itself and use <b>suffixes</b> to keep the two sides' overlapping column names distinct.",
+    "pattern": "df.merge(df, left_on='manager_id', right_on='emp_id', suffixes=('_emp','_mgr'))",
+    "example": "merged = employees.merge(employees, left_on='manager_id', right_on='emp_id', how='left', suffixes=('','_mgr'))\nmerged[['name','name_mgr']].rename(columns={'name_mgr':'manager'})",
+    "usedIn": [
+      5,
+      28,
+      45,
+      53,
+      59,
+      82
+    ]
+  },
+  {
+    "slug": "cross-joins",
+    "order": 8,
+    "level": "Intermediate",
+    "title": "Cross Joins",
+    "explain": "Pass <code>how='cross'</code> to .merge() to pair every row of one DataFrame with every row of another \u2014 useful for generating every possible combination before checking what's actually present in real data.",
+    "pattern": "a.merge(b, how='cross')",
+    "example": "depts = employees[['department']].drop_duplicates()\nlabels = pd.DataFrame({'label': ['Q1','Q2']})\ndepts.merge(labels, how='cross')",
+    "usedIn": [
+      34
+    ]
+  },
+  {
+    "slug": "set-operations",
+    "order": 9,
+    "level": "Intermediate",
+    "title": "Set Operations",
+    "explain": "pandas doesn't have UNION/INTERSECT/EXCEPT keywords \u2014 you reach for Python's built-in <b>set</b> type instead (or <b>pd.concat</b> to stack DataFrames). <code>set(a) | set(b)</code> is UNION, <code>set(a) & set(b)</code> is INTERSECT, <code>set(a) - set(b)</code> is EXCEPT.",
+    "pattern": "pd.concat([df_a, df_b])          # UNION ALL (stack, keep dupes)\nset(a) | set(b)                  # UNION\nset(a) & set(b)                  # INTERSECT\nset(a) - set(b)                  # EXCEPT",
+    "example": "pune_ids = customers[customers['city']=='Pune']['customer_id']\nmumbai_ids = customers[customers['city']=='Mumbai']['customer_id']\nsorted(set(pune_ids) | set(mumbai_ids))",
+    "usedIn": [
+      15,
+      29,
+      31,
+      32,
+      81,
+      95
+    ]
+  },
+  {
+    "slug": "deduplication",
+    "order": 10,
+    "level": "Intermediate",
+    "title": "Deduplication",
+    "explain": "<b>.drop_duplicates()</b> removes exact repeat rows. Pass a subset of columns to define what counts as 'duplicate,' and <b>keep='last'</b> (or 'first') to control which copy survives when you specifically want to keep, say, the most recent one.",
+    "pattern": "df.drop_duplicates()                              # exact duplicate rows\ndf.drop_duplicates(subset=['email'], keep='last') # latest per email",
+    "example": "dupes = pd.DataFrame({'customer_id':[1,1,2], 'name':['Acme Co','Acme Co','Bright Ltd']})\ndupes.drop_duplicates()",
+    "usedIn": [
+      7
+    ]
+  },
+  {
+    "slug": "grouped-transforms",
+    "order": 11,
+    "level": "Intermediate",
+    "title": "Grouped Transforms",
+    "explain": "<b>.groupby(...).transform(...)</b> is different from a normal groupby aggregate: instead of collapsing to one row per group, it broadcasts the group's result (average, max, etc.) back onto every original row, so you keep all your rows AND get a group-level number to compare against \u2014 essential for 'how does this row compare to its group average' questions.",
+    "pattern": "df['group_avg'] = df.groupby('group_col')['val'].transform('mean')\n# every row in the same group gets the same group_avg value",
+    "example": "employees['dept_avg'] = employees.groupby('department')['salary'].transform('mean').round(2)\nemployees[['name','department','salary','dept_avg']]",
+    "usedIn": [
+      14,
+      23,
+      47,
+      71,
+      83,
+      84,
+      90,
+      99
+    ]
+  },
+  {
+    "slug": "window-functions",
+    "order": 12,
+    "level": "Advanced",
+    "title": "Window Functions",
+    "explain": "pandas doesn't have an OVER() clause, but the same ideas exist as Series methods, usually after a <b>.groupby()</b>: <b>.rank()</b> for RANK/DENSE_RANK/ROW_NUMBER (control this with the <code>method</code> argument), <b>.shift(1)</b> / <b>.shift(-1)</b> for LAG/LEAD, <b>.cumsum()</b> for a running total, and <b>.rolling(window=N)</b> for a moving average over the last N rows.",
+    "pattern": "df.groupby('grp')['val'].rank(method='min', ascending=False)  # RANK\ndf.groupby('grp')['val'].shift(1)                              # LAG\ndf['val'].cumsum()                                             # running total\ndf['val'].rolling(window=3).mean()                             # moving average",
+    "example": "employees['rnk'] = employees.groupby('department')['salary'].rank(method='min', ascending=False).astype(int)\nemployees[['name','department','salary','rnk']]",
+    "usedIn": [
+      6,
+      8,
+      9,
+      10,
+      20,
+      30,
+      35,
+      36,
+      41,
+      49,
+      57,
+      61,
+      62,
+      65,
+      66,
+      68,
+      72,
+      79,
+      80,
+      87,
+      91,
+      97,
+      98,
+      100
+    ]
+  },
+  {
+    "slug": "conditional-aggregation",
+    "order": 13,
+    "level": "Intermediate",
+    "title": "Conditional Aggregation",
+    "explain": "Inside <b>.agg()</b>, a lambda comparing the Series to a condition and summing the booleans counts only the matching rows \u2014 True acts like 1 and False like 0 when summed, the same trick SQL uses with CASE inside SUM.",
+    "pattern": "df.groupby('grp').agg(matching=('col', lambda s: (s > value).sum()))",
+    "example": "employees.groupby('department').agg(high_earners=('salary', lambda s: (s > 70000).sum()))",
+    "usedIn": [
+      25,
+      42,
+      46
+    ]
+  },
+  {
+    "slug": "string-aggregation",
+    "order": 14,
+    "level": "Intermediate",
+    "title": "String Aggregation",
+    "explain": "To combine every value in a group into one comma-separated string, apply Python's <code>','.join(...)</code> inside a groupby \u2014 pandas' version of SQL's GROUP_CONCAT.",
+    "pattern": "df.groupby('grp')['col'].apply(lambda s: ','.join(s))",
+    "example": "employees.groupby('department')['name'].apply(lambda s: ','.join(s)).reset_index(name='team')",
+    "usedIn": [
+      19
+    ]
+  },
+  {
+    "slug": "gaps-islands",
+    "order": 15,
+    "level": "Advanced",
+    "title": "Gaps & Islands",
+    "explain": "Same trick as SQL: subtract a running row position from each value. For a run of consecutive numbers or dates, that difference stays constant, so it becomes a natural groupby key that clusters each unbroken run together.",
+    "pattern": "df['island_key'] = df['val'] - range(1, len(df)+1)\n# rows sharing the same island_key are one consecutive run",
+    "example": "nums = pd.DataFrame({'n': [1,2,3,5,6]})\nnums['grp'] = nums['n'] - range(1, len(nums)+1)\nnums",
+    "usedIn": [
+      24,
+      50,
+      92
+    ]
+  },
+  {
+    "slug": "reshaping",
+    "order": 16,
+    "level": "Advanced",
+    "title": "Reshaping (Melt & Explode)",
+    "explain": "<b>.melt()</b> turns wide data (one column per category, like Q1/Q2/Q3) into long data (one row per category) \u2014 pandas' built-in unpivot. <b>.explode()</b> turns a column of lists into one row per list item, commonly paired with <code>.str.split(',')</code> to split a delimited string into separate rows.",
+    "pattern": "df.melt(id_vars=['id_col'], var_name='category', value_name='value')\ndf.assign(item=df['csv_col'].str.split(',')).explode('item')",
+    "example": "wide = pd.DataFrame({'department': ['Eng','Sales'], 'Q1': [100,80], 'Q2': [120,90]})\nwide.melt(id_vars='department', var_name='quarter', value_name='revenue')",
+    "usedIn": [
+      69
+    ]
+  },
+  {
+    "slug": "recursive-iterative-logic",
+    "order": 17,
+    "level": "Advanced",
+    "title": "Recursive / Iterative Logic",
+    "explain": "pandas has no recursive CTE. For hierarchy problems (org charts, category trees), the practical approach is a small Python helper function that walks the relationship one step at a time \u2014 often recursively, using a cache dictionary so each id is only computed once even if it's looked up from multiple branches.",
+    "pattern": "cache = {}\ndef solve(id):\n    if id in cache: return cache[id]\n    row = df[df['id'] == id].iloc[0]\n    # base case + recursive case using row's parent/manager column\n    cache[id] = ...\n    return cache[id]\ndf['result'] = df['id'].apply(solve)",
+    "example": "cache = {}\ndef depth(emp_id):\n    if emp_id in cache: return cache[emp_id]\n    row = employees[employees['emp_id']==emp_id].iloc[0]\n    cache[emp_id] = 1 if pd.isna(row['manager_id']) else depth(int(row['manager_id'])) + 1\n    return cache[emp_id]\nemployees['level'] = employees['emp_id'].apply(depth)\nemployees[['name','level']]",
+    "usedIn": [
+      27,
+      58,
+      64,
+      94
+    ]
+  },
+  {
+    "slug": "grouped-statistics",
+    "order": 18,
+    "level": "Advanced",
+    "title": "Grouped Statistics",
+    "explain": "Unlike SQL, pandas ships median and variance as built-in Series methods \u2014 no manual formula needed. <b>.median()</b>, <b>.var(ddof=0)</b> for population variance (pandas defaults to ddof=1, sample variance, so be explicit), and <b>.std()</b> for standard deviation all work directly, optionally after a groupby.",
+    "pattern": "df.groupby('grp')['val'].median()\ndf['val'].var(ddof=0)   # population variance\ndf['val'].std()         # standard deviation",
+    "example": "employees.groupby('department')['salary'].agg(avg_salary='mean', min_salary='min', max_salary='max').round(2)",
+    "usedIn": [
+      44,
+      60
+    ]
+  }
+]</script>
+<script>
+const CONCEPTS = JSON.parse(document.getElementById('concepts-data').textContent);
+let pyodide = null;
+
+const SHARED_SETUP = `
+import pandas as pd
+import numpy as np
+
+employees = pd.DataFrame({
+    "emp_id": [1,2,3,4,5,6],
+    "name": ["Grace","Hank","Ivy","Jai","Kim","Leo"],
+    "department": ["Eng","Eng","Eng","Sales","Sales","Sales"],
+    "salary": [95000,80000,72000,65000,70000,58000],
+    "manager_id": [None,1,1,None,4,4],
+    "hire_date": pd.to_datetime(["2019-03-01","2020-06-15","2021-01-10","2020-02-20","2021-08-05","2022-04-12"])
+})
+customers = pd.DataFrame({"customer_id":[1,2,3], "name":["Acme Co","Bright Ltd","Cove Inc"], "city":["Pune","Mumbai","Pune"]})
+orders = pd.DataFrame({
+    "order_id":[1,2,3,4], "customer_id":[1,1,2,3], "product":["Widget","Gadget","Widget","Gizmo"],
+    "amount":[120,80,200,50], "order_date": pd.to_datetime(["2024-01-05","2024-02-10","2024-01-20","2024-03-01"])
+})
+`;
+
+const CAPTURE_PY = `
+import json, pandas as pd, numpy as np
+
+def __to_output(obj):
+    if isinstance(obj, pd.DataFrame):
+        def conv(v):
+            try:
+                if pd.isna(v): return None
+            except Exception:
+                pass
+            if isinstance(v, pd.Timestamp): return v.strftime('%Y-%m-%d')
+            if isinstance(v, (np.integer,)): return int(v)
+            if isinstance(v, (np.floating,)): return round(float(v), 4)
+            return v
+        cols = list(obj.columns)
+        rows = [{k: conv(v) for k, v in row.items()} for row in obj.to_dict(orient='records')]
+        return json.dumps({"type":"table","columns":cols,"rows":rows})
+    else:
+        return json.dumps({"type":"text","value":str(obj)})
+
+__to_output(__RESULT__)
+`;
+
+function renderSidebar(){
+  const levels = ['Beginner','Intermediate','Advanced'];
+  const sidebar = document.getElementById('sidebar');
+  let html = `<div class="sidebar-head"><h1>Contents</h1><p>Same shared DataFrames throughout: employees, customers, orders.</p></div>`;
+  levels.forEach(level => {
+    const items = CONCEPTS.filter(c => c.level === level);
+    if(!items.length) return;
+    html += `<div class="level-group">${level}</div><ul class="navlist">`;
+    items.forEach(c => {
+      html += `<li><a href="#${c.slug}">${c.title}</a></li>`;
+    });
+    html += `</ul>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+function renderResultTable(columns, rows){
+  if(!rows.length) return '<p style="color:var(--text-dim); font-size:13px;">Ran successfully, 0 rows.</p>';
+  const head = columns.map(c => `<th>${c}</th>`).join('');
+  const body = rows.map(r => `<tr>${columns.map(c => `<td>${r[c] === null || r[c] === undefined ? '<i style="color:var(--text-dim)">null</i>' : r[c]}</td>`).join('')}</tr>`).join('');
+  return `<table class="data"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+async function runConcept(slug){
+  const editor = document.getElementById('editor-' + slug);
+  const output = document.getElementById('output-' + slug);
+  output.className = 'output';
+  output.innerHTML = '<span style="color:var(--text-dim); font-size:13px;">Running…</span>';
+
+  const lines = editor.value.trim().split('\\n');
+  const lastLine = lines[lines.length - 1];
+  const body = lines.slice(0, -1).join('\\n');
+  const fullCode = SHARED_SETUP + '\\n' + body + '\\n' + CAPTURE_PY.replace('__RESULT__', '(' + lastLine + ')');
+
+  try{
+    const jsonStr = await pyodide.runPythonAsync(fullCode);
+    const parsed = JSON.parse(jsonStr);
+    if(parsed.type === 'table'){
+      output.innerHTML = renderResultTable(parsed.columns, parsed.rows);
+    } else {
+      output.innerHTML = `<pre style="margin:0; font-family:var(--mono); font-size:13px; color:var(--text-muted); white-space:pre-wrap;">${parsed.value}</pre>`;
+    }
+  } catch(e){
+    output.innerHTML = `<div class="err">${(e.message || String(e))}</div>`;
+  }
+}
+
+function renderConcepts(){
+  const container = document.getElementById('concepts');
+  container.innerHTML = CONCEPTS.map(c => {
+    const qlinks = c.usedIn.map(id => `<a class="qlink" href="pyspark-practice.html?q=${id}" target="_blank">Q${id}</a>`).join('');
+    return `
+    <section class="concept" id="${c.slug}">
+      <div class="chead">
+        <h2>${c.title}</h2>
+        <span class="badge ${c.level}">${c.level}</span>
+      </div>
+      <p class="explain">${c.explain}</p>
+      <div class="pattern"><pre>${c.pattern}</pre></div>
+      <div class="playground">
+        <div class="pg-bar"><span>Try it — last line is shown as the result</span><span>Python 3 · pandas</span></div>
+        <textarea class="editor" id="editor-${c.slug}" spellcheck="false">${c.example}</textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runConcept('${c.slug}')">▶ Run</button>
+      </div>
+      <div class="output empty" id="output-${c.slug}">Click Run to see the result.</div>
+      <div class="usedin">Practice this in: <div class="qlinks">${qlinks}</div></div>
+    </section>`;
+  }).join('');
+}
+
+async function boot(){
+  pyodide = await loadPyodide();
+  document.getElementById('loadingText').textContent = 'Loading pandas + numpy…';
+  await pyodide.loadPackage(['pandas','numpy']);
+  document.getElementById('loadingBanner').remove();
+  renderSidebar();
+  renderConcepts();
+  for(const c of CONCEPTS){
+    await runConcept(c.slug);
+  }
+}
+boot().catch(err => {
+  document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the Python runtime: ${err.message}. Check your connection and reload.</span>`;
+});
+</script>
+</body>
+</html>
