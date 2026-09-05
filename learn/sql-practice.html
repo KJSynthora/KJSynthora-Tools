@@ -53,6 +53,10 @@
   .topbar-right{display:flex; align-items:center; gap:18px; font-size:13.5px;}
   .topbar-right a{color:var(--text-muted);}
   .topbar-right a:hover{color:var(--text);}
+  .guide-banner{background:var(--panel-alt); border-bottom:1px solid var(--border); padding:10px 22px; text-align:center; font-size:13px; color:var(--text-muted);}
+  .guide-banner a{color:var(--accent); font-weight:600;}
+  .concept-link{font-size:12px; color:var(--text-dim); margin-top:4px; display:inline-block;}
+  .concept-link a{color:var(--accent);}
   .progress-pill{
     display:flex; align-items:center; gap:8px;
     background:var(--panel-alt); border:1px solid var(--border);
@@ -169,8 +173,13 @@
   <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL Practice</div>
   <div class="topbar-right">
     <div class="progress-pill">Solved <b id="progressCount">0</b>/100</div>
+    <a href="sql-concepts.html">📘 Concepts Guide</a>
     <a href="pyspark-practice.html">PySpark Practice →</a>
   </div>
+</div>
+
+<div class="guide-banner">
+  New to SQL? <a href="sql-concepts.html">Start with the Concepts Guide →</a> — plain-English explanations and live examples for every topic below, ordered beginner to advanced.
 </div>
 
 <div class="layout">
@@ -3468,6 +3477,27 @@ const STORAGE_KEY = 'kjs_sql_practice_progress_v1';
 let SQL = null;
 let currentId = null;
 
+const TOPIC_SLUG = {
+  'Filtering & Aggregation': 'filtering-aggregation',
+  'CASE Expressions': 'case-expressions',
+  'NULL Handling': 'null-handling',
+  'String Functions': 'string-functions',
+  'Date Functions': 'date-functions',
+  'Joins': 'joins',
+  'Joins & Aggregation': 'joins',
+  'Self Joins': 'self-joins',
+  'Cross Joins': 'cross-joins',
+  'Set Operations': 'set-operations',
+  'Subqueries': 'subqueries',
+  'CTEs': 'ctes',
+  'Window Functions': 'window-functions',
+  'Conditional Aggregation': 'conditional-aggregation',
+  'String Aggregation': 'string-aggregation',
+  'Gaps & Islands': 'gaps-islands',
+  'Recursive CTEs': 'recursive-ctes',
+  'Grouped Statistics': 'grouped-statistics'
+};
+
 function getSolved(){
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; }
 }
@@ -3589,6 +3619,8 @@ function selectQuestion(id){
   db.close();
 
   const main = document.getElementById('main');
+  const slug = TOPIC_SLUG[q.topic] || '';
+  const conceptLinkHtml = slug ? `<div class="concept-link">📘 New to ${q.topic}? <a href="sql-concepts.html#${slug}" target="_blank">Read the concept guide →</a></div>` : '';
   main.innerHTML = `
     <div class="qhead">
       <h2>${q.id}. ${q.title}</h2>
@@ -3597,6 +3629,7 @@ function selectQuestion(id){
         <span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>
       </div>
     </div>
+    ${conceptLinkHtml}
     <p class="scenario">${q.scenario}</p>
 
     <p class="section-label">Sample data</p>
@@ -3642,7 +3675,10 @@ initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist
   SQL = sqljs;
   document.getElementById('loadingBanner').remove();
   renderSidebar();
-  selectQuestion(1);
+  const params = new URLSearchParams(window.location.search);
+  const requestedId = parseInt(params.get('q'), 10);
+  const startId = QUESTIONS.some(x => x.id === requestedId) ? requestedId : 1;
+  selectQuestion(startId);
 }).catch(err => {
   document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the SQL engine: ${err.message}. Check your connection and reload.</span>`;
 });
