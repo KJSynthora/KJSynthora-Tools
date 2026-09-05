@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Foundations — Learn Before PySpark | KJSynthora</title>
+<meta name="description" content="Just enough Python — variables, functions, loops, error handling, JSON — to be comfortable writing the glue code around PySpark in Databricks notebooks.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#3fd67a; --accent-ink:#04140a; --good:#3fd67a; --good-dim:#173829;
+    --amber:#f5a623; --bad:#ff6b6b; --bad-dim:#3a1e20; --blue:#5b9dff;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:16px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:260px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .level-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:7px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13.5px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:70ch; margin-bottom:36px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+
+  .concept{border-top:1px solid var(--border-soft); padding:34px 0; scroll-margin-top:75px;}
+  .concept:first-of-type{border-top:none;}
+  .chead{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .chead h2{font-size:20px; margin:0;}
+  .badge{font-size:11px; padding:3px 9px; border-radius:999px; font-family:var(--mono); border:1px solid var(--border);}
+  .badge.Foundations{color:#b892ff; background:#2a1e42; border-color:transparent;}
+  .badge.Beginner{color:var(--good); background:var(--good-dim); border-color:transparent;}
+  .badge.Intermediate{color:var(--amber); background:#3a2c10; border-color:transparent;}
+  .badge.Advanced{color:var(--bad); background:var(--bad-dim); border-color:transparent;}
+  .explain{color:var(--text-muted); max-width:78ch; margin:0 0 18px; font-size:14.5px;}
+  .explain b{color:var(--text);}
+
+  .pattern{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:18px; overflow-x:auto;}
+  .pattern pre{margin:0; font-family:var(--mono); font-size:13px; color:#8fe0b0; white-space:pre;}
+
+  .playground{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .pg-bar{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-soft); background:var(--panel-alt); font-size:12px; color:var(--text-dim); font-family:var(--mono);}
+  textarea.editor{width:100%; min-height:130px; resize:vertical; border:none; outline:none; background:var(--panel); color:#c9f2d8; font-family:var(--mono); font-size:13.5px; padding:14px; line-height:1.6; tab-size:4;}
+  .btn-row{display:flex; gap:10px; margin-bottom:14px;}
+  .btn{font-family:var(--sans); font-size:13px; font-weight:500; padding:8px 14px; border-radius:var(--radius); border:1px solid var(--border); background:var(--panel-alt); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--text-dim);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600;}
+  .btn.primary:hover{background:#5fe896;}
+  .output{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:16px; min-height:40px;}
+  .output.empty{color:var(--text-dim); font-size:13px;}
+  .output pre{margin:0; font-family:var(--mono); font-size:13px; color:var(--text-muted); white-space:pre-wrap; word-break:break-word;}
+  .err{color:var(--bad); font-family:var(--mono); font-size:12.5px; white-space:pre-wrap;}
+
+  .loading-banner{display:flex; align-items:center; gap:10px; background:var(--panel-alt); border:1px solid var(--border); padding:10px 16px; border-radius:var(--radius); font-size:13px; color:var(--text-muted); margin-bottom:24px;}
+  .spinner{width:13px;height:13px;border-radius:50%;border:2px solid var(--border-soft); border-top-color:var(--accent); animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Python Foundations</div>
+  <div class="topbar-right">
+    <a href="sql-to-pyspark.html">🔀 SQL → PySpark</a>
+    <a href="pyspark-concepts.html">PySpark Concepts →</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="main">
+    <div class="intro">
+      <h1>Just enough Python for PySpark & Databricks</h1>
+      <p>You don't need to become a software engineer. You need to be comfortable enough with plain Python to write the glue code around your PySpark DataFrames — a small function, a loop, parsing a JSON config, catching an error. 15 topics, foundations → advanced, each with a live playground running real Python in your browser.</p>
+    </div>
+    <div class="loading-banner" id="loadingBanner">
+      <span class="spinner"></span> <span id="loadingText">Booting the in-browser Python runtime…</span>
+    </div>
+    <div id="concepts"></div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script id="concepts-data" type="application/json">[
+  {
+    "slug": "variables-datatypes",
+    "order": 1,
+    "level": "Foundations",
+    "title": "Variables & Data Types",
+    "explain": "A variable is just a name pointing at a value \u2014 no need to declare its type upfront, Python figures it out. The core types you'll use constantly: <b>str</b> (text), <b>int</b>/<b>float</b> (whole/decimal numbers), <b>bool</b> (True/False), and <b>None</b> (Python's version of NULL \u2014 'no value').",
+    "pattern": "name = \"Grace\"      # str\nsalary = 95000      # int\nrate = 0.1          # float\nis_active = True    # bool\nbonus = None         # \"nothing here\" \u2014 like SQL's NULL",
+    "example": "name = \"Grace\"\nsalary = 95000\nis_manager = True\nbonus = None\nprint(type(name), type(salary), type(is_manager), type(bonus))"
+  },
+  {
+    "slug": "operators",
+    "order": 2,
+    "level": "Foundations",
+    "title": "Operators",
+    "explain": "Arithmetic: + - * / (always gives a float) // (whole-number division) % (remainder) ** (power). Comparison: == != > < >= <=. Logical: <b>and</b> / <b>or</b> / <b>not</b> (Python spells these out as words, not && / ||).",
+    "pattern": "a + b   a - b   a * b   a / b\na // b   # floor division\na % b    # remainder (modulo)\na ** b   # power\na == b   a != b   a > b\ncondition_1 and condition_2",
+    "example": "a, b = 10, 3\nprint(a + b, a - b, a * b, a / b, a // b, a % b, a ** 2)\nprint(a > b, a == b, a != b, (a > 5) and (b < 5))"
+  },
+  {
+    "slug": "strings",
+    "order": 3,
+    "level": "Foundations",
+    "title": "Strings",
+    "explain": "Strings have built-in methods for almost everything you'd want: <b>.upper()</b>/<b>.lower()</b>/<b>.title()</b> for casing, <b>.split(sep)</b> to break into a list, <b>.strip()</b> to remove whitespace. <b>f-strings</b> (f\"...{variable}...\") are the standard way to build strings with values plugged in \u2014 Python's answer to string concatenation.",
+    "pattern": "s.upper()   s.lower()   s.title()\ns.split(\",\")     # -> list of pieces\ns.strip()        # remove leading/trailing whitespace\nf\"Hello, {name}! You have {count} tasks.\"",
+    "example": "name = \"grace hopper\"\nprint(name.title())\nprint(name.upper())\nprint(name.split(\" \"))\nprint(f\"Hello, {name.title()}! You have {3} pending tasks.\")"
+  },
+  {
+    "slug": "lists",
+    "order": 4,
+    "level": "Foundations",
+    "title": "Lists",
+    "explain": "A list is an ordered, changeable collection \u2014 think of it as a single column of values. Index from 0; negative indices count from the end (-1 is the last item). <b>Slicing</b> [start:stop] grabs a range. <b>.append()</b> adds an item; <b>sorted()</b> returns a new sorted copy without changing the original.",
+    "pattern": "lst[0]        # first item\nlst[-1]       # last item\nlst[1:3]      # slice: items at index 1 and 2\nlst.append(x)\nsorted(lst, reverse=True)",
+    "example": "salaries = [95000, 80000, 72000, 65000]\nsalaries.append(58000)\nprint(salaries[0], salaries[-1], salaries[1:3])\nprint(sorted(salaries, reverse=True))\nprint([s for s in salaries if s > 70000])"
+  },
+  {
+    "slug": "dicts",
+    "order": 5,
+    "level": "Beginner",
+    "title": "Dictionaries",
+    "explain": "A dictionary stores key-value pairs \u2014 think of it as a single row with named fields, or a small JSON object. Access a value with <code>d[key]</code>, or safely with <code>d.get(key, default)</code> which won't crash if the key is missing. <b>.keys()</b>, <b>.values()</b>, and <b>.items()</b> let you loop over the contents.",
+    "pattern": "d[\"key\"]                  # access (crashes if missing)\nd.get(\"key\", \"default\")   # safe access\nd[\"new_key\"] = value       # add or update\nfor k, v in d.items(): ...",
+    "example": "employee = {\"name\": \"Grace\", \"department\": \"Eng\", \"salary\": 95000}\nprint(employee[\"name\"])\nemployee[\"level\"] = \"Senior\"\nprint(employee.keys())\nprint(employee.get(\"bonus\", \"Not set\"))\nfor k, v in employee.items():\n    print(k, \"->\", v)"
+  },
+  {
+    "slug": "conditionals",
+    "order": 6,
+    "level": "Beginner",
+    "title": "Conditionals",
+    "explain": "Python's if/elif/else is checked top to bottom, same idea as SQL's CASE \u2014 the first true condition wins, and indentation (not BEGIN/END or curly braces) is what defines each block. Getting the indentation right isn't a style choice in Python, it's required syntax.",
+    "pattern": "if condition_1:\n    ...\nelif condition_2:\n    ...\nelse:\n    ...",
+    "example": "salary = 72000\nif salary >= 80000:\n    level = \"Senior\"\nelif salary >= 65000:\n    level = \"Mid\"\nelse:\n    level = \"Junior\"\nprint(level)"
+  },
+  {
+    "slug": "loops",
+    "order": 7,
+    "level": "Beginner",
+    "title": "Loops",
+    "explain": "<b>for</b> loops iterate over a sequence directly (no manual index tracking needed); <b>enumerate()</b> gives you both the index and the value when you need both. <b>while</b> loops repeat as long as a condition stays true \u2014 useful when you don't know the number of iterations in advance.",
+    "pattern": "for item in list_or_range:\n    ...\nfor i, item in enumerate(my_list):\n    ...\nwhile condition:\n    ...",
+    "example": "employees = [\"Grace\", \"Hank\", \"Ivy\"]\nfor i, name in enumerate(employees):\n    print(i, name)\n\ntotal = 0\nn = 1\nwhile n <= 5:\n    total += n\n    n += 1\nprint(\"sum 1..5 =\", total)"
+  },
+  {
+    "slug": "functions",
+    "order": 8,
+    "level": "Beginner",
+    "title": "Functions",
+    "explain": "A function packages reusable logic behind a name. Parameters can have <b>default values</b> (used when the caller doesn't provide that argument), and <b>return</b> sends a value back to whoever called the function. This is the single most important building block for writing clean PySpark/Python code instead of one giant script.",
+    "pattern": "def function_name(param, optional_param=default_value):\n    # logic here\n    return result\n\nfunction_name(value)\nfunction_name(value, optional_param=other_value)",
+    "example": "def calculate_bonus(salary, rate=0.10):\n    return round(salary * rate, 2)\n\nprint(calculate_bonus(80000))\nprint(calculate_bonus(80000, rate=0.15))"
+  },
+  {
+    "slug": "comprehensions",
+    "order": 9,
+    "level": "Intermediate",
+    "title": "List Comprehensions",
+    "explain": "A list comprehension builds a new list in one readable line instead of a multi-line for-loop with .append() calls. The pattern is <code>[expression for item in iterable if condition]</code> \u2014 the <code>if</code> part is optional and filters which items are included.",
+    "pattern": "[expr for item in iterable]\n[expr for item in iterable if condition]\n# equivalent to:\n# result = []\n# for item in iterable:\n#     if condition: result.append(expr)",
+    "example": "salaries = [95000, 80000, 72000, 65000, 58000]\nhigh_earners = [s for s in salaries if s > 70000]\nsquared = [s // 1000 for s in salaries]\nprint(high_earners)\nprint(squared)"
+  },
+  {
+    "slug": "json-handling",
+    "order": 10,
+    "level": "Intermediate",
+    "title": "Working with JSON",
+    "explain": "JSON is just text that looks like nested dicts and lists \u2014 the standard format for APIs, config files, and semi-structured data you'll hit constantly as a data engineer. <b>json.loads(text)</b> parses a JSON string into a Python dict/list; <b>json.dumps(obj)</b> does the reverse, turning Python data back into a JSON string.",
+    "pattern": "import json\ndata = json.loads(json_string)   # JSON text -> Python dict/list\njson.dumps(python_object)        # Python dict/list -> JSON text",
+    "example": "import json\n\npayload = '{\"name\": \"Grace\", \"department\": \"Eng\", \"active\": true}'\ndata = json.loads(payload)\nprint(data[\"name\"], data[\"department\"])\n\ndata[\"salary\"] = 95000\nprint(json.dumps(data))"
+  },
+  {
+    "slug": "error-handling",
+    "order": 11,
+    "level": "Intermediate",
+    "title": "Error Handling",
+    "explain": "<b>try/except</b> lets your code recover from a predictable failure (a missing file, a bad division, a network timeout) instead of crashing the whole pipeline. Catch the <i>specific</i> exception type when you can (like ZeroDivisionError) rather than a bare except, so you don't accidentally swallow bugs you didn't expect. <b>finally</b> always runs, whether or not an error happened \u2014 useful for cleanup.",
+    "pattern": "try:\n    risky_operation()\nexcept SpecificError as e:\n    handle_it(e)\nfinally:\n    always_runs()",
+    "example": "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\n    finally:\n        print(f\"Attempted {a} / {b}\")\n\nprint(safe_divide(10, 2))\nprint(safe_divide(10, 0))"
+  },
+  {
+    "slug": "lambda",
+    "order": 12,
+    "level": "Intermediate",
+    "title": "Lambda Functions",
+    "explain": "A <b>lambda</b> is a small, throwaway, unnamed function \u2014 useful when you need a quick function to pass into something else (like <code>map()</code>, <code>filter()</code>, or a pandas <code>.apply()</code>) and don't want to formally define it with <code>def</code>. If the logic is more than one line, write a real function instead \u2014 lambdas are for genuinely tiny operations.",
+    "pattern": "lambda x: x * 2\nlist(map(lambda x: x * 2, my_list))\nlist(filter(lambda x: x > 10, my_list))",
+    "example": "salaries = [95000, 80000, 72000]\ndoubled = list(map(lambda s: s * 2, salaries))\nabove_avg = list(filter(lambda s: s > 75000, salaries))\nprint(doubled)\nprint(above_avg)"
+  },
+  {
+    "slug": "sets-tuples",
+    "order": 13,
+    "level": "Intermediate",
+    "title": "Sets & Tuples",
+    "explain": "A <b>set</b> holds only unique values with no guaranteed order \u2014 the fastest way to deduplicate a list or check membership. A <b>tuple</b> is like a list but immutable (can't be changed after creation) \u2014 commonly used for fixed-size groupings like coordinates, or when you want to guarantee the data can't be accidentally modified.",
+    "pattern": "unique_items = set(my_list)         # dedupe\nx, y = (10, 20)                     # tuple unpacking\npoint = (10, 20)                    # immutable",
+    "example": "depts = [\"Eng\", \"Sales\", \"Eng\", \"HR\", \"Sales\"]\nunique_depts = set(depts)\nprint(unique_depts)\n\npoint = (10, 20)\nx, y = point\nprint(x, y)"
+  },
+  {
+    "slug": "modules",
+    "order": 14,
+    "level": "Intermediate",
+    "title": "Modules & Imports",
+    "explain": "Python's power comes from its standard library and ecosystem of packages, unlocked with <b>import</b>. You'll use <code>datetime</code> constantly for date logic, <code>os</code> for file paths and environment variables, and (in Databricks) <code>pyspark</code>, <code>pandas</code>. <code>import x</code> gives you the whole module; <code>from x import y</code> pulls out just what you need.",
+    "pattern": "import datetime\nimport os\nfrom datetime import date\n\ndatetime.date.today()",
+    "example": "import datetime\nimport os\n\ntoday = datetime.date.today()\nprint(\"Today:\", today)\nprint(\"Year:\", today.year)"
+  },
+  {
+    "slug": "classes",
+    "order": 15,
+    "level": "Advanced",
+    "title": "Classes (Basic OOP)",
+    "explain": "A class is a blueprint for creating objects that bundle data and behavior together. <b>__init__</b> is the constructor \u2014 it runs automatically when you create a new object and sets up its starting attributes. <b>self</b> refers to 'this particular object.' You won't need heavy OOP for most data engineering scripts, but you'll recognize this pattern constantly in libraries you use.",
+    "pattern": "class ClassName:\n    def __init__(self, param):\n        self.attribute = param\n\n    def method(self):\n        return self.attribute\n\nobj = ClassName(value)",
+    "example": "class Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\n    def give_raise(self, amount):\n        self.salary += amount\n\ne = Employee(\"Grace\", 95000)\ne.give_raise(5000)\nprint(e.name, e.salary)"
+  }
+]</script>
+<script>
+const CONCEPTS = JSON.parse(document.getElementById('concepts-data').textContent);
+let pyodide = null;
+
+function renderSidebar(){
+  const levels = ['Foundations','Beginner','Intermediate','Advanced'];
+  const sidebar = document.getElementById('sidebar');
+  let html = `<div class="sidebar-head"><h1>Contents</h1><p>Each example runs standalone — like a mini Python console.</p></div>`;
+  levels.forEach(level => {
+    const items = CONCEPTS.filter(c => c.level === level);
+    if(!items.length) return;
+    html += `<div class="level-group">${level}</div><ul class="navlist">`;
+    items.forEach(c => {
+      html += `<li><a href="#${c.slug}">${c.title}</a></li>`;
+    });
+    html += `</ul>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+async function runConcept(slug){
+  const editor = document.getElementById('editor-' + slug);
+  const output = document.getElementById('output-' + slug);
+  output.className = 'output';
+  output.innerHTML = '<span style="color:var(--text-dim); font-size:13px;">Running…</span>';
+
+  const codeJson = JSON.stringify(editor.value);
+  const fullCode = `
+import io, contextlib
+__buf = io.StringIO()
+try:
+    with contextlib.redirect_stdout(__buf):
+        exec(${codeJson}, {})
+except Exception as e:
+    __buf.write("Error: " + str(e) + chr(10))
+__buf.getvalue()
+`;
+  try{
+    const result = await pyodide.runPythonAsync(fullCode);
+    output.innerHTML = `<pre>${result || '(no output — try adding a print statement)'}</pre>`;
+  } catch(e){
+    output.innerHTML = `<div class="err">${(e.message || String(e))}</div>`;
+  }
+}
+
+function renderConcepts(){
+  const container = document.getElementById('concepts');
+  container.innerHTML = CONCEPTS.map(c => `
+    <section class="concept" id="${c.slug}">
+      <div class="chead">
+        <h2>${c.title}</h2>
+        <span class="badge ${c.level}">${c.level}</span>
+      </div>
+      <p class="explain">${c.explain}</p>
+      <div class="pattern"><pre>${c.pattern}</pre></div>
+      <div class="playground">
+        <div class="pg-bar"><span>Try it — edit and run</span><span>Python 3</span></div>
+        <textarea class="editor" id="editor-${c.slug}" spellcheck="false">${c.example}</textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runConcept('${c.slug}')">▶ Run</button>
+      </div>
+      <div class="output empty" id="output-${c.slug}">Click Run to see the output.</div>
+    </section>`).join('');
+}
+
+async function boot(){
+  pyodide = await loadPyodide();
+  document.getElementById('loadingBanner').remove();
+  renderSidebar();
+  renderConcepts();
+  for(const c of CONCEPTS){
+    await runConcept(c.slug);
+  }
+}
+boot().catch(err => {
+  document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the Python runtime: ${err.message}. Check your connection and reload.</span>`;
+});
+</script>
+</body>
+</html>
