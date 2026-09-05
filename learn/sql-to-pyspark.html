@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL → PySpark: The Translation Guide | KJSynthora</title>
+<meta name="description" content="If you already know SQL, PySpark's DataFrame API is mostly a direct translation. Side-by-side syntax for every common SQL pattern.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --blue:#5b9dff; --amber:#f5a623; --good:#3fd67a;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:16px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:36px 24px 80px;}
+  .intro h1{font-size:27px; margin:0 0 12px;}
+  .intro p{color:var(--text-muted); max-width:75ch; font-size:15px; margin:0 0 10px;}
+  .intro .callout{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:20px 0 36px; font-size:14px; color:var(--text-muted);}
+  .intro .callout b{color:var(--text);}
+
+  .cat-label{font-size:12px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); font-weight:700; margin:38px 0 14px; padding-top:20px; border-top:1px solid var(--border-soft);}
+  .cat-label:first-of-type{border-top:none; margin-top:0; padding-top:0;}
+
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; align-items:stretch;}
+  .cell{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  .cell-bar{padding:7px 12px; font-size:11px; font-family:var(--mono); border-bottom:1px solid var(--border-soft); background:var(--panel-alt); color:var(--text-dim);}
+  .cell.sql .cell-bar{color:var(--amber);}
+  .cell.pyspark .cell-bar{color:var(--blue);}
+  .cell pre{margin:0; padding:14px; font-family:var(--mono); font-size:13px; white-space:pre-wrap; word-break:break-word;}
+  .cell.sql pre{color:#ffd699;}
+  .cell.pyspark pre{color:#a9c9ff;}
+  .cell pre .comment{color:var(--text-dim);}
+  .row-title{grid-column:1 / -1; font-size:13.5px; color:var(--text); font-weight:600; margin-bottom:-2px;}
+
+  @media (max-width:720px){
+    .row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL → PySpark Guide</div>
+  <div class="topbar-right">
+    <a href="sql-concepts.html">SQL Concepts</a>
+    <a href="pyspark-concepts.html">PySpark Concepts</a>
+    <a href="sql-practice.html">SQL Practice</a>
+    <a href="pyspark-practice.html">PySpark Practice</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>If you know SQL, you already know most of PySpark</h1>
+    <p>PySpark's DataFrame API isn't a different language to learn from scratch — it's the same relational concepts (select, filter, group, join, window) wrapped in Python method calls instead of keywords. Once you can see the 1:1 mapping, "translating" a query becomes mechanical rather than mysterious.</p>
+    <div class="callout">
+      <b>Why the practice site runs pandas, not real PySpark:</b> real PySpark needs a Spark cluster (a JVM), which can't run inside a browser tab. So the PySpark practice questions execute equivalent pandas code live, and show the <i>real</i> PySpark syntax alongside it for reference. This page uses real PySpark syntax throughout, since that's what you'll actually write on the job or in an interview.
+    </div>
+  </div>
+
+  <div class="cat-label">Selecting & Filtering</div>
+  <div class="row">
+    <div class="row-title">Select specific columns</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT name, salary
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.select("name", "salary")</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Filter rows (WHERE)</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM employees
+WHERE salary > 70000;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.filter(F.col("salary") > 70000)
+<span class="comment"># .where(...) is just an alias for .filter(...)</span></pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Remove duplicates</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT DISTINCT department
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.select("department").distinct()</pre></div>
+  </div>
+
+  <div class="cat-label">Sorting & Limiting</div>
+  <div class="row">
+    <div class="row-title">Sort results (ORDER BY)</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM employees
+ORDER BY salary DESC;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.orderBy(F.col("salary").desc())</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Limit row count</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM employees
+LIMIT 5;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.limit(5)</pre></div>
+  </div>
+
+  <div class="cat-label">Columns & Renaming</div>
+  <div class="row">
+    <div class="row-title">Alias / rename a column</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT salary AS annual_salary
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.withColumnRenamed("salary", "annual_salary")
+<span class="comment"># or: df.select(F.col("salary").alias("annual_salary"))</span></pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Add a calculated column</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT *, salary * 12 AS monthly
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.withColumn("monthly", F.col("salary") * 12)</pre></div>
+  </div>
+
+  <div class="cat-label">Grouping & Aggregating</div>
+  <div class="row">
+    <div class="row-title">GROUP BY + aggregate</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT department, COUNT(*)
+FROM employees
+GROUP BY department;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.groupBy("department").count()</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Filter groups (HAVING)</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT department, COUNT(*) c
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 2;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.groupBy("department").count() \\
+  .filter(F.col("count") > 2)
+<span class="comment"># HAVING is just another .filter(), applied after groupBy</span></pre></div>
+  </div>
+
+  <div class="cat-label">Joins</div>
+  <div class="row">
+    <div class="row-title">Inner join</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM orders o
+JOIN customers c
+  ON o.customer_id = c.customer_id;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>orders.join(customers, on="customer_id")</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Left join</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM customers c
+LEFT JOIN orders o
+  ON c.customer_id = o.customer_id;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>customers.join(orders, on="customer_id", how="left")</pre></div>
+  </div>
+
+  <div class="cat-label">Conditional Logic & NULLs</div>
+  <div class="row">
+    <div class="row-title">CASE WHEN</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT name,
+  CASE WHEN salary >= 80000
+    THEN 'Senior' ELSE 'Junior' END
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.withColumn("level",
+  F.when(F.col("salary") >= 80000, "Senior")
+   .otherwise("Junior"))</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">COALESCE (default value)</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT COALESCE(manager_id, 0)
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>F.coalesce(F.col("manager_id"), F.lit(0))</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">NULL checks</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM employees
+WHERE manager_id IS NULL;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>df.filter(F.col("manager_id").isNull())</pre></div>
+  </div>
+
+  <div class="cat-label">Window Functions</div>
+  <div class="row">
+    <div class="row-title">RANK within a group</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT name,
+  RANK() OVER (
+    PARTITION BY department
+    ORDER BY salary DESC)
+FROM employees;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>w = Window.partitionBy("department") \\
+           .orderBy(F.col("salary").desc())
+df.withColumn("rnk", F.rank().over(w))</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Running total</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT *,
+  SUM(amount) OVER (ORDER BY order_date)
+FROM orders;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>w = Window.orderBy("order_date") \\
+           .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+df.withColumn("running_total", F.sum("amount").over(w))</pre></div>
+  </div>
+
+  <div class="cat-label">Combining Queries</div>
+  <div class="row">
+    <div class="row-title">UNION ALL</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>SELECT * FROM a
+UNION ALL
+SELECT * FROM b;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>a.unionByName(b)</pre></div>
+  </div>
+  <div class="row">
+    <div class="row-title">CTE (WITH clause)</div>
+    <div class="cell sql"><div class="cell-bar">SQL</div><pre>WITH dept_avg AS (
+  SELECT department, AVG(salary) a
+  FROM employees GROUP BY department
+)
+SELECT * FROM dept_avg;</pre></div>
+    <div class="cell pyspark"><div class="cell-bar">PySpark</div><pre>dept_avg = df.groupBy("department") \\
+              .agg(F.avg("salary").alias("a"))
+<span class="comment"># a Python variable IS your CTE — keep chaining off it.
+# or: df.createOrReplaceTempView("employees"); spark.sql("...")</span></pre></div>
+  </div>
+
+</div>
+</body>
+</html>
