@@ -48,6 +48,7 @@
   .chead{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .chead h2{font-size:20px; margin:0;}
   .badge{font-size:11px; padding:3px 9px; border-radius:999px; font-family:var(--mono); border:1px solid var(--border);}
+  .badge.Foundations{color:#b892ff; background:#2a1e42; border-color:transparent;}
   .badge.Beginner{color:var(--good); background:var(--good-dim); border-color:transparent;}
   .badge.Intermediate{color:var(--amber); background:#3a2c10; border-color:transparent;}
   .badge.Advanced{color:var(--bad); background:var(--bad-dim); border-color:transparent;}
@@ -98,6 +99,7 @@
   <div class="brand"><span class="logo-dot"></span> KJSynthora · SQL Concepts Guide</div>
   <div class="topbar-right">
     <a href="sql-practice.html">SQL Practice (100 Qs) →</a>
+    <a href="sql-to-pyspark.html">🔀 SQL → PySpark</a>
     <a href="pyspark-concepts.html">PySpark Concepts →</a>
   </div>
 </div>
@@ -107,7 +109,7 @@
   <main class="main" id="main">
     <div class="intro">
       <h1>Learn the concept, then practice it</h1>
-      <p>17 topics, ordered beginner → advanced, each with a plain-English explanation, the basic syntax pattern, and a live playground you can edit and run yourself — powered by a real SQLite engine in your browser. Every section links straight to the practice questions that use it.</p>
+      <p>20 topics, ordered from absolute basics → advanced, each with a plain-English explanation, the basic syntax pattern, and a live playground you can edit and run yourself — powered by a real SQLite engine in your browser. Every section links straight to the practice questions that use it.</p>
     </div>
     <div class="dataset-note" id="loadingBanner">
       <span class="spinner"></span> Starting the in-browser SQL engine…
@@ -118,6 +120,36 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
 <script id="concepts-data" type="application/json">[
+  {
+    "slug": "what-is-a-table",
+    "order": -3,
+    "level": "Foundations",
+    "title": "What's a Table, Row, and Column",
+    "explain": "A SQL table is just a grid, like a spreadsheet. Each <b>row</b> is one record (one employee, one order). Each <b>column</b> is one field every row has (name, salary, department). A table usually has a <b>primary key</b> \u2014 a column (like emp_id) that uniquely identifies each row, so you can always point at exactly one record.",
+    "pattern": "SELECT * FROM table_name;   -- * means \"every column\"",
+    "example": "SELECT * FROM employees;",
+    "usedIn": []
+  },
+  {
+    "slug": "select-where-basics",
+    "order": -2,
+    "level": "Foundations",
+    "title": "SELECT, WHERE, ORDER BY, LIMIT",
+    "explain": "These four keywords are 80% of everyday SQL. <b>SELECT</b> picks which columns to show. <b>FROM</b> says which table. <b>WHERE</b> filters which rows qualify \u2014 it runs before any grouping happens. <b>ORDER BY</b> sorts the result (ASC = smallest first, the default; DESC = largest first). <b>LIMIT</b> caps how many rows come back.",
+    "pattern": "SELECT col1, col2\nFROM table\nWHERE row_condition\nORDER BY col1 DESC\nLIMIT 10;",
+    "example": "SELECT name, salary FROM employees WHERE department = 'Eng' ORDER BY salary DESC LIMIT 2;",
+    "usedIn": []
+  },
+  {
+    "slug": "operators-distinct",
+    "order": -1,
+    "level": "Foundations",
+    "title": "Operators & DISTINCT",
+    "explain": "Inside WHERE you can combine conditions with <b>AND</b> / <b>OR</b> / <b>NOT</b>, check a range with <b>BETWEEN a AND b</b> (inclusive both ends), check a list with <b>IN (a, b, c)</b>, and check for missing values with <b>IS NULL</b> / <b>IS NOT NULL</b> (never use = NULL \u2014 it silently never matches). <b>SELECT DISTINCT</b> removes duplicate rows from the result.",
+    "pattern": "WHERE col BETWEEN 10 AND 20\nWHERE col IN (1, 2, 3)\nWHERE col IS NULL\nSELECT DISTINCT col FROM table;",
+    "example": "SELECT DISTINCT department FROM employees WHERE salary BETWEEN 60000 AND 90000;",
+    "usedIn": []
+  },
   {
     "slug": "filtering-aggregation",
     "order": 1,
@@ -434,7 +466,7 @@ INSERT INTO orders VALUES
 `;
 
 function renderSidebar(){
-  const levels = ['Beginner','Intermediate','Advanced'];
+  const levels = ['Foundations','Beginner','Intermediate','Advanced'];
   const sidebar = document.getElementById('sidebar');
   let html = `<div class="sidebar-head"><h1>Contents</h1><p>Same shared dataset throughout: employees, customers, orders.</p></div>`;
   levels.forEach(level => {
@@ -496,7 +528,7 @@ function renderConcepts(){
         <button class="btn primary" onclick="runConcept('${c.slug}')">▶ Run</button>
       </div>
       <div class="output empty" id="output-${c.slug}">Click Run to see the result.</div>
-      <div class="usedin">Practice this in: <div class="qlinks">${qlinks}</div></div>
+      ${c.usedIn.length ? `<div class="usedin">Practice this in: <div class="qlinks">${qlinks}</div></div>` : ''}
     </section>`;
   }).join('');
 }
