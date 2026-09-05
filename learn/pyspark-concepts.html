@@ -48,6 +48,7 @@
   .chead{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .chead h2{font-size:20px; margin:0;}
   .badge{font-size:11px; padding:3px 9px; border-radius:999px; font-family:var(--mono); border:1px solid var(--border);}
+  .badge.Foundations{color:#b892ff; background:#2a1e42; border-color:transparent;}
   .badge.Beginner{color:var(--good); background:var(--good-dim); border-color:transparent;}
   .badge.Intermediate{color:var(--amber); background:#3a2c10; border-color:transparent;}
   .badge.Advanced{color:var(--bad); background:var(--bad-dim); border-color:transparent;}
@@ -98,6 +99,7 @@
   <div class="brand"><span class="logo-dot"></span> KJSynthora · PySpark Concepts Guide</div>
   <div class="topbar-right">
     <a href="pyspark-practice.html">PySpark Practice (100 Qs) →</a>
+    <a href="sql-to-pyspark.html">🔀 SQL → PySpark</a>
     <a href="sql-concepts.html">SQL Concepts →</a>
   </div>
 </div>
@@ -107,7 +109,7 @@
   <main class="main" id="main">
     <div class="intro">
       <h1>Learn the pattern, then practice it</h1>
-      <p>18 topics, ordered beginner → advanced, each with a plain-English explanation, the pandas syntax pattern, and a live playground running real Python in your browser. Every section links straight to the practice questions that use it.</p>
+      <p>21 topics, ordered from absolute basics → advanced, each with a plain-English explanation, the pandas syntax pattern, and a live playground running real Python in your browser. Every section links straight to the practice questions that use it.</p>
     </div>
     <div class="dataset-note" id="loadingBanner">
       <span class="spinner"></span> <span id="loadingText">Booting the in-browser Python runtime…</span>
@@ -118,6 +120,36 @@
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script id="concepts-data" type="application/json">[
+  {
+    "slug": "what-is-a-dataframe",
+    "order": -3,
+    "level": "Foundations",
+    "title": "What's a DataFrame",
+    "explain": "A pandas <b>DataFrame</b> is the same idea as a SQL table \u2014 a grid of rows and columns held in memory. Each single column, on its own, is called a <b>Series</b>. <b>.head(n)</b> shows the first n rows so you can peek at the data without printing the whole thing.",
+    "pattern": "df.head(5)      # first 5 rows\ndf.shape        # (num_rows, num_columns)\ndf.dtypes       # the data type of every column",
+    "example": "employees.head(3)",
+    "usedIn": []
+  },
+  {
+    "slug": "selecting-filtering-sorting",
+    "order": -2,
+    "level": "Foundations",
+    "title": "Selecting, Filtering, Sorting",
+    "explain": "Single brackets <code>df['col']</code> pull out one column as a Series. Double brackets <code>df[['col1','col2']]</code> pull out several columns as a DataFrame. A <b>boolean mask</b> like <code>df[df['salary'] > 70000]</code> keeps only matching rows \u2014 this is pandas' WHERE. <b>.sort_values('col')</b> sorts by that column (add <code>ascending=False</code> for descending) \u2014 pandas' ORDER BY.",
+    "pattern": "df['col']                        # one column (Series)\ndf[['col1', 'col2']]             # several columns (DataFrame)\ndf[df['col'] > value]            # filter rows (WHERE)\ndf.sort_values('col', ascending=False)  # sort (ORDER BY)",
+    "example": "employees[employees['department']=='Eng'][['name','salary']].sort_values('salary', ascending=False)",
+    "usedIn": []
+  },
+  {
+    "slug": "viewing-renaming",
+    "order": -1,
+    "level": "Foundations",
+    "title": "Viewing & Renaming Columns",
+    "explain": "<b>.columns</b> lists the column names, <b>.shape</b> gives (rows, columns) as a tuple, and <b>.rename(columns={...})</b> relabels one or more columns without changing the data \u2014 pandas' equivalent of SQL's <code>AS</code> alias, but applied after the fact rather than inline.",
+    "pattern": "df.columns\ndf.shape\ndf.rename(columns={'old_name': 'new_name'})",
+    "example": "employees.rename(columns={'salary':'annual_salary'})[['name','annual_salary']].head()",
+    "usedIn": []
+  },
   {
     "slug": "filtering-aggregation",
     "order": 1,
@@ -464,7 +496,7 @@ __to_output(__RESULT__)
 `;
 
 function renderSidebar(){
-  const levels = ['Beginner','Intermediate','Advanced'];
+  const levels = ['Foundations','Beginner','Intermediate','Advanced'];
   const sidebar = document.getElementById('sidebar');
   let html = `<div class="sidebar-head"><h1>Contents</h1><p>Same shared DataFrames throughout: employees, customers, orders.</p></div>`;
   levels.forEach(level => {
@@ -530,7 +562,7 @@ function renderConcepts(){
         <button class="btn primary" onclick="runConcept('${c.slug}')">▶ Run</button>
       </div>
       <div class="output empty" id="output-${c.slug}">Click Run to see the result.</div>
-      <div class="usedin">Practice this in: <div class="qlinks">${qlinks}</div></div>
+      ${c.usedIn.length ? `<div class="usedin">Practice this in: <div class="qlinks">${qlinks}</div></div>` : ''}
     </section>`;
   }).join('');
 }
