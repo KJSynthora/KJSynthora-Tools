@@ -39,6 +39,10 @@
   .topbar-right{display:flex; align-items:center; gap:18px; font-size:13.5px;}
   .topbar-right a{color:var(--text-muted);}
   .topbar-right a:hover{color:var(--text);}
+  .guide-banner{background:var(--panel-alt); border-bottom:1px solid var(--border); padding:10px 22px; text-align:center; font-size:13px; color:var(--text-muted);}
+  .guide-banner a{color:var(--accent); font-weight:600;}
+  .concept-link{font-size:12px; color:var(--text-dim); margin-top:4px; display:inline-block;}
+  .concept-link a{color:var(--blue);}
   .progress-pill{display:flex; align-items:center; gap:8px; background:var(--panel-alt); border:1px solid var(--border); padding:5px 12px; border-radius:999px; font-size:12.5px; color:var(--text-muted);}
   .progress-pill b{color:var(--good); font-weight:600;}
 
@@ -125,8 +129,13 @@
   <div class="brand"><span class="logo-dot"></span> KJSynthora · PySpark Practice</div>
   <div class="topbar-right">
     <div class="progress-pill">Solved <b id="progressCount">0</b>/100</div>
+    <a href="pyspark-concepts.html">📘 Concepts Guide</a>
     <a href="sql-practice.html">← SQL Practice</a>
   </div>
+</div>
+
+<div class="guide-banner">
+  New to pandas/PySpark? <a href="pyspark-concepts.html">Start with the Concepts Guide →</a> — plain-English explanations and live examples for every topic below, ordered beginner to advanced.
 </div>
 
 <div class="layout">
@@ -3530,6 +3539,33 @@ const STORAGE_KEY = 'kjs_pyspark_practice_progress_v1';
 let pyodide = null;
 let currentId = null;
 
+const TOPIC_SLUG = {
+  'Filtering & Aggregation': 'filtering-aggregation',
+  'Aggregation': 'filtering-aggregation',
+  'Filtering': 'filtering-aggregation',
+  'Conditional Logic': 'conditional-logic',
+  'Null Handling': 'null-handling',
+  'String Operations': 'string-operations',
+  'Date Operations': 'date-operations',
+  'Joins': 'joins',
+  'Joins & Aggregation': 'joins',
+  'Self Joins': 'self-joins',
+  'Cross Joins': 'cross-joins',
+  'Set Operations': 'set-operations',
+  'Deduplication': 'deduplication',
+  'Grouped Transforms': 'grouped-transforms',
+  'Window Functions': 'window-functions',
+  'Time-Based Windows': 'window-functions',
+  'Conditional Aggregation': 'conditional-aggregation',
+  'String Aggregation': 'string-aggregation',
+  'Gaps & Islands': 'gaps-islands',
+  'Reshaping': 'reshaping',
+  'Recursive Logic': 'recursive-iterative-logic',
+  'Iterative Logic': 'recursive-iterative-logic',
+  'Cohort Analysis': 'grouped-transforms',
+  'Grouped Statistics': 'grouped-statistics'
+};
+
 function getSolved(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; } }
 function markSolved(id){ const solved = getSolved(); solved[id] = true; localStorage.setItem(STORAGE_KEY, JSON.stringify(solved)); renderSidebar(); }
 function renderProgress(){ document.getElementById('progressCount').textContent = Object.keys(getSolved()).length; }
@@ -3626,6 +3662,8 @@ function selectQuestion(id){
   renderSidebar();
 
   const main = document.getElementById('main');
+  const slug = TOPIC_SLUG[q.topic] || '';
+  const conceptLinkHtml = slug ? `<div class="concept-link">📘 New to ${q.topic}? <a href="pyspark-concepts.html#${slug}" target="_blank">Read the concept guide →</a></div>` : '';
   main.innerHTML = `
     <div class="qhead">
       <h2>${q.id}. ${q.title}</h2>
@@ -3634,6 +3672,7 @@ function selectQuestion(id){
         <span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>
       </div>
     </div>
+    ${conceptLinkHtml}
     <p class="scenario">${q.scenario}</p>
 
     <p class="section-label">Setup (creates the DataFrame — read only)</p>
@@ -3688,7 +3727,10 @@ async function boot(){
   await pyodide.loadPackage(['pandas', 'numpy']);
   document.getElementById('loadingBanner').remove();
   renderSidebar();
-  selectQuestion(1);
+  const params = new URLSearchParams(window.location.search);
+  const requestedId = parseInt(params.get('q'), 10);
+  const startId = QUESTIONS.some(x => x.id === requestedId) ? requestedId : 1;
+  selectQuestion(startId);
 }
 boot().catch(err => {
   document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the Python runtime: ${err.message}. Check your connection and reload.</span>`;
