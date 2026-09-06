@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks & Delta Lake — Interview Concepts | KJSynthora</title>
+<meta name="description" content="The Databricks and Delta Lake concepts that come up constantly in Data Engineer interviews: transaction logs, MERGE INTO, time travel, OPTIMIZE/ZORDER, medallion architecture, and more.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#ff3d5f; --blue:#5b9dff; --amber:#f5a623; --good:#3fd67a; --good-dim:#173829;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:14px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:250px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .cat-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:6px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:72ch; margin-bottom:20px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+  .callout{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:20px 0 36px; font-size:14px; color:var(--text-muted); max-width:72ch;}
+  .callout b{color:var(--text);}
+
+  .cat-label{font-size:12px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); font-weight:700; margin:0 0 16px; padding-top:26px; border-top:1px solid var(--border-soft); scroll-margin-top:70px;}
+  .cat-label:first-of-type{border-top:none; padding-top:0;}
+
+  .item{border-top:1px solid var(--border-soft); padding:24px 0; scroll-margin-top:70px;}
+  .item:first-of-type{border-top:none;}
+  .item h2{font-size:18px; margin:0 0 8px;}
+  .item .explain{color:var(--text-muted); font-size:14.5px; max-width:76ch; margin:0 0 14px;}
+  .item .explain b{color:var(--text);}
+  .codeblock{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; overflow-x:auto;}
+  .codeblock pre{margin:0; font-family:var(--mono); font-size:13px; color:#a9c9ff; white-space:pre;}
+  .codeblock .comment{color:var(--text-dim);}
+  .interview-tip{background:#241a10; border:1px solid #3a2c10; border-radius:var(--radius); padding:12px 16px; font-size:13.5px; color:#e0c290; margin-top:10px;}
+  .interview-tip b{color:#f5a623;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Databricks & Delta Lake</div>
+  <div class="topbar-right">
+    <a href="pyspark-concepts.html">PySpark Concepts</a>
+    <a href="sql-to-pyspark.html">SQL → PySpark</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>Contents</h1>
+      <p>Reference guide — accurate syntax and concepts, not a live playground (Delta Lake needs a real Spark cluster).</p>
+    </div>
+    <div class="cat-group">Databricks Basics</div>
+    <ul class="navlist">
+      <li><a href="#what-is-databricks">What Is Databricks</a></li>
+      <li><a href="#clusters">Clusters & Cluster Types</a></li>
+      <li><a href="#dbfs-mounting">DBFS & Mounting Storage</a></li>
+      <li><a href="#widgets">Widgets & Parameters</a></li>
+    </ul>
+    <div class="cat-group">Delta Lake Fundamentals</div>
+    <ul class="navlist">
+      <li><a href="#why-delta">Why Delta Lake (vs Plain Parquet)</a></li>
+      <li><a href="#transaction-log">The Transaction Log</a></li>
+      <li><a href="#create-delta-table">Creating a Delta Table</a></li>
+    </ul>
+    <div class="cat-group">Delta Lake Operations</div>
+    <ul class="navlist">
+      <li><a href="#merge-into">MERGE INTO (Upserts)</a></li>
+      <li><a href="#time-travel">Time Travel</a></li>
+      <li><a href="#schema-evolution">Schema Enforcement & Evolution</a></li>
+    </ul>
+    <div class="cat-group">Performance & Maintenance</div>
+    <ul class="navlist">
+      <li><a href="#partitioning">Partitioning & Small Files</a></li>
+      <li><a href="#optimize-zorder">OPTIMIZE & Z-ORDER</a></li>
+      <li><a href="#vacuum">VACUUM</a></li>
+    </ul>
+    <div class="cat-group">Architecture</div>
+    <ul class="navlist">
+      <li><a href="#medallion">Medallion Architecture</a></li>
+      <li><a href="#streaming">Structured Streaming Basics</a></li>
+    </ul>
+    <div class="cat-group">Governance & Orchestration</div>
+    <ul class="navlist">
+      <li><a href="#unity-catalog">Unity Catalog</a></li>
+      <li><a href="#workflows">Workflows & Jobs</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="intro">
+      <h1>Databricks & Delta Lake, the way interviews actually ask about it</h1>
+      <p>This is your actual job stack, and the single most-tested area beyond raw SQL/PySpark syntax. Each item below is something that comes up constantly — either as a direct question ("what does OPTIMIZE do?") or baked into a scenario question ("how would you handle duplicate records arriving daily?").</p>
+    </div>
+    <div class="callout">
+      <b>Why this page has no "Run" buttons:</b> Delta Lake's real behavior — the transaction log, time travel, file compaction — only exists on an actual Spark cluster with a Delta-enabled storage layer. A browser sandbox can't fake that honestly, so this page focuses on getting the concepts and exact syntax right instead.
+    </div>
+
+    <div class="cat-label">Databricks Basics</div>
+
+    <section class="item" id="what-is-databricks">
+      <h2>What Is Databricks</h2>
+      <p class="explain">Databricks is a managed platform that runs Apache Spark for you, adding notebooks, job scheduling, cluster management, and (via Delta Lake) reliable table storage on top of cloud storage like ADLS or S3. Think of it as: <b>Spark</b> is the processing engine, <b>Delta Lake</b> is the storage format that makes that engine's tables behave reliably, and <b>Databricks</b> is the platform that hosts and orchestrates both.</p>
+      <div class="interview-tip"><b>Interview angle:</b> Be ready to explain the relationship between these three in one sentence — interviewers often use this to check you're not just pattern-matching syntax without understanding the stack.</div>
+    </section>
+
+    <section class="item" id="clusters">
+      <h2>Clusters & Cluster Types</h2>
+      <p class="explain">A cluster is the actual compute (one driver node + worker nodes) that runs your Spark jobs. <b>All-Purpose clusters</b> are for interactive notebook work (shared, kept running, more expensive per hour). <b>Job clusters</b> spin up just for a scheduled job and terminate when it finishes (cheaper, isolated). <b>Autoscaling</b> lets a cluster add/remove worker nodes based on load instead of running a fixed size the whole time.</p>
+      <div class="codeblock"><pre><span class="comment"># Not code you write daily — but know the distinction:</span>
+All-Purpose Cluster  → notebooks, ad-hoc exploration, shared by a team
+Job Cluster           → one scheduled pipeline run, then terminates
+Autoscaling           → min/max worker count, scales with workload</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> "Why would you use a Job cluster instead of an All-Purpose cluster for a nightly pipeline?" — cost (it doesn't idle) and isolation (one job's failure doesn't affect others sharing a cluster).</div>
+    </section>
+
+    <section class="item" id="dbfs-mounting">
+      <h2>DBFS & Mounting Storage</h2>
+      <p class="explain">DBFS (Databricks File System) is a filesystem abstraction layered over cloud storage, so your code can use simple paths instead of full cloud URLs. In practice, most modern setups use <b>Unity Catalog external locations</b> or mount ADLS/S3 buckets so notebooks can read/write via a clean path.</p>
+      <div class="codeblock"><pre><span class="comment"># Reading a file via a mounted path</span>
+df = spark.read.format("csv").option("header", True).load("/mnt/raw/orders.csv")
+
+<span class="comment"># Reading directly from ADLS (modern approach, no mount needed with proper auth)</span>
+df = spark.read.format("parquet").load("abfss://container@account.dfs.core.windows.net/path/")</pre></div>
+    </section>
+
+    <section class="item" id="widgets">
+      <h2>Widgets & Parameters</h2>
+      <p class="explain">Widgets let a notebook accept parameters at runtime — essential when ADF or a Job triggers the same notebook with different inputs (like a date or environment name) instead of hardcoding values.</p>
+      <div class="codeblock"><pre>dbutils.widgets.text("run_date", "2024-01-01")
+run_date = dbutils.widgets.get("run_date")
+
+<span class="comment"># ADF's "Notebook" activity passes parameters that land here as widgets</span></pre></div>
+    </section>
+
+    <div class="cat-label">Delta Lake Fundamentals</div>
+
+    <section class="item" id="why-delta">
+      <h2>Why Delta Lake (vs Plain Parquet)</h2>
+      <p class="explain">Plain Parquet files on cloud storage have no concept of transactions — if a write fails halfway, you can be left with a corrupted, half-updated table, and there's no way to see "what did this table look like yesterday." Delta Lake adds a <b>transaction log</b> on top of Parquet files, giving you ACID guarantees, time travel, and safe concurrent reads/writes — while the underlying data files are still just Parquet.</p>
+      <div class="interview-tip"><b>Interview angle:</b> The one-line answer interviewers want: "Delta Lake = Parquet files + a transaction log that adds ACID transactions, time travel, and schema enforcement."</div>
+    </section>
+
+    <section class="item" id="transaction-log">
+      <h2>The Transaction Log</h2>
+      <p class="explain">Every write to a Delta table creates a new JSON entry in the <code>_delta_log</code> folder describing exactly which files were added or removed. Readers reconstruct the table's current state by replaying this log, which is what makes ACID transactions and time travel possible — the log is the actual source of truth, not just "whatever files happen to be in the folder."</p>
+      <div class="codeblock"><pre><span class="comment"># Folder structure of a Delta table on storage:</span>
+/orders/
+  part-0001.parquet
+  part-0002.parquet
+  _delta_log/
+    00000000000000000000.json   <span class="comment"># version 0</span>
+    00000000000000000001.json   <span class="comment"># version 1</span>
+    ...</pre></div>
+    </section>
+
+    <section class="item" id="create-delta-table">
+      <h2>Creating a Delta Table</h2>
+      <p class="explain">Delta is the default table format in Databricks, so creating a managed table is often just a normal <code>CREATE TABLE</code> — but you'll also frequently write a DataFrame out directly in Delta format, especially in a Bronze ingestion layer.</p>
+      <div class="codeblock"><pre>-- SQL
+CREATE TABLE orders (order_id INT, customer_id INT, amount DOUBLE)
+USING DELTA;
+
+-- PySpark
+df.write.format("delta").mode("overwrite").saveAsTable("orders")</pre></div>
+    </section>
+
+    <div class="cat-label">Delta Lake Operations</div>
+
+    <section class="item" id="merge-into">
+      <h2>MERGE INTO (Upserts)</h2>
+      <p class="explain">This is the single most-asked Delta Lake operation in interviews. <b>MERGE INTO</b> lets you insert new records and update existing ones in one atomic statement — the standard way to handle "load today's changes into a table that already has yesterday's data" (a classic upsert / SCD Type 1 pattern).</p>
+      <div class="codeblock"><pre>MERGE INTO target_table t
+USING source_updates s
+ON t.id = s.id
+WHEN MATCHED THEN UPDATE SET t.amount = s.amount, t.updated_at = s.updated_at
+WHEN NOT MATCHED THEN INSERT (id, amount, updated_at) VALUES (s.id, s.amount, s.updated_at);</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> Be ready to explain why this is safer than "DELETE then INSERT" — MERGE is one atomic operation (via the transaction log), so a failure partway through can't leave the table half-updated.</div>
+    </section>
+
+    <section class="item" id="time-travel">
+      <h2>Time Travel</h2>
+      <p class="explain">Because every change is recorded as a numbered version in the transaction log, you can query a Delta table as it existed at an earlier version or timestamp — useful for debugging ("what did this look like before yesterday's bad load?"), auditing, or recovering from an accidental bad write.</p>
+      <div class="codeblock"><pre>SELECT * FROM orders VERSION AS OF 12;
+SELECT * FROM orders TIMESTAMP AS OF '2024-01-15';
+
+-- PySpark
+df = spark.read.format("delta").option("versionAsOf", 12).table("orders")
+
+-- Roll a table back to an earlier version
+RESTORE TABLE orders TO VERSION AS OF 12;</pre></div>
+    </section>
+
+    <section class="item" id="schema-evolution">
+      <h2>Schema Enforcement & Evolution</h2>
+      <p class="explain">By default, Delta <b>enforces</b> schema — a write with a mismatched or extra column fails loudly instead of silently corrupting the table (unlike plain Parquet, which just writes whatever it's given). When a schema change is intentional, you opt in to <b>schema evolution</b> explicitly rather than have it happen by accident.</p>
+      <div class="codeblock"><pre><span class="comment"># Enforcement is the default — this fails if new_column isn't in the table already:</span>
+df.write.format("delta").mode("append").saveAsTable("orders")
+
+<span class="comment"># Explicitly allow the new column to be added:</span>
+df.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable("orders")</pre></div>
+    </section>
+
+    <div class="cat-label">Performance & Maintenance</div>
+
+    <section class="item" id="partitioning">
+      <h2>Partitioning & the Small File Problem</h2>
+      <p class="explain">Partitioning splits a table's files into subfolders by a column (commonly a date), so queries filtering on that column can skip reading irrelevant data entirely. But partitioning too finely (e.g., by hour on a low-volume table) creates the <b>small file problem</b> — thousands of tiny files that slow reads down instead of speeding them up, since opening each file has overhead regardless of its size.</p>
+      <div class="codeblock"><pre>df.write.format("delta").partitionBy("order_date").saveAsTable("orders")
+
+<span class="comment"># Rule of thumb: partition by a column with reasonable cardinality
+# (hundreds, not millions, of distinct values) and enough data per partition.</span></pre></div>
+    </section>
+
+    <section class="item" id="optimize-zorder">
+      <h2>OPTIMIZE & Z-ORDER</h2>
+      <p class="explain"><b>OPTIMIZE</b> compacts many small files into fewer, larger ones — the direct fix for the small file problem after it's already happened. <b>ZORDER BY</b> goes further, physically co-locating related values (e.g., rows with similar customer_id) within those compacted files, so filters on that column can skip even more data.</p>
+      <div class="codeblock"><pre>OPTIMIZE orders;
+OPTIMIZE orders ZORDER BY (customer_id);</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> Know the distinction — OPTIMIZE alone fixes file count/size; ZORDER additionally improves data skipping for specific filter columns. They're often used together.</div>
+    </section>
+
+    <section class="item" id="vacuum">
+      <h2>VACUUM</h2>
+      <p class="explain">Old, no-longer-referenced data files (left behind after updates, deletes, or OPTIMIZE compactions) aren't deleted immediately — they're kept around to support time travel. <b>VACUUM</b> permanently removes files older than a retention threshold (default 7 days) to reclaim storage. Running it with too short a retention window can break time travel or in-flight reads, so it's usually a scheduled maintenance job, not an ad-hoc command.</p>
+      <div class="codeblock"><pre>VACUUM orders RETAIN 168 HOURS;  <span class="comment">-- 7 days, the safe default</span></pre></div>
+    </section>
+
+    <div class="cat-label">Architecture</div>
+
+    <section class="item" id="medallion">
+      <h2>Medallion Architecture (Bronze / Silver / Gold)</h2>
+      <p class="explain">The standard Databricks pattern for organizing a lakehouse into layers of increasing refinement. <b>Bronze</b> holds raw, unmodified ingested data (schema-on-read, keep everything, including bad records). <b>Silver</b> holds cleaned, validated, deduplicated data with a consistent schema. <b>Gold</b> holds business-level aggregates ready for reporting or Power BI. Each layer is typically its own set of Delta tables.</p>
+      <div class="codeblock"><pre>Bronze:  raw JSON/CSV landed as-is, minimal transformation
+   ↓
+Silver:  cleaned, deduplicated, joined, typed correctly
+   ↓
+Gold:    aggregated, business-ready (e.g., daily_revenue_by_region)</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> Extremely commonly asked as "walk me through how you'd design a pipeline for X" — structuring your answer around Bronze/Silver/Gold signals you know the standard pattern rather than improvising.</div>
+    </section>
+
+    <section class="item" id="streaming">
+      <h2>Structured Streaming Basics</h2>
+      <p class="explain">Structured Streaming lets you write the same DataFrame code for streaming data as for batch data — Spark handles the incremental processing. A <b>checkpoint</b> location tracks progress so a restarted stream picks up where it left off instead of reprocessing or losing data. This is commonly used for near-real-time Bronze ingestion from sources like Event Hubs or Kafka.</p>
+      <div class="codeblock"><pre>stream_df = spark.readStream.format("delta").table("bronze_events")
+
+query = (stream_df.writeStream
+    .format("delta")
+    .option("checkpointLocation", "/checkpoints/silver_events")
+    .outputMode("append")
+    .trigger(processingTime="1 minute")
+    .table("silver_events"))</pre></div>
+    </section>
+
+    <div class="cat-label">Governance & Orchestration</div>
+
+    <section class="item" id="unity-catalog">
+      <h2>Unity Catalog</h2>
+      <p class="explain">Unity Catalog is Databricks' governance layer: a three-level namespace (<code>catalog.schema.table</code>, instead of just <code>schema.table</code>) that centralizes permissions, auditing, and data lineage across every workspace in an organization, rather than managing access separately per workspace.</p>
+      <div class="codeblock"><pre>SELECT * FROM main.sales.orders;
+<span class="comment">--          ^catalog ^schema ^table</span>
+
+GRANT SELECT ON TABLE main.sales.orders TO `analyst-team`;</pre></div>
+    </section>
+
+    <section class="item" id="workflows">
+      <h2>Workflows & Jobs</h2>
+      <p class="explain">Databricks Workflows (formerly "Jobs") schedule and orchestrate notebooks, SQL queries, or Python scripts — either standalone or as a chain of dependent tasks (a DAG). In many shops, ADF triggers the overall pipeline and calls a Databricks Job/notebook as one activity within it, rather than the two tools competing for the same job.</p>
+      <div class="interview-tip"><b>Interview angle:</b> "Would you orchestrate with ADF or Databricks Workflows?" — a reasonable answer is that ADF often owns the broader pipeline (moving data between systems, triggers, monitoring across the estate), while Databricks Workflows own the internal task dependencies within the Spark processing itself.</div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
