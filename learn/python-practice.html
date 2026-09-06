@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Practice — 30 Coding Questions | KJSynthora</title>
+<meta name="description" content="30 scenario-based Python practice questions with a real in-browser Python editor. Write a function, run it against real test cases, see instant pass/fail.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#3fd67a; --accent-ink:#04140a;
+    --good:#3fd67a; --good-dim:#173829; --bad:#ff6b6b; --bad-dim:#3a1e20; --amber:#f5a623;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.55; min-height:100vh;}
+  a{color:var(--accent); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right{display:flex; align-items:center; gap:16px; font-size:13.5px;}
+  .topbar-right a{color:var(--text-muted);}
+  .topbar-right a:hover{color:var(--text);}
+  .progress-pill{display:flex; align-items:center; gap:8px; background:var(--panel-alt); border:1px solid var(--border); padding:5px 12px; border-radius:999px; font-size:12.5px; color:var(--text-muted);}
+  .progress-pill b{color:var(--good); font-weight:600;}
+  .guide-banner{background:var(--panel-alt); border-bottom:1px solid var(--border); padding:10px 22px; text-align:center; font-size:13px; color:var(--text-muted);}
+  .guide-banner a{color:var(--accent); font-weight:600;}
+
+  .layout{display:flex; max-width:1400px; margin:0 auto; min-height:calc(100vh - 57px);}
+  .sidebar{width:300px; flex-shrink:0; border-right:1px solid var(--border); padding:18px 0 40px; background:var(--panel);}
+  .sidebar-head{padding:0 18px 14px; border-bottom:1px solid var(--border-soft); margin-bottom:8px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px; font-weight:600;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .qlist{list-style:none; margin:0; padding:6px 10px;}
+  .qlist li{margin-bottom:2px;}
+  .qbtn{width:100%; text-align:left; background:none; border:none; cursor:pointer; color:var(--text-muted); padding:9px 10px; border-radius:var(--radius); display:flex; align-items:center; gap:9px; font-size:13.5px; font-family:var(--sans);}
+  .qbtn:hover{background:var(--panel-alt); color:var(--text);}
+  .qbtn.active{background:var(--panel-alt); color:var(--text); box-shadow: inset 2px 0 0 var(--accent);}
+  .qnum{width:20px; height:20px; border-radius:5px; background:var(--border-soft); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-dim); flex-shrink:0; font-family:var(--mono);}
+  .qbtn.done .qnum{background:var(--good-dim); color:var(--good);}
+  .qtitle{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .qdiff{font-size:10px; padding:2px 6px; border-radius:4px; flex-shrink:0; font-family:var(--mono);}
+  .diff-Easy{color:var(--good); background:var(--good-dim);}
+  .diff-Medium{color:var(--amber); background:#3a2c10;}
+  .diff-Hard{color:var(--bad); background:var(--bad-dim);}
+
+  .main{flex:1; min-width:0; padding:28px 34px 60px;}
+  .qhead{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:6px;}
+  .qhead h2{font-size:21px; margin:0; font-weight:600;}
+  .qmeta{display:flex; gap:8px; align-items:center; flex-shrink:0;}
+  .tag{font-size:11.5px; padding:3px 9px; border-radius:999px; border:1px solid var(--border); color:var(--text-muted); font-family:var(--mono);}
+  .scenario{color:var(--text-muted); font-size:14.5px; margin:10px 0 24px; max-width:78ch;}
+  .scenario code{background:var(--panel-alt); padding:1px 5px; border-radius:4px;}
+  .section-label{font-size:12px; color:var(--text-dim); margin:0 0 10px; font-weight:600;}
+
+  .editor-wrap{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .editor-bar{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-soft); background:var(--panel-alt);}
+  .editor-bar span{font-size:12px; color:var(--text-dim); font-family:var(--mono);}
+  textarea.editor{width:100%; min-height:140px; resize:vertical; border:none; outline:none; background:var(--panel); color:#c9f2d8; font-family:var(--mono); font-size:13.5px; padding:14px; line-height:1.6; tab-size:4;}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;}
+  .btn{font-family:var(--sans); font-size:13.5px; font-weight:500; padding:9px 16px; border-radius:var(--radius); border:1px solid var(--border); background:var(--panel-alt); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--text-dim);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600;}
+  .btn.primary:hover{background:#5fe896;}
+  .btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+  .output{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px; min-height:60px; margin-bottom:16px;}
+  .output.empty{color:var(--text-dim); font-size:13.5px;}
+  .verdict{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; margin-bottom:12px;}
+  .verdict.good{color:var(--good);}
+  .verdict.bad{color:var(--bad);}
+  .testcase{padding:8px 0; border-bottom:1px solid var(--border-soft); font-family:var(--mono); font-size:12.5px; display:flex; align-items:flex-start; gap:8px;}
+  .testcase:last-child{border-bottom:none;}
+  .testcase .mark{flex-shrink:0;}
+  .testcase.pass .mark{color:var(--good);}
+  .testcase.fail .mark{color:var(--bad);}
+  .testcase .details{color:var(--text-muted); word-break:break-word;}
+  .testcase .details b{color:var(--text);}
+  .err{color:var(--bad); font-family:var(--mono); font-size:13px; white-space:pre-wrap;}
+
+  details.reveal{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px;}
+  details.reveal summary{padding:12px 16px; cursor:pointer; font-size:13.5px; color:var(--text-muted); list-style:none; display:flex; align-items:center; gap:8px;}
+  details.reveal summary::-webkit-details-marker{display:none;}
+  details.reveal summary:before{content:'▸'; color:var(--text-dim); transition:transform .15s;}
+  details.reveal[open] summary:before{transform:rotate(90deg);}
+  details.reveal .reveal-body{padding:0 16px 16px; color:var(--text-muted); font-size:13.5px;}
+  details.reveal pre{background:var(--bg); border:1px solid var(--border-soft); border-radius:5px; padding:12px; overflow-x:auto; font-family:var(--mono); font-size:13px; color:#c9f2d8;}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:30px; padding-top:20px; border-top:1px solid var(--border-soft);}
+
+  .loading-banner{display:flex; align-items:center; gap:10px; background:var(--panel-alt); border:1px solid var(--border); padding:10px 16px; border-radius:var(--radius); font-size:13px; color:var(--text-muted); margin-bottom:18px;}
+  .spinner{width:13px;height:13px;border-radius:50%;border:2px solid var(--border-soft); border-top-color:var(--accent); animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%; border-right:none; border-bottom:1px solid var(--border); padding:12px 0;}
+    .qlist{display:flex; overflow-x:auto; gap:6px; padding:0 12px;}
+    .qlist li{margin:0; flex-shrink:0;}
+    .qbtn{white-space:nowrap;}
+    .main{padding:22px 16px 50px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Python Practice</div>
+  <div class="topbar-right">
+    <div class="progress-pill">Solved <b id="progressCount">0</b>/30</div>
+    <a href="python-concepts.html">📘 Concepts Guide</a>
+    <a href="pyspark-practice.html">PySpark Practice →</a>
+  </div>
+</div>
+
+<div class="guide-banner">
+  New to Python? <a href="python-concepts.html">Start with the Concepts Guide →</a> — read the explanation, then come back and drill it here.
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>30 Python Questions</h1>
+      <p>Write a function, run it against real test cases, see instant pass/fail.</p>
+    </div>
+    <ul class="qlist" id="qlist"></ul>
+  </nav>
+
+  <main class="main" id="main">
+    <div class="loading-banner" id="loadingBanner">
+      <span class="spinner"></span> Booting the in-browser Python runtime…
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script id="python-questions-data" type="application/json">[
+  {
+    "id": 1,
+    "title": "Format a Greeting",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "scenario": "Write a function <code>greet(name, tasks)</code> that returns the string 'Hello, {name}! You have {tasks} pending tasks.' using an f-string. Capitalize the name's first letter regardless of how it was typed.",
+    "funcName": "greet",
+    "starter": "def greet(name, tasks):\n    # your code here\n    pass",
+    "solution": "def greet(name, tasks):\n    return f\"Hello, {name.capitalize()}! You have {tasks} pending tasks.\"",
+    "hint": "str.capitalize() uppercases just the first letter and lowercases the rest \u2014 exactly what 'regardless of how it was typed' calls for.",
+    "testCases": [
+      {
+        "callExpr": "greet('grace', 3)",
+        "expectedRepr": "'Hello, Grace! You have 3 pending tasks.'"
+      },
+      {
+        "callExpr": "greet('HANK', 0)",
+        "expectedRepr": "'Hello, Hank! You have 0 pending tasks.'"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Sum of a List",
+    "difficulty": "Easy",
+    "topic": "Loops",
+    "scenario": "Write a function <code>total(nums)</code> that returns the sum of a list of numbers \u2014 without using the built-in <code>sum()</code> function.",
+    "funcName": "total",
+    "starter": "def total(nums):\n    # your code here \u2014 use a loop, not sum()\n    pass",
+    "solution": "def total(nums):\n    result = 0\n    for n in nums:\n        result += n\n    return result",
+    "hint": "Start an accumulator at 0, then add each number to it as you loop through the list.",
+    "testCases": [
+      {
+        "callExpr": "total([1,2,3,4])",
+        "expectedRepr": "10"
+      },
+      {
+        "callExpr": "total([])",
+        "expectedRepr": "0"
+      },
+      {
+        "callExpr": "total([-5, 5, 10])",
+        "expectedRepr": "10"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Reverse a String",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "scenario": "Write a function <code>reverse_string(s)</code> that returns the string reversed.",
+    "funcName": "reverse_string",
+    "starter": "def reverse_string(s):\n    # your code here\n    pass",
+    "solution": "def reverse_string(s):\n    return s[::-1]",
+    "hint": "Slicing with a step of -1 (s[::-1]) walks the string backward from end to start.",
+    "testCases": [
+      {
+        "callExpr": "reverse_string('hello')",
+        "expectedRepr": "'olleh'"
+      },
+      {
+        "callExpr": "reverse_string('')",
+        "expectedRepr": "''"
+      },
+      {
+        "callExpr": "reverse_string('a')",
+        "expectedRepr": "'a'"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Count Vowels",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "scenario": "Write a function <code>count_vowels(s)</code> that counts how many vowels (a, e, i, o, u \u2014 case-insensitive) appear in a string.",
+    "funcName": "count_vowels",
+    "starter": "def count_vowels(s):\n    # your code here\n    pass",
+    "solution": "def count_vowels(s):\n    return sum(1 for ch in s.lower() if ch in 'aeiou')",
+    "hint": "Lowercase the string first so you only need to check against 'aeiou' once, then count matching characters.",
+    "testCases": [
+      {
+        "callExpr": "count_vowels('Hello World')",
+        "expectedRepr": "3"
+      },
+      {
+        "callExpr": "count_vowels('PYTHON')",
+        "expectedRepr": "1"
+      },
+      {
+        "callExpr": "count_vowels('')",
+        "expectedRepr": "0"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Find Max Without max()",
+    "difficulty": "Easy",
+    "topic": "Loops",
+    "scenario": "Write a function <code>find_max(nums)</code> that returns the largest number in a non-empty list \u2014 without using the built-in <code>max()</code> function.",
+    "funcName": "find_max",
+    "starter": "def find_max(nums):\n    # your code here \u2014 use a loop, not max()\n    pass",
+    "solution": "def find_max(nums):\n    largest = nums[0]\n    for n in nums[1:]:\n        if n > largest:\n            largest = n\n    return largest",
+    "hint": "Start by assuming the first element is the largest, then update your answer whenever you see something bigger.",
+    "testCases": [
+      {
+        "callExpr": "find_max([3, 7, 2, 9, 4])",
+        "expectedRepr": "9"
+      },
+      {
+        "callExpr": "find_max([-5, -1, -10])",
+        "expectedRepr": "-1"
+      },
+      {
+        "callExpr": "find_max([42])",
+        "expectedRepr": "42"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Filter Even Numbers",
+    "difficulty": "Easy",
+    "topic": "Lists",
+    "scenario": "Write a function <code>evens(nums)</code> that returns a new list containing only the even numbers, using a list comprehension.",
+    "funcName": "evens",
+    "starter": "def evens(nums):\n    # your code here \u2014 use a list comprehension\n    pass",
+    "solution": "def evens(nums):\n    return [n for n in nums if n % 2 == 0]",
+    "hint": "The comprehension pattern is [expr for item in list if condition] \u2014 here expr and item are the same thing, and the condition checks n % 2 == 0.",
+    "testCases": [
+      {
+        "callExpr": "evens([1,2,3,4,5,6])",
+        "expectedRepr": "[2,4,6]"
+      },
+      {
+        "callExpr": "evens([1,3,5])",
+        "expectedRepr": "[]"
+      },
+      {
+        "callExpr": "evens([])",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Remove Duplicates, Keep Order",
+    "difficulty": "Medium",
+    "topic": "Lists",
+    "scenario": "Write a function <code>dedupe(items)</code> that removes duplicate values from a list while preserving the original order of first appearance (a plain <code>set()</code> would lose the order).",
+    "funcName": "dedupe",
+    "starter": "def dedupe(items):\n    # your code here\n    pass",
+    "solution": "def dedupe(items):\n    seen = set()\n    result = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            result.append(item)\n    return result",
+    "hint": "Track what you've already added in a set (fast lookups), but build your output as a list so the original order survives.",
+    "testCases": [
+      {
+        "callExpr": "dedupe([1,2,2,3,1,4])",
+        "expectedRepr": "[1,2,3,4]"
+      },
+      {
+        "callExpr": "dedupe(['a','b','a','c'])",
+        "expectedRepr": "['a','b','c']"
+      },
+      {
+        "callExpr": "dedupe([])",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Flatten a Nested List",
+    "difficulty": "Medium",
+    "topic": "Lists",
+    "scenario": "Write a function <code>flatten(nested)</code> that takes a list of lists and returns one flat list containing all the values in order.",
+    "funcName": "flatten",
+    "starter": "def flatten(nested):\n    # your code here\n    pass",
+    "solution": "def flatten(nested):\n    result = []\n    for sublist in nested:\n        for item in sublist:\n            result.append(item)\n    return result",
+    "hint": "A nested loop does it: the outer loop picks each sublist, the inner loop picks each item inside that sublist.",
+    "testCases": [
+      {
+        "callExpr": "flatten([[1,2],[3,4],[5]])",
+        "expectedRepr": "[1,2,3,4,5]"
+      },
+      {
+        "callExpr": "flatten([[1],[],[2,3]])",
+        "expectedRepr": "[1,2,3]"
+      },
+      {
+        "callExpr": "flatten([])",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Second Largest Number",
+    "difficulty": "Medium",
+    "topic": "Lists",
+    "scenario": "Write a function <code>second_largest(nums)</code> that returns the second-largest <i>distinct</i> value in a list (so [5,5,3] should return 3, not 5).",
+    "funcName": "second_largest",
+    "starter": "def second_largest(nums):\n    # your code here\n    pass",
+    "solution": "def second_largest(nums):\n    unique = sorted(set(nums), reverse=True)\n    return unique[1]",
+    "hint": "set() collapses duplicates first, then sorting in descending order puts the second-largest distinct value at index 1.",
+    "testCases": [
+      {
+        "callExpr": "second_largest([5,5,3])",
+        "expectedRepr": "3"
+      },
+      {
+        "callExpr": "second_largest([10,20,30,20])",
+        "expectedRepr": "20"
+      },
+      {
+        "callExpr": "second_largest([1,2])",
+        "expectedRepr": "1"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Chunk a List",
+    "difficulty": "Medium",
+    "topic": "Lists",
+    "scenario": "Write a function <code>chunk(lst, n)</code> that splits a list into consecutive groups (sublists) of size n. The last group may be smaller if the list doesn't divide evenly.",
+    "funcName": "chunk",
+    "starter": "def chunk(lst, n):\n    # your code here\n    pass",
+    "solution": "def chunk(lst, n):\n    return [lst[i:i+n] for i in range(0, len(lst), n)]",
+    "hint": "range(0, len(lst), n) gives you the starting index of each chunk; slicing lst[i:i+n] from each of those points does the rest.",
+    "testCases": [
+      {
+        "callExpr": "chunk([1,2,3,4,5], 2)",
+        "expectedRepr": "[[1,2],[3,4],[5]]"
+      },
+      {
+        "callExpr": "chunk([1,2,3,4], 4)",
+        "expectedRepr": "[[1,2,3,4]]"
+      },
+      {
+        "callExpr": "chunk([], 3)",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Word Frequency Count",
+    "difficulty": "Medium",
+    "topic": "Dictionaries",
+    "scenario": "Write a function <code>word_freq(words)</code> that takes a list of words and returns a dictionary mapping each word to how many times it appears.",
+    "funcName": "word_freq",
+    "starter": "def word_freq(words):\n    # your code here\n    pass",
+    "solution": "def word_freq(words):\n    counts = {}\n    for w in words:\n        counts[w] = counts.get(w, 0) + 1\n    return counts",
+    "hint": "dict.get(key, 0) safely returns 0 for a word you haven't seen yet, so you can always add 1 without a separate 'is this new?' check.",
+    "testCases": [
+      {
+        "callExpr": "word_freq(['a','b','a','c','b','a'])",
+        "expectedRepr": "{'a':3,'b':2,'c':1}"
+      },
+      {
+        "callExpr": "word_freq([])",
+        "expectedRepr": "{}"
+      },
+      {
+        "callExpr": "word_freq(['x'])",
+        "expectedRepr": "{'x':1}"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Invert a Dictionary",
+    "difficulty": "Medium",
+    "topic": "Dictionaries",
+    "scenario": "Write a function <code>invert(d)</code> that swaps keys and values in a dictionary (assume all values are unique, so the swap is safe).",
+    "funcName": "invert",
+    "starter": "def invert(d):\n    # your code here\n    pass",
+    "solution": "def invert(d):\n    return {v: k for k, v in d.items()}",
+    "hint": "A dict comprehension over d.items() lets you rebuild the dictionary with key and value swapped in one line.",
+    "testCases": [
+      {
+        "callExpr": "invert({'a':1,'b':2})",
+        "expectedRepr": "{1:'a',2:'b'}"
+      },
+      {
+        "callExpr": "invert({})",
+        "expectedRepr": "{}"
+      },
+      {
+        "callExpr": "invert({'x':'y'})",
+        "expectedRepr": "{'y':'x'}"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Merge Two Dictionaries",
+    "difficulty": "Easy",
+    "topic": "Dictionaries",
+    "scenario": "Write a function <code>merge_dicts(d1, d2)</code> that combines two dictionaries into one. If a key exists in both, the value from <code>d2</code> should win.",
+    "funcName": "merge_dicts",
+    "starter": "def merge_dicts(d1, d2):\n    # your code here\n    pass",
+    "solution": "def merge_dicts(d1, d2):\n    result = d1.copy()\n    result.update(d2)\n    return result",
+    "hint": "Copy the first dict so you don't mutate the caller's data, then .update() with the second \u2014 later values overwrite matching keys.",
+    "testCases": [
+      {
+        "callExpr": "merge_dicts({'a':1,'b':2}, {'b':3,'c':4})",
+        "expectedRepr": "{'a':1,'b':3,'c':4}"
+      },
+      {
+        "callExpr": "merge_dicts({}, {'x':1})",
+        "expectedRepr": "{'x':1}"
+      },
+      {
+        "callExpr": "merge_dicts({'a':1}, {})",
+        "expectedRepr": "{'a':1}"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Group Employees by Department",
+    "difficulty": "Medium",
+    "topic": "Dictionaries",
+    "scenario": "Write a function <code>group_by_department(employees)</code> that takes a list of dicts like <code>{'name': 'Grace', 'department': 'Eng'}</code> and returns a dict mapping each department to a list of names in it.",
+    "funcName": "group_by_department",
+    "starter": "def group_by_department(employees):\n    # your code here\n    pass",
+    "solution": "def group_by_department(employees):\n    groups = {}\n    for emp in employees:\n        dept = emp[\"department\"]\n        groups.setdefault(dept, []).append(emp[\"name\"])\n    return groups",
+    "hint": "dict.setdefault(key, []) returns the existing list for that key, or creates and returns a new empty one if it's the first time you've seen that department \u2014 either way you can immediately .append() to it.",
+    "testCases": [
+      {
+        "callExpr": "group_by_department([{'name':'Grace','department':'Eng'},{'name':'Hank','department':'Eng'},{'name':'Jai','department':'Sales'}])",
+        "expectedRepr": "{'Eng':['Grace','Hank'],'Sales':['Jai']}"
+      },
+      {
+        "callExpr": "group_by_department([])",
+        "expectedRepr": "{}"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Highest Paid Employee",
+    "difficulty": "Medium",
+    "topic": "Dictionaries",
+    "scenario": "Write a function <code>highest_paid(employees)</code> that takes a list of dicts like <code>{'name': 'Grace', 'salary': 95000}</code> and returns the name of the employee with the highest salary.",
+    "funcName": "highest_paid",
+    "starter": "def highest_paid(employees):\n    # your code here\n    pass",
+    "solution": "def highest_paid(employees):\n    best = employees[0]\n    for emp in employees[1:]:\n        if emp[\"salary\"] > best[\"salary\"]:\n            best = emp\n    return best[\"name\"]",
+    "hint": "Same 'track the best so far' pattern as find_max, just comparing on the 'salary' key of each dict instead of comparing plain numbers.",
+    "testCases": [
+      {
+        "callExpr": "highest_paid([{'name':'Grace','salary':95000},{'name':'Hank','salary':80000}])",
+        "expectedRepr": "'Grace'"
+      },
+      {
+        "callExpr": "highest_paid([{'name':'Ivy','salary':72000}])",
+        "expectedRepr": "'Ivy'"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "FizzBuzz",
+    "difficulty": "Easy",
+    "topic": "Conditionals",
+    "scenario": "Write a function <code>fizzbuzz(n)</code> that returns a list of strings for numbers 1 through n: 'Fizz' for multiples of 3, 'Buzz' for multiples of 5, 'FizzBuzz' for multiples of both, and the number itself (as a string) otherwise.",
+    "funcName": "fizzbuzz",
+    "starter": "def fizzbuzz(n):\n    # your code here\n    pass",
+    "solution": "def fizzbuzz(n):\n    result = []\n    for i in range(1, n+1):\n        if i % 15 == 0:\n            result.append(\"FizzBuzz\")\n        elif i % 3 == 0:\n            result.append(\"Fizz\")\n        elif i % 5 == 0:\n            result.append(\"Buzz\")\n        else:\n            result.append(str(i))\n    return result",
+    "hint": "Check divisibility by 15 (both 3 and 5) first, before checking 3 or 5 individually \u2014 otherwise 'Fizz' would win before you ever get to check for 'FizzBuzz'.",
+    "testCases": [
+      {
+        "callExpr": "fizzbuzz(5)",
+        "expectedRepr": "['1','2','Fizz','4','Buzz']"
+      },
+      {
+        "callExpr": "fizzbuzz(15)",
+        "expectedRepr": "['1','2','Fizz','4','Buzz','Fizz','7','8','Fizz','Buzz','11','Fizz','13','14','FizzBuzz']"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Categorize Age Group",
+    "difficulty": "Easy",
+    "topic": "Conditionals",
+    "scenario": "Write a function <code>categorize_age(age)</code> that returns 'Child' for ages under 13, 'Teen' for 13-19, and 'Adult' for 20 and above.",
+    "funcName": "categorize_age",
+    "starter": "def categorize_age(age):\n    # your code here\n    pass",
+    "solution": "def categorize_age(age):\n    if age < 13:\n        return \"Child\"\n    elif age <= 19:\n        return \"Teen\"\n    else:\n        return \"Adult\"",
+    "hint": "Check the lowest boundary first (under 13), then the next range \u2014 by the time you reach elif, you already know age is at least 13.",
+    "testCases": [
+      {
+        "callExpr": "categorize_age(10)",
+        "expectedRepr": "'Child'"
+      },
+      {
+        "callExpr": "categorize_age(15)",
+        "expectedRepr": "'Teen'"
+      },
+      {
+        "callExpr": "categorize_age(19)",
+        "expectedRepr": "'Teen'"
+      },
+      {
+        "callExpr": "categorize_age(20)",
+        "expectedRepr": "'Adult'"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Count Positive, Negative, Zero",
+    "difficulty": "Easy",
+    "topic": "Loops",
+    "scenario": "Write a function <code>count_signs(nums)</code> that returns a dict with keys 'positive', 'negative', and 'zero', counting how many numbers in the list fall into each category.",
+    "funcName": "count_signs",
+    "starter": "def count_signs(nums):\n    # your code here\n    pass",
+    "solution": "def count_signs(nums):\n    counts = {\"positive\": 0, \"negative\": 0, \"zero\": 0}\n    for n in nums:\n        if n > 0:\n            counts[\"positive\"] += 1\n        elif n < 0:\n            counts[\"negative\"] += 1\n        else:\n            counts[\"zero\"] += 1\n    return counts",
+    "hint": "Start all three counters at 0 in a dict, then bump exactly one of them per number depending on which if/elif/else branch it falls into.",
+    "testCases": [
+      {
+        "callExpr": "count_signs([1,-2,0,3,-4,0])",
+        "expectedRepr": "{'positive':2,'negative':2,'zero':2}"
+      },
+      {
+        "callExpr": "count_signs([])",
+        "expectedRepr": "{'positive':0,'negative':0,'zero':0}"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Is Palindrome",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "scenario": "Write a function <code>is_palindrome(s)</code> that returns True if a string reads the same forwards and backwards, ignoring case. ('Racecar' should count as a palindrome.)",
+    "funcName": "is_palindrome",
+    "starter": "def is_palindrome(s):\n    # your code here\n    pass",
+    "solution": "def is_palindrome(s):\n    cleaned = s.lower()\n    return cleaned == cleaned[::-1]",
+    "hint": "Lowercase the string first so casing doesn't affect the comparison, then check whether it equals its own reverse.",
+    "testCases": [
+      {
+        "callExpr": "is_palindrome('Racecar')",
+        "expectedRepr": "True"
+      },
+      {
+        "callExpr": "is_palindrome('hello')",
+        "expectedRepr": "False"
+      },
+      {
+        "callExpr": "is_palindrome('')",
+        "expectedRepr": "True"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Factorial",
+    "difficulty": "Easy",
+    "topic": "Loops",
+    "scenario": "Write a function <code>factorial(n)</code> that returns n! (n factorial): the product of every integer from 1 to n. factorial(0) should return 1.",
+    "funcName": "factorial",
+    "starter": "def factorial(n):\n    # your code here\n    pass",
+    "solution": "def factorial(n):\n    result = 1\n    for i in range(2, n+1):\n        result *= i\n    return result",
+    "hint": "Starting the accumulator at 1 (not 0!) is essential since you're multiplying, not adding \u2014 range(2, n+1) then multiplies in every number from 2 up to n.",
+    "testCases": [
+      {
+        "callExpr": "factorial(5)",
+        "expectedRepr": "120"
+      },
+      {
+        "callExpr": "factorial(0)",
+        "expectedRepr": "1"
+      },
+      {
+        "callExpr": "factorial(1)",
+        "expectedRepr": "1"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Apply Discount Conditionally",
+    "difficulty": "Easy",
+    "topic": "Functions",
+    "scenario": "Write a function <code>apply_discount(price, is_member)</code> that applies a 10% discount if is_member is True, otherwise returns the price unchanged. Round to 2 decimal places.",
+    "funcName": "apply_discount",
+    "starter": "def apply_discount(price, is_member):\n    # your code here\n    pass",
+    "solution": "def apply_discount(price, is_member):\n    if is_member:\n        return round(price * 0.9, 2)\n    return round(price, 2)",
+    "hint": "Multiply by 0.9 to represent 'keep 90%, discount 10%' \u2014 and round() at the end keeps the result clean of floating-point noise.",
+    "testCases": [
+      {
+        "callExpr": "apply_discount(100, True)",
+        "expectedRepr": "90.0"
+      },
+      {
+        "callExpr": "apply_discount(100, False)",
+        "expectedRepr": "100.0"
+      },
+      {
+        "callExpr": "apply_discount(49.99, True)",
+        "expectedRepr": "44.99"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Build a Lookup Table",
+    "difficulty": "Medium",
+    "topic": "Comprehensions",
+    "scenario": "Write a function <code>build_lookup(pairs)</code> that takes a list of (key, value) tuples and returns a dictionary, using a dict comprehension.",
+    "funcName": "build_lookup",
+    "starter": "def build_lookup(pairs):\n    # your code here \u2014 use a dict comprehension\n    pass",
+    "solution": "def build_lookup(pairs):\n    return {k: v for k, v in pairs}",
+    "hint": "A dict comprehension {k: v for k, v in pairs} unpacks each tuple in the list directly into a key and a value.",
+    "testCases": [
+      {
+        "callExpr": "build_lookup([('a',1),('b',2)])",
+        "expectedRepr": "{'a':1,'b':2}"
+      },
+      {
+        "callExpr": "build_lookup([])",
+        "expectedRepr": "{}"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Names of High Earners",
+    "difficulty": "Medium",
+    "topic": "Comprehensions",
+    "scenario": "Write a function <code>high_earner_names(employees, threshold)</code> that takes a list of dicts like <code>{'name': 'Grace', 'salary': 95000}</code> and returns a list of just the names of employees earning above the threshold, using a single list comprehension.",
+    "funcName": "high_earner_names",
+    "starter": "def high_earner_names(employees, threshold):\n    # your code here \u2014 one list comprehension\n    pass",
+    "solution": "def high_earner_names(employees, threshold):\n    return [e[\"name\"] for e in employees if e[\"salary\"] > threshold]",
+    "hint": "This combines filtering and transforming in one line: the 'if' clause filters by salary, and the expression before 'for' extracts just the name from what's left.",
+    "testCases": [
+      {
+        "callExpr": "high_earner_names([{'name':'Grace','salary':95000},{'name':'Hank','salary':60000}], 70000)",
+        "expectedRepr": "['Grace']"
+      },
+      {
+        "callExpr": "high_earner_names([], 50000)",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Extract from JSON",
+    "difficulty": "Medium",
+    "topic": "JSON",
+    "scenario": "Write a function <code>get_department(json_str)</code> that takes a JSON string representing an employee record and returns the value of its 'department' field.",
+    "funcName": "get_department",
+    "starter": "import json\n\ndef get_department(json_str):\n    # your code here\n    pass",
+    "solution": "import json\n\ndef get_department(json_str):\n    data = json.loads(json_str)\n    return data[\"department\"]",
+    "hint": "json.loads() turns the JSON text into a regular Python dict \u2014 after that, it's just normal dictionary key access.",
+    "testCases": [
+      {
+        "callExpr": "get_department('{\"name\": \"Grace\", \"department\": \"Eng\"}')",
+        "expectedRepr": "'Eng'"
+      },
+      {
+        "callExpr": "get_department('{\"name\": \"Jai\", \"department\": \"Sales\", \"salary\": 65000}')",
+        "expectedRepr": "'Sales'"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Safe Nested Get",
+    "difficulty": "Medium",
+    "topic": "Error Handling",
+    "scenario": "Write a function <code>safe_get(data, key, default)</code> that returns <code>data[key]</code> if it exists, or <code>default</code> if the key is missing \u2014 without letting the program crash.",
+    "funcName": "safe_get",
+    "starter": "def safe_get(data, key, default):\n    # your code here\n    pass",
+    "solution": "def safe_get(data, key, default):\n    try:\n        return data[key]\n    except KeyError:\n        return default",
+    "hint": "Wrap the risky lookup in try/except KeyError \u2014 this is exactly what dict.get(key, default) does internally, but writing it by hand builds the muscle memory for try/except in general.",
+    "testCases": [
+      {
+        "callExpr": "safe_get({'a':1}, 'a', 0)",
+        "expectedRepr": "1"
+      },
+      {
+        "callExpr": "safe_get({'a':1}, 'b', 0)",
+        "expectedRepr": "0"
+      },
+      {
+        "callExpr": "safe_get({}, 'x', 'missing')",
+        "expectedRepr": "'missing'"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Validate Required Fields",
+    "difficulty": "Medium",
+    "topic": "Error Handling",
+    "scenario": "Write a function <code>validate_record(record, required_fields)</code> that returns a list of any required field names that are missing from the record dict (empty list if nothing's missing).",
+    "funcName": "validate_record",
+    "starter": "def validate_record(record, required_fields):\n    # your code here\n    pass",
+    "solution": "def validate_record(record, required_fields):\n    return [f for f in required_fields if f not in record]",
+    "hint": "Loop through the list of required fields (not the record) and keep only the ones that aren't present as keys in the record.",
+    "testCases": [
+      {
+        "callExpr": "validate_record({'name':'Grace','salary':95000}, ['name','salary','department'])",
+        "expectedRepr": "['department']"
+      },
+      {
+        "callExpr": "validate_record({'name':'Grace'}, ['name'])",
+        "expectedRepr": "[]"
+      },
+      {
+        "callExpr": "validate_record({}, ['a','b'])",
+        "expectedRepr": "['a','b']"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Safe Average",
+    "difficulty": "Medium",
+    "topic": "Error Handling",
+    "scenario": "Write a function <code>safe_average(nums)</code> that returns the average of a list of numbers, or 0 if the list is empty (instead of crashing with a division-by-zero error).",
+    "funcName": "safe_average",
+    "starter": "def safe_average(nums):\n    # your code here\n    pass",
+    "solution": "def safe_average(nums):\n    if not nums:\n        return 0\n    return sum(nums) / len(nums)",
+    "hint": "Check for the empty-list edge case explicitly before dividing \u2014 an empty list is falsy in Python, so 'if not nums' catches it cleanly.",
+    "testCases": [
+      {
+        "callExpr": "safe_average([1,2,3,4])",
+        "expectedRepr": "2.5"
+      },
+      {
+        "callExpr": "safe_average([])",
+        "expectedRepr": "0"
+      },
+      {
+        "callExpr": "safe_average([10])",
+        "expectedRepr": "10.0"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Sort Tuples by Second Element",
+    "difficulty": "Medium",
+    "topic": "Lambda",
+    "scenario": "Write a function <code>sort_by_second(pairs)</code> that sorts a list of (name, score) tuples by score, highest first, using a lambda as the sort key.",
+    "funcName": "sort_by_second",
+    "starter": "def sort_by_second(pairs):\n    # your code here \u2014 use sorted() with a lambda key\n    pass",
+    "solution": "def sort_by_second(pairs):\n    return sorted(pairs, key=lambda p: p[1], reverse=True)",
+    "hint": "sorted(..., key=lambda p: p[1]) tells Python to sort based on each tuple's second element (index 1) rather than the tuple itself.",
+    "testCases": [
+      {
+        "callExpr": "sort_by_second([('Al',50),('Bo',90),('Cy',70)])",
+        "expectedRepr": "[('Bo',90),('Cy',70),('Al',50)]"
+      },
+      {
+        "callExpr": "sort_by_second([])",
+        "expectedRepr": "[]"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "title": "Common Elements in Two Lists",
+    "difficulty": "Easy",
+    "topic": "Sets",
+    "scenario": "Write a function <code>common_elements(a, b)</code> that returns a sorted list of the unique values present in both input lists.",
+    "funcName": "common_elements",
+    "starter": "def common_elements(a, b):\n    # your code here\n    pass",
+    "solution": "def common_elements(a, b):\n    return sorted(set(a) & set(b))",
+    "hint": "Converting both lists to sets lets you use & for intersection directly \u2014 sorted() at the end gives a predictable, testable order.",
+    "testCases": [
+      {
+        "callExpr": "common_elements([1,2,3], [2,3,4])",
+        "expectedRepr": "[2,3]"
+      },
+      {
+        "callExpr": "common_elements(['a','b'], ['c','d'])",
+        "expectedRepr": "[]"
+      },
+      {
+        "callExpr": "common_elements([1,1,2], [1,2,2])",
+        "expectedRepr": "[1,2]"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Top N by Custom Key",
+    "difficulty": "Hard",
+    "topic": "Lambda",
+    "scenario": "Write a function <code>top_n(records, key_func, n)</code> that returns the top n dicts from a list, ranked by applying key_func to each record (highest first).",
+    "funcName": "top_n",
+    "starter": "def top_n(records, key_func, n):\n    # your code here \u2014 use sorted() with key_func\n    pass",
+    "solution": "def top_n(records, key_func, n):\n    return sorted(records, key=key_func, reverse=True)[:n]",
+    "hint": "key_func is just a function passed in as an argument \u2014 sorted() calls it on each record to decide ordering, then slicing [:n] keeps only the top results.",
+    "testCases": [
+      {
+        "callExpr": "top_n([{'name':'A','score':50},{'name':'B','score':90},{'name':'C','score':70}], lambda r: r['score'], 2)",
+        "expectedRepr": "[{'name':'B','score':90},{'name':'C','score':70}]"
+      }
+    ]
+  }
+]</script>
+<script>
+const QUESTIONS = JSON.parse(document.getElementById('python-questions-data').textContent);
+const STORAGE_KEY = 'kjs_python_practice_progress_v1';
+let pyodide = null;
+let currentId = null;
+
+function getSolved(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; } }
+function markSolved(id){ const solved = getSolved(); solved[id] = true; localStorage.setItem(STORAGE_KEY, JSON.stringify(solved)); renderSidebar(); }
+function renderProgress(){ document.getElementById('progressCount').textContent = Object.keys(getSolved()).length; }
+
+function renderSidebar(){
+  const solved = getSolved();
+  const list = document.getElementById('qlist');
+  list.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'qbtn' + (q.id === currentId ? ' active' : '') + (solved[q.id] ? ' done' : '');
+    btn.innerHTML = `<span class="qnum">${solved[q.id] ? '✓' : q.id}</span><span class="qtitle">${q.title}</span><span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>`;
+    btn.onclick = () => selectQuestion(q.id);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  renderProgress();
+}
+
+async function runQuestion(q){
+  const editor = document.getElementById('editor');
+  const output = document.getElementById('output');
+  output.className = 'output';
+  output.innerHTML = '<span style="color:var(--text-dim); font-size:13px;">Running…</span>';
+
+  const userCodeJson = JSON.stringify(editor.value);
+  const results = [];
+  let hadError = false;
+  let errorMsg = '';
+
+  for(const tc of q.testCases){
+    const fullCode = `
+import json
+__ns = {}
+try:
+    exec(${userCodeJson}, __ns)
+    __result = eval(${JSON.stringify(tc.callExpr)}, __ns)
+    __expected = eval(${JSON.stringify(tc.expectedRepr)}, {})
+    __out = {"ok": True, "pass": __result == __expected, "result": repr(__result), "expected": repr(__expected)}
+except Exception as e:
+    __out = {"ok": False, "error": str(e)}
+json.dumps(__out)
+`;
+    try{
+      const jsonStr = await pyodide.runPythonAsync(fullCode);
+      const parsed = JSON.parse(jsonStr);
+      if(!parsed.ok){
+        hadError = true;
+        errorMsg = parsed.error;
+        break;
+      }
+      results.push({ callExpr: tc.callExpr, pass: parsed.pass, result: parsed.result, expected: parsed.expected });
+    } catch(e){
+      hadError = true;
+      errorMsg = e.message || String(e);
+      break;
+    }
+  }
+
+  if(hadError){
+    output.innerHTML = `<div class="verdict bad">✗ Error</div><div class="err">${errorMsg}</div>`;
+    return;
+  }
+
+  const allPass = results.every(r => r.pass);
+  const verdictHtml = allPass
+    ? `<div class="verdict good">✓ All ${results.length} test cases passed</div>`
+    : `<div class="verdict bad">✗ ${results.filter(r=>r.pass).length}/${results.length} test cases passed</div>`;
+  const casesHtml = results.map(r => `
+    <div class="testcase ${r.pass ? 'pass' : 'fail'}">
+      <span class="mark">${r.pass ? '✓' : '✗'}</span>
+      <span class="details"><b>${q.funcName}</b> call → got <b>${r.result}</b>${r.pass ? '' : `, expected <b>${r.expected}</b>`}</span>
+    </div>`).join('');
+  output.innerHTML = verdictHtml + casesHtml;
+  if(allPass) markSolved(q.id);
+}
+
+function selectQuestion(id){
+  currentId = id;
+  const q = QUESTIONS.find(x => x.id === id);
+  renderSidebar();
+
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="qhead">
+      <h2>${q.id}. ${q.title}</h2>
+      <div class="qmeta">
+        <span class="tag">${q.topic}</span>
+        <span class="tag qdiff diff-${q.difficulty}">${q.difficulty}</span>
+      </div>
+    </div>
+    <p class="scenario">${q.scenario}</p>
+
+    <p class="section-label">Your code</p>
+    <div class="editor-wrap">
+      <div class="editor-bar"><span>solution.py</span><span>Python 3</span></div>
+      <textarea class="editor" id="editor" spellcheck="false">${q.starter}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="runBtn">▶ Run tests</button>
+      <button class="btn" id="resetBtn">Reset</button>
+    </div>
+
+    <p class="section-label">Test results</p>
+    <div class="output empty" id="output">Run your code to see test results here.</div>
+
+    <details class="reveal" id="hintBlock"><summary>Show hint</summary><div class="reveal-body">${q.hint}</div></details>
+    <details class="reveal" id="solutionBlock"><summary>Show solution</summary><div class="reveal-body"><pre>${q.solution}</pre></div></details>
+
+    <div class="nav-buttons">
+      <button class="btn" id="prevBtn">← Previous</button>
+      <button class="btn" id="nextBtn">Next →</button>
+    </div>
+  `;
+
+  document.getElementById('runBtn').onclick = () => runQuestion(q);
+  document.getElementById('resetBtn').onclick = () => { document.getElementById('editor').value = q.starter; const o=document.getElementById('output'); o.className='output empty'; o.innerHTML='Run your code to see test results here.'; };
+  document.getElementById('editor').addEventListener('keydown', e => {
+    if(e.key === 'Tab'){ e.preventDefault(); const t=e.target; const s=t.selectionStart; t.value=t.value.slice(0,s)+'    '+t.value.slice(t.selectionEnd); t.selectionStart=t.selectionEnd=s+4; }
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ runQuestion(q); }
+  });
+
+  const idx = QUESTIONS.findIndex(x => x.id === id);
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === QUESTIONS.length - 1;
+  document.getElementById('prevBtn').onclick = () => idx > 0 && selectQuestion(QUESTIONS[idx-1].id);
+  document.getElementById('nextBtn').onclick = () => idx < QUESTIONS.length-1 && selectQuestion(QUESTIONS[idx+1].id);
+}
+
+async function boot(){
+  pyodide = await loadPyodide();
+  document.getElementById('loadingBanner').remove();
+  renderSidebar();
+  const params = new URLSearchParams(window.location.search);
+  const requestedId = parseInt(params.get('q'), 10);
+  const startId = QUESTIONS.some(x => x.id === requestedId) ? requestedId : 1;
+  selectQuestion(startId);
+}
+boot().catch(err => {
+  document.getElementById('loadingBanner').innerHTML = `<span style="color:var(--bad)">Couldn't load the Python runtime: ${err.message}. Check your connection and reload.</span>`;
+});
+</script>
+</body>
+</html>
