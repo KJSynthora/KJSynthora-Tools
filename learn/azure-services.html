@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure for Data Engineers — ADF, ADLS, Networking & Security | KJSynthora</title>
+<meta name="description" content="The Azure services a Data Engineer is actually tested on: ADF in depth, ADLS Gen2, VMs, VNets, Key Vault, Microsoft Entra ID, and RBAC.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#3aa0ff; --blue:#5b9dff; --amber:#f5a623; --good:#3fd67a; --good-dim:#173829;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:14px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:250px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .cat-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:6px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:72ch; margin-bottom:20px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+  .callout{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:20px 0 36px; font-size:14px; color:var(--text-muted); max-width:72ch;}
+  .callout b{color:var(--text);}
+
+  .cat-label{font-size:12px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); font-weight:700; margin:0 0 4px; padding-top:30px; border-top:1px solid var(--border-soft); scroll-margin-top:70px;}
+  .cat-label:first-of-type{border-top:none; padding-top:0;}
+  .cat-sub{font-size:13px; color:var(--text-muted); margin:0 0 16px;}
+
+  .item{border-top:1px solid var(--border-soft); padding:24px 0; scroll-margin-top:70px;}
+  .item:first-of-type{border-top:none;}
+  .item h2{font-size:18px; margin:0 0 8px;}
+  .item .explain{color:var(--text-muted); font-size:14.5px; max-width:76ch; margin:0 0 14px;}
+  .item .explain b{color:var(--text);}
+  .codeblock{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; overflow-x:auto;}
+  .codeblock pre{margin:0; font-family:var(--mono); font-size:13px; color:#a9c9ff; white-space:pre;}
+  .codeblock .comment{color:var(--text-dim);}
+  .interview-tip{background:#241a10; border:1px solid #3a2c10; border-radius:var(--radius); padding:12px 16px; font-size:13.5px; color:#e0c290; margin-top:10px;}
+  .interview-tip b{color:#f5a623;}
+  .compare-table{width:100%; border-collapse:collapse; margin-bottom:14px; font-size:13.5px;}
+  .compare-table th{text-align:left; padding:8px 12px; background:var(--panel-alt); color:var(--text-dim); border-bottom:1px solid var(--border); font-weight:600; font-size:12px; text-transform:uppercase;}
+  .compare-table td{padding:8px 12px; border-bottom:1px solid var(--border-soft); color:var(--text-muted);}
+  .compare-table td:first-child{color:var(--text); font-weight:500;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Azure for Data Engineers</div>
+  <div class="topbar-right">
+    <a href="databricks-deltalake.html">Databricks & Delta Lake</a>
+    <a href="sql-to-pyspark.html">SQL → PySpark</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>Contents</h1>
+      <p>Reference guide — portal/infrastructure concepts, no live playground.</p>
+    </div>
+    <div class="cat-group">Azure Data Factory</div>
+    <ul class="navlist">
+      <li><a href="#adf-overview">Pipelines, Activities, Datasets</a></li>
+      <li><a href="#adf-linked-services">Linked Services</a></li>
+      <li><a href="#adf-triggers">Triggers</a></li>
+      <li><a href="#adf-integration-runtime">Integration Runtime</a></li>
+      <li><a href="#adf-parameterization">Parameterization & Dynamic Content</a></li>
+      <li><a href="#adf-dataflows">Mapping Data Flows vs Databricks</a></li>
+      <li><a href="#adf-monitoring">Monitoring, Retry & Failure Handling</a></li>
+    </ul>
+    <div class="cat-group">Storage</div>
+    <ul class="navlist">
+      <li><a href="#adls-overview">ADLS Gen2 Basics</a></li>
+      <li><a href="#adls-access">Access Tiers & Lifecycle</a></li>
+      <li><a href="#adls-security">RBAC vs ACLs on Storage</a></li>
+    </ul>
+    <div class="cat-group">Compute</div>
+    <ul class="navlist">
+      <li><a href="#vm-overview">Virtual Machines Basics</a></li>
+    </ul>
+    <div class="cat-group">Networking</div>
+    <ul class="navlist">
+      <li><a href="#vnet-overview">VNets & Subnets</a></li>
+      <li><a href="#private-endpoints">Private Endpoints</a></li>
+      <li><a href="#nsg">Network Security Groups</a></li>
+    </ul>
+    <div class="cat-group">Security & Identity</div>
+    <ul class="navlist">
+      <li><a href="#key-vault">Key Vault</a></li>
+      <li><a href="#entra-id">Microsoft Entra ID</a></li>
+      <li><a href="#managed-identity">Managed Identity vs Service Principal</a></li>
+      <li><a href="#rbac">RBAC</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="intro">
+      <h1>Azure, the parts a Data Engineer actually gets tested on</h1>
+      <p>You don't need to be a cloud architect. You need to know how these services fit together well enough to explain your own pipeline end to end, and answer the handful of security/networking questions that come up in almost every Data Engineer interview.</p>
+    </div>
+    <div class="callout">
+      <b>Why no "Run" buttons here:</b> these are Azure portal and infrastructure concepts — pipelines, networking, identity — not something a browser sandbox can execute. This page focuses on getting the concepts, terminology, and relationships exactly right.
+    </div>
+
+    <div class="cat-label">Azure Data Factory</div>
+    <p class="cat-sub">Your daily orchestration tool — given the most depth here.</p>
+
+    <section class="item" id="adf-overview">
+      <h2>Pipelines, Activities, Datasets</h2>
+      <p class="explain">A <b>pipeline</b> is a logical grouping of <b>activities</b> — the individual steps (copy data, run a notebook, execute a stored procedure, run a lookup). A <b>dataset</b> represents a specific piece of data within a data store (a table, a file, a folder) that an activity reads from or writes to. Think: pipeline = the recipe, activities = the steps, datasets = the ingredients.</p>
+      <div class="codeblock"><pre><span class="comment">Pipeline: "DailyOrdersLoad"</span>
+  → Activity: Copy Data      (source dataset: SQL table  →  sink dataset: ADLS csv)
+  → Activity: Databricks Notebook   (transform Bronze → Silver)
+  → Activity: Stored Procedure       (update a watermark/control table)</pre></div>
+    </section>
+
+    <section class="item" id="adf-linked-services">
+      <h2>Linked Services</h2>
+      <p class="explain">A <b>linked service</b> is the connection string / credentials definition for an external system (a SQL Server, an ADLS account, a Databricks workspace) — datasets then reference a linked service rather than embedding credentials themselves. This separation means you can point the same pipeline at dev vs. prod just by swapping which linked service it uses.</p>
+      <div class="interview-tip"><b>Interview angle:</b> "How would you avoid hardcoding a database password in a pipeline?" — reference a Key Vault-backed linked service instead of typing the secret directly into ADF.</div>
+    </section>
+
+    <section class="item" id="adf-triggers">
+      <h2>Triggers</h2>
+      <p class="explain">Triggers decide <i>when</i> a pipeline runs. <b>Schedule</b> triggers run on a fixed recurrence (daily at 2am). <b>Tumbling Window</b> triggers run on fixed, non-overlapping time intervals and are aware of dependencies between windows (useful for backfills — each window "knows" its own time range). <b>Event-based</b> triggers fire when a file lands in storage (Blob created/deleted). <b>Manual</b> triggers just mean someone (or another system) calls it on demand.</p>
+      <table class="compare-table">
+        <tr><th>Trigger Type</th><th>Fires When</th><th>Typical Use</th></tr>
+        <tr><td>Schedule</td><td>Fixed recurrence</td><td>Nightly batch load</td></tr>
+        <tr><td>Tumbling Window</td><td>Fixed, sequential time slices</td><td>Backfills, time-aware reprocessing</td></tr>
+        <tr><td>Event-based</td><td>A file appears/disappears in storage</td><td>React to file drops from an upstream system</td></tr>
+        <tr><td>Manual</td><td>On demand</td><td>Ad-hoc runs, testing</td></tr>
+      </table>
+      <div class="interview-tip"><b>Interview angle:</b> Tumbling Window vs Schedule is a common trip-up — Tumbling Window is specifically designed for scenarios needing backfill/replay of specific historical windows; Schedule just fires and moves on.</div>
+    </section>
+
+    <section class="item" id="adf-integration-runtime">
+      <h2>Integration Runtime (IR)</h2>
+      <p class="explain">The IR is the actual compute that executes activities. <b>Azure IR</b> is fully managed by Microsoft, used for cloud-to-cloud movement. <b>Self-Hosted IR</b> is software you install on a VM inside your own network — required when ADF needs to reach an on-premises database or a resource behind a private network that Azure IR can't see. <b>Azure-SSIS IR</b> exists specifically to lift-and-shift legacy SQL Server Integration Services packages into ADF.</p>
+      <div class="interview-tip"><b>Interview angle:</b> "Your source database is on-prem behind a firewall — how does ADF reach it?" — Self-Hosted IR, installed on a VM that has network access to that on-prem system.</div>
+    </section>
+
+    <section class="item" id="adf-parameterization">
+      <h2>Parameterization & Dynamic Content</h2>
+      <p class="explain">Hardcoding a table name or a date into a pipeline means you need a near-duplicate pipeline for every variation. <b>Parameters</b> let a pipeline accept values at runtime; <b>dynamic content</b> (ADF's expression language, wrapped in <code>@{}</code>) lets you build strings, dates, and conditions from those parameters — the same pipeline can then load any table or any date range just by being called differently.</p>
+      <div class="codeblock"><pre><span class="comment">// A dataset's file path built from pipeline parameters:</span>
+@concat('raw/', pipeline().parameters.source_table, '/', formatDateTime(utcnow(), 'yyyy-MM-dd'), '.csv')</pre></div>
+    </section>
+
+    <section class="item" id="adf-dataflows">
+      <h2>Mapping Data Flows vs. a Databricks Notebook Activity</h2>
+      <p class="explain"><b>Mapping Data Flows</b> are ADF's built-in, no-code visual transformation tool (joins, aggregations, derived columns) — it compiles down to Spark under the hood but you never write code. A <b>Databricks Notebook activity</b> instead calls out to a real Databricks notebook you've written in PySpark/SQL. Most Spark-fluent teams (like yours) prefer the notebook activity for anything non-trivial, since it's more powerful, testable, and reusable outside ADF; Data Flows are more common in low-code-preference teams or for simple transformations.</p>
+    </section>
+
+    <section class="item" id="adf-monitoring">
+      <h2>Monitoring, Retry & Failure Handling</h2>
+      <p class="explain">ADF's Monitor tab shows pipeline run history, activity-level status, and error details. Individual activities support a configurable <b>retry count and interval</b> for transient failures (a brief network blip shouldn't fail the whole pipeline). For anything more deliberate, you can wire an <b>alert</b> (via Azure Monitor) or a failure-path activity (ADF supports "on failure" dependency conditions between activities, so you can trigger a notification or cleanup step specifically when something breaks).</p>
+      <div class="interview-tip"><b>Interview angle:</b> "A pipeline failed at 3am — walk me through how you'd debug it." Mention: check Monitor for which activity failed and its error message, check whether it's a transient issue retry would have fixed, check upstream data (did the source file even land), and where alerting fits in so you'd know before being asked.</div>
+    </section>
+
+    <div class="cat-label">Storage</div>
+    <p class="cat-sub">ADLS Gen2 — where your Bronze/Silver/Gold tables actually live.</p>
+
+    <section class="item" id="adls-overview">
+      <h2>ADLS Gen2 Basics</h2>
+      <p class="explain">Azure Data Lake Storage Gen2 is Blob Storage with a <b>hierarchical namespace</b> enabled — meaning it behaves like a real filesystem with directories, rather than blob storage's flat "container + key" model. This matters for big data workloads because operations like renaming or deleting a "folder" become a single fast metadata operation instead of touching every individual file.</p>
+      <div class="codeblock"><pre>storage_account/
+  container (a.k.a. "filesystem")/
+    bronze/orders/2024/01/15/file.parquet
+    silver/orders/file.parquet
+    gold/daily_revenue/file.parquet</pre></div>
+    </section>
+
+    <section class="item" id="adls-access">
+      <h2>Access Tiers & Lifecycle Management</h2>
+      <p class="explain">Blob storage tiers trade cost for retrieval speed: <b>Hot</b> (frequent access, highest storage cost, cheapest to read), <b>Cool</b> (infrequent access, cheaper storage, small retrieval cost), <b>Archive</b> (rarely accessed, cheapest storage, hours of latency to retrieve). <b>Lifecycle management policies</b> automatically move data between tiers (or delete it) based on age — e.g., move Bronze data to Cool after 30 days.</p>
+    </section>
+
+    <section class="item" id="adls-security">
+      <h2>RBAC vs ACLs on Storage</h2>
+      <p class="explain">ADLS Gen2 supports two overlapping permission systems. <b>RBAC</b> (Azure roles like Storage Blob Data Contributor) controls access at the container/account level. <b>POSIX-style ACLs</b> allow finer-grained control down to individual folders/files, similar to Linux file permissions. In practice, most teams set broad RBAC roles and layer folder-level ACLs only where genuinely needed (e.g., restricting one team's Silver folder from another team).</p>
+    </section>
+
+    <div class="cat-label">Compute</div>
+    <p class="cat-sub">Not your daily tool as a data engineer, but comes up around Self-Hosted IR and cost questions.</p>
+
+    <section class="item" id="vm-overview">
+      <h2>Virtual Machines — Just Enough</h2>
+      <p class="explain">A VM is a full virtual computer you provision and manage yourself (OS, patching, scaling). As a data engineer, you rarely provision VMs directly for data processing — Databricks manages that compute for you — but you'll encounter VMs specifically as the host for a <b>Self-Hosted Integration Runtime</b>, or occasionally for a jump box to reach a private network.</p>
+      <div class="interview-tip"><b>Interview angle:</b> Don't over-invest here — know that VMs exist, what they're for in your stack (Self-Hosted IR), and that Databricks abstracts cluster VM management away from you day-to-day.</div>
+    </section>
+
+    <div class="cat-label">Networking</div>
+    <p class="cat-sub">Increasingly asked about, since most real pipelines run inside a locked-down network.</p>
+
+    <section class="item" id="vnet-overview">
+      <h2>VNets & Subnets</h2>
+      <p class="explain">A Virtual Network (VNet) is an isolated private network inside Azure. <b>Subnets</b> divide it into smaller segments — you might put your Databricks clusters in one subnet and a Self-Hosted IR VM in another, each with different access rules. Resources inside the same VNet can talk to each other privately; resources need explicit configuration to reach anything outside it.</p>
+    </section>
+
+    <section class="item" id="private-endpoints">
+      <h2>Private Endpoints</h2>
+      <p class="explain">By default, a service like ADLS or Key Vault has a public internet endpoint (protected by keys/RBAC, but still internet-reachable). A <b>Private Endpoint</b> gives that service a private IP address inside your VNet instead, so traffic never leaves Microsoft's private network — a common security requirement in enterprise environments, and increasingly a default expectation in interviews about "how would you secure this pipeline."</p>
+      <div class="interview-tip"><b>Interview angle:</b> "How do you prevent your storage account from being reachable from the public internet?" — Private Endpoint + disabling public network access on the storage account.</div>
+    </section>
+
+    <section class="item" id="nsg">
+      <h2>Network Security Groups (NSGs)</h2>
+      <p class="explain">An NSG is a basic firewall — a list of allow/deny rules (by port, protocol, source/destination) applied to a subnet or network interface. It's the layer that decides, for example, whether a VM's subnet can even attempt to reach the outside internet at all, independent of what identity/RBAC permissions a user might have.</p>
+    </section>
+
+    <div class="cat-label">Security & Identity</div>
+    <p class="cat-sub">Nearly every interview touches this — how do your pipelines authenticate safely?</p>
+
+    <section class="item" id="key-vault">
+      <h2>Key Vault</h2>
+      <p class="explain">Key Vault stores secrets (connection strings, passwords, API keys), certificates, and encryption keys centrally, so they never need to be hardcoded into a pipeline, notebook, or config file. ADF Linked Services and Databricks secret scopes can both reference a Key Vault directly — your code references a <i>secret name</i>, and the actual value is resolved securely at runtime.</p>
+      <div class="codeblock"><pre><span class="comment"># Databricks notebook reading a Key Vault-backed secret scope:</span>
+password = dbutils.secrets.get(scope="kv-scope", key="sql-db-password")</pre></div>
+    </section>
+
+    <section class="item" id="entra-id">
+      <h2>Microsoft Entra ID (formerly Azure AD)</h2>
+      <p class="explain">Entra ID is Azure's identity provider — it's what authenticates users, and also hosts non-human identities like <b>Service Principals</b> and <b>Managed Identities</b> that let applications and services authenticate to each other. Every RBAC role assignment ("who can access what") is granted to an identity that Entra ID manages.</p>
+    </section>
+
+    <section class="item" id="managed-identity">
+      <h2>Managed Identity vs. Service Principal</h2>
+      <p class="explain">Both let a service (like ADF or Databricks) authenticate to another service (like ADLS) without a human's credentials. A <b>Service Principal</b> is an application identity you register yourself, with a secret or certificate you must manage and rotate. A <b>Managed Identity</b> is automatically created and managed by Azure for a specific resource (like an ADF instance) — there's no secret to store or rotate at all, since Azure handles the credential lifecycle internally. Managed Identity is the preferred, more secure default whenever it's available.</p>
+      <div class="interview-tip"><b>Interview angle:</b> "Why prefer Managed Identity over a Service Principal with a stored secret?" — no secret to leak, rotate, or expire; Azure manages the credential lifecycle entirely.</div>
+    </section>
+
+    <section class="item" id="rbac">
+      <h2>RBAC (Role-Based Access Control)</h2>
+      <p class="explain">RBAC assigns <b>roles</b> (collections of permissions, like Reader, Contributor, or resource-specific ones like Storage Blob Data Contributor) to an <b>identity</b> (a user, group, service principal, or managed identity) at a <b>scope</b> (Management Group → Subscription → Resource Group → individual Resource — permissions inherit downward). The guiding principle is <b>least privilege</b>: grant the narrowest role at the narrowest scope that still lets the job get done.</p>
+      <div class="codeblock"><pre><span class="comment">Scope hierarchy (permissions inherit downward):</span>
+Management Group
+  └── Subscription
+        └── Resource Group
+              └── Resource (e.g., one storage account)
+
+<span class="comment">Example: grant a Databricks managed identity read access to just one storage account,
+not Contributor access to the whole subscription.</span></pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> Be ready to name least privilege explicitly if asked "how would you grant Databricks access to this storage account?" — the expected shape of the answer is a specific role (like Storage Blob Data Contributor) at the narrowest useful scope, assigned to a Managed Identity, not a broad role at the subscription level.</div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
