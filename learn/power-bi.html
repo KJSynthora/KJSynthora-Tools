@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI for Data Engineers — Data Modeling, DAX & Databricks | KJSynthora</title>
+<meta name="description" content="Power BI concepts a Data Engineer is tested on: Import vs DirectQuery, star schema modeling, DAX fundamentals (row vs filter context, CALCULATE), and connecting to Databricks.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#f2c811; --accent-ink:#241d02; --blue:#5b9dff; --amber:#f5a623; --good:#3fd67a; --good-dim:#173829;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:14px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:250px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .cat-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:6px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:72ch; margin-bottom:20px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+  .callout{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:20px 0 36px; font-size:14px; color:var(--text-muted); max-width:72ch;}
+  .callout b{color:var(--text);}
+
+  .cat-label{font-size:12px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); font-weight:700; margin:0 0 4px; padding-top:30px; border-top:1px solid var(--border-soft); scroll-margin-top:70px;}
+  .cat-label:first-of-type{border-top:none; padding-top:0;}
+  .cat-sub{font-size:13px; color:var(--text-muted); margin:0 0 16px;}
+
+  .item{border-top:1px solid var(--border-soft); padding:24px 0; scroll-margin-top:70px;}
+  .item:first-of-type{border-top:none;}
+  .item h2{font-size:18px; margin:0 0 8px;}
+  .item .explain{color:var(--text-muted); font-size:14.5px; max-width:76ch; margin:0 0 14px;}
+  .item .explain b{color:var(--text);}
+  .codeblock{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; overflow-x:auto;}
+  .codeblock pre{margin:0; font-family:var(--mono); font-size:13px; color:#ffe9a8; white-space:pre;}
+  .codeblock .comment{color:var(--text-dim);}
+  .interview-tip{background:#241a10; border:1px solid #3a2c10; border-radius:var(--radius); padding:12px 16px; font-size:13.5px; color:#e0c290; margin-top:10px;}
+  .interview-tip b{color:#f5a623;}
+  .compare-table{width:100%; border-collapse:collapse; margin-bottom:14px; font-size:13.5px;}
+  .compare-table th{text-align:left; padding:8px 12px; background:var(--panel-alt); color:var(--text-dim); border-bottom:1px solid var(--border); font-weight:600; font-size:12px; text-transform:uppercase;}
+  .compare-table td{padding:8px 12px; border-bottom:1px solid var(--border-soft); color:var(--text-muted);}
+  .compare-table td:first-child{color:var(--text); font-weight:500;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Power BI</div>
+  <div class="topbar-right">
+    <a href="azure-services.html">Azure Services</a>
+    <a href="databricks-deltalake.html">Databricks & Delta Lake</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>Contents</h1>
+      <p>Reference guide — no live playground (Power BI is a desktop/service tool).</p>
+    </div>
+    <div class="cat-group">Power BI Basics</div>
+    <ul class="navlist">
+      <li><a href="#what-is-powerbi">Desktop, Service, Power Query</a></li>
+      <li><a href="#connectivity-modes">Import vs DirectQuery vs Live Connection</a></li>
+      <li><a href="#power-query">Power Query (M) Basics</a></li>
+    </ul>
+    <div class="cat-group">Data Modeling</div>
+    <ul class="navlist">
+      <li><a href="#star-schema">Star Schema in Power BI</a></li>
+      <li><a href="#relationships">Relationships & Cardinality</a></li>
+      <li><a href="#model-best-practices">Data Model Best Practices</a></li>
+    </ul>
+    <div class="cat-group">DAX Fundamentals</div>
+    <ul class="navlist">
+      <li><a href="#columns-vs-measures">Calculated Columns vs Measures</a></li>
+      <li><a href="#row-filter-context">Row Context vs Filter Context</a></li>
+      <li><a href="#calculate">CALCULATE — the Core Function</a></li>
+      <li><a href="#common-dax">Common DAX Functions</a></li>
+      <li><a href="#time-intelligence">Time Intelligence</a></li>
+    </ul>
+    <div class="cat-group">Performance</div>
+    <ul class="navlist">
+      <li><a href="#incremental-refresh">Incremental Refresh</a></li>
+      <li><a href="#query-folding">Query Folding</a></li>
+      <li><a href="#aggregations">Aggregations & Composite Models</a></li>
+    </ul>
+    <div class="cat-group">Your Stack</div>
+    <ul class="navlist">
+      <li><a href="#connect-databricks">Connecting to Databricks</a></li>
+      <li><a href="#rls">Row-Level Security</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="intro">
+      <h1>Power BI, from the data engineer's side of the fence</h1>
+      <p>You're not becoming a full-time BI developer — but you're the one feeding Power BI its data, and you'll be expected to understand enough of the modeling and DAX side to have an intelligent conversation about why a report is slow, or how a Gold table should be shaped.</p>
+    </div>
+    <div class="callout">
+      <b>Why no "Run" buttons here:</b> Power BI is a desktop application and cloud service — there's no way to execute DAX or a data model inside a browser sandbox. This page focuses on getting the concepts and DAX syntax exactly right.
+    </div>
+
+    <div class="cat-label">Power BI Basics</div>
+
+    <section class="item" id="what-is-powerbi">
+      <h2>Desktop, Service, and Power Query</h2>
+      <p class="explain"><b>Power BI Desktop</b> is where you build reports and data models on your machine. <b>Power BI Service</b> (app.powerbi.com) is the cloud platform where published reports are hosted, refreshed, and shared. <b>Power Query</b> is the ETL layer inside Desktop — where you connect to sources, filter/reshape data, and clean it up before it ever reaches the data model, using a point-and-click interface that generates M code behind the scenes.</p>
+    </section>
+
+    <section class="item" id="connectivity-modes">
+      <h2>Import vs. DirectQuery vs. Live Connection</h2>
+      <p class="explain">This is the single most consequential decision in a Power BI design, and a very common interview question. <b>Import</b> copies the data into Power BI's own compressed in-memory engine (fastest reports, but data is only as fresh as the last refresh). <b>DirectQuery</b> leaves data in the source and sends live queries on every interaction (always fresh, but only as fast as the source system, and DAX capability is more limited). <b>Live Connection</b> is similar to DirectQuery but specifically for connecting to an existing Power BI dataset or Analysis Services model rather than a raw data source.</p>
+      <table class="compare-table">
+        <tr><th>Mode</th><th>Data Freshness</th><th>Performance</th><th>Best For</th></tr>
+        <tr><td>Import</td><td>As of last refresh</td><td>Fastest (in-memory)</td><td>Most reports; datasets that fit in memory</td></tr>
+        <tr><td>DirectQuery</td><td>Real-time</td><td>Depends on source</td><td>Huge datasets, near-real-time requirements</td></tr>
+        <tr><td>Live Connection</td><td>Real-time</td><td>Depends on source model</td><td>Reusing an existing published dataset</td></tr>
+      </table>
+      <div class="interview-tip"><b>Interview angle:</b> "Your source table has 500 million rows and business wants near-real-time numbers — which mode?" — DirectQuery, accepting the performance tradeoff, possibly combined with Aggregations (see below) to speed up common queries.</div>
+    </section>
+
+    <section class="item" id="power-query">
+      <h2>Power Query (M) Basics</h2>
+      <p class="explain">Every transformation you apply in Power Query's Editor (filter rows, rename a column, change a type, merge two queries) becomes a recorded, ordered <b>Applied Step</b> written in the M language behind the scenes. This step-by-step recipe re-runs every time the data refreshes — it's genuinely a lightweight ETL tool, not just a preview pane.</p>
+      <div class="codeblock"><pre><span class="comment">// Simplified M code for "filter, then add a column" — visible in the Advanced Editor</span>
+let
+    Source = Sql.Database("server", "database"),
+    Filtered = Table.SelectRows(Source, each [order_date] >= #date(2024,1,1)),
+    Added = Table.AddColumn(Filtered, "Year", each Date.Year([order_date]))
+in
+    Added</pre></div>
+    </section>
+
+    <div class="cat-label">Data Modeling</div>
+
+    <section class="item" id="star-schema">
+      <h2>Star Schema in Power BI</h2>
+      <p class="explain">The same star schema concept from data warehousing applies directly here: one central <b>fact table</b> (orders, sales — the numbers you measure) surrounded by <b>dimension tables</b> (customer, product, date — the things you slice by), connected by relationships. Power BI's DAX engine is specifically optimized for this shape; flattening everything into one giant table, or modeling a snowflake with many small linked dimension tables, both tend to hurt both performance and usability.</p>
+      <div class="interview-tip"><b>Interview angle:</b> If asked to model a Gold-layer table for Power BI, describe it in star schema terms explicitly — it signals you understand the consumption layer, not just the pipeline that produced it.</div>
+    </section>
+
+    <section class="item" id="relationships">
+      <h2>Relationships & Cardinality</h2>
+      <p class="explain">A relationship connects two tables on a common column. <b>Cardinality</b> describes the shape of that relationship — <b>one-to-many</b> is by far the most common (one customer, many orders). <b>Cross-filter direction</b> controls which table's filters flow to the other: <b>single</b> direction (dimension filters fact — the standard, safest choice) or <b>both</b> (bidirectional — powerful but can cause ambiguous filter paths and performance issues if overused).</p>
+      <div class="interview-tip"><b>Interview angle:</b> "When would you use bidirectional filtering?" — Sparingly: many-to-many bridge tables, or specific scenarios needing a dimension to be filtered by the fact table. Default to single-direction unless you have a specific reason not to.</div>
+    </section>
+
+    <section class="item" id="model-best-practices">
+      <h2>Data Model Best Practices</h2>
+      <p class="explain">A few habits that come up repeatedly: hide surrogate/foreign key columns from report view (users shouldn't see raw IDs), mark a proper <b>Date table</b> as the official date table (unlocks time intelligence functions), and prefer <b>star schema over one flat wide table</b> even though a flat table feels simpler — the flat approach breaks down fast once you need multiple fact tables or complex time intelligence.</p>
+    </section>
+
+    <div class="cat-label">DAX Fundamentals</div>
+
+    <section class="item" id="columns-vs-measures">
+      <h2>Calculated Columns vs. Measures</h2>
+      <p class="explain">A <b>calculated column</b> is computed once per row, at refresh time, and stored in the model (uses memory, like a real column). A <b>measure</b> is computed on the fly, at query time, in whatever context the visual is currently showing (a total, a specific slice, a specific row of a table) — it's never stored. As a rule of thumb: use a measure for aggregations (sums, ratios, counts) and a calculated column only when you genuinely need a static per-row value to filter or group by.</p>
+      <div class="codeblock"><pre><span class="comment">// Calculated column — evaluated once per row, stored</span>
+Full Name = Employees[FirstName] & " " & Employees[LastName]
+
+<span class="comment">// Measure — evaluated dynamically based on current filter context</span>
+Total Sales = SUM(Sales[Amount])</pre></div>
+    </section>
+
+    <section class="item" id="row-filter-context">
+      <h2>Row Context vs. Filter Context</h2>
+      <p class="explain">This is the single hardest DAX concept, and the one that separates people who've memorized DAX syntax from people who actually understand it. <b>Row context</b> exists when a formula is being evaluated one row at a time (a calculated column, or inside iterator functions like SUMX). <b>Filter context</b> is the set of filters currently applied to the whole calculation — from slicers, visual axes, or explicit CALCULATE arguments — and it's what makes the same measure return different numbers in different cells of a table or chart.</p>
+      <div class="codeblock"><pre><span class="comment">// This measure has no row context — it's evaluated once per visual cell,
+// under whatever filter context that cell represents (e.g. "Region = West, Year = 2024")</span>
+Total Sales = SUM(Sales[Amount])
+
+<span class="comment">// SUMX introduces row context explicitly, row by row, then sums the results</span>
+Total With Tax = SUMX(Sales, Sales[Amount] * (1 + Sales[TaxRate]))</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> If asked to explain context, use exactly this framing: filter context = "which rows are visible right now," row context = "which single row am I looking at right now" — and note that CALCULATE is the main tool for manipulating filter context deliberately.</div>
+    </section>
+
+    <section class="item" id="calculate">
+      <h2>CALCULATE — the Core DAX Function</h2>
+      <p class="explain">CALCULATE evaluates an expression in a <i>modified</i> filter context — it's how you build "total sales, but only for last year" or "total sales, ignoring the region filter" on top of a base measure. Nearly every non-trivial DAX pattern (time intelligence, percent-of-total, exceptions to a filter) is CALCULATE wrapping a simpler measure with new filter arguments.</p>
+      <div class="codeblock"><pre>Sales Last Year =
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR('Date'[Date])
+)
+
+<span class="comment">// Total sales ignoring whatever region is currently sliced</span>
+Sales All Regions =
+CALCULATE(
+    [Total Sales],
+    ALL(Region)
+)</pre></div>
+    </section>
+
+    <section class="item" id="common-dax">
+      <h2>Common DAX Functions</h2>
+      <p class="explain">A working vocabulary covers most interview questions and real report-building: <b>SUM/AVERAGE/COUNTROWS</b> for basic aggregation, <b>SUMX/AVERAGEX</b> (the "X" iterator functions, which loop row by row before aggregating — needed when the calculation itself varies per row), <b>DISTINCTCOUNT</b> for unique counts, <b>FILTER</b> to build a filtered table for use inside CALCULATE, and <b>ALL</b> / <b>ALLEXCEPT</b> to remove filters from part or most of the model.</p>
+      <div class="codeblock"><pre>Total Orders = COUNTROWS(Orders)
+Unique Customers = DISTINCTCOUNT(Orders[CustomerID])
+High Value Orders = CALCULATE(COUNTROWS(Orders), FILTER(Orders, Orders[Amount] > 1000))</pre></div>
+    </section>
+
+    <section class="item" id="time-intelligence">
+      <h2>Time Intelligence</h2>
+      <p class="explain">A family of built-in DAX functions for date-based comparisons that would otherwise require manual date math: <b>TOTALYTD/TOTALQTD/TOTALMTD</b> for running totals within a period, <b>SAMEPERIODLASTYEAR</b> and <b>DATEADD</b> for period-over-period comparisons. All of these require a proper Date table marked as such in the model to work correctly.</p>
+      <div class="codeblock"><pre>Sales YTD = TOTALYTD([Total Sales], 'Date'[Date])
+
+Sales Growth vs LY =
+DIVIDE(
+    [Total Sales] - CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date])),
+    CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date]))
+)</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> DIVIDE (not the / operator) is the expected way to handle division in DAX — it safely returns BLANK instead of erroring on divide-by-zero, similar to SQL's NULLIF pattern.</div>
+    </section>
+
+    <div class="cat-label">Performance</div>
+
+    <section class="item" id="incremental-refresh">
+      <h2>Incremental Refresh</h2>
+      <p class="explain">Instead of reloading an entire fact table on every refresh, incremental refresh partitions it by date and only reloads recent partitions (say, the last 7 days), while older partitions stay untouched. This is essential once a table grows large — a full daily reload of years of history becomes both slow and unnecessary.</p>
+    </section>
+
+    <section class="item" id="query-folding">
+      <h2>Query Folding</h2>
+      <p class="explain">When Power Query's transformation steps can be translated back into a single query against the source system (a SQL WHERE clause, for instance) instead of pulling all the raw data down and filtering it locally, that's <b>query folding</b> — and it's dramatically faster. Some transformations (certain custom M functions, merging data from different source types) break folding, silently forcing Power BI to pull everything down first. Checking whether folding is happening (via "View Native Query" in the Applied Steps) is a real, practical skill.</p>
+    </section>
+
+    <section class="item" id="aggregations">
+      <h2>Aggregations & Composite Models</h2>
+      <p class="explain">An aggregation table stores pre-summarized data (e.g., daily totals instead of every transaction) at Import speed, while the underlying detailed table stays in DirectQuery — Power BI automatically routes a query to the fast aggregated table when possible, and falls back to the detailed DirectQuery table only when a report needs finer granularity. A <b>composite model</b> is this pattern generalized: mixing Import and DirectQuery tables in the same model.</p>
+    </section>
+
+    <div class="cat-label">Your Stack</div>
+
+    <section class="item" id="connect-databricks">
+      <h2>Connecting Power BI to Databricks</h2>
+      <p class="explain">Power BI connects to Databricks via the built-in Databricks connector, pointing at a <b>SQL Warehouse</b> (Databricks' SQL-optimized compute endpoint) rather than an all-purpose cluster — SQL Warehouses are specifically tuned for this kind of concurrent, ad-hoc BI query pattern. You can choose Import (snapshot the Gold table into Power BI) or DirectQuery (query Databricks live on every interaction) exactly as with any other source.</p>
+      <div class="codeblock"><pre><span class="comment">In Power BI Desktop: Get Data → Databricks
+  Server hostname:   your-workspace.azuredatabricks.net
+  HTTP path:         /sql/1.0/warehouses/xxxxxxxxxxxx
+  Catalog:           main   (Unity Catalog)
+  Table:             sales.gold.daily_revenue</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> "Would you point Power BI at the Gold layer or the Silver layer?" — Gold, always: it's already business-aggregated and modeled for consumption, so Power BI isn't re-deriving business logic that belongs in the pipeline.</div>
+    </section>
+
+    <section class="item" id="rls">
+      <h2>Row-Level Security (RLS)</h2>
+      <p class="explain">RLS restricts which rows a user can see in a report based on their identity — a regional manager should only see their own region's data, from the same published report everyone else uses. It's implemented as a DAX filter expression tied to a <b>role</b>, then that role is mapped to users or Entra ID groups in the Power BI Service.</p>
+      <div class="codeblock"><pre><span class="comment">// RLS role "RegionManager" — filter expression on the Region table</span>
+[RegionName] = USERPRINCIPALNAME()
+
+<span class="comment">// or, mapping via a separate security table joining users to allowed regions</span></pre></div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
