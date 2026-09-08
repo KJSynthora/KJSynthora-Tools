@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks Administration — Unity Catalog, Hive Metastore & Governance | KJSynthora</title>
+<meta name="description" content="Databricks admin concepts for Data Engineer interviews: Unity Catalog vs Hive Metastore, migration paths, admin roles, service principals/groups/users, and governance queries.">
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#10151d; --panel-alt:#151b25;
+    --border:#232b38; --border-soft:#1a212c;
+    --text:#dce3ea; --text-muted:#8391a3; --text-dim:#5b6779;
+    --accent:#ff3d5f; --blue:#5b9dff; --amber:#f5a623; --good:#3fd67a; --good-dim:#173829;
+    --mono:'JetBrains Mono','SFMono-Regular',Consolas,Menlo,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.6;}
+  a{color:var(--blue); text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono); background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-size:0.92em;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:8px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px;}
+  .brand .logo-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+  .topbar-right a{color:var(--text-muted); font-size:13.5px; margin-left:14px;}
+  .topbar-right a:hover{color:var(--text);}
+
+  .layout{display:flex; max-width:1300px; margin:0 auto;}
+  .sidebar{width:250px; flex-shrink:0; border-right:1px solid var(--border); padding:20px 0 60px; position:sticky; top:57px; align-self:flex-start; height:calc(100vh - 57px); overflow-y:auto;}
+  .sidebar-head{padding:0 18px 14px;}
+  .sidebar-head h1{font-size:15px; margin:0 0 4px;}
+  .sidebar-head p{margin:0; font-size:12.5px; color:var(--text-muted);}
+  .cat-group{padding:10px 18px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .navlist{list-style:none; margin:0; padding:0 10px;}
+  .navlist li a{display:block; padding:6px 10px; border-radius:var(--radius); color:var(--text-muted); font-size:13px;}
+  .navlist li a:hover{background:var(--panel-alt); color:var(--text); text-decoration:none;}
+
+  .main{flex:1; min-width:0; padding:32px 40px 80px;}
+  .intro{max-width:72ch; margin-bottom:20px;}
+  .intro h1{font-size:26px; margin:0 0 10px;}
+  .intro p{color:var(--text-muted); font-size:15px;}
+  .callout{background:var(--panel-alt); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:20px 0 36px; font-size:14px; color:var(--text-muted); max-width:72ch;}
+  .callout b{color:var(--text);}
+
+  .cat-label{font-size:12px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); font-weight:700; margin:0 0 4px; padding-top:30px; border-top:1px solid var(--border-soft); scroll-margin-top:70px;}
+  .cat-label:first-of-type{border-top:none; padding-top:0;}
+  .cat-sub{font-size:13px; color:var(--text-muted); margin:0 0 16px;}
+
+  .item{border-top:1px solid var(--border-soft); padding:24px 0; scroll-margin-top:70px;}
+  .item:first-of-type{border-top:none;}
+  .item h2{font-size:18px; margin:0 0 8px;}
+  .item .explain{color:var(--text-muted); font-size:14.5px; max-width:76ch; margin:0 0 14px;}
+  .item .explain b{color:var(--text);}
+  .codeblock{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; overflow-x:auto;}
+  .codeblock pre{margin:0; font-family:var(--mono); font-size:13px; color:#a9c9ff; white-space:pre;}
+  .codeblock .comment{color:var(--text-dim);}
+  .interview-tip{background:#241a10; border:1px solid #3a2c10; border-radius:var(--radius); padding:12px 16px; font-size:13.5px; color:#e0c290; margin-top:10px;}
+  .interview-tip b{color:#f5a623;}
+  .compare-table{width:100%; border-collapse:collapse; margin-bottom:14px; font-size:13.5px;}
+  .compare-table th{text-align:left; padding:8px 12px; background:var(--panel-alt); color:var(--text-dim); border-bottom:1px solid var(--border); font-weight:600; font-size:12px; text-transform:uppercase;}
+  .compare-table td{padding:8px 12px; border-bottom:1px solid var(--border-soft); color:var(--text-muted);}
+  .compare-table td:first-child{color:var(--text); font-weight:500;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    .sidebar{position:static; width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border);}
+    .main{padding:24px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo-dot"></span> KJSynthora · Databricks Administration</div>
+  <div class="topbar-right">
+    <a href="databricks-deltalake.html">Databricks & Delta Lake</a>
+    <a href="azure-services.html">Azure Services</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-head">
+      <h1>Contents</h1>
+      <p>Reference guide — admin console & governance concepts, no live playground.</p>
+    </div>
+    <div class="cat-group">Metastores</div>
+    <ul class="navlist">
+      <li><a href="#hive-metastore">Hive Metastore (Legacy)</a></li>
+      <li><a href="#unity-catalog">Unity Catalog</a></li>
+      <li><a href="#uc-object-model">The UC Object Model</a></li>
+    </ul>
+    <div class="cat-group">Migration</div>
+    <ul class="navlist">
+      <li><a href="#migration-approaches">Hive Metastore → Unity Catalog</a></li>
+      <li><a href="#sync-command">The SYNC Command</a></li>
+      <li><a href="#migration-gotchas">Migration Gotchas</a></li>
+    </ul>
+    <div class="cat-group">Admin Roles</div>
+    <ul class="navlist">
+      <li><a href="#admin-roles">Account, Metastore & Workspace Admins</a></li>
+      <li><a href="#ownership">Ownership & Privilege Inheritance</a></li>
+    </ul>
+    <div class="cat-group">Identity: Users, Groups, SPNs</div>
+    <ul class="navlist">
+      <li><a href="#users-groups">Users & Groups</a></li>
+      <li><a href="#service-principals">Service Principals</a></li>
+      <li><a href="#scim">SCIM Provisioning</a></li>
+    </ul>
+    <div class="cat-group">Governance Queries</div>
+    <ul class="navlist">
+      <li><a href="#grant-revoke">GRANT / REVOKE / SHOW GRANTS</a></li>
+      <li><a href="#system-tables">System Tables (Audit & Lineage)</a></li>
+      <li><a href="#dataframe-equivalents">Is There a DataFrame Way to Do This?</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="intro">
+      <h1>Databricks Administration & Governance</h1>
+      <p>This is the layer above writing PySpark: who can see what data, how it's organized across an entire organization, and how you migrate off the older way of doing it. It's asked more at mid-to-senior level, but even junior interviews increasingly touch Unity Catalog since it's now the default for any new Databricks workspace.</p>
+    </div>
+    <div class="callout">
+      <b>Why no "Run" buttons here:</b> these are account/workspace admin console and governance concepts — there's no metastore, no real users/groups, and nothing to meaningfully execute in a browser sandbox. This page focuses on getting the architecture and exact commands right.
+    </div>
+
+    <div class="cat-label">Metastores</div>
+
+    <section class="item" id="hive-metastore">
+      <h2>Hive Metastore (Legacy)</h2>
+      <p class="explain">The Hive Metastore (HMS) is the original, older way Databricks tracked table metadata (schemas, locations, partitions) — a <b>per-workspace</b> catalog with only a <b>two-level namespace</b> (<code>schema.table</code>, no catalog level). Access control was coarse: either table ACLs enabled on a cluster, or relying on cloud storage permissions (IAM passthrough) directly — nothing centrally governed across workspaces. If your organization has multiple Databricks workspaces, each historically had its own completely separate Hive Metastore with no shared governance between them.</p>
+      <div class="interview-tip"><b>Interview angle:</b> The core limitation to name: Hive Metastore has no concept of a "catalog" and no cross-workspace governance — every workspace is an island.</div>
+    </section>
+
+    <section class="item" id="unity-catalog">
+      <h2>Unity Catalog</h2>
+      <p class="explain">Unity Catalog (UC) is Databricks' modern governance layer: a metastore created <b>once per region</b> and attached to every workspace in that region, giving one shared, centrally governed view of all data across the organization. It adds a <b>three-level namespace</b> (<code>catalog.schema.table</code>), fine-grained GRANT/REVOKE permissions on tables, views, volumes and functions, built-in <b>data lineage</b> tracking, and centralized audit logging — none of which Hive Metastore had.</p>
+      <table class="compare-table">
+        <tr><th></th><th>Hive Metastore</th><th>Unity Catalog</th></tr>
+        <tr><td>Scope</td><td>Per-workspace</td><td>Per-region, shared across workspaces</td></tr>
+        <tr><td>Namespace</td><td>schema.table</td><td>catalog.schema.table</td></tr>
+        <tr><td>Access control</td><td>Cluster ACLs / cloud IAM</td><td>Centralized GRANT/REVOKE</td></tr>
+        <tr><td>Lineage & audit</td><td>Not built in</td><td>Built in (system tables)</td></tr>
+      </table>
+    </section>
+
+    <section class="item" id="uc-object-model">
+      <h2>The Unity Catalog Object Model</h2>
+      <p class="explain">The hierarchy, top to bottom: <b>Metastore</b> (one per region) → <b>Catalog</b> (a top-level grouping, e.g. one per environment or business unit) → <b>Schema</b> (a.k.a. database — groups related tables) → <b>Table / View / Volume / Function</b>. <b>Volumes</b> are a UC-specific concept for governing access to non-tabular files (raw files, ML model artifacts) the same way tables govern structured data.</p>
+      <div class="codeblock"><pre>Metastore (per region)
+  └── Catalog: prod
+        └── Schema: sales
+              ├── Table: orders
+              ├── View: monthly_summary
+              └── Volume: raw_invoices  <span class="comment">← file storage, governed like a table</span></pre></div>
+    </section>
+
+    <div class="cat-label">Migration</div>
+
+    <section class="item" id="migration-approaches">
+      <h2>Hive Metastore → Unity Catalog: The Approaches</h2>
+      <p class="explain">There isn't one forced method — the right approach depends on how much you need to preserve. <b>Manual recreation</b> (CREATE TABLE pointing at the same storage path) works for a handful of tables. For anything larger, Databricks provides an <b>"Upgrade to Unity Catalog"</b> wizard directly in Catalog Explorer that upgrades an HMS table/schema in place. For an entire estate, Databricks Labs' open-source <b>UCX toolkit</b> assesses what needs migrating (permissions, table formats, cluster configs) and automates much of the process.</p>
+      <table class="compare-table">
+        <tr><th>Approach</th><th>Best For</th></tr>
+        <tr><td>Manual CREATE TABLE / SYNC</td><td>A handful of tables, full control over naming</td></tr>
+        <tr><td>"Upgrade to Unity Catalog" UI wizard</td><td>Ad-hoc, table-by-table or schema-by-schema migration</td></tr>
+        <tr><td>UCX (Databricks Labs toolkit)</td><td>Whole-workspace migration, permission mapping, assessment reporting</td></tr>
+      </table>
+    </section>
+
+    <section class="item" id="sync-command">
+      <h2>The SYNC Command</h2>
+      <p class="explain">SYNC is the SQL command underlying most upgrade workflows — it creates (or updates) a Unity Catalog table/schema that mirrors an existing Hive Metastore one, <b>without copying the underlying data files</b> when the table is external (it just registers the same storage location under UC's governance). This makes it a metadata-only operation for external tables, which is fast and low-risk compared to physically moving data.</p>
+      <div class="codeblock"><pre>-- Migrate a single table
+SYNC TABLE main.sales.orders FROM hive_metastore.sales.orders;
+
+-- Migrate an entire schema at once
+SYNC SCHEMA main.sales FROM hive_metastore.sales;
+
+-- Preview what SYNC would do without actually doing it
+SYNC TABLE main.sales.orders FROM hive_metastore.sales.orders DRY RUN;</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> Know the key distinction — SYNC re-registers external tables' existing storage location under UC (fast, no data movement); managed tables generally require an actual data copy (e.g. CREATE TABLE AS SELECT) since UC manages their storage location itself.</div>
+    </section>
+
+    <section class="item" id="migration-gotchas">
+      <h2>Migration Gotchas</h2>
+      <p class="explain">A few things that trip up real migrations: existing <b>cluster configs and init scripts</b> that assume Hive Metastore access patterns often need updating for UC's access model; <b>permissions don't automatically carry over</b> — HMS table ACLs and UC grants are separate systems, so access needs to be re-granted deliberately (this is exactly what UCX's assessment step is for); and <b>managed vs. external table distinctions</b> matter more under UC, since UC managed tables store data in a UC-controlled location rather than wherever the original HMS table happened to live.</p>
+    </section>
+
+    <div class="cat-label">Admin Roles</div>
+
+    <section class="item" id="admin-roles">
+      <h2>Account, Metastore & Workspace Admins</h2>
+      <p class="explain">Three distinct admin scopes, easy to conflate in an interview answer. An <b>Account Admin</b> operates at the very top — manages the whole Databricks account, billing, and can create/assign metastores across all workspaces. A <b>Metastore Admin</b> governs one Unity Catalog metastore specifically — can create catalogs, grant/revoke at the catalog level, and manage metastore-wide settings. A <b>Workspace Admin</b> is scoped to a single workspace — manages workspace users, cluster policies, and workspace-level settings, but doesn't inherently control Unity Catalog data governance unless separately granted metastore privileges.</p>
+      <div class="interview-tip"><b>Interview angle:</b> "Can a Workspace Admin grant access to a Unity Catalog table?" — Not automatically. Workspace Admin and data governance (Unity Catalog privileges) are deliberately separate concerns; a Workspace Admin needs an explicit UC grant (or Metastore Admin rights) to manage table-level access.</div>
+    </section>
+
+    <section class="item" id="ownership">
+      <h2>Ownership & Privilege Inheritance</h2>
+      <p class="explain">Every UC object (catalog, schema, table) has an <b>owner</b> — by default, whoever created it — who can grant/revoke privileges on it regardless of broader admin roles. Privileges also <b>inherit downward</b>: granting USE CATALOG + USE SCHEMA + SELECT at the catalog level cascades to every schema and table beneath it, so you rarely need to grant permissions table-by-table for broad access patterns.</p>
+    </section>
+
+    <div class="cat-label">Identity: Users, Groups, SPNs</div>
+
+    <section class="item" id="users-groups">
+      <h2>Users & Groups</h2>
+      <p class="explain">A <b>user</b> is an individual human identity — in most enterprise setups, synced in from Microsoft Entra ID rather than created manually inside Databricks. A <b>group</b> is a named collection of users (and service principals) that permissions get granted to collectively — the standard practice is "grant to the group, not the individual," so access changes when someone joins/leaves a group instead of requiring a manual permission edit per person.</p>
+    </section>
+
+    <section class="item" id="service-principals">
+      <h2>Service Principals</h2>
+      <p class="explain">A Service Principal (SPN) is a non-human identity for automated processes — an ADF pipeline calling a Databricks job, or a CI/CD deployment script. It's registered in Microsoft Entra ID first, then added to the Databricks account and granted permissions exactly like a user would be. This is what lets an ADF pipeline authenticate to run a Databricks notebook without any human's credentials being involved.</p>
+      <div class="interview-tip"><b>Interview angle:</b> This connects directly back to the Azure identity guide — prefer a Managed Identity over a Service Principal with a stored secret whenever the calling service supports it, for the same "nothing to leak or rotate" reason.</div>
+    </section>
+
+    <section class="item" id="scim">
+      <h2>SCIM Provisioning</h2>
+      <p class="explain">SCIM (System for Cross-domain Identity Management) is the standard protocol Databricks uses to automatically sync users and groups from an identity provider like Microsoft Entra ID into the Databricks account console — so when someone joins a team's Entra ID group, they automatically appear (and get the corresponding access) in Databricks too, without anyone manually adding them in two places.</p>
+    </section>
+
+    <div class="cat-label">Governance Queries</div>
+
+    <section class="item" id="grant-revoke">
+      <h2>GRANT / REVOKE / SHOW GRANTS</h2>
+      <p class="explain">The actual SQL commands you'll use to manage Unity Catalog access day to day. Grants target an object (catalog, schema, table, or even a specific column via row/column-level security) and a principal (a user, group, or service principal).</p>
+      <div class="codeblock"><pre>GRANT USE CATALOG ON CATALOG main TO `data-analysts`;
+GRANT SELECT ON TABLE main.sales.orders TO `data-analysts`;
+REVOKE SELECT ON TABLE main.sales.orders FROM `contractor-group`;
+
+-- See what's currently granted
+SHOW GRANTS ON TABLE main.sales.orders;
+SHOW GRANTS TO `data-analysts`;</pre></div>
+    </section>
+
+    <section class="item" id="system-tables">
+      <h2>System Tables (Audit & Lineage)</h2>
+      <p class="explain">Unity Catalog exposes its own operational data as queryable tables under the <code>system</code> catalog — genuinely just SQL you can run. <code>system.access.audit</code> logs who did what and when (every query, every grant change). <code>system.information_schema.*</code> exposes metadata about every catalog, schema, table, and column you have access to — the standard way to answer "which tables reference this column" or "who can see this table" programmatically instead of clicking through the UI.</p>
+      <div class="codeblock"><pre>-- Recent access to a sensitive table
+SELECT * FROM system.access.audit
+WHERE request_params.table_full_name = 'main.sales.orders'
+ORDER BY event_time DESC;
+
+-- Every table in a catalog, with owner
+SELECT table_catalog, table_schema, table_name, table_owner
+FROM system.information_schema.tables
+WHERE table_catalog = 'main';</pre></div>
+      <div class="interview-tip"><b>Interview angle:</b> "How would you audit who accessed a sensitive table last month?" — system.access.audit, filtered by table name and event_time. Knowing this table exists (rather than assuming you'd need external logging) is the actual signal interviewers are checking for.</div>
+    </section>
+
+    <section class="item" id="dataframe-equivalents">
+      <h2>Is There a DataFrame Way to Do This?</h2>
+      <p class="explain">Mostly no, deliberately. Unity Catalog governance (GRANT/REVOKE, catalog/schema management, user/group administration) is a control-plane concern, not a data-processing one — so it's managed via <b>SQL</b> (as above), the <b>Databricks UI</b>, the <b>REST API</b>, or <b>Terraform</b> (for infrastructure-as-code setups), not through PySpark DataFrame transformations. The one place PySpark does interact with this layer is simply reading data governed by it — once a user's permissions are granted, <code>spark.table("main.sales.orders")</code> or a <code>%sql SELECT ...</code> cell in a notebook just works or fails based on those same UC grants, with no separate DataFrame-level permission API to learn.</p>
+      <div class="interview-tip"><b>Interview angle:</b> If asked "how do you grant DataFrame access to a table," the correct redirect is that DataFrame code doesn't have its own permission model — access is enforced at the table level by Unity Catalog regardless of whether you touch it via SQL or the DataFrame API.</div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
