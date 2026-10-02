@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ludo - Free Offline Board Game</title>
+<title>Ludo - Free Online Board Game</title>
 <meta name="description" content="Play Ludo free against the computer or with friends on one device. Fast, light and works offline.">
 <style>
 :root{--bg:#1d2a2c;--panel:#2a3a3d;--ink:#f4efe3;--hi:#ffe14a}
@@ -38,7 +38,8 @@ button:focus-visible,.die:focus-visible{outline:3px solid var(--hi);outline-offs
 .btn:disabled{opacity:.5}
 .ghost{background:transparent;text-decoration:underline;padding:6px;opacity:.8}
 body{background:radial-gradient(ellipse at 50% 25%,#3d2b1e,#150e09 78%)}
-.card{max-height:96dvh;overflow:auto}
+.card{max-height:96dvh;overflow:auto;border:1px solid #ffffff22;box-shadow:0 24px 60px #000b}
+.card h1{font-size:2.8rem;letter-spacing:1px;background:linear-gradient(#fff0a8,#f0a400);-webkit-background-clip:text;background-clip:text;color:transparent}
 .av{width:38px;height:38px;border-radius:50%;border:3px solid var(--c,#fff);background:var(--c,#555) center/cover;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex:none;box-shadow:0 2px 6px #0007}
 .row{padding:8px 10px}
 .row .av{width:46px;height:46px;cursor:pointer}
@@ -69,7 +70,7 @@ body{background:radial-gradient(ellipse at 50% 25%,#3d2b1e,#150e09 78%)}
 </div>
 
 <div class="ov" id="setup"><div class="card">
-  <h1>Ludo</h1><p class="sub">Free, plays offline, no sign-up</p>
+  <h1>Ludo</h1><p class="sub">Free to play. No sign-up. Your photo on your pawns.</p>
   <div id="rows" style="display:flex;flex-direction:column;gap:8px"></div>
   <p class="sub">Tap a circle to add your photo. Photos stay on your device.</p>
   <div class="seg" id="lv"><button data-l="easy">Easy</button><button data-l="hard">Hard</button></div>
@@ -160,7 +161,7 @@ function boardTex(){
     for(let i=0;i<4;i++){const[p,q]=xy(c,i,-1),X=p*U,Y=q*U,g=x.createRadialGradient(X-8,Y-8,4,X,Y,.55*U);
       g.addColorStop(0,COL[c]);g.addColorStop(1,DK[c]);x.beginPath();x.arc(X,Y,.55*U,0,7);x.fillStyle=g;x.fill();x.lineWidth=5;x.strokeStyle='#fffa';x.stroke()}
   });
-  const cell=(a,b,f)=>{rr(a*U+2,b*U+2,U-4,U-4,6);x.fillStyle=f;x.fill();x.lineWidth=2.5;x.strokeStyle='#7a5a2c';x.stroke()};
+  const cell=(a,b,f)=>{x.save();x.shadowColor='#0007';x.shadowBlur=6;x.shadowOffsetY=3;rr(a*U+3,b*U+3,U-6,U-6,8);x.fillStyle=f;x.fill();x.restore();x.lineWidth=2;x.strokeStyle='#6a4a22';x.stroke();x.strokeStyle='#fffa';x.beginPath();x.moveTo(a*U+9,b*U+6);x.lineTo((a+1)*U-9,b*U+6);x.stroke()};
   x.textAlign='center';x.textBaseline='middle';
   PATH.forEach(([a,b],i)=>{const sc=START.indexOf(i);cell(a,b,sc>=0?lin(a*U,b*U,(a+1)*U,(b+1)*U,LT[sc],DK[sc]):'#fbf2da');
     if(SAFE.has(i)){x.font=(U*.7|0)+'px sans-serif';x.fillStyle=sc>=0?'#fff':'#c4a15a';x.fillText('\u2605',(a+.5)*U,(b+.55)*U)}});
@@ -213,21 +214,22 @@ function build(){
   [[0,-8.05,17.2,1.1],[0,8.05,17.2,1.1],[-8.05,0,1.1,15],[8.05,0,1.1,15]].forEach(([x,z,w,d])=>box(w,.32,d,x,.16,z,fm));
   const brass=new THREE.MeshStandardMaterial({color:0xd6ad4a,metalness:.9,roughness:.28});
   [[0,-7.53,15.1,.07],[0,7.53,15.1,.07],[-7.53,0,.07,15.1],[7.53,0,.07,15.1]].forEach(([x,z,w,d])=>box(w,.34,d,x,.17,z,brass));
-  const bm=new THREE.Mesh(new THREE.PlaneGeometry(15,15),new THREE.MeshStandardMaterial({map:tex(boardTex()),roughness:.4}));
+  const bm=new THREE.Mesh(new THREE.PlaneGeometry(15,15),(()=>{const bt=tex(boardTex());return new THREE.MeshStandardMaterial({map:bt,bumpMap:bt,bumpScale:1.4,roughness:.4})})());
   bm.rotation.x=-Math.PI/2;bm.position.y=.01;bm.receiveShadow=true;SC.add(bm);
   // pawns with avatar badges
   const prof=[[0,0],[.44,0],[.46,.07],[.4,.15],[.27,.32],[.19,.55],[.21,.7],[.31,.8],[.31,.92],[.21,1.02],[0,1.06]].map(p=>new THREE.Vector2(p[0],p[1]));
-  const pg=new THREE.LatheGeometry(prof,36),rg=new THREE.RingGeometry(.5,.68,40);
+  const pg=new THREE.LatheGeometry(prof,36),rg=new THREE.RingGeometry(.5,.68,40),tg=new THREE.TorusGeometry(.27,.045,10,28);
   for(let c=0;c<4;c++){
     const pm=new THREE.MeshPhysicalMaterial({color:COL[c],roughness:.28,metalness:.05,clearcoat:1,clearcoatRoughness:.1});
     const k=document.createElement('canvas');k.width=k.height=160;BC[c]=k;BT[c]=tex(k);
     const sm=new THREE.SpriteMaterial({map:BT[c],transparent:true});
     for(let i=0;i<4;i++){
       const g=new THREE.Group(),body=new THREE.Mesh(pg,pm);body.castShadow=true;body.userData.k=c*4+i;
-      const sp=new THREE.Sprite(sm);sp.scale.set(.9,.9,1);sp.position.y=1.55;sp.userData.k=c*4+i;sp.renderOrder=5;
+      const sp=new THREE.Sprite(sm);sp.scale.set(.8,.8,1);sp.position.y=1.4;sp.userData.k=c*4+i;sp.renderOrder=5;
       const ring=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xffe14a,transparent:true,opacity:.95,side:THREE.DoubleSide}));
       ring.rotation.x=-Math.PI/2;ring.position.y=.05;ring.visible=false;
-      g.add(body,sp,ring);g.ring=ring;g.classList={add:()=>g.can=true,remove:()=>g.can=false};
+      const col=new THREE.Mesh(tg,brass);col.rotation.x=Math.PI/2;col.position.y=.42;col.castShadow=true;
+      g.add(body,sp,ring,col);g.ring=ring;g.classList={add:()=>g.can=true,remove:()=>g.can=false};
       const[p,q]=xy(c,i,-1);g.position.set(p-7.5,0,q-7.5);g.tx=p-7.5;g.tz=q-7.5;g.ts=1;SC.add(g);TK.push(g);PT.push(body,sp);
     }
   }
@@ -248,8 +250,8 @@ function build(){
     for(const hit of ray.intersectObjects(PT)){const k=hit.object.userData.k,c=k>>2;
       if(c==turn&&mvList.some(j=>tok[c][j]==tok[c][k&3])){pick(k&3,c);break}}
   });
-  const fit=()=>{const w=$('#bw').clientWidth,hh=$('#bw').clientHeight;if(!w||!hh)return;R3.setSize(w,hh,false);const asp=w/hh,d=Math.max(23,30/asp);
-    CAM.aspect=asp;CAM.position.set(0,d*.8,d*.62);CAM.lookAt(0,0,0);CAM.updateProjectionMatrix()};
+  const fit=()=>{const w=$('#bw').clientWidth,hh=$('#bw').clientHeight;if(!w||!hh)return;R3.setSize(w,hh,false);const asp=w/hh,d=Math.max(21,29/asp);
+    CAM.aspect=asp;CAM.position.set(0,d*.87,d*.5);CAM.lookAt(0,0,0);CAM.updateProjectionMatrix()};
   new ResizeObserver(fit).observe($('#bw'));fit();
   const loop=now=>{
     requestAnimationFrame(loop);
