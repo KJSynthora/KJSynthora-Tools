@@ -1,0 +1,147 @@
+// Edit this list to manage your shop. Set image to e.g. "images/frame1.jpg" once you have photos.
+const PRODUCTS=[
+ {
+  "id": "KNR-001",
+  "name": "Round Retro",
+  "shape": "round",
+  "material": "Acetate",
+  "color": "Tortoise",
+  "hex": "#8a5a2b",
+  "price": 1599,
+  "mrp": 2199,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-002",
+  "name": "Boston Classic",
+  "shape": "round",
+  "material": "Acetate",
+  "color": "Matte Black",
+  "hex": "#1b1b1b",
+  "price": 1499,
+  "mrp": 1999,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-003",
+  "name": "Slim Rectangle",
+  "shape": "rect",
+  "material": "Metal",
+  "color": "Gunmetal",
+  "hex": "#5b6770",
+  "price": 1799,
+  "mrp": 2499,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-004",
+  "name": "Everyday Square",
+  "shape": "square",
+  "material": "TR90",
+  "color": "Navy",
+  "hex": "#1f3a6b",
+  "price": 1299,
+  "mrp": 1799,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-005",
+  "name": "Hex Studio",
+  "shape": "hex",
+  "material": "Acetate",
+  "color": "Olive Green",
+  "hex": "#5e6b3a",
+  "price": 1899,
+  "mrp": 2599,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-006",
+  "name": "Cat-Eye Muse",
+  "shape": "cat",
+  "material": "Acetate",
+  "color": "Wine",
+  "hex": "#7a2038",
+  "price": 1999,
+  "mrp": 2799,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-007",
+  "name": "Pilot Aviator",
+  "shape": "aviator",
+  "material": "Metal",
+  "color": "Gold",
+  "hex": "#b8892d",
+  "price": 2299,
+  "mrp": 2999,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-008",
+  "name": "Browline Heritage",
+  "shape": "brow",
+  "material": "Acetate + Metal",
+  "color": "Black / Gold",
+  "hex": "#222222",
+  "price": 2199,
+  "mrp": 2899,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-009",
+  "name": "Air Rimless",
+  "shape": "rimless",
+  "material": "Titanium",
+  "color": "Silver",
+  "hex": "#9aa5ab",
+  "price": 2999,
+  "mrp": 3999,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-010",
+  "name": "Kids Flex",
+  "shape": "round",
+  "material": "TR90",
+  "color": "Sky Blue",
+  "hex": "#3b86c7",
+  "price": 999,
+  "mrp": 1399,
+  "kids": true,
+  "image": ""
+ },
+ {
+  "id": "KNR-011",
+  "name": "Light Titanium",
+  "shape": "rect",
+  "material": "Titanium",
+  "color": "Rose Gold",
+  "hex": "#c58a78",
+  "price": 3499,
+  "mrp": 4499,
+  "kids": false,
+  "image": ""
+ },
+ {
+  "id": "KNR-012",
+  "name": "Soft Square",
+  "shape": "square",
+  "material": "Acetate",
+  "color": "Crystal Grey",
+  "hex": "#7d8d94",
+  "price": 1599,
+  "mrp": 2199,
+  "kids": false,
+  "image": ""
+ }
+];
