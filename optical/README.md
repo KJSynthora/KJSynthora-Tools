@@ -1,32 +1,30 @@
-# KNR Optical Premium Website — V3
+# KNR Optical Premium Website — V4
+
+## What changed in V4
+- Rebuilt the homepage around the complete KNR Optical brief and supplied visual references.
+- Added a campaign slider, expanded category grid, frame-shape guide, size-guide teaser, featured catalogue, brand strip, material stories, lens solutions, six optical service entry points, wholesale/warehouse banners, customer-help links and store CTA.
+- Replaced the previous square-tile logo with a transparent navy-and-champagne KNR Optical wordmark and updated favicon.
+- Fixed the footer logo treatment so it is no longer inverted into a white square.
+- Kept existing shop, product, brand, cart, wishlist, checkout-enquiry, appointment, wholesale, warehouse and policy pages.
+- Uses locally bundled images to avoid remote-image dependencies.
 
 ## Deployment
 1. Download and extract this ZIP.
 2. Open the extracted `optical` folder.
 3. Upload the contents of that folder into `KJSynthora-Tools/optical/` in GitHub, replacing the existing website files.
-4. Commit the changes and wait for the Vercel deployment to finish.
-5. Test the homepage, catalogue filters, product pages, wishlist, cart, appointment form, wholesale form and mobile menu.
+4. Commit changes and wait for Vercel deployment.
+5. Test on desktop and mobile after deployment.
 
-## Important business configuration
-Business contact and address are in `js/config.js`. Confirm all details before launch.
+## Important business and catalogue notes
+- The 48 frame images are illustrative, unbranded catalogue concepts, not verified KNR stock. Prices remain enquiry-based.
+- Brand wordmarks are typographic placeholders, not official brand assets. Listing a brand does not confirm stockist or authorised-dealer status.
+- Add actual inventory only after verifying model, authenticity, materials, colour, measurements, size options, stock and pricing.
+- Eye-test and home-visit forms submit enquiries only. Confirm service coverage, professional availability, appointments and terms before advertising confirmed service delivery.
+- The website's checkout is an enquiry flow. Online payment is not automatically active; it requires a merchant account and secure gateway configuration. Never put secret payment keys in browser JavaScript.
+- Returns, exchanges, warranty, shipping, home trial and virtual try-on must only be advertised after KNR confirms the actual policies and technical availability.
 
-## Catalogue integrity
-The existing 48 frame images are illustrative, unbranded concepts, not photographs of confirmed store stock. The product data labels these as illustrative and uses enquiry-only pricing. Add actual store products only after confirming model, brand authenticity, material, colour, measurements, available sizes, stock and price. The site does not claim authorised-dealer status for listed brands.
-
-## Online payments
-The checkout supports order enquiries and a customer-entered secure Razorpay hosted payment link. This avoids collecting card data on the website. To accept payments, KNR Optical must first complete Razorpay merchant onboarding/KYC and create a payment link for the confirmed quote using the Razorpay Dashboard. Send that link to the customer; they can paste it into the secure payment section on checkout. The site does not yet have a merchant account or API credentials, so payment acceptance is not active automatically. Do not publish payment instructions until merchant onboarding and a live test transaction are complete.
-
-## Optical services
-Eye-test and home-visit features are enquiry forms only. Confirm professional availability, home-visit coverage, appointment slots and service terms before advertising confirmed service delivery. Contact lens suitability requires a valid prescription and qualified professional fitting.
-
-## Design and assets
-The website uses locally stored image assets to avoid broken external image links. Some campaign/lifestyle images are illustrative generated visuals. Do not represent them as actual KNR Optical customers, staff, store interiors or specific product models. Brand wordmarks are typographic placeholders/illustrative treatments, not official brand logos.
-
-## QA checklist
-- Check all images and local links on Vercel after deployment.
-- Verify phone, WhatsApp and Google Maps links.
-- Test cart quantity, size/colour selection and wishlist in desktop/mobile browsers.
-- Verify all forms open WhatsApp with the correct details.
-- Check that product sizes and measurements are populated only with verified item data.
-- Test the Razorpay payment-link flow with a small test payment after merchant activation.
-- Add verified inventory, policies, privacy notice and business details before public promotion.
+## QA performed
+- ZIP integrity check.
+- Local image and stylesheet references checked.
+- JavaScript syntax checked.
+- Test all navigation, catalogue, forms, cart, wishlist and mobile interactions on the deployed site before launch.
