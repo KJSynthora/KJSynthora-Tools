@@ -1,57 +1,40 @@
-# KNR Optical Premium Website Starter
+# KNR Optical Premium Website — refreshed build
 
-This package is a static HTML/CSS/JavaScript website designed for GitHub Pages or Vercel.
+## Upload
+Upload the **contents of this `optical` folder** into your existing GitHub repository folder:
+`KJSynthora-Tools/optical/`
+Keep the folder structure intact. Commit and wait for Vercel deployment.
 
-## Upload to GitHub
-1. Download and unzip this package.
-2. Open your GitHub repository: `KJSynthora/KJSynthora-Tools`.
-3. Open the `optical` folder.
-4. Replace the existing optical files with the contents of this package (keep the package contents directly inside `optical`, not inside an extra nested folder).
-5. Commit the changes.
-6. Open the Vercel deployment and wait for the new build.
+## What's refreshed
+- New KNR Optical vector logo and favicon.
+- New hero headline, premium layout and business pillars.
+- 48 individual unbranded frame/sunglasses concept images generated from the user's supplied image library.
+- Men, women, kids and sunglasses categories.
+- Contact lens enquiry page/product, with professional fitting caution.
+- Brand directory and individual brand profiles.
+- Retail, optical services, wholesale and warehouse enquiry pathways.
+- Quantity +/− controls and enquiry-cart checkout via WhatsApp.
+- Local image assets: no external image-host dependency for hero or catalogue items.
 
-Your current URL should remain:
-`https://kj-synthora-tools.vercel.app/optical/index.html`
+## Important image / brand accuracy
+The 48 frame images are unbranded AI-generated catalogue concepts. They are NOT actual Ray-Ban, Oakley, Gucci, Prada, or other brand products. Do not associate them with named brands. Replace with actual photographs of stock before taking orders.
+Brand wordmarks are plain text treatments, not official logos. Obtain permission or licensed media for official logos and branded product photography.
+Contact lenses are enquiry-only and require exact product confirmation, prescription and appropriate professional fitting.
 
-## Important before publishing
-- All catalogue products, prices, SKUs and product illustrations are DEMO placeholders. Replace them with actual store inventory and real product photos.
-- Brand directory entries are suggestions only. Confirm actual stocked brands and any authorised-dealer status before publishing.
-- The hero image is a generated campaign visual, not a real customer or store photo.
-- The checkout currently creates an order enquiry and opens WhatsApp. It does NOT process card/UPI payments. To enable actual online payment, integrate a payment provider such as Razorpay or another provider using merchant credentials and a secure server-side verification flow. Never put secret keys in frontend JavaScript.
-- Appointment and wholesale forms open WhatsApp with the submitted information. They do not save submissions to a database.
-- Policy pages are placeholders and need business/legal review.
-- Confirm the displayed address, phone number, business hours and map pin before launch.
+## Business details configured
+- Phone / WhatsApp: 098663 04224
+- Address: 1st Shop, Eluru Road (Main Road, Corner), Chintha St, Opp. Happy Mobile's, Near Ramamandiram, Arundalpet, Governor Peta, Vijayawada, Andhra Pradesh 520002
+- Hours: Daily 10:00 AM–10:00 PM
+- Google Maps: https://maps.app.goo.gl/B7vkAwMn4MMviDc87
 
-## Business configuration
-Edit `js/config.js`:
-- WhatsApp number is stored in international format: 919866304224.
-- Maps share link: https://maps.app.goo.gl/B7vkAwMn4MMviDc87
-- Map coordinates: 16.5141455, 80.6301947.
+## Test
+1. Open `/optical/index.html` and confirm the KNR logo and hero image load.
+2. Open `/optical/shop.html?category=Men` and check product photos.
+3. Check Women, Kids, Sunglasses and Contact Lenses filters.
+4. Open a product and check specifications and WhatsApp enquiry.
+5. Add two products to cart; verify − / + and remove controls.
+6. Submit checkout and confirm WhatsApp opens with items and customer details.
+7. Test `/optical/brands.html`, `/optical/warehouse.html`, `/optical/contact.html` on desktop and mobile.
 
-## Add real products
-Edit `data/products.json`. Keep each product's `id` unique. Use image paths relative to the optical folder, e.g. `images/products/my-frame.webp`.
-Product fields: id, name, brand, category, type, shape, material, color, price, sku, size, stock, image, description.
-
-## Brand image and profile notes
-- Each brand has its own illustrative SVG image and a typographic wordmark treatment. These are NOT official trademark logos or product photographs.
-- Replace with brand-approved assets or original photos of genuine stock if you have permission to use them.
-- Brand profiles use general positioning language; model specifications always vary by product.
-
-## Add brands
-Edit `data/brands.json`. Only include brands KNR Optical actually stocks or is prepared to source; do not imply authorised dealer status without evidence.
-
-## Retail, warehouse and contact lens sections
-- Homepage communicates retail, optical services and wholesale/warehouse enquiries.
-- Contact lens category is available as an enquiry-only demo category; do not publish clinical claims or sell lenses without correct professional and regulatory processes.
-- Warehouse page describes trade enquiries only. Add a warehouse address or operational claims only after confirming details.
-
-## Test checklist
-- Homepage loads and hero image displays.
-- Mobile navigation opens.
-- Shop search, filters and sort work.
-- Product details open from product cards.
-- Add to cart, quantity change, remove and cart count work.
-- Checkout opens WhatsApp with order summary.
-- Appointment and wholesale forms open WhatsApp.
-- Contact map, phone and directions links work.
-- Replace demo inventory and policy placeholders before public launch.
+## Before going live
+Replace demo concepts with real inventory, verify product prices, brand availability, warranties, eye-testing claims, return terms, shipping and payment setup. Do not claim authorised dealer status unless documented.
