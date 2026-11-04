@@ -32,8 +32,18 @@ Edit `js/config.js`:
 Edit `data/products.json`. Keep each product's `id` unique. Use image paths relative to the optical folder, e.g. `images/products/my-frame.webp`.
 Product fields: id, name, brand, category, type, shape, material, color, price, sku, size, stock, image, description.
 
+## Brand image and profile notes
+- Each brand has its own illustrative SVG image and a typographic wordmark treatment. These are NOT official trademark logos or product photographs.
+- Replace with brand-approved assets or original photos of genuine stock if you have permission to use them.
+- Brand profiles use general positioning language; model specifications always vary by product.
+
 ## Add brands
 Edit `data/brands.json`. Only include brands KNR Optical actually stocks or is prepared to source; do not imply authorised dealer status without evidence.
+
+## Retail, warehouse and contact lens sections
+- Homepage communicates retail, optical services and wholesale/warehouse enquiries.
+- Contact lens category is available as an enquiry-only demo category; do not publish clinical claims or sell lenses without correct professional and regulatory processes.
+- Warehouse page describes trade enquiries only. Add a warehouse address or operational claims only after confirming details.
 
 ## Test checklist
 - Homepage loads and hero image displays.
