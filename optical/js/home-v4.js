@@ -1,1 +1,34 @@
-(()=>{const slides=[{image:'images/campaign/hero-v5.jpg',title:'Eyewear for every version of you.',heading:'See clearly.<br><em>Look brilliant.</em>',sub:'Premium eyewear, contact lenses and complete optical care for you, your family and your business.'},{image:'images/models/man-editorial.jpg',title:'A frame that feels like you.',heading:'Find your<br><em>everyday frame.</em>',sub:'Explore shapes, sizes and frame styles for work, weekends and every day.'},{image:'images/models/woman-portrait.jpg',title:'Make every look your own.',heading:'Style meets<br><em>your vision.</em>',sub:'Discover expressive frames, lens options and personal optical guidance.'}];let active=0,timer=null;const img=document.getElementById('campaignImage'),title=document.getElementById('campaignTitle'),heading=document.getElementById('campaignHeading'),sub=document.getElementById('campaignSub'),dots=[...document.querySelectorAll('[data-slide]')],hero=document.querySelector('.v5-hero');if(!img)return;slides.forEach(s=>{const pre=new Image();pre.src=s.image});function show(i){active=(i+slides.length)%slides.length;const s=slides[active];img.classList.add('is-changing');window.setTimeout(()=>{img.src=s.image;img.alt=s.title;title.textContent=s.title;heading.innerHTML=s.heading;sub.textContent=s.sub;img.classList.remove('is-changing')},180);dots.forEach((d,n)=>{d.classList.toggle('active',n===active);d.setAttribute('aria-current',n===active?'true':'false')})}function stop(){if(timer)clearInterval(timer);timer=null}function start(){stop();if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>show(active+1),6500)}dots.forEach(d=>d.addEventListener('click',()=>{show(Number(d.dataset.slide));start()}));document.getElementById('campaignPrev')?.addEventListener('click',()=>{show(active-1);start()});document.getElementById('campaignNext')?.addEventListener('click',()=>{show(active+1);start()});hero?.addEventListener('mouseenter',stop);hero?.addEventListener('mouseleave',start);hero?.addEventListener('focusin',stop);hero?.addEventListener('focusout',start);start()})();
+(()=>{
+const slides=[
+ {image:'images/campaign/hero-v5.jpg',title:'Eyewear for every version of you.',heading:'See clearly.<br><em>Look brilliant.</em>',sub:'Premium eyewear, contact lenses and complete optical care for you, your family and your business.'},
+ {image:'images/models/man-editorial.jpg',title:'A frame that feels like you.',heading:'Find your<br><em>everyday frame.</em>',sub:'Explore frame shapes, fit options and styles for work, weekends and every day.'},
+ {image:'images/models/woman-portrait.jpg',title:'Make every look your own.',heading:'Style meets<br><em>your vision.</em>',sub:'Discover expressive frames, lens options and personal optical guidance.'},
+ {image:'images/categories/kids.jpg',title:'Little frames. Big personalities.',heading:'Made for their<br><em>bright world.</em>',sub:'Explore children’s eyewear styles and ask our team about comfortable fit options.'},
+ {image:'images/services/warehouse-v5.jpg',title:'For optical retailers and partners.',heading:'Supply that<br><em>sees further.</em>',sub:'Talk to KNR Optical about wholesale and bulk eyewear enquiries in Vijayawada.'}
+];
+let active=0,timer=null;
+const img=document.getElementById('campaignImage'),title=document.getElementById('campaignTitle'),
+heading=document.getElementById('campaignHeading'),sub=document.getElementById('campaignSub'),
+dots=[...document.querySelectorAll('[data-slide]')],hero=document.querySelector('.v5-hero');
+if(!img||!title||!heading||!sub)return;
+slides.forEach(s=>{const pre=new Image();pre.src=s.image});
+function show(i){
+ active=(i+slides.length)%slides.length;
+ const s=slides[active];
+ img.classList.add('is-changing');
+ window.setTimeout(()=>{
+  img.src=s.image;img.alt=s.title;title.textContent=s.title;
+  heading.innerHTML=s.heading;sub.textContent=s.sub;img.classList.remove('is-changing');
+ },160);
+ dots.forEach((d,n)=>{d.classList.toggle('active',n===active);d.setAttribute('aria-current',n===active?'true':'false')});
+}
+function stop(){if(timer)clearInterval(timer);timer=null}
+function start(){stop();if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>show(active+1),6500)}
+dots.forEach(d=>d.addEventListener('click',()=>{show(Number(d.dataset.slide));start()}));
+document.getElementById('campaignPrev')?.addEventListener('click',()=>{show(active-1);start()});
+document.getElementById('campaignNext')?.addEventListener('click',()=>{show(active+1);start()});
+hero?.addEventListener('mouseenter',stop);hero?.addEventListener('mouseleave',start);
+hero?.addEventListener('focusin',stop);hero?.addEventListener('focusout',start);
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+start();
+})();
