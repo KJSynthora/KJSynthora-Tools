@@ -1,30 +1,22 @@
-# KNR Optical Premium Website — V4
+# KNR Optical Premium V5
 
-## What changed in V4
-- Rebuilt the homepage around the complete KNR Optical brief and supplied visual references.
-- Added a campaign slider, expanded category grid, frame-shape guide, size-guide teaser, featured catalogue, brand strip, material stories, lens solutions, six optical service entry points, wholesale/warehouse banners, customer-help links and store CTA.
-- Replaced the previous square-tile logo with a transparent navy-and-champagne KNR Optical wordmark and updated favicon.
-- Fixed the footer logo treatment so it is no longer inverted into a white square.
-- Kept existing shop, product, brand, cart, wishlist, checkout-enquiry, appointment, wholesale, warehouse and policy pages.
-- Uses locally bundled images to avoid remote-image dependencies.
+This package is a full replacement for the contents of the existing GitHub `optical/` folder. Upload the contents of this package's `optical/` directory to `KJSynthora-Tools/optical/` and allow Vercel to redeploy.
 
-## Deployment
-1. Download and extract this ZIP.
-2. Open the extracted `optical` folder.
-3. Upload the contents of that folder into `KJSynthora-Tools/optical/` in GitHub, replacing the existing website files.
-4. Commit changes and wait for Vercel deployment.
-5. Test on desktop and mobile after deployment.
+## V5 corrections
+- Full-width editorial campaign hero with three slides, previous/next controls, dots, autoplay and pause on hover/focus.
+- New locally stored campaign, contact lens and wholesale warehouse images.
+- Re-cropped all catalogue frame images to remove large empty margins and make products visible.
+- Category imagery now uses relevant category-specific images rather than reusing generic model portraits.
+- Product gallery no longer mixes a different model portrait into the exact product gallery.
+- Product pages have five face-width guide bands, a frame-measurement diagram and explicit store verification for unavailable model measurements.
+- Added a dedicated frame size guide.
+- Refreshed KNR Optical vector logo and favicon uses the same brand mark.
 
-## Important business and catalogue notes
-- The 48 frame images are illustrative, unbranded catalogue concepts, not verified KNR stock. Prices remain enquiry-based.
-- Brand wordmarks are typographic placeholders, not official brand assets. Listing a brand does not confirm stockist or authorised-dealer status.
-- Add actual inventory only after verifying model, authenticity, materials, colour, measurements, size options, stock and pricing.
-- Eye-test and home-visit forms submit enquiries only. Confirm service coverage, professional availability, appointments and terms before advertising confirmed service delivery.
-- The website's checkout is an enquiry flow. Online payment is not automatically active; it requires a merchant account and secure gateway configuration. Never put secret payment keys in browser JavaScript.
-- Returns, exchanges, warranty, shipping, home trial and virtual try-on must only be advertised after KNR confirms the actual policies and technical availability.
+## Catalogue data and limitations
+The current frame catalogue contains illustrative, unbranded concepts. It is not confirmed store inventory. Exact product dimensions, brand authenticity, materials, stock and prices must be supplied or verified by KNR Optical. The frame fit bands are general reference guidance, not a guarantee of fit.
 
-## QA performed
-- ZIP integrity check.
-- Local image and stylesheet references checked.
-- JavaScript syntax checked.
-- Test all navigation, catalogue, forms, cart, wishlist and mobile interactions on the deployed site before launch.
+## Still requires real integrations / business data
+- Confirmed stock photos, SKU, exact lens/bridge/temple measurements, colours and material for every real product.
+- Real payment gateway account and secure server-side integration before online payments are enabled.
+- AR/virtual try-on provider before advertising a live virtual try-on feature.
+- Operational confirmation before advertising home frame trial, home eye-test coverage, delivery promises, warranty or return periods.
