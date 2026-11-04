@@ -1,40 +1,32 @@
-# KNR Optical Premium Website — refreshed build
+# KNR Optical Premium Website — V3
 
-## Upload
-Upload the **contents of this `optical` folder** into your existing GitHub repository folder:
-`KJSynthora-Tools/optical/`
-Keep the folder structure intact. Commit and wait for Vercel deployment.
+## Deployment
+1. Download and extract this ZIP.
+2. Open the extracted `optical` folder.
+3. Upload the contents of that folder into `KJSynthora-Tools/optical/` in GitHub, replacing the existing website files.
+4. Commit the changes and wait for the Vercel deployment to finish.
+5. Test the homepage, catalogue filters, product pages, wishlist, cart, appointment form, wholesale form and mobile menu.
 
-## What's refreshed
-- New KNR Optical vector logo and favicon.
-- New hero headline, premium layout and business pillars.
-- 48 individual unbranded frame/sunglasses concept images generated from the user's supplied image library.
-- Men, women, kids and sunglasses categories.
-- Contact lens enquiry page/product, with professional fitting caution.
-- Brand directory and individual brand profiles.
-- Retail, optical services, wholesale and warehouse enquiry pathways.
-- Quantity +/− controls and enquiry-cart checkout via WhatsApp.
-- Local image assets: no external image-host dependency for hero or catalogue items.
+## Important business configuration
+Business contact and address are in `js/config.js`. Confirm all details before launch.
 
-## Important image / brand accuracy
-The 48 frame images are unbranded AI-generated catalogue concepts. They are NOT actual Ray-Ban, Oakley, Gucci, Prada, or other brand products. Do not associate them with named brands. Replace with actual photographs of stock before taking orders.
-Brand wordmarks are plain text treatments, not official logos. Obtain permission or licensed media for official logos and branded product photography.
-Contact lenses are enquiry-only and require exact product confirmation, prescription and appropriate professional fitting.
+## Catalogue integrity
+The existing 48 frame images are illustrative, unbranded concepts, not photographs of confirmed store stock. The product data labels these as illustrative and uses enquiry-only pricing. Add actual store products only after confirming model, brand authenticity, material, colour, measurements, available sizes, stock and price. The site does not claim authorised-dealer status for listed brands.
 
-## Business details configured
-- Phone / WhatsApp: 098663 04224
-- Address: 1st Shop, Eluru Road (Main Road, Corner), Chintha St, Opp. Happy Mobile's, Near Ramamandiram, Arundalpet, Governor Peta, Vijayawada, Andhra Pradesh 520002
-- Hours: Daily 10:00 AM–10:00 PM
-- Google Maps: https://maps.app.goo.gl/B7vkAwMn4MMviDc87
+## Online payments
+The checkout supports order enquiries and a customer-entered secure Razorpay hosted payment link. This avoids collecting card data on the website. To accept payments, KNR Optical must first complete Razorpay merchant onboarding/KYC and create a payment link for the confirmed quote using the Razorpay Dashboard. Send that link to the customer; they can paste it into the secure payment section on checkout. The site does not yet have a merchant account or API credentials, so payment acceptance is not active automatically. Do not publish payment instructions until merchant onboarding and a live test transaction are complete.
 
-## Test
-1. Open `/optical/index.html` and confirm the KNR logo and hero image load.
-2. Open `/optical/shop.html?category=Men` and check product photos.
-3. Check Women, Kids, Sunglasses and Contact Lenses filters.
-4. Open a product and check specifications and WhatsApp enquiry.
-5. Add two products to cart; verify − / + and remove controls.
-6. Submit checkout and confirm WhatsApp opens with items and customer details.
-7. Test `/optical/brands.html`, `/optical/warehouse.html`, `/optical/contact.html` on desktop and mobile.
+## Optical services
+Eye-test and home-visit features are enquiry forms only. Confirm professional availability, home-visit coverage, appointment slots and service terms before advertising confirmed service delivery. Contact lens suitability requires a valid prescription and qualified professional fitting.
 
-## Before going live
-Replace demo concepts with real inventory, verify product prices, brand availability, warranties, eye-testing claims, return terms, shipping and payment setup. Do not claim authorised dealer status unless documented.
+## Design and assets
+The website uses locally stored image assets to avoid broken external image links. Some campaign/lifestyle images are illustrative generated visuals. Do not represent them as actual KNR Optical customers, staff, store interiors or specific product models. Brand wordmarks are typographic placeholders/illustrative treatments, not official brand logos.
+
+## QA checklist
+- Check all images and local links on Vercel after deployment.
+- Verify phone, WhatsApp and Google Maps links.
+- Test cart quantity, size/colour selection and wishlist in desktop/mobile browsers.
+- Verify all forms open WhatsApp with the correct details.
+- Check that product sizes and measurements are populated only with verified item data.
+- Test the Razorpay payment-link flow with a small test payment after merchant activation.
+- Add verified inventory, policies, privacy notice and business details before public promotion.
